@@ -1,0 +1,50 @@
+name: Lint dev branch
+
+on:
+  push:
+    branches: ["dev"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  STAGING_SERVER: localhost
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Creating .npmrc
+        run: |
+          cat > ~/.npmrc << EOF
+            //npm.simsus.tech/:_authToken=$SIMSUSTECH_NPM_TOKEN
+          EOF
+        env:
+          SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Format
+        run: pnpm run format:check
+
+      - name: Remove .npmrc
+        run: rm ~/.npmrc

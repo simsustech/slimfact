@@ -1,0 +1,10 @@
+/node_modules
+/packages/**/node_modules
+/packages/**/dist
+/env
+.env
+.env.staging
+TODO
+clients
+.pnpm-debug.log
+**/stats.html

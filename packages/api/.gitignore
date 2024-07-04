@@ -1,0 +1,6 @@
+node_modules
+dist
+*.local
+playwright-report
+components.d.ts
+test-results

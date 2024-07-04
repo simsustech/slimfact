@@ -1,0 +1,102 @@
+{
+  "private": true,
+  "name": "@slimfact/api",
+  "productName": "SlimFact API",
+  "version": "0.1.0",
+  "description": "SlimFact API",
+  "author": "",
+  "type": "module",
+  "exports": {
+    "./zod": {
+      "import": "./src/zod/index.ts"
+    },
+    "./trpc": {
+      "types": "./src/trpc/index.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "trpc": [
+        "./src/trpc/index.ts"
+      ],
+      "zod": [
+        "./src/zod/index.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist/",
+    "vitrify.config.ts"
+  ],
+  "scripts": {
+    "serve": "node ./dist/server/server.mjs",
+    "dev": "vitrify dev -m fastify --port 3001",
+    "build:migrations": "tsc -p tsconfig.migrations.json",
+    "build:api": "vitrify build -m fastify",
+    "build": "run-s build:api build:migrations",
+    "test": "vitrify test",
+    "test:e2e": "playwright test",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "migrate:latest": "node ./dist/migrate.js",
+    "seed:fake": "node ./dist/seeds/fake.js",
+    "seed:test": "node ./dist/seeds/test.js",
+    "seed:data": "node ./dist/seeds/data.js",
+    "start": "run-s migrate:latest serve"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/middie": "8.3.1",
+    "@fastify/static": "7.0.4",
+    "@modular-api/api": "^0.4.10",
+    "@modular-api/fastify-cart": "^0.2.3",
+    "@modular-api/fastify-checkout": "^0.3.1",
+    "@modular-api/fastify-oidc": "^0.5.3",
+    "@mollie/api-client": "^3.7.0",
+    "@slimfact/app": "^0.1.0",
+    "@trpc/server": "^10.45.2",
+    "@vitrify/tools": "^0.1.7",
+    "axios": "^1.7.2",
+    "bcrypt": "^5.1.1",
+    "compress-tag": "^3.0.0",
+    "fastify": "^4.27.0",
+    "handlebars": "^4.7.8",
+    "kysely": "^0.27.3",
+    "npm-run-all": "^4.1.5",
+    "otplib": "^12.0.1",
+    "pg": "^8.12.0",
+    "pg-boss": "^9.0.3",
+    "sharp": "^0.33.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@playwright/test": "1.44.1",
+    "@types/bcrypt": "^5.0.2",
+    "@types/pg": "^8.11.6",
+    "@vitejs/plugin-vue": "5.0.5",
+    "critters": "0.0.22",
+    "date-fns": "^3.6.0",
+    "devcert": "1.2.2",
+    "eslint": "9.4.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-vue": "9.26.0",
+    "kysely-codegen": "^0.15.0",
+    "quasar": "2.16.4",
+    "typescript": "5.4.5",
+    "typescript-eslint": "^7.15.0",
+    "vite": "^5.2.13",
+    "vitrify": "^0.15.3",
+    "vue": "3.4.27",
+    "vue-eslint-parser": "^9.4.3",
+    "vue-router": "4.3.3"
+  },
+  "dependenciesMeta": {
+    "@modular-api/fastify-oidc": {
+      "injected": true
+    }
+  }
+}

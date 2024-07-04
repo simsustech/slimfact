@@ -1,0 +1,103 @@
+version: "3.7"
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:ci-alpine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+      - "3000:3000"
+      - "3000:3000/udp"
+    environment:
+      - CADDY_INGRESS_NETWORKS=web
+    labels:
+      caddy.local_certs: true
+    networks:
+      - web
+
+  database:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ufgouifdgjdfg
+      POSTGRES_DB: slimfact
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    networks:
+      staging:
+        aliases:
+          - database
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    logging:
+      driver: "none"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      staging:
+        aliases:
+          - mailhog
+
+  app:
+    build:
+      context: .
+      secrets:
+        - SIMSUSTECH_NPM_TOKEN
+      dockerfile: Dockerfile
+      target: api
+    depends_on:
+      database:
+        condition: service_healthy
+    labels:
+      caddy: localhost:3000
+      caddy.reverse_proxy: "{{upstreams 80}}"
+    environment:
+      # API env variables
+      VITE_API_HOSTNAME: localhost:3000
+      VITE_LICENSE_KEY: undefined
+      VITE_TITLE: SlimFact staging
+      POSTGRES_HOST: database
+      POSTGRES_DB: slimfact
+      POSTGRES_PASSWORD: ufgouifdgjdfg
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      OIDC_COOKIES_KEYS: YIleVCm+VzjP2Ug+MpveLQF3ZIGnl9SMLA1F5lkpMhM=
+      OTP_SECRET_FILE: nonsecure
+      OTP_VALIDITY_SECONDS: 3600
+      EMAIL_FOOTER: "SlimFact staging"
+    command:
+      [
+        "sh",
+        "-c",
+        "npm run migrate:latest && npm run seed:test && npm run start",
+      ]
+    healthcheck:
+      test: curl --fail --insecure http://localhost || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
+    networks:
+      staging:
+      web:
+
+secrets:
+  SIMSUSTECH_NPM_TOKEN:
+    environment: "SIMSUSTECH_NPM_TOKEN"
+    # file: ./env/SIMSUSTECH_NPM_TOKEN
+
+networks:
+  staging:
+  web:
+    external: true

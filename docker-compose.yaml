@@ -1,0 +1,87 @@
+version: "3.9"
+services:
+  api:
+    image: "ghcr.io/simsustech/slimfact"
+    build:
+      context: .
+      secrets:
+        - POSTGRES_PASSWORD
+        - OTP_SECRET
+        - SIMSUSTECH_NPM_TOKEN
+      dockerfile: Dockerfile
+      target: api
+      # args:
+      # App env variables
+      # - VITE_API_HOSTNAME=${HOSTNAME}
+      # - VITE_API_HOSTNAME=vitrify.local
+      # - VITE_OIDC_ISSUER=https://${HOSTNAME}/oidc
+      # - VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
+      # - VITE_OIDC_REDIRECT_URI=https://${HOSTNAME}/redirect
+      # - VITE_OIDC_EMAIL_CHANGE_URI=https://${HOSTNAME}/interaction/email/change
+      # - VITE_OIDC_EMAIL_VERIFY_URI=https://${HOSTNAME}/interaction/email/verify
+      # - VITE_OIDC_PASSWORD_CHANGE_URI=https://${HOSTNAME}/interaction/password/change
+      # - VITE_TITLE=Modularapi
+      # - VITE_LANG=nl
+    labels:
+      caddy: ${HOSTNAME}
+      caddy.reverse_proxy: "{{upstreams 80}}"
+    environment:
+      # Modular API
+      VITE_API_HOSTNAME: ${HOSTNAME}
+      OIDC_ISSUER_NAME: ${OIDC_ISSUER_NAME}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      LICENSE_KEY: ${LICENSE_KEY}
+      OIDC_COOKIES_KEYS: # openssl rand -base64 32
+      OTP_SECRET_FILE: /run/secrets/OTP_SECRET
+      OTP_VALIDITY_SECONDS: 3600
+      EMAIL_FOOTER: "Footer"
+      VITE_TITLE: SlimFact dev
+      VITE_LANG: en-US
+      # VITE_OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+
+    # entrypoint: ["/bin/sh", "-c", "tail -f /dev/null"]
+    secrets:
+      - POSTGRES_PASSWORD
+      - SIMSUSTECH_NPM_TOKEN
+      - OTP_SECRET
+    networks:
+      web:
+      slimfact:
+        aliases:
+          - api
+    restart: unless-stopped
+
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    secrets:
+      - POSTGRES_PASSWORD
+    networks:
+      slimfact:
+        aliases:
+          - database
+    restart: unless-stopped
+
+secrets:
+  POSTGRES_PASSWORD:
+    file: ./env/POSTGRES_PASSWORD
+  SIMSUSTECH_NPM_TOKEN:
+    file: ./env/SIMSUSTECH_NPM_TOKEN
+  OTP_SECRET:
+    file: ./env/OTP_SECRET
+
+networks:
+  slimfact:
+  web:
+    external: true

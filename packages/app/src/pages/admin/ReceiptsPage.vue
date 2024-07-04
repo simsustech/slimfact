@@ -1,0 +1,194 @@
+<template>
+  <resource-page>
+    <template #header>
+      {{ lang.receipt.title }}
+    </template>
+    <template #header-side>
+      <q-btn icon="search" rounded>
+        <q-menu>
+          <div class="q-pa-sm">
+            <company-select
+              v-model="companyId"
+              :filtered-options="filteredCompanies"
+              clearable
+              @filter="onFilterCompanies"
+            />
+            <client-select
+              v-model="clientId"
+              :filtered-options="filteredClients"
+              clearable
+              @filter="onFilterClients"
+            />
+            <!-- <invoice-status-select v-model="status" /> -->
+          </div>
+        </q-menu>
+      </q-btn>
+    </template>
+    <div v-if="ready" class="row">
+      <q-list class="full-width" dense>
+        <invoice-expansion-item
+          v-for="invoice in invoices"
+          :key="invoice.id"
+          :model-value="invoice"
+          @send:invoice="
+            ($event) => openSendInvoiceDialog('sendInvoice')!($event)
+          "
+        />
+      </q-list>
+    </div>
+  </resource-page>
+
+  <responsive-dialog
+    ref="sendInvoiceDialogRef"
+    persistent
+    @submit="sendInvoice"
+  >
+    <email-input
+      v-model:subject="sendInvoiceEmailSubject"
+      v-model:body="sendInvoiceEmailBody"
+    />
+  </responsive-dialog>
+</template>
+
+<script lang="ts">
+export default {
+  name: 'AdminInvoicesPage'
+}
+</script>
+
+<script setup lang="ts">
+import { ref, onMounted, reactive } from 'vue'
+import { createUseTrpc } from '../../trpc.js'
+import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
+import { EmailInput } from '@simsustech/quasar-components/form'
+import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
+import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
+import { useLang } from '../../lang/index.js'
+import {
+  type CompanyDetails,
+  type ClientDetails
+} from '@modular-api/fastify-checkout'
+import CompanySelect from '../../components/company/CompanySelect.vue'
+import ClientSelect from '../../components/client/ClientSelect.vue'
+import { InvoiceStatus } from '@slimfact/api/zod'
+
+const { useQuery, useMutation } = await createUseTrpc()
+
+const lang = useLang()
+
+const companyId = ref(NaN)
+const clientId = ref(NaN)
+const status = ref<InvoiceStatus>(InvoiceStatus.RECEIPT)
+
+const { data: invoices, execute } = useQuery('admin.getInvoices', {
+  args: reactive({
+    companyId,
+    clientId,
+    status
+  })
+  // immediate: true
+})
+
+const filteredCompanies = ref<CompanyDetails[]>([])
+const onFilterCompanies: InstanceType<
+  typeof InvoiceForm
+>['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
+  const result = useQuery('admin.searchCompanies', {
+    args: searchPhrase,
+    immediate: true
+  })
+
+  await result.immediatePromise
+
+  if (result.data.value) filteredCompanies.value = result.data.value
+
+  if (done) done()
+}
+
+const filteredClients = ref<ClientDetails>([])
+const onFilterClients: InstanceType<
+  typeof InvoiceForm
+>['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
+  const result = useQuery('admin.searchClients', {
+    args: { name: searchPhrase },
+    immediate: true
+  })
+
+  await result.immediatePromise
+
+  if (result.data.value) filteredClients.value = result.data.value
+
+  if (done) done()
+}
+
+const openSendInvoiceDialog = (
+  type: 'sendInvoice'
+): InstanceType<typeof InvoiceExpansionItem>['$props']['onSend'] => {
+  return async ({ data, done }) => {
+    const result = useQuery('admin.getInvoiceEmail', {
+      args: {
+        id: data.id,
+        type
+      },
+      immediate: true
+    })
+
+    await result.immediatePromise
+
+    if (
+      sendInvoiceDialogRef?.value &&
+      result.data.value?.subject &&
+      result.data.value?.body
+    ) {
+      sendInvoiceEmailType.value = type
+      sendInvoiceEmailId.value = data.id
+      sendInvoiceEmailSubject.value = result.data.value.subject
+      sendInvoiceEmailBody.value = result.data.value.body
+      sendInvoiceDialogRef.value.functions.open()
+    }
+
+    done(!result.error.value)
+  }
+}
+
+const sendInvoiceEmailType = ref<'sendInvoice'>('sendInvoice')
+const sendInvoiceEmailId = ref(NaN)
+const sendInvoiceEmailSubject = ref('')
+const sendInvoiceEmailBody = ref('')
+
+const sendInvoiceDialogRef = ref<typeof ResponsiveDialog>()
+
+const sendMutations = {
+  sendInvoice: 'admin.sendInvoice'
+} as const
+
+const sendInvoice: InstanceType<
+  typeof ResponsiveDialog
+>['$props']['onSubmit'] = async ({ done }) => {
+  const result = useMutation(sendMutations[sendInvoiceEmailType.value], {
+    args: {
+      id: sendInvoiceEmailId.value,
+      emailSubject: sendInvoiceEmailSubject.value,
+      emailBody: sendInvoiceEmailBody.value
+    },
+    immediate: true
+  })
+
+  await result.immediatePromise
+
+  done(!result.error.value)
+  if (!result.error.value) {
+    sendInvoiceEmailType.value = 'sendInvoice'
+    sendInvoiceEmailId.value = NaN
+    sendInvoiceEmailSubject.value = ''
+    sendInvoiceEmailBody.value = ''
+    execute()
+  }
+}
+
+const ready = ref<boolean>(false)
+onMounted(async () => {
+  await execute()
+  ready.value = true
+})
+</script>

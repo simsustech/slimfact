@@ -1,0 +1,40 @@
+{
+  "private": true,
+  "name": "@slimfact/downloader",
+  "productName": "SlimFact downloader",
+  "version": "0.1.0",
+  "description": "SlimFact downloader",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "serve": "node ./dist/server.mjs",
+    "build": "tsc",
+    "test": "vitrify test",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "seed:fake": "node ./dist/seeds/fake.js",
+    "seed:test": "node ./dist/seeds/test.js",
+    "seed:data": "node ./dist/seeds/data.js",
+    "start": "run-s serve"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^9.1.0",
+    "@playwright/browser-chromium": "1.44.1",
+    "fastify": "^4.27.0",
+    "npm-run-all": "^4.1.5",
+    "playwright": "^1.44.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "eslint": "9.4.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-vue": "9.26.0",
+    "prettier": "^3.3.2",
+    "typescript": "5.4.5",
+    "typescript-eslint": "^7.15.0",
+    "vue-eslint-parser": "^9.4.3"
+  }
+}

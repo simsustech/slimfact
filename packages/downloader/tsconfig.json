@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "Bundler",
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationDir": "dist/types"
+  },
+  "include": ["./src"]
+}
