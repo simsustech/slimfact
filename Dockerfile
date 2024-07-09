@@ -1,4 +1,4 @@
-FROM node:20 as install-stage
+FROM node:20 AS install-stage
 
 RUN --mount=type=secret,id=SIMSUSTECH_NPM_TOKEN echo "//npm.simsus.tech/:_authToken=$(cat /run/secrets/SIMSUSTECH_NPM_TOKEN)" > ~/.npmrc
 
@@ -9,7 +9,7 @@ RUN rm -rf node_modules
 RUN pnpm install --frozen-lockfile
 RUN rm ~/.npmrc
 
-FROM install-stage as build-stage
+FROM install-stage AS build-stage
 # App env arguments
 ARG VITE_API_HOSTNAME
 ARG VITE_OIDC_ISSUER
@@ -24,7 +24,7 @@ ARG SASS_VARIABLE_PRIMARY
 
 RUN pnpm run build
 
-FROM build-stage as api-deploy
+FROM build-stage AS api-deploy
 RUN pnpm prune --prod
 RUN pnpm --filter @slimfact/api deploy api --prod
 RUN pnpm --filter @slimfact/app deploy app --prod --no-optional
@@ -33,7 +33,7 @@ RUN gzip -k -r /build/api/dist/server/*
 RUN gzip -k -r /build/app/dist/ssr/client/*
 RUN rm /build/app/dist/ssr/client/logo.svg.gz
 
-FROM node:20-slim as api
+FROM node:20-slim AS api
 LABEL "io.stak.vendor"="simsustech"
 RUN apt-get update && apt-get install -y curl
 WORKDIR /app
@@ -44,7 +44,7 @@ ENV PORT=80
 EXPOSE 80
 CMD ["npm", "start"]
 
-FROM node:20-slim as downloader
+FROM node:20-slim AS downloader
 LABEL "io.slimfact.vendor"="simsustech"
 WORKDIR /app
 COPY --from=api-deploy /build/downloader /app
