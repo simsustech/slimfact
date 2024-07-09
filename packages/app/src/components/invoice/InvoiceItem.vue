@@ -23,6 +23,52 @@
           </div>
         </div>
       </q-item-label>
+      <q-item-label caption>
+        <q-icon
+          v-if="
+            modelValue.amountPaid &&
+            modelValue.amountPaid >= modelValue.totalIncludingTax
+          "
+          name="check"
+          color="green"
+        >
+          <q-tooltip>
+            {{ lang.invoice.status.paid }}
+          </q-tooltip>
+        </q-icon>
+        <price
+          :model-value="modelValue.totalIncludingTax"
+          :currency="modelValue.currency"
+        />
+      </q-item-label>
+    </q-item-section>
+    <q-item-section side>
+      <q-btn flat round icon="more_vert">
+        <q-menu>
+          <q-list>
+            <q-item
+              v-if="
+                ![InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED].includes(
+                  modelValue.status
+                )
+              "
+              v-close-popup
+              :href="`/invoice/${modelValue.uuid}`"
+              target="_blank"
+              clickable
+            >
+              <q-item-section avatar>
+                <q-icon name="open_in_new" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+                  {{ lang.invoice.labels.open }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </q-item-section>
   </q-item>
 </template>
@@ -31,8 +77,13 @@
 import type { Invoice } from '@modular-api/fastify-checkout'
 import InvoiceStatusIcon from '../../components/invoice/InvoiceStatusIcon.vue'
 import Price from '../Price.vue'
+import { useLang } from '../../lang/index.js'
+import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
+
 export interface Props {
   modelValue: Invoice
 }
 defineProps<Props>()
+
+const lang = useLang()
 </script>
