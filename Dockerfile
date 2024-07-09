@@ -3,12 +3,11 @@ FROM node:20 as install-stage
 RUN --mount=type=secret,id=SIMSUSTECH_NPM_TOKEN echo "//npm.simsus.tech/:_authToken=$(cat /run/secrets/SIMSUSTECH_NPM_TOKEN)" > ~/.npmrc
 
 WORKDIR /build
-
 RUN npm install -g pnpm
 COPY . .
 RUN rm -rf node_modules
-
 RUN pnpm install --frozen-lockfile
+RUN rm ~/.npmrc
 
 FROM install-stage as build-stage
 # App env arguments
@@ -26,18 +25,17 @@ ARG SASS_VARIABLE_PRIMARY
 RUN pnpm run build
 
 FROM build-stage as api-deploy
-RUN pnpm -C packages/app add -D @slimfact/api
+RUN pnpm prune --prod
 RUN pnpm --filter @slimfact/api deploy api --prod
-RUN pnpm --filter @slimfact/app deploy app --prod
-RUN pnpm --filter @slimfact/downloader deploy downloader --prod
-RUN rm ~/.npmrc
-
+RUN pnpm --filter @slimfact/app deploy app --prod --no-optional
+RUN pnpm --filter @slimfact/downloader deploy downloader --prod --no-optional
 RUN gzip -k -r /build/api/dist/server/*
 RUN gzip -k -r /build/app/dist/ssr/client/*
 RUN rm /build/app/dist/ssr/client/logo.svg.gz
 
 FROM node:20-slim as api
-LABEL "io.slimfact.vendor"="simsustech"
+LABEL "io.stak.vendor"="simsustech"
+RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 COPY --from=api-deploy /build/api /app
 COPY --from=api-deploy /build/app /packages/app
