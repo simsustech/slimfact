@@ -83,108 +83,104 @@
                 </q-item-section>
               </q-item>
             </q-expansion-item>
-            <q-item
-              v-if="user?.roles?.includes('administrator')"
-              to="/admin/companies"
-            >
-              <q-item-section avatar>
-                <q-icon name="store" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label> {{ lang.company.title }} </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              v-if="user?.roles?.includes('administrator')"
-              to="/admin/clients"
-            >
-              <q-item-section avatar>
-                <q-icon name="people" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label> {{ lang.client.title }} </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              v-if="user?.roles?.includes('administrator')"
-              to="/admin/subscriptions"
-            >
-              <q-item-section avatar>
-                <q-icon name="subscriptions" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label> {{ lang.subscription.title }} </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              v-if="user?.roles?.includes('administrator')"
-              to="/admin/bills"
-            >
-              <q-item-section avatar>
-                <q-icon name="request_quote" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label> {{ lang.bill.title }} </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              v-if="user?.roles?.includes('administrator')"
-              to="/admin/receipts"
-            >
-              <q-item-section avatar>
-                <q-icon name="receipt" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label> {{ lang.receipt.title }} </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              v-if="user?.roles?.includes('administrator')"
-              to="/admin/invoices"
-            >
-              <q-item-section avatar>
-                <q-icon name="receipt_long" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label> {{ lang.invoice.title }} </q-item-label>
-              </q-item-section>
-            </q-item>
             <q-expansion-item
               v-if="user?.roles?.includes('administrator')"
-              ref="settingsExpansionItemRef"
-              :label="lang.administrator"
-              :header-class="
-                route.path.includes('/settings/') ? 'text-primary' : undefined
-              "
+              default-opened
             >
               <template #header>
                 <q-item-section avatar>
-                  <q-icon name="settings" />
+                  <q-icon name="admin_panel_settings" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label> {{ lang.settings }} </q-item-label>
+                  <q-item-label> {{ lang.administrator }} </q-item-label>
                 </q-item-section>
-                <q-item-section side> </q-item-section>
               </template>
-              <q-expansion-item to="/settings/numberprefixes">
+              <q-item to="/admin/companies">
+                <q-item-section avatar>
+                  <q-icon name="store" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.company.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item to="/admin/clients">
+                <q-item-section avatar>
+                  <q-icon name="people" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.client.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item to="/admin/subscriptions">
+                <q-item-section avatar>
+                  <q-icon name="subscriptions" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.subscription.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item to="/admin/bills">
+                <q-item-section avatar>
+                  <q-icon name="request_quote" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.bill.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item to="/admin/receipts">
+                <q-item-section avatar>
+                  <q-icon name="receipt" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.receipt.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item to="/admin/invoices">
+                <q-item-section avatar>
+                  <q-icon name="receipt_long" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.invoice.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-expansion-item
+                ref="settingsExpansionItemRef"
+                :label="lang.administrator"
+                :header-class="
+                  route.path.includes('/settings/') ? 'text-primary' : undefined
+                "
+              >
                 <template #header>
-                  <q-item-section>
-                    <q-item-label> {{ lang.numberPrefix.title }} </q-item-label>
+                  <q-item-section avatar>
+                    <q-icon name="settings" />
                   </q-item-section>
-                </template>
-                <q-item to="/settings/initialnumberforprefixes">
                   <q-item-section>
-                    <q-item-label>{{
-                      lang.initialNumberForPrefix.title
-                    }}</q-item-label>
+                    <q-item-label> {{ lang.settings }} </q-item-label>
+                  </q-item-section>
+                  <q-item-section side> </q-item-section>
+                </template>
+                <q-expansion-item to="/settings/numberprefixes">
+                  <template #header>
+                    <q-item-section>
+                      <q-item-label>
+                        {{ lang.numberPrefix.title }}
+                      </q-item-label>
+                    </q-item-section>
+                  </template>
+                  <q-item to="/settings/initialnumberforprefixes">
+                    <q-item-section>
+                      <q-item-label>{{
+                        lang.initialNumberForPrefix.title
+                      }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-expansion-item>
+                <q-item to="/settings/accounts">
+                  <q-item-section>
+                    <q-item-label> Accounts </q-item-label>
                   </q-item-section>
                 </q-item>
               </q-expansion-item>
-              <q-item to="/settings/accounts">
-                <q-item-section>
-                  <q-item-label> Accounts </q-item-label>
-                </q-item-section>
-              </q-item>
             </q-expansion-item>
 
             <q-separator />
