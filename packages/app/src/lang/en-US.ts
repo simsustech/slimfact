@@ -65,7 +65,8 @@ const lang: Language = {
       website: 'Website',
       emailBcc: 'Email BCC',
       prefix: 'Prefix',
-      bic: 'BIC'
+      bic: 'BIC',
+      defaultNumberPrefixTemplate: 'Default number prefix'
     },
     validations: {
       fieldRequired: 'Field is required'

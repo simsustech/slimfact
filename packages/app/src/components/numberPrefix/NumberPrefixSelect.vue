@@ -27,7 +27,7 @@ import { loadLang, useLang } from '../../lang/index.js'
 import { NumberPrefix } from '@slimfact/api/zod'
 
 export interface Props {
-  modelValue?: string
+  modelValue?: string | null
   filteredOptions: NumberPrefix[]
   required?: boolean
   onFilter?: unknown

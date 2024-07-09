@@ -153,19 +153,27 @@
         name="emailBcc"
         :hint="lang.company.helpers.emailBcc"
       />
+      <number-prefix-select
+        v-model="modelValue.defaultNumberPrefixTemplate"
+        class="col-md-3 col-12"
+        :label="lang.company.fields.defaultNumberPrefixTemplate"
+        :filtered-options="filteredNumberPrefixes"
+        bottom-slots
+        lazy-rules
+      />
     </div>
   </q-form>
 </template>
 
 <script setup lang="ts">
-import type { CompanyDetails } from '@modular-api/fastify-checkout'
 import { type QFormProps, type QInputProps, type QForm, extend } from 'quasar'
 import { useLang } from '../../lang/index.js'
 import { ref } from 'vue'
 import { type ResponsiveDialog } from '@simsustech/quasar-components'
 import { FormInput } from '@simsustech/quasar-components/form'
 import SvgAvatar from '../SvgAvatar.vue'
-
+import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
+import { Company, NumberPrefix } from '@slimfact/api/zod'
 export interface Props {
   form?: QFormProps & Partial<HTMLFormElement> & Partial<HTMLDivElement>
   input?: Omit<
@@ -180,6 +188,7 @@ export interface Props {
     | 'autofocus'
     | ('label' & { style?: Partial<CSSStyleDeclaration> })
   >
+  filteredNumberPrefixes: NumberPrefix[]
 }
 defineProps<Props>()
 const emit = defineEmits<{
@@ -189,13 +198,13 @@ const emit = defineEmits<{
       data,
       done
     }: {
-      data: CompanyDetails
+      data: Company
       done: (success?: boolean) => void
     }
   ): void
 }>()
 
-const initialValue: CompanyDetails = {
+const initialValue: Company = {
   name: '',
   address: '',
   postalCode: '',
@@ -210,17 +219,18 @@ const initialValue: CompanyDetails = {
   contactPersonName: '',
   logoSvg: null,
   prefix: '',
-  website: null
+  website: null,
+  defaultNumberPrefixTemplate: ''
 }
 
-const modelValue = ref<CompanyDetails>(initialValue)
+const modelValue = ref<Company>(initialValue)
 
 // const $q = useQuasar()
 const lang = useLang()
 
 const formRef = ref<QForm>()
 
-const setValue = (newValue: CompanyDetails) => {
+const setValue = (newValue: Company) => {
   modelValue.value = extend({}, initialValue, newValue)
 }
 

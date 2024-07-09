@@ -19,12 +19,14 @@
     <responsive-dialog ref="updateDialogRef" persistent @submit="update">
       <company-form
         ref="updateCompanyFormRef"
+        :filtered-number-prefixes="numberPrefixes"
         @submit="updateCompany"
       ></company-form>
     </responsive-dialog>
     <responsive-dialog ref="createDialogRef" persistent @submit="create">
       <company-form
         ref="createCompanyFormRef"
+        :filtered-number-prefixes="numberPrefixes"
         @submit="createCompany"
       ></company-form>
     </responsive-dialog>
@@ -50,6 +52,10 @@ const lang = useLang()
 
 const { data, execute } = useQuery('admin.getCompanies', {
   // immediate: true
+})
+
+const { data: numberPrefixes } = useQuery('admin.getNumberPrefixes', {
+  immediate: true
 })
 
 const updateCompanyFormRef = ref<typeof CompanyForm>()

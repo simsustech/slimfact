@@ -65,6 +65,7 @@ export interface Language {
       emailBcc: string
       prefix: string
       bic: string
+      defaultNumberPrefixTemplate: string
     }
     validations: {
       fieldRequired: string

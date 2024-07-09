@@ -36,7 +36,8 @@ export const adminCompanyRoutes = ({
       telephoneNumber,
       website,
       prefix,
-      logoSvg
+      logoSvg,
+      defaultNumberPrefixTemplate
     } = input
     const result = await createCompany({
       name,
@@ -54,7 +55,8 @@ export const adminCompanyRoutes = ({
       telephoneNumber,
       website,
       prefix,
-      logoSvg
+      logoSvg,
+      defaultNumberPrefixTemplate
     })
     if (result) return result
 

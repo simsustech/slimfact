@@ -63,9 +63,10 @@ const lang: Language = {
       vatIdNumber: 'BTW ID nummer',
       contactPersonName: 'Naam contact persoon',
       prefix: 'Voorvoegsel',
-      bic: 'BIC',
       emailBcc: 'Email BCC',
-      website: 'Website'
+      website: 'Website',
+      bic: 'BIC',
+      defaultNumberPrefixTemplate: 'Standaard nummer voorvoegsel'
     },
     validations: {
       fieldRequired: 'Veld is vereist'

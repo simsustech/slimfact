@@ -43,6 +43,7 @@ export interface Companies {
   telephoneNumber?: string | null
   vatIdNumber: string
   website?: string | null
+  defaultNumberPrefixTemplate?: string | null
   createdAt: Generated<string>
 }
 

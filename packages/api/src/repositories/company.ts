@@ -23,7 +23,8 @@ const defaultSelect = [
   'bic',
   'logoSvg',
   'prefix',
-  'website'
+  'website',
+  'defaultNumberPrefixTemplate'
 ] as (keyof Company)[]
 
 function find({

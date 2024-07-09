@@ -189,6 +189,10 @@ const numberPrefixes: Insertable<NumberPrefixes>[] = [
   {
     name: 'YYYY.',
     template: '{{YYYY}}.'
+  },
+  {
+    name: 'companyDetails.prefix-YYYY-',
+    template: '{{companyDetails.prefix}}-{{YYYY}}-'
   }
 ]
 

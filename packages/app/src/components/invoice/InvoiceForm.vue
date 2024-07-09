@@ -148,11 +148,10 @@ import {
 } from '@simsustech/quasar-components/form'
 import {
   type RawNewInvoice,
-  type CompanyDetails,
   type ClientDetails
 } from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
-import { ref } from 'vue'
+import { ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
 import {
@@ -160,15 +159,16 @@ import {
   InvoiceDiscountSurchargeRow
 } from '@modular-api/quasar-components/checkout'
 import { QForm, extend } from 'quasar'
+import { ResponsiveDialog } from '@simsustech/quasar-components'
+import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
+import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
+
 export interface Props {
-  filteredCompanies: CompanyDetails[]
+  filteredCompanies: Company[]
   filteredClients: ClientDetails[]
   filteredNumberPrefixes: NumberPrefix[]
 }
-import { ResponsiveDialog } from '@simsustech/quasar-components'
-import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
-import { NumberPrefix, Invoice } from '@slimfact/api/zod'
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (
@@ -216,6 +216,8 @@ const initialValue: Invoice = {
   paymentTermDays: 14,
   projectId: null
 }
+
+const { filteredCompanies } = toRefs(props)
 
 const modelValue = ref<Invoice>(initialValue)
 
@@ -282,6 +284,15 @@ const setValue = (newValue: RawNewInvoice) => {
   modelValue.value.companyId = newValue.companyId || newValue.companyDetails.id
   modelValue.value.clientId = newValue.clientId || newValue.clientDetails.id
 }
+
+watch(
+  () => modelValue.value.companyId,
+  (newVal) => {
+    modelValue.value.numberPrefixTemplate =
+      filteredCompanies.value.find((company) => company.id === newVal)
+        ?.defaultNumberPrefixTemplate || ''
+  }
+)
 const functions = ref({
   submit,
   setValue
