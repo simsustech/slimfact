@@ -84,7 +84,7 @@ services:
       ]
     healthcheck:
       test: curl --fail --insecure http://localhost || exit 1
-      interval: 5s
+      interval: 15s
       retries: 10
       start_period: 25s
       timeout: 10s
