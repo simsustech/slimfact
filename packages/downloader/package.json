@@ -6,8 +6,11 @@
   "description": "SlimFact downloader",
   "author": "",
   "type": "module",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "serve": "node ./dist/server.mjs",
+    "serve": "node ./dist/server.js",
     "build": "tsc",
     "test": "vitrify test",
     "lint": "eslint src",
