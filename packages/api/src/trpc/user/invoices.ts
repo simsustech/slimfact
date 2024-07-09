@@ -49,5 +49,25 @@ export const userInvoiceRoutes = ({
     throw new TRPCError({
       code: 'BAD_REQUEST'
     })
+  }),
+  getBills: procedure.query(async ({ ctx }) => {
+    if (fastify.checkout?.invoiceHandler) {
+      const accountId = Number(ctx.account?.id)
+      const client = await findClient({
+        criteria: {
+          accountId
+        }
+      })
+      if (client?.id) {
+        const invoices = await fastify.checkout.invoiceHandler.getInvoices({
+          clientId: client.id,
+          status: InvoiceStatus.BILL
+        })
+        return invoices
+      }
+    }
+    throw new TRPCError({
+      code: 'BAD_REQUEST'
+    })
   })
 })

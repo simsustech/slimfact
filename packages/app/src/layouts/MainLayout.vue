@@ -58,6 +58,14 @@
                   </q-item-section>
                 </q-item-section>
               </template>
+              <q-item to="/account/bills">
+                <q-item-section avatar>
+                  <q-icon name="request_quote" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.bill.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
               <q-item to="/account/receipts">
                 <q-item-section avatar>
                   <q-icon name="receipt" />
