@@ -1,7 +1,7 @@
 <template>
   <resource-page>
     <template #header>
-      {{ lang.invoice.title }}
+      {{ lang.receipt.title }}
     </template>
     <div v-if="ready" class="row">
       <q-list class="full-width" dense>
