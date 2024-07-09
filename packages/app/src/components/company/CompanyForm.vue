@@ -105,6 +105,16 @@
       />
       <form-input
         v-bind="input"
+        v-model="modelValue.bic"
+        :label="lang.company.fields.bic"
+        class="col-md-3 col-12"
+        required
+        bottom-slots
+        lazy-rules
+        name="bic"
+      />
+      <form-input
+        v-bind="input"
         v-model="modelValue.vatIdNumber"
         :label="lang.company.fields.vatIdNumber"
         class="col-md-3 col-12"
@@ -195,6 +205,7 @@ const initialValue: CompanyDetails = {
   email: '',
   cocNumber: '',
   iban: '',
+  bic: '',
   vatIdNumber: '',
   contactPersonName: '',
   logoSvg: null,
