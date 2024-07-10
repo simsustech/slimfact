@@ -78,7 +78,7 @@ export const downloadPdf = async (invoice: Invoice) => {
   let pdf
   try {
     const pdfResponse = await fetch(
-      `http://${slimfactDownloaderHostname}/?uuid=${invoice.uuid}&host=${hostname}`
+      `https://${slimfactDownloaderHostname}/?uuid=${invoice.uuid}&host=${hostname}`
     )
 
     const header = pdfResponse.headers.get('Content-Disposition')
