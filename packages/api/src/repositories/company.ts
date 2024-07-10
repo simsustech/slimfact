@@ -24,7 +24,8 @@ const defaultSelect = [
   'logoSvg',
   'prefix',
   'website',
-  'defaultNumberPrefixTemplate'
+  'defaultNumberPrefixTemplate',
+  'defaultLocale'
 ] as (keyof Company)[]
 
 function find({

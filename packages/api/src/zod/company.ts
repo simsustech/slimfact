@@ -18,7 +18,8 @@ export const companyValidation = {
   emailBcc: z.union([z.string().email().nullish(), z.literal('')]),
   prefix: z.string(),
   logoSvg: z.string().nullable().optional(),
-  defaultNumberPrefixTemplate: z.string().nullable().optional()
+  defaultNumberPrefixTemplate: z.string().nullable().optional(),
+  defaultLocale: z.string().nullable().optional()
 }
 
 export const company = z.object(companyValidation)

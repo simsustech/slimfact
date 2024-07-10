@@ -37,7 +37,8 @@ export const adminCompanyRoutes = ({
       website,
       prefix,
       logoSvg,
-      defaultNumberPrefixTemplate
+      defaultNumberPrefixTemplate,
+      defaultLocale
     } = input
     const result = await createCompany({
       name,
@@ -56,7 +57,8 @@ export const adminCompanyRoutes = ({
       website,
       prefix,
       logoSvg,
-      defaultNumberPrefixTemplate
+      defaultNumberPrefixTemplate,
+      defaultLocale
     })
     if (result) return result
 

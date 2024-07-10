@@ -66,6 +66,7 @@ export interface Language {
       prefix: string
       bic: string
       defaultNumberPrefixTemplate: string
+      defaultLocale: string
     }
     validations: {
       fieldRequired: string

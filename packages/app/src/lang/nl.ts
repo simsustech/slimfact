@@ -66,7 +66,8 @@ const lang: Language = {
       emailBcc: 'Email BCC',
       website: 'Website',
       bic: 'BIC',
-      defaultNumberPrefixTemplate: 'Standaard nummer voorvoegsel'
+      defaultNumberPrefixTemplate: 'Standaard nummer voorvoegsel',
+      defaultLocale: 'Standaard regio'
     },
     validations: {
       fieldRequired: 'Veld is vereist'
@@ -102,7 +103,7 @@ const lang: Language = {
     discounts: 'Kortingen',
     surcharges: 'Toeslagen',
     fields: {
-      locale: 'Land',
+      locale: 'Regio',
       currency: 'Valuta',
       companyPrefix: 'Bedrijfs voorvoegsel',
       numberPrefix: 'Nummer voorvoegsel',

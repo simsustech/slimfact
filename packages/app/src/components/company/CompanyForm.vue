@@ -3,7 +3,7 @@
     <div class="row justify-center">
       <svg-avatar v-model="modelValue.logoSvg" allow-change />
     </div>
-    <div class="row">
+    <div class="row q-col-gutter-y-md">
       <form-input
         v-bind="input"
         v-model="modelValue.name"
@@ -161,6 +161,15 @@
         bottom-slots
         lazy-rules
       />
+      <locale-select
+        v-model="modelValue.defaultLocale"
+        :label="lang.company.fields.defaultLocale"
+        required
+        class="col-md-3 col-12"
+        bottom-slots
+        lazy-rules
+        name="locale"
+      />
     </div>
   </q-form>
 </template>
@@ -173,6 +182,7 @@ import { type ResponsiveDialog } from '@simsustech/quasar-components'
 import { FormInput } from '@simsustech/quasar-components/form'
 import SvgAvatar from '../SvgAvatar.vue'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
+import { LocaleSelect } from '@simsustech/quasar-components/form'
 import { Company, NumberPrefix } from '@slimfact/api/zod'
 export interface Props {
   form?: QFormProps & Partial<HTMLFormElement> & Partial<HTMLDivElement>
@@ -220,7 +230,8 @@ const initialValue: Company = {
   logoSvg: null,
   prefix: '',
   website: null,
-  defaultNumberPrefixTemplate: ''
+  defaultNumberPrefixTemplate: '',
+  defaultLocale: 'en-US'
 }
 
 const modelValue = ref<Company>(initialValue)

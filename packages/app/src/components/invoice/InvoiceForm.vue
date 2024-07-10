@@ -296,8 +296,17 @@ watch(
     }
   }
 )
+
+watch(
+  () => modelValue.value.companyId,
+  (newVal) => {
+    const defaultLocale = filteredCompanies.value.find(
+      (company) => company.id === newVal
+    )?.defaultLocale
+    if (defaultLocale) modelValue.value.locale = defaultLocale
   }
 )
+
 const functions = ref({
   submit,
   setValue

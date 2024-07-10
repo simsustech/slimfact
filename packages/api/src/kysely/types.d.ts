@@ -44,6 +44,7 @@ export interface Companies {
   vatIdNumber: string
   website?: string | null
   defaultNumberPrefixTemplate?: string | null
+  defaultLocale?: string | null
   createdAt: Generated<string>
 }
 
