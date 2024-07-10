@@ -288,9 +288,14 @@ const setValue = (newValue: RawNewInvoice) => {
 watch(
   () => modelValue.value.companyId,
   (newVal) => {
-    modelValue.value.numberPrefixTemplate =
-      filteredCompanies.value.find((company) => company.id === newVal)
-        ?.defaultNumberPrefixTemplate || ''
+    const defaultNumberPrefixTemplate = filteredCompanies.value.find(
+      (company) => company.id === newVal
+    )?.defaultNumberPrefixTemplate
+    if (defaultNumberPrefixTemplate) {
+      modelValue.value.numberPrefixTemplate = defaultNumberPrefixTemplate
+    }
+  }
+)
   }
 )
 const functions = ref({
