@@ -15,9 +15,15 @@ SlimFact is a powerful invoicing solution designed to simplify your billing proc
 
   3. Efficient UUID Access:
       - Each invoice is uniquely identified by a UUID (Universally Unique Identifier).
-      - Access your invoices anytime using their unique identifier.
+      - Clients can access their invoices anytime using their unique identifier.
 
 SlimFact streamlines your invoicing process, ensuring accuracy, security, and convenience. Say goodbye to manual paperwork and embrace hassle-free billing with SlimFact! 🚀💡
+
+## Features
+- Ability to use decimals in invoice line quantity.
+- Define the tax rate per invoice line and define wether or not the price includes or excludes tax, and automatically calculate the correct amount.
+- Send invoices in different languages by defining the locale on invoice level.
+- Clients can easily pay their invoices with the help of a payment service provider (Mollie).
 
 ## Documentation
 [Invoice status flowchart](./packages/docs/Flowchart.md)
