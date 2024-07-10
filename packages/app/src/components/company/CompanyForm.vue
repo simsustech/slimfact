@@ -132,6 +132,7 @@
         bottom-slots
         lazy-rules
         name="prefix"
+        :hint="lang.company.helpers.prefix"
       />
       <form-input
         v-bind="input"

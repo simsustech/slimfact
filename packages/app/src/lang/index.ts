@@ -73,6 +73,7 @@ export interface Language {
     }
     helpers: {
       emailBcc: string
+      prefix: string
     }
   }
   client: {

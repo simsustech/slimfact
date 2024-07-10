@@ -73,7 +73,9 @@ const lang: Language = {
       fieldRequired: 'Veld is vereist'
     },
     helpers: {
-      emailBcc: 'Alle facturen worden BCC verstuurd naar dit adres.'
+      emailBcc: 'Alle facturen worden BCC verstuurd naar dit adres.',
+      prefix:
+        'Het bedrijfsvoorvoegsel gebruikt in het nummervoorvoegsel van een factuur.'
     }
   },
   client: {
