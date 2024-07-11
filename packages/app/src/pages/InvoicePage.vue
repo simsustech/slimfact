@@ -54,7 +54,7 @@
 
   <div v-if="invoice" class="column items-center">
     <div class="col">
-      <div v-if="invoice.amountDue" class="text-center">
+      <div v-if="invoice.amountDue" class="text-center no-print">
         {{ lang.payment.amountDue }}:
         <price
           :model-value="invoice.amountDue"
