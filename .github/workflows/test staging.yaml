@@ -49,8 +49,8 @@ jobs:
         run: |
           docker network inspect web >/dev/null 2>&1 || \
             docker network create web
-          docker compose -f docker-compose.staging.yaml down
-          docker compose -f docker-compose.staging.yaml up --force-recreate --wait --build -d
+          docker compose -f docker-compose.test.yaml down
+          docker compose -f docker-compose.test.yaml up --force-recreate --wait --build -d
         env:
           SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
 
@@ -63,4 +63,4 @@ jobs:
 
       - name: Stop Docker compose staging
         run: |
-          docker compose -f docker-compose.staging.yaml down
+          docker compose -f docker-compose.test.yaml down
