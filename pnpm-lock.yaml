@@ -210,7 +210,7 @@ importers:
         specifier: 4.0.0-beta.16
         version: 4.0.0-beta.16
       '@simsustech/quasar-components':
-        specifier: ^0.10.1
+        specifier: ^0.10.2
         version: 0.10.2(quasar@2.16.4)
       '@slimfact/api':
         specifier: workspace:*
