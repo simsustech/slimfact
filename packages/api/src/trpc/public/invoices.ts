@@ -59,7 +59,10 @@ export const publicInvoiceRoutes = ({
       if (fastify.checkout?.invoiceHandler) {
         const { uuid } = input
         const invoice = await fastify.checkout.invoiceHandler.getInvoice({
-          uuid
+          uuid,
+          options: {
+            withAmountDue: true
+          }
         })
         if (
           invoice?.status === InvoiceStatus.OPEN ||
@@ -69,8 +72,8 @@ export const publicInvoiceRoutes = ({
             try {
               const paymentResult =
                 await fastify.checkout.paymentHandlers.mollie.createPayment({
-                  amount: invoice.amountPaid
-                    ? invoice.totalIncludingTax - invoice.amountPaid
+                  amount: invoice.amountDue
+                    ? invoice.amountDue
                     : invoice.totalIncludingTax,
                   currency: invoice.currency,
                   description: invoice.number
