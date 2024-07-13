@@ -107,8 +107,9 @@ const lang = useLang()
 const route = useRoute()
 const hostname = ref(import.meta.env.SSR ? '' : window.location.host)
 const slimfactDownloaderUrl = ref(
-  `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOSTNAME}` ||
-    'https://download.slimfact.app'
+  import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOSTNAME
+    ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOSTNAME}`
+    : 'https://download.slimfact.app'
 )
 
 const uuid = ref(
