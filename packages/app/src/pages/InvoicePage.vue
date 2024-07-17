@@ -4,9 +4,7 @@
       v-if="
         invoice &&
         [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
-        invoice.amountPaid
-          ? invoice.amountPaid < invoice.totalIncludingTax
-          : true
+        invoice.amountDue
       "
       icon="payment"
       :label="lang.payment.pay"
@@ -54,7 +52,7 @@
 
   <div v-if="invoice" class="column items-center">
     <div class="col">
-      <div v-if="invoice.amountDue" class="text-center no-print">
+      <div v-if="invoice.amountDue > 0" class="text-center no-print">
         {{ lang.payment.amountDue }}:
         <price
           :model-value="invoice.amountDue"
