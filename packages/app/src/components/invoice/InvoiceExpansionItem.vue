@@ -2,7 +2,25 @@
   <q-expansion-item class="full-width" :content-inset-level="1">
     <template #header>
       <q-item-section avatar>
-        <invoice-status-icon :model-value="modelValue.status" />
+        <div class="row self-center items-center">
+          <invoice-status-icon size="md" :model-value="modelValue.status" />
+          <price
+            :model-value="modelValue.totalIncludingTax"
+            :currency="modelValue.currency"
+          />
+          <q-icon
+            v-if="
+              modelValue.amountPaid &&
+              modelValue.amountPaid >= modelValue.totalIncludingTax
+            "
+            name="check"
+            color="green"
+          >
+            <q-tooltip>
+              {{ lang.invoice.status.paid }}
+            </q-tooltip>
+          </q-icon>
+        </div>
       </q-item-section>
       <q-item-section>
         <q-item-label overline>
@@ -25,14 +43,14 @@
               }}
             </div>
             <div class="col-3 text-right">
-              <price
+              <!-- <price
                 :model-value="modelValue.totalIncludingTax"
                 :currency="modelValue.currency"
-              />
+              /> -->
             </div>
           </div>
         </q-item-label>
-        <q-item-label caption>
+        <!-- <q-item-label caption>
           <q-icon
             v-if="
               modelValue.amountPaid &&
@@ -49,7 +67,7 @@
             :model-value="modelValue.totalIncludingTax"
             :currency="modelValue.currency"
           />
-        </q-item-label>
+        </q-item-label> -->
       </q-item-section>
       <q-item-section side>
         <q-btn flat round icon="more_vert">
