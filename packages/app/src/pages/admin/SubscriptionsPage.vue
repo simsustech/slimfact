@@ -13,7 +13,7 @@
         :label="lang.subscription.fields.active"
         left-label
       />
-      <q-btn icon="search" rounded>
+      <q-btn icon="search">
         <q-menu>
           <div class="q-pa-sm">
             <company-select

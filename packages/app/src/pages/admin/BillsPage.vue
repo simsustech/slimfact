@@ -9,7 +9,7 @@
       {{ lang.bill.title }}
     </template>
     <template #header-side>
-      <q-btn icon="search" rounded>
+      <q-btn icon="search">
         <q-menu>
           <div class="q-pa-sm">
             <company-select

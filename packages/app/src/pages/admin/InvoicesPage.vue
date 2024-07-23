@@ -10,7 +10,7 @@
     </template>
     <template #header-side>
       <invoice-status-toggle v-model="status" />
-      <q-btn icon="search" rounded>
+      <q-btn icon="search">
         <q-menu>
           <div class="q-pa-sm">
             <company-select
