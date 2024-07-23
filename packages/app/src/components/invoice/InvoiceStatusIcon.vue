@@ -29,7 +29,7 @@ const InvoiceStatusColors = {
 }
 
 interface Props {
-  modelValue: 'concept' | 'open' | 'paid' | 'canceled' | 'bill'
+  modelValue: InvoiceStatus
 }
 const props = defineProps<Props>()
 const lang = useLang()

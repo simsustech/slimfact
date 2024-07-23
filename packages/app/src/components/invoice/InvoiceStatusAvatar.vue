@@ -3,9 +3,7 @@
     <invoice-status-icon :model-value="modelValue" size="md" />
   </q-avatar>
   <q-icon
-    v-if="
-      [InvoiceStatus.BILL && InvoiceStatus.OPEN].includes(modelValue) && paid
-    "
+    v-if="[InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) && paid"
     name="check"
     color="green"
     rounded
@@ -25,7 +23,7 @@ import { useLang } from '../../lang/index.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 
 interface Props {
-  modelValue: 'concept' | 'open' | 'paid' | 'canceled' | 'bill'
+  modelValue: InvoiceStatus
   paid?: boolean
 }
 const props = defineProps<Props>()
