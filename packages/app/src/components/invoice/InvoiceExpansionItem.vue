@@ -6,7 +6,7 @@
           <invoice-status-avatar
             :model-value="modelValue.status"
             :paid="
-              modelValue.amountPaid &&
+              !!modelValue.amountPaid &&
               modelValue.amountPaid >= modelValue.totalIncludingTax
             "
           />
