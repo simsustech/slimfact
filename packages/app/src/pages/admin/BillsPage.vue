@@ -66,7 +66,12 @@
         @filter:clients="onFilterClients"
       ></invoice-form>
     </responsive-dialog>
-    <responsive-dialog ref="sendBillDialogRef" persistent @submit="sendBill">
+    <responsive-dialog
+      ref="sendBillDialogRef"
+      button-type="send"
+      persistent
+      @submit="sendBill"
+    >
       <email-input
         v-model:subject="sendBillEmailSubject"
         v-model:body="sendBillEmailBody"

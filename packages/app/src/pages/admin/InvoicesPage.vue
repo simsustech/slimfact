@@ -75,6 +75,7 @@
     </responsive-dialog>
     <responsive-dialog
       ref="sendInvoiceDialogRef"
+      button-type="send"
       persistent
       @submit="sendInvoice"
     >
