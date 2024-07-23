@@ -49,7 +49,7 @@ const lang: Language = {
   },
   company: {
     title: 'Bedrijven',
-    company: 'Company',
+    company: 'Bedrijf',
     fields: {
       name: 'Naam',
       address: 'Adres',
