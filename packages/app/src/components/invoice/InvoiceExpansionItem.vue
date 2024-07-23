@@ -3,12 +3,18 @@
     <template #header>
       <q-item-section avatar>
         <div class="row self-center items-center">
-          <invoice-status-icon size="md" :model-value="modelValue.status" />
+          <invoice-status-avatar
+            :model-value="modelValue.status"
+            :paid="
+              modelValue.amountPaid &&
+              modelValue.amountPaid >= modelValue.totalIncludingTax
+            "
+          />
           <price
             :model-value="modelValue.totalIncludingTax"
             :currency="modelValue.currency"
           />
-          <q-icon
+          <!-- <q-icon
             v-if="
               modelValue.amountPaid &&
               modelValue.amountPaid >= modelValue.totalIncludingTax
@@ -19,7 +25,7 @@
             <q-tooltip>
               {{ lang.invoice.status.paid }}
             </q-tooltip>
-          </q-icon>
+          </q-icon> -->
         </div>
       </q-item-section>
       <q-item-section>
@@ -416,7 +422,8 @@ import {
 import { computed, ref, toRefs } from 'vue'
 import { useQuasar } from 'quasar'
 import { useLang } from '../../lang/index.js'
-import InvoiceStatusIcon from './InvoiceStatusIcon.vue'
+// import InvoiceStatusIcon from './InvoiceStatusIcon.vue'
+import InvoiceStatusAvatar from './InvoiceStatusAvatar.vue'
 import { date as dateUtil } from 'quasar'
 import { InvoiceStatus } from '@slimfact/api/zod'
 
