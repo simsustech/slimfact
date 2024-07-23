@@ -1,7 +1,19 @@
 <template>
   <q-item>
     <q-item-section avatar>
-      <invoice-status-icon :model-value="modelValue.status" />
+      <div class="row self-center items-center">
+        <invoice-status-avatar
+          :model-value="modelValue.status"
+          :paid="
+            modelValue.amountPaid &&
+            modelValue.amountPaid >= modelValue.totalIncludingTax
+          "
+        />
+        <price
+          :model-value="modelValue.totalIncludingTax"
+          :currency="modelValue.currency"
+        />
+      </div>
     </q-item-section>
     <q-item-section>
       <q-item-label overline>
@@ -15,16 +27,16 @@
               modelValue.clientDetails.contactPersonName
             }}
           </div>
-          <div class="col-3 text-right">
+          <!-- <div class="col-3 text-right">
             <price
               :model-value="modelValue.totalIncludingTax"
               :currency="modelValue.currency"
             />
-          </div>
+          </div> -->
         </div>
       </q-item-label>
       <q-item-label caption>
-        <q-icon
+        <!-- <q-icon
           v-if="
             modelValue.amountPaid &&
             modelValue.amountPaid >= modelValue.totalIncludingTax
@@ -35,11 +47,11 @@
           <q-tooltip>
             {{ lang.invoice.status.paid }}
           </q-tooltip>
-        </q-icon>
-        <price
+        </q-icon> -->
+        <!-- <price
           :model-value="modelValue.totalIncludingTax"
           :currency="modelValue.currency"
-        />
+        /> -->
       </q-item-label>
     </q-item-section>
     <q-item-section side>
@@ -75,7 +87,8 @@
 
 <script setup lang="ts">
 import type { Invoice } from '@modular-api/fastify-checkout'
-import InvoiceStatusIcon from '../../components/invoice/InvoiceStatusIcon.vue'
+// import InvoiceStatusIcon from '../../components/invoice/InvoiceStatusIcon.vue'
+import InvoiceStatusAvatar from './InvoiceStatusAvatar.vue'
 import Price from '../Price.vue'
 import { useLang } from '../../lang/index.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
