@@ -155,12 +155,8 @@ import {
   DateInput,
   CronScheduleInput
 } from '@simsustech/quasar-components/form'
-import {
-  type CompanyDetails,
-  type ClientDetails
-} from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
-import { computed, ref } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
 import {
@@ -170,15 +166,15 @@ import {
 import { QForm, extend } from 'quasar'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
-import { NumberPrefix, Subscription } from '@slimfact/api/zod'
+import { Client, Company, NumberPrefix, Subscription } from '@slimfact/api/zod'
 
 export interface Props {
-  filteredCompanies: CompanyDetails[]
-  filteredClients: ClientDetails[]
+  filteredCompanies: Company[]
+  filteredClients: Client[]
   filteredNumberPrefixes: NumberPrefix[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (
@@ -212,6 +208,8 @@ const emit = defineEmits<{
     }
   ): void
 }>()
+
+const { filteredCompanies } = toRefs(props)
 
 const initialValue: Subscription = {
   name: '',
@@ -317,6 +315,24 @@ const typeOptions = computed(() => [
     value: 'bill'
   }
 ])
+
+watch(
+  () => modelValue.value.companyId,
+  (newVal) => {
+    const defaultNumberPrefixTemplate = filteredCompanies.value.find(
+      (company) => company.id === newVal
+    )?.defaultNumberPrefixTemplate
+    if (defaultNumberPrefixTemplate) {
+      modelValue.value.numberPrefixTemplate = defaultNumberPrefixTemplate
+    }
+
+    const defaultLocale = filteredCompanies.value.find(
+      (company) => company.id === newVal
+    )?.defaultLocale
+    if (defaultLocale) modelValue.value.locale = defaultLocale
+  }
+)
+
 const functions = ref({
   submit,
   setValue
