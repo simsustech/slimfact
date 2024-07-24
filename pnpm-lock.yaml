@@ -100,8 +100,8 @@ importers:
         specifier: ^8.12.0
         version: 8.12.0
       pg-boss:
-        specifier: ^9.0.3
-        version: 9.0.3
+        specifier: ^10.0.0-beta10
+        version: 10.0.0-beta9
       sharp:
         specifier: ^0.33.4
         version: 0.33.4
@@ -5233,11 +5233,6 @@ packages:
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
 
-  /delay@5.0.0:
-    resolution: {integrity: sha512-ReEBKkIfe4ya47wlPYf/gu5ib6yUG0/Aez0JQZQz94kiWtRQvZIQbTiehsnwHvLSWJnQdhVeqYue7Id1dKr0qw==}
-    engines: {node: '>=10'}
-    dev: false
-
   /delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
@@ -8001,17 +7996,15 @@ packages:
     dev: true
     optional: true
 
-  /pg-boss@9.0.3:
-    resolution: {integrity: sha512-cUWUiv3sr563yNy0nCZ25Tv5U0m59Y9MhX/flm0vTR012yeVCrqpfboaZP4xFOQPdWipMJpuu4g94HR0SncTgw==}
-    engines: {node: '>=16'}
+  /pg-boss@10.0.0-beta9:
+    resolution: {integrity: sha512-euqrwLCmSVybuVgXMXSW/g/78jWyu1t7zZjnUO5EJZ9p9vrnLe57+ID2TJ9gzYU8yIOSW80sOiAgc5wBGb1DLg==}
+    engines: {node: '>=20'}
     dependencies:
       cron-parser: 4.9.0
-      delay: 5.0.0
       lodash.debounce: 4.0.8
       p-map: 4.0.0
       pg: 8.12.0
       serialize-error: 8.1.0
-      uuid: 9.0.1
     transitivePeerDependencies:
       - pg-native
     dev: false
@@ -9702,11 +9695,6 @@ packages:
     dependencies:
       base64-arraybuffer: 1.0.2
     dev: true
-
-  /uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    hasBin: true
-    dev: false
 
   /v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
