@@ -2,6 +2,7 @@ import { type FastifyInstance } from 'fastify'
 import { TRPCError } from '@trpc/server'
 import { t } from '../index.js'
 import { z } from 'zod'
+import { optimize } from 'svgo'
 
 import { company } from '../../zod/company.js'
 
@@ -36,10 +37,19 @@ export const adminCompanyRoutes = ({
       telephoneNumber,
       website,
       prefix,
-      logoSvg,
       defaultNumberPrefixTemplate,
       defaultLocale
     } = input
+
+    let logoSvg = input.logoSvg
+
+    if (logoSvg) {
+      const result = optimize(logoSvg, {
+        multipass: true
+      })
+      logoSvg = result.data
+    }
+
     const result = await createCompany({
       name,
       contactPersonName,
@@ -72,11 +82,59 @@ export const adminCompanyRoutes = ({
   }),
   updateCompany: procedure.input(company).mutation(async ({ input }) => {
     if (input.id) {
+      const {
+        name,
+        contactPersonName,
+        address,
+        postalCode,
+        city,
+        country,
+        email,
+        emailBcc,
+        cocNumber,
+        iban,
+        bic,
+        vatIdNumber,
+        telephoneNumber,
+        website,
+        prefix,
+        defaultNumberPrefixTemplate,
+        defaultLocale
+      } = input
+
+      let logoSvg = input.logoSvg
+
+      if (logoSvg) {
+        const result = optimize(logoSvg, {
+          multipass: true
+        })
+        logoSvg = result.data
+      }
+
       const result = await updateCompany(
         {
           id: input.id
         },
-        input
+        {
+          name,
+          contactPersonName,
+          address,
+          postalCode,
+          city,
+          country,
+          email,
+          emailBcc,
+          cocNumber,
+          iban,
+          bic,
+          vatIdNumber,
+          telephoneNumber,
+          website,
+          prefix,
+          logoSvg,
+          defaultNumberPrefixTemplate,
+          defaultLocale
+        }
       )
       if (result) return result
     }
