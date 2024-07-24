@@ -20,6 +20,8 @@ SlimFact is a powerful invoicing solution designed to simplify your billing proc
 SlimFact streamlines your invoicing process, ensuring accuracy, security, and convenience. Say goodbye to manual paperwork and embrace hassle-free billing with SlimFact! 🚀💡
 
 ## Features
+- OpenID Connect (OIDC) authentication
+- API can be used headless if desired.
 - Ability to use decimals in invoice line quantity.
 - Define the tax rate per invoice line and define wether or not the price includes or excludes tax, and automatically calculate the correct amount.
 - Send invoices in different languages by defining the locale on invoice level.
