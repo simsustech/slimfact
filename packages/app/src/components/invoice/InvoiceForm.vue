@@ -294,12 +294,7 @@ watch(
     if (defaultNumberPrefixTemplate) {
       modelValue.value.numberPrefixTemplate = defaultNumberPrefixTemplate
     }
-  }
-)
 
-watch(
-  () => modelValue.value.companyId,
-  (newVal) => {
     const defaultLocale = filteredCompanies.value.find(
       (company) => company.id === newVal
     )?.defaultLocale
