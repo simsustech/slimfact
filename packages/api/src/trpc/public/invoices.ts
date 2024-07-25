@@ -71,19 +71,19 @@ export const publicInvoiceRoutes = ({
           if (fastify.checkout.paymentHandlers?.mollie) {
             try {
               const paymentResult =
-                await fastify.checkout.paymentHandlers.mollie.createPayment({
-                  amount: invoice.amountDue
-                    ? invoice.amountDue
-                    : invoice.totalIncludingTax,
-                  currency: invoice.currency,
-                  description: invoice.number
-                    ? `${invoice.numberPrefix}${invoice.number}`
-                    : invoice.uuid,
-                  method: PaymentMethod.ideal,
-                  invoiceId: invoice.id,
-                  redirectUrl,
-                  metadata: {
-                    companyPrefix: invoice.companyDetails.prefix
+                await fastify.checkout.invoiceHandler.addPaymentToInvoice({
+                  uuid,
+                  payment: {
+                    amount: invoice.amountDue
+                      ? invoice.amountDue
+                      : invoice.totalIncludingTax,
+                    currency: invoice.currency,
+                    description: invoice.number
+                      ? `${invoice.numberPrefix}${invoice.number}`
+                      : invoice.uuid,
+                    method: PaymentMethod.ideal,
+                    invoiceId: invoice.id,
+                    redirectUrl
                   }
                 })
               if (paymentResult.success) {
