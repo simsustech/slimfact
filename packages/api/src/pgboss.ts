@@ -3,6 +3,8 @@ import { db, postgresConnectionString } from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
 
+const queueName = `subscriptions`
+
 let boss: PgBoss
 export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
   boss = new PgBoss(postgresConnectionString)
@@ -12,18 +14,14 @@ export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
   ) {
     if (!Array.isArray(job)) job = [job]
 
-    console.log(job)
     for (const singleJob of job) {
-      const result = await fastify?.checkout?.invoiceHandler?.createInvoice(
-        singleJob.data
-      )
-      console.log(result)
+      await fastify?.checkout?.invoiceHandler?.createInvoice(singleJob.data)
     }
     return true
   }
 
   await boss.work(
-    'subscription:*',
+    queueName,
     { batchSize: 1, includeMetadata: true },
     subscriptionWorker
   )
@@ -50,7 +48,6 @@ export const startSubscription = async (id: number) => {
     .selectAll()
     .executeTakeFirstOrThrow()
 
-  console.log(subscription)
   const invoice: RawNewInvoice = {
     companyDetails,
     clientDetails,
@@ -66,22 +63,19 @@ export const startSubscription = async (id: number) => {
     clientId: clientDetails.id,
     status: subscription.type === 'bill' ? InvoiceStatus.BILL : undefined
   }
-  console.log(invoice)
 
-  await boss.schedule(
-    `subscription:${subscription.uuid}`,
-    subscription.cronSchedule,
-    invoice,
-    {}
-  )
+  if (!(await boss.getQueue(queueName))) {
+    await boss.createQueue(queueName)
+  }
+  await boss.schedule(queueName, subscription.cronSchedule, invoice, {})
 }
 
 export const stopSubscription = async (id: number) => {
-  const subscription = await db
+  await db
     .selectFrom('subscriptions')
     .where('id', '=', id)
     .select('uuid')
     .executeTakeFirstOrThrow()
 
-  await boss.unschedule(`subscription:${subscription.uuid}`)
+  await boss.unschedule(queueName)
 }
