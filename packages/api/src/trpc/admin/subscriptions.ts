@@ -11,7 +11,8 @@ import { TRPCError } from '@trpc/server'
 import { startSubscription, stopSubscription } from '../../pgboss.js'
 
 export const adminSubscriptionRoutes = ({
-  procedure
+  procedure,
+  fastify
 }: {
   fastify: FastifyInstance
   procedure: typeof t.procedure
@@ -65,7 +66,7 @@ export const adminSubscriptionRoutes = ({
             type: input.type
           }
         )
-        if (input.active) startSubscription(input.id)
+        if (input.active) startSubscription({ id: input.id, fastify })
         if (result) return result
       }
       throw new TRPCError({ code: 'BAD_REQUEST' })
@@ -86,7 +87,7 @@ export const adminSubscriptionRoutes = ({
         }
       )
       if (result) {
-        startSubscription(input.id)
+        startSubscription({ id: input.id, fastify })
       }
     }),
   stopSubscription: procedure

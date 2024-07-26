@@ -3,12 +3,8 @@ import { db, postgresConnectionString } from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
 
-const queueName = `subscriptions`
-
 let boss: PgBoss
-export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
-  boss = new PgBoss(postgresConnectionString)
-
+const createSubscriptionWorker = ({ fastify }: { fastify: FastifyInstance }) =>
   async function subscriptionWorker(
     job: Job<RawNewInvoice> | Job<RawNewInvoice>[]
   ) {
@@ -20,16 +16,40 @@ export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
     return true
   }
 
-  await boss.work(
-    queueName,
-    { batchSize: 1, includeMetadata: true },
-    subscriptionWorker
-  )
+export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
+  boss = new PgBoss(postgresConnectionString)
+
+  await boss.start()
+
+  const subscriptionWorker = createSubscriptionWorker({ fastify })
+
+  const schedules = await boss.getSchedules()
+
+  schedules
+    .filter((schedule) => schedule.name.includes('subscription:'))
+    .forEach(async (schedule) => {
+      await boss.work(
+        schedule.name,
+        { batchSize: 1, includeMetadata: true },
+        subscriptionWorker
+      )
+    })
+  // await boss.work(
+  //   'subscription:*',
+  //   { batchSize: 1, includeMetadata: true },
+  //   subscriptionWorker
+  // )
 
   return boss
 }
 
-export const startSubscription = async (id: number) => {
+export const startSubscription = async ({
+  id,
+  fastify
+}: {
+  id: number
+  fastify: FastifyInstance
+}) => {
   const subscription = await db
     .selectFrom('subscriptions')
     .where('id', '=', id)
@@ -63,19 +83,29 @@ export const startSubscription = async (id: number) => {
     clientId: clientDetails.id,
     status: subscription.type === 'bill' ? InvoiceStatus.BILL : undefined
   }
+  const queueName = `subscription:${subscription.uuid}`
 
   if (!(await boss.getQueue(queueName))) {
     await boss.createQueue(queueName)
   }
+  const subscriptionWorker = createSubscriptionWorker({ fastify })
+
+  await boss.work(
+    queueName,
+    { batchSize: 1, includeMetadata: true },
+    subscriptionWorker
+  )
   await boss.schedule(queueName, subscription.cronSchedule, invoice, {})
 }
 
 export const stopSubscription = async (id: number) => {
-  await db
+  const subscription = await db
     .selectFrom('subscriptions')
     .where('id', '=', id)
     .select('uuid')
     .executeTakeFirstOrThrow()
+
+  const queueName = `subscription:${subscription.uuid}`
 
   await boss.unschedule(queueName)
 }

@@ -252,7 +252,6 @@ export default async function (fastify: FastifyInstance) {
 
   const boss = await initialize({ fastify })
   fastify.decorate('pg-boss', boss)
-  await boss.start()
 
   fastify.addHook('onClose', async () => {
     await boss.stop()
