@@ -42,7 +42,7 @@ function find({
   }
 
   if (criteria.email) {
-    query = query.where('email', 'like', `%${criteria.email}%`)
+    query = query.where('email', 'like', `%${criteria.email.toLowerCase()}%`)
   }
 
   if (criteria.name) {
