@@ -237,7 +237,6 @@ import SlimfactIcon from '../components/SlimFactIcon.vue'
 import type { QuasarLanguage } from 'quasar'
 
 const configuration = useConfiguration()
-const USER_RETRIEVAL_INTERVAL = 1000 * 60 * 5 // ms
 
 const router = useRouter()
 const route = useRoute()
@@ -321,20 +320,5 @@ onMounted(async () => {
   }
 
   ready.value = true
-
-  setInterval(async () => {
-    try {
-      const expirationTimestamp = oAuthClient.value?.getAccessTokenExpires()
-      if (expirationTimestamp && expirationTimestamp < Date.now()) {
-        await oAuthClient.value?.getUserInfo()
-        oAuthClient.value?.getAccessToken()
-      }
-      user.value = await oAuthClient.value?.getUser()
-    } catch (e) {
-      router.push('/')
-    }
-    if (!user.value) router.push('/')
-    return
-  }, USER_RETRIEVAL_INTERVAL)
 })
 </script>

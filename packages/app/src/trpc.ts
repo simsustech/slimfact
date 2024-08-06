@@ -26,7 +26,7 @@ export const createUseTrpc = async () => {
     return fetch(input, init).then(async (res) => {
       try {
         if (!res.ok) {
-          const body = await res.json()
+          const body = await res.clone().json()
 
           const serverErrors = body?.error
           let caption: string

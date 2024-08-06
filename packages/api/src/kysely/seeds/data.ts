@@ -211,7 +211,7 @@ const seed = async () => {
     .values([
       {
         email: 'admin@slimfact.app',
-        roles: `["administrator"]`
+        roles: `["administrator", "pointofsale"]`
       }
     ])
     .returning('id')
