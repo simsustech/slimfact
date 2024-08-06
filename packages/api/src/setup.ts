@@ -96,8 +96,8 @@ export default async function (fastify: FastifyInstance) {
   let smartpinPaymentHandler: FastifyCheckoutPaymentHandler | undefined
 
   if (
-    (env.read('SMARTPIN_ENABLED') === 'true' ||
-      env.read('VITE_SMARTPIN_ENABLED')) === 'true'
+    env.read('SMARTPIN_ENABLED') === 'true' ||
+    env.read('VITE_SMARTPIN_ENABLED') === 'true'
   ) {
     smartpinPaymentHandler = createSmartpinPaymentHandler({
       fastify,
