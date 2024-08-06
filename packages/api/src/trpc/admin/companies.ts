@@ -10,7 +10,8 @@ import {
   createCompany,
   findCompanies,
   updateCompany,
-  searchCompanies
+  searchCompanies,
+  findCompany
 } from '../../repositories/company.js'
 
 export const adminCompanyRoutes = ({
@@ -80,6 +81,23 @@ export const adminCompanyRoutes = ({
     })
     return companies || []
   }),
+  getCompany: procedure
+    .input(
+      z.object({
+        id: z.number()
+      })
+    )
+    .query(async ({ input }) => {
+      const { id } = input
+      const company = await findCompany({
+        criteria: {
+          id
+        }
+      })
+      if (company) return company
+
+      throw new TRPCError({ code: 'BAD_REQUEST' })
+    }),
   updateCompany: procedure.input(company).mutation(async ({ input }) => {
     if (input.id) {
       const {
