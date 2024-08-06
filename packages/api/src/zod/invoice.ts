@@ -27,6 +27,7 @@ const invoiceDiscountSurchargeValidation = z.object({
 
 export const invoiceValidation = {
   id: z.number().optional(),
+  uuid: z.string().optional(),
   companyPrefix: z.string().optional(),
   currency: z.union([z.literal('EUR'), z.literal('USD')]),
   locale: z.string().optional(),

@@ -162,8 +162,8 @@ export const adminInvoiceRoutes = ({
     .input(invoiceValidation)
     .mutation(async ({ input }) => {
       if (fastify.checkout?.invoiceHandler) {
-        const { id } = input
-        if (id && input.companyId) {
+        const { id, uuid } = input
+        if ((id || uuid) && input.companyId) {
           const companyDetails = await db
             .selectFrom('companies')
             .where('id', '=', input.companyId)
@@ -193,6 +193,7 @@ export const adminInvoiceRoutes = ({
           const result = await fastify?.checkout?.invoiceHandler?.updateInvoice(
             {
               id,
+              uuid,
               companyDetails,
               clientDetails,
               companyPrefix: companyDetails.prefix,
