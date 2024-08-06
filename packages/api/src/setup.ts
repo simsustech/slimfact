@@ -230,10 +230,10 @@ export default async function (fastify: FastifyInstance) {
       TITLE: env.read('VITE_TITLE') || 'SlimFact',
       SASS_VARIABLES: sassVariables,
       PAYMENT_HANDLERS: {
-        cash: typeof cashPaymentHandler !== undefined,
-        ideal: typeof molliePaymentHandler !== undefined,
-        bankTransfer: typeof bankTransferPaymentHandler !== undefined,
-        smartpin: typeof smartpinPaymentHandler !== undefined
+        cash: cashPaymentHandler !== void 0,
+        ideal: molliePaymentHandler !== void 0,
+        bankTransfer: bankTransferPaymentHandler !== void 0,
+        smartpin: smartpinPaymentHandler !== void 0
       }
     }),
     checkout: {
