@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { t } from '../index.js'
 import * as z from 'zod'
-import { MODULARAPI_ACCOUNT_ROLES } from '../../zod/account.js'
+import { SLIMFACT_ACCOUNT_ROLES } from '../../zod/account.js'
 import {
   findAccount,
   findAccounts,
@@ -42,7 +42,7 @@ export const adminAccountRoutes = ({
           .object({
             name: z.string().optional(),
             email: z.string().optional(),
-            roles: z.array(z.nativeEnum(MODULARAPI_ACCOUNT_ROLES)).optional()
+            roles: z.array(z.nativeEnum(SLIMFACT_ACCOUNT_ROLES)).optional()
           })
           .optional(),
         pagination: z
@@ -74,7 +74,7 @@ export const adminAccountRoutes = ({
             .object({
               name: z.string().optional(),
               email: z.string().optional(),
-              roles: z.array(z.nativeEnum(MODULARAPI_ACCOUNT_ROLES)).optional()
+              roles: z.array(z.nativeEnum(SLIMFACT_ACCOUNT_ROLES)).optional()
             })
             .optional()
         })
@@ -120,7 +120,7 @@ export const adminAccountRoutes = ({
     .input(
       z.object({
         id: z.number(),
-        role: z.nativeEnum(MODULARAPI_ACCOUNT_ROLES)
+        role: z.nativeEnum(SLIMFACT_ACCOUNT_ROLES)
       })
     )
     .mutation(async ({ input }) => {
@@ -151,7 +151,7 @@ export const adminAccountRoutes = ({
     .input(
       z.object({
         id: z.number(),
-        role: z.nativeEnum(MODULARAPI_ACCOUNT_ROLES)
+        role: z.nativeEnum(SLIMFACT_ACCOUNT_ROLES)
       })
     )
     .mutation(async ({ input }) => {

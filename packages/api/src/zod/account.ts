@@ -1,9 +1,10 @@
 import * as z from 'zod'
 
-export enum MODULARAPI_ACCOUNT_ROLES {
+export enum SLIMFACT_ACCOUNT_ROLES {
   ADMINISTRATOR = 'administrator',
   MANAGER = 'manager',
-  EMPLOYEE = 'employee'
+  EMPLOYEE = 'employee',
+  POINT_OF_SALE = 'pointofsale'
 }
 
 export const accountValidation = {
@@ -12,7 +13,7 @@ export const accountValidation = {
   email: z.string(),
   verified: z.boolean(),
   customFields: z.unknown(),
-  roles: z.array(z.nativeEnum(MODULARAPI_ACCOUNT_ROLES))
+  roles: z.array(z.nativeEnum(SLIMFACT_ACCOUNT_ROLES))
 }
 
 export const account = z.object(accountValidation)

@@ -55,7 +55,7 @@ export default {
 import { QStyledCard } from '@simsustech/quasar-components'
 import type { Account } from '@slimfact/api/zod'
 import { useLang } from '../../lang/index.js'
-import { MODULARAPI_ACCOUNT_ROLES } from '@slimfact/api/zod'
+import { SLIMFACT_ACCOUNT_ROLES } from '@slimfact/api/zod'
 import { useQuasar } from 'quasar'
 import { toRefs } from 'vue'
 export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
@@ -71,7 +71,7 @@ const emit = defineEmits<{
       data,
       done
     }: {
-      data: { id: number; role: MODULARAPI_ACCOUNT_ROLES }
+      data: { id: number; role: SLIMFACT_ACCOUNT_ROLES }
       done: (success?: boolean) => void
     }
   ): void
@@ -81,7 +81,7 @@ const emit = defineEmits<{
       data,
       done
     }: {
-      data: { id: number; role: MODULARAPI_ACCOUNT_ROLES }
+      data: { id: number; role: SLIMFACT_ACCOUNT_ROLES }
       done: (success?: boolean) => void
     }
   ): void
@@ -99,23 +99,22 @@ const addRole = () => {
       model: 'role',
       items: [
         {
-          label:
-            lang.value.account.roles[MODULARAPI_ACCOUNT_ROLES.ADMINISTRATOR],
-          value: MODULARAPI_ACCOUNT_ROLES.ADMINISTRATOR
+          label: lang.value.account.roles[SLIMFACT_ACCOUNT_ROLES.ADMINISTRATOR],
+          value: SLIMFACT_ACCOUNT_ROLES.ADMINISTRATOR
         },
         {
-          label: lang.value.account.roles[MODULARAPI_ACCOUNT_ROLES.EMPLOYEE],
-          value: MODULARAPI_ACCOUNT_ROLES.EMPLOYEE
+          label: lang.value.account.roles[SLIMFACT_ACCOUNT_ROLES.EMPLOYEE],
+          value: SLIMFACT_ACCOUNT_ROLES.EMPLOYEE
         },
         {
-          label: lang.value.account.roles[MODULARAPI_ACCOUNT_ROLES.INTERN],
-          value: MODULARAPI_ACCOUNT_ROLES.INTERN
+          label: lang.value.account.roles[SLIMFACT_ACCOUNT_ROLES.POINT_OF_SALE],
+          value: SLIMFACT_ACCOUNT_ROLES.POINT_OF_SALE
         }
       ]
     },
     cancel: true,
     persistent: true
-  }).onOk((role: MODULARAPI_ACCOUNT_ROLES) => {
+  }).onOk((role: SLIMFACT_ACCOUNT_ROLES) => {
     const done = function () {
       //
     }
@@ -130,7 +129,7 @@ const removeRole = () => {
       type: 'radio',
       model: 'role',
       items: modelValue.value.roles?.map((role) => ({
-        label: lang.value.account.roles[role as MODULARAPI_ACCOUNT_ROLES],
+        label: lang.value.account.roles[role as SLIMFACT_ACCOUNT_ROLES],
         value: role
       }))
     },

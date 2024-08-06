@@ -4,7 +4,7 @@ import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify'
 import type { FastifyInstance } from 'fastify'
 import { userRoutes } from './user/index.js'
 import { publicRoutes } from './public/index.js'
-import { MODULARAPI_ACCOUNT_ROLES } from '../zod/account.js'
+import { SLIMFACT_ACCOUNT_ROLES } from '../zod/account.js'
 import { adminRoutes } from './admin/index.js'
 export const t = initTRPC.context<Context>().create()
 
@@ -17,7 +17,7 @@ const isLoggedIn = t.middleware(({ next, ctx }) => {
   })
 })
 const isAdministrator = t.middleware(({ next, ctx }) => {
-  if (!ctx.account?.roles?.includes(MODULARAPI_ACCOUNT_ROLES.ADMINISTRATOR)) {
+  if (!ctx.account?.roles?.includes(SLIMFACT_ACCOUNT_ROLES.ADMINISTRATOR)) {
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
   return next({
@@ -25,7 +25,7 @@ const isAdministrator = t.middleware(({ next, ctx }) => {
   })
 })
 const isEmployee = t.middleware(({ next, ctx }) => {
-  if (!ctx.account?.roles?.includes(MODULARAPI_ACCOUNT_ROLES.EMPLOYEE)) {
+  if (!ctx.account?.roles?.includes(SLIMFACT_ACCOUNT_ROLES.EMPLOYEE)) {
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
   return next({

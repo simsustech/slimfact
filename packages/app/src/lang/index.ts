@@ -32,7 +32,7 @@ export interface Language {
     roles: {
       administrator: string
       employee: string
-      intern: string
+      pointofsale: string
       manager: string
     }
     messages: {

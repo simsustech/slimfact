@@ -33,7 +33,7 @@ const lang: Language = {
     roles: {
       administrator: 'Administrator',
       employee: 'Employee',
-      intern: 'Intern',
+      pointofsale: 'Point of sale',
       manager: 'Manager'
     },
     messages: {

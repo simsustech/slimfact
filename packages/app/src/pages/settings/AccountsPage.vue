@@ -22,7 +22,7 @@ import { AccountsTable } from '@simsustech/quasar-components/authentication'
 import { createUseTrpc } from '../../trpc.js'
 import { computed, reactive, ref } from 'vue'
 import { useLang } from '../../lang/index.js'
-import { MODULARAPI_ACCOUNT_ROLES } from '@slimfact/api/zod'
+import { SLIMFACT_ACCOUNT_ROLES } from '@slimfact/api/zod'
 const { useQuery, useMutation } = await createUseTrpc()
 
 const lang = useLang()
@@ -56,18 +56,18 @@ const { data: count } = useQuery('admin.getAccountsCount', {
 })
 
 const mappedRoles = computed(() =>
-  Object.values(MODULARAPI_ACCOUNT_ROLES).reduce(
+  Object.values(SLIMFACT_ACCOUNT_ROLES).reduce(
     (acc, cur) => {
       acc[cur] = lang.value.account.roles[cur]
       return acc
     },
-    {} as Record<MODULARAPI_ACCOUNT_ROLES, string>
+    {} as Record<SLIMFACT_ACCOUNT_ROLES, string>
   )
 )
 
 const onAddRole = async ({ id, role }: { id: number; role: string }) => {
   const result = useMutation('admin.addRole', {
-    args: { id, role: role as MODULARAPI_ACCOUNT_ROLES },
+    args: { id, role: role as SLIMFACT_ACCOUNT_ROLES },
     immediate: true
   })
 
@@ -78,7 +78,7 @@ const onAddRole = async ({ id, role }: { id: number; role: string }) => {
 
 const onRemoveRole = async ({ id, role }: { id: number; role: string }) => {
   const result = useMutation('admin.removeRole', {
-    args: { id, role: role as MODULARAPI_ACCOUNT_ROLES },
+    args: { id, role: role as SLIMFACT_ACCOUNT_ROLES },
     immediate: true
   })
 
