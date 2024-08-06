@@ -21,6 +21,12 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
     $info?: string
     $warning?: string
   }
+  PAYMENT_HANDLERS: {
+    cash: boolean
+    ideal: boolean
+    bankTransfer: boolean
+    smartpin: boolean
+  }
 }
 
 export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
@@ -28,7 +34,13 @@ export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
   COUNTRY: import.meta.env.VITE_COUNTRY || 'NL',
   TITLE: import.meta.env.VITE_TITLE || 'SlimFact',
   CURRENCY: '€',
-  HIDE_BRANDING: false
+  HIDE_BRANDING: false,
+  PAYMENT_HANDLERS: {
+    cash: false,
+    ideal: false,
+    bankTransfer: false,
+    smartpin: false
+  }
 })
 
 export const useConfiguration = () => configuration

@@ -12,7 +12,8 @@ import {
   createCashPaymentHandler,
   createInvoiceHandler,
   createMolliePaymentHandler,
-  createBankTransferPaymentHandler
+  createBankTransferPaymentHandler,
+  createSmartpinPaymentHandler
 } from '@modular-api/fastify-checkout'
 import { initialize } from './pgboss.js'
 
@@ -92,13 +93,29 @@ export default async function (fastify: FastifyInstance) {
     })
   }
 
+  let smartpinPaymentHandler: FastifyCheckoutPaymentHandler | undefined
+
+  if (
+    (env.read('SMARTPIN_ENABLED') === 'true' ||
+      env.read('VITE_SMARTPIN_ENABLED')) === 'true'
+  ) {
+    smartpinPaymentHandler = createSmartpinPaymentHandler({
+      fastify,
+      kysely,
+      options: {
+        hostname
+      }
+    })
+  }
+
   const invoiceHandler = createInvoiceHandler({
     fastify,
     kysely,
     paymentHandlers: {
       mollie: molliePaymentHandler,
       cash: cashPaymentHandler,
-      bankTransfer: bankTransferPaymentHandler
+      bankTransfer: bankTransferPaymentHandler,
+      smartpin: smartpinPaymentHandler
     }
   })
 
@@ -211,13 +228,20 @@ export default async function (fastify: FastifyInstance) {
       LANG: env.read('VITE_LANG') || 'en-US',
       COUNTRY: env.read('VITE_COUNTRY') || 'NL',
       TITLE: env.read('VITE_TITLE') || 'SlimFact',
-      SASS_VARIABLES: sassVariables
+      SASS_VARIABLES: sassVariables,
+      PAYMENT_HANDLERS: {
+        cash: typeof cashPaymentHandler !== undefined,
+        ideal: typeof molliePaymentHandler !== undefined,
+        bankTransfer: typeof bankTransferPaymentHandler !== undefined,
+        smartpin: typeof smartpinPaymentHandler !== undefined
+      }
     }),
     checkout: {
       paymentHandlers: {
         cash: cashPaymentHandler,
         bankTransfer: bankTransferPaymentHandler,
-        mollie: molliePaymentHandler
+        mollie: molliePaymentHandler,
+        smartpin: smartpinPaymentHandler
       },
       invoiceHandler
     }

@@ -12,7 +12,11 @@
     >
       <q-menu>
         <q-list>
-          <q-item clickable @click="payWithIdeal">
+          <q-item
+            v-if="configuration.PAYMENT_HANDLERS.ideal"
+            clickable
+            @click="payWithIdeal"
+          >
             <q-item-section avatar>
               <q-icon name="fa-brands fa-ideal" />
             </q-item-section>
@@ -20,7 +24,11 @@
               <q-item-label> iDEAL </q-item-label>
             </q-item-section>
           </q-item>
-          <q-item clickable @click="openBankTransferDialog">
+          <q-item
+            v-if="configuration.PAYMENT_HANDLERS.bankTransfer"
+            clickable
+            @click="openBankTransferDialog"
+          >
             <q-item-section avatar>
               <q-icon name="fa-solid fa-money-bill-transfer" />
             </q-item-section>
@@ -28,6 +36,22 @@
               <q-item-label>
                 {{ lang.payment.methods.bankTransfer }}
               </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item
+            v-if="
+              configuration.PAYMENT_HANDLERS.smartpin &&
+              isMobile &&
+              user?.roles?.includes('pointofsale')
+            "
+            clickable
+            @click="payWithSmartpin"
+          >
+            <q-item-section avatar>
+              <q-icon name="credit_card" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label> SmartPin </q-item-label>
             </q-item-section>
           </q-item>
         </q-list>
@@ -90,18 +114,22 @@
 <script setup lang="ts">
 import { InvoicePage } from '@modular-api/quasar-components/checkout'
 import { createUseTrpc } from '../trpc.js'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
-import { useMeta } from 'quasar'
+import { useMeta, useQuasar } from 'quasar'
 import { InvoiceStatus } from '@slimfact/api/zod'
 import { generateEpcQrCodeData } from '@slimfact/tools/epc-qr'
 import { renderSVG } from 'uqr'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import Price from '../components/Price.vue'
+import { loadConfiguration, useConfiguration } from '../configuration.js'
+import { useOAuthClient, user, oAuthClient } from '../oauth.js'
 
 const { useQuery, useMutation } = await createUseTrpc()
 const lang = useLang()
+const $q = useQuasar()
+const configuration = useConfiguration()
 const route = useRoute()
 const hostname = ref(import.meta.env.SSR ? '' : window.location.host)
 const slimfactDownloaderUrl = ref(
@@ -183,6 +211,19 @@ const payWithIdeal = async () => {
   if (result.data.value) window.location.href = result.data.value
 }
 
+const payWithSmartpin = async () => {
+  const result = useMutation('public.payWithSmartpin', {
+    args: {
+      uuid: uuid.value
+    },
+    immediate: true
+  })
+
+  await result.immediatePromise
+
+  if (result.data.value) window.location.href = result.data.value
+}
+
 const bankTransferDialogRef = ref<typeof ResponsiveDialog>()
 const openBankTransferDialog = () => {
   bankTransferDialogRef.value?.functions.open()
@@ -193,6 +234,29 @@ const print = () => {
     window.print()
   }
 }
+
+const isMobile = computed(() => {
+  if (import.meta.env.SSR) return false
+  return /Android|iPhone|iPad/i.test(window.navigator.userAgent)
+})
+
+const language = ref($q.lang.isoName)
+onMounted(async () => {
+  await loadConfiguration(language)
+
+  await useOAuthClient()
+  await oAuthClient.value?.getUserInfo()
+
+  try {
+    await oAuthClient.value?.signInSilently({})
+  } catch (e) {
+    console.error('Failed to sign in silently')
+  }
+
+  if (oAuthClient.value?.getAccessToken()) {
+    user.value = await oAuthClient.value?.getUser()
+  }
+})
 </script>
 
 <style>

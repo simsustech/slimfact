@@ -44,7 +44,7 @@
   "devDependencies": {
     "@modular-api/fastify-cart": "^0.2.4",
     "@modular-api/fastify-checkout": "^0.3.3",
-    "@modular-api/quasar-components": "^0.2.9",
+    "@modular-api/quasar-components": "^0.2.10",
     "@quasar/extras": "1.16.11",
     "@quasar/quasar-ui-qcalendar": "4.0.0-beta.16",
     "@simsustech/quasar-components": "^0.10.3",

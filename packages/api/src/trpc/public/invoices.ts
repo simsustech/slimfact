@@ -104,5 +104,57 @@ export const publicInvoiceRoutes = ({
       throw new TRPCError({
         code: 'BAD_REQUEST'
       })
+    }),
+  payWithSmartpin: procedure
+    .input(z.object({ uuid: z.string() }))
+    .mutation(async ({ input }) => {
+      if (fastify.checkout?.invoiceHandler) {
+        const { uuid } = input
+        const invoice = await fastify.checkout.invoiceHandler.getInvoice({
+          uuid,
+          options: {
+            withAmountDue: true
+          }
+        })
+
+        if (
+          invoice?.status === InvoiceStatus.OPEN ||
+          invoice?.status === InvoiceStatus.BILL
+        ) {
+          if (fastify.checkout.paymentHandlers?.smartpin) {
+            try {
+              const paymentResult =
+                await fastify.checkout.invoiceHandler.addPaymentToInvoice({
+                  uuid,
+                  payment: {
+                    amount: invoice.amountDue
+                      ? invoice.amountDue
+                      : invoice.totalIncludingTax,
+                    currency: invoice.currency,
+                    description: invoice.number
+                      ? `${invoice.numberPrefix}${invoice.number}`
+                      : invoice.uuid,
+                    method: PaymentMethod.smartpin,
+                    invoiceId: invoice.id
+                  }
+                })
+              if (paymentResult.success) {
+                return paymentResult.checkoutUrl
+              } else {
+                fastify.log.error(paymentResult.errorMessage)
+              }
+            } catch (e) {
+              fastify.log.error(e)
+              throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: e as string
+              })
+            }
+          }
+        }
+      }
+      throw new TRPCError({
+        code: 'BAD_REQUEST'
+      })
     })
 })
