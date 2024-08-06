@@ -123,6 +123,9 @@ export default async function (fastify: FastifyInstance) {
     env.read('VITE_PETBOARDING_CLIENT_HOSTNAME') ||
     env.read('PETBOARDING_CLIENT_HOSTNAME')
   ) {
+    const petboardingClientHostname =
+      env.read('VITE_PETBOARDING_CLIENT_HOSTNAME') ||
+      env.read('PETBOARDING_CLIENT_HOSTNAME')
     clients.push({
       client_id: 'petboarding',
       client_name: 'Petboarding',
@@ -130,12 +133,7 @@ export default async function (fastify: FastifyInstance) {
       grant_types: ['authorization_code', 'refresh_token'],
       scope: 'openid offline_access profile email api',
       client_secret: 'secret',
-      redirect_uris: [
-        `https://${
-          env.read('VITE_PETBOARDING_CLIENT_HOSTNAME') ||
-          env.read('PETBOARDING_CLIENT_HOSTNAME')
-        }/callback/slimfact`
-      ],
+      redirect_uris: [`https://${petboardingClientHostname}/callback/slimfact`],
       token_endpoint_auth_method: 'none',
       'urn:custom:client:allowed-cors-origins': [`https://${hostname}`]
     })
@@ -170,33 +168,7 @@ export default async function (fastify: FastifyInstance) {
           authorization: '/authorize',
           token: '/oauth/token'
         },
-        clients: [
-          {
-            client_id:
-              env.read('OIDC_CLIENT_ID') ||
-              env.read('VITE_OIDC_CLIENT_ID') ||
-              'slimfact',
-            client_name: 'SlimFact webapp',
-            logo_uri: 'https://www.slimfact.app/logo.png',
-            grant_types: ['authorization_code', 'refresh_token'],
-            scope: 'openid offline_access profile email api',
-            client_secret: 'secret',
-            redirect_uris: [`https://${hostname}/redirect`],
-            token_endpoint_auth_method: 'none',
-            'urn:custom:client:allowed-cors-origins': [`https://${hostname}`]
-          }
-          // {
-          //   client_id: 'petboarding',
-          //   client_name: 'Petboarding',
-          //   logo_uri: 'https://www.petboarding.app/logo.png',
-          //   grant_types: ['authorization_code', 'refresh_token'],
-          //   scope: 'openid offline_access profile email api',
-          //   client_secret: 'secret',
-          //   redirect_uris: [`https://localhost:3000/callback/slimfact`],
-          //   token_endpoint_auth_method: 'none',
-          //   'urn:custom:client:allowed-cors-origins': [`https://${hostname}`]
-          // }
-        ],
+        clients,
         scopes: ['openid', 'offline_access', 'profile', 'email', 'api'],
         claims: {
           acr: null,
@@ -207,6 +179,12 @@ export default async function (fastify: FastifyInstance) {
           profile: ['name', 'picture'],
           email: ['email', 'email_verified'],
           api: ['roles']
+        },
+        issueRefreshToken: async function (ctx, client) {
+          return (
+            client.grantTypeAllowed('refresh_token') &&
+            client.clientId === 'petboarding'
+          )
         }
       }
     },
