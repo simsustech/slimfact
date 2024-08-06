@@ -55,7 +55,6 @@
         v-model="modelValue.country"
         :label="lang.client.fields.country"
         class="col-md-3 col-12"
-        required
         bottom-slots
         lazy-rules
         name="country"
