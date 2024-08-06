@@ -74,18 +74,22 @@
     />
   </div>
 
-  <div v-if="invoice" class="column items-center">
-    <div class="col">
-      <div v-if="invoice.amountDue > 0" class="text-center no-print">
-        {{ lang.payment.amountDue }}:
-        <price
-          :model-value="invoice.amountDue"
-          :currency="invoice.currency"
-          :locale="invoice.locale"
-        />
-      </div>
-      <invoice-page id="invoice" ref="invoiceRef" :model-value="invoice" />
+  <div class="row justify-center">
+    <div v-if="invoice?.amountDue && invoice?.amountDue > 0" class="no-print">
+      {{ lang.payment.amountDue }}:
+      <price
+        :model-value="invoice.amountDue"
+        :currency="invoice.currency"
+        :locale="invoice.locale"
+      />
     </div>
+  </div>
+
+  <div v-if="invoice" class="row justify-center">
+    <q-scroll-area :style="scrollAreaSize">
+      <q-resize-observer @resize="onResize" />
+      <invoice-page id="invoice" ref="invoiceRef" :model-value="invoice" />
+    </q-scroll-area>
   </div>
 
   <responsive-dialog ref="bankTransferDialogRef">
@@ -117,7 +121,7 @@ import { createUseTrpc } from '../trpc.js'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
-import { useMeta, useQuasar } from 'quasar'
+import { QResizeObserver, useMeta, useQuasar } from 'quasar'
 import { InvoiceStatus } from '@slimfact/api/zod'
 import { generateEpcQrCodeData } from '@slimfact/tools/epc-qr'
 import { renderSVG } from 'uqr'
@@ -239,6 +243,19 @@ const isMobile = computed(() => {
   if (import.meta.env.SSR) return false
   return /Android|iPhone|iPad/i.test(window.navigator.userAgent)
 })
+
+const scrollAreaSize = ref({
+  width: '100%',
+  'max-width': '210mm',
+  height: '200px'
+})
+const minWidth = 210
+const onResize: InstanceType<typeof QResizeObserver>['$props']['onResize'] = (
+  size
+) => {
+  scrollAreaSize.value.width = size.width > minWidth ? '100%' : `${minWidth}px`
+  scrollAreaSize.value.height = `${size.height}px`
+}
 
 const language = ref($q.lang.isoName)
 onMounted(async () => {
