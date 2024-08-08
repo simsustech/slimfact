@@ -199,6 +199,7 @@ const lang: Language = {
     pay: 'Pay',
     addPayment: 'Add payment',
     amountDue: 'Amount due',
+    amountPaid: 'Amount paid',
     fields: {
       transactionReference: 'Transaction reference',
       description: 'Description'
@@ -212,6 +213,9 @@ const lang: Language = {
       scanQrOrUseInformationBelow:
         'Scan the QR code if your bank supports it or use the information supplied below.'
     }
+  },
+  refund: {
+    refund: 'Refund'
   }
 }
 

@@ -223,6 +223,7 @@ export interface Language {
     pay: string
     addPayment: string
     amountDue: string
+    amountPaid: string
     fields: {
       transactionReference: string
       description: string
@@ -235,6 +236,9 @@ export interface Language {
     messages: {
       scanQrOrUseInformationBelow: string
     }
+  }
+  refund: {
+    refund: string
   }
 }
 

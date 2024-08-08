@@ -762,5 +762,32 @@ export const adminInvoiceRoutes = ({
           status
         })
       }
+    }),
+  refundInvoice: procedure
+    .input(
+      z.object({
+        id: z.number()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id } = input
+
+      if (fastify.checkout?.invoiceHandler) {
+        const result = await fastify.checkout.invoiceHandler.refundInvoice({
+          id
+        })
+
+        if (result.success) {
+          return result.refund
+        } else {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: result.errorMessage
+          })
+        }
+      }
+      throw new TRPCError({
+        code: 'BAD_REQUEST'
+      })
     })
 })

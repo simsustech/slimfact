@@ -58,6 +58,17 @@
       </q-menu>
     </q-btn>
     <q-btn
+      v-if="
+        invoice &&
+        invoice.amountDue &&
+        invoice.amountDue < 0 &&
+        user?.roles?.includes('administrator')
+      "
+      :label="`${lang.refund.refund} ${format(-invoice.amountDue)}`"
+      color="primary"
+      @click="refund"
+    />
+    <q-btn
       v-if="invoice"
       icon="download"
       :label="lang.invoice.labels.download"
@@ -75,6 +86,14 @@
   </div>
 
   <div class="row justify-center">
+    <div v-if="invoice?.amountPaid && invoice?.amountPaid > 0" class="no-print">
+      {{ lang.payment.amountPaid }}:
+      <price
+        :model-value="invoice.amountPaid"
+        :currency="invoice.currency"
+        :locale="invoice.locale"
+      />
+    </div>
     <div v-if="invoice?.amountDue && invoice?.amountDue > 0" class="no-print">
       {{ lang.payment.amountDue }}:
       <price
@@ -228,6 +247,19 @@ const payWithSmartpin = async () => {
   if (result.data.value) window.location.href = result.data.value
 }
 
+const refund = async () => {
+  if (invoice.value) {
+    const result = useMutation('admin.refundInvoice', {
+      args: {
+        id: invoice.value.id
+      },
+      immediate: true
+    })
+
+    await result.immediatePromise
+  }
+}
+
 const bankTransferDialogRef = ref<typeof ResponsiveDialog>()
 const openBankTransferDialog = () => {
   bankTransferDialogRef.value?.functions.open()
@@ -256,6 +288,13 @@ const onResize: InstanceType<typeof QResizeObserver>['$props']['onResize'] = (
   scrollAreaSize.value.width = size.width > minWidth ? '100%' : `${minWidth}px`
   scrollAreaSize.value.height = `${size.height}px`
 }
+
+const format = (value: number) =>
+  Intl.NumberFormat($q.lang.isoName, {
+    maximumFractionDigits: 2,
+    style: 'currency',
+    currency: invoice.value?.currency
+  }).format(value / 100)
 
 const language = ref($q.lang.isoName)
 onMounted(async () => {

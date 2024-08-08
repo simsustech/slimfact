@@ -201,6 +201,7 @@ const lang: Language = {
     pay: 'Betaal',
     addPayment: 'Betaling toevoegen',
     amountDue: 'Te betalen',
+    amountPaid: 'Betaald',
     fields: {
       transactionReference: 'Transactie referentie',
       description: 'Omschrijving'
@@ -214,6 +215,9 @@ const lang: Language = {
       scanQrOrUseInformationBelow:
         'Scan de QR code als uw bank dit ondersteunt of gebruik de informatie zoals hieronder weergegeven.'
     }
+  },
+  refund: {
+    refund: 'Terugbetaling'
   }
 }
 

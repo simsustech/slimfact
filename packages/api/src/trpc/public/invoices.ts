@@ -28,7 +28,8 @@ export const publicInvoiceRoutes = ({
           uuid,
           options: {
             withAmountPaid: true,
-            withAmountDue: true
+            withAmountDue: true,
+            withAmountRefunded: true
           }
         })
         if (invoice?.status !== 'concept') return invoice
