@@ -311,6 +311,8 @@ const refund = async () => {
         })
 
         await result.immediatePromise
+
+        if (!result.error.value) window.location.reload()
       }
     })
   }
