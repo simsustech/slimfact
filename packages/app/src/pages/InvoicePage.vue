@@ -295,15 +295,24 @@ const payWithSmartpin = async () => {
 }
 
 const refund = async () => {
-  if (invoice.value) {
-    const result = useMutation('admin.refundInvoice', {
-      args: {
-        id: invoice.value.id
-      },
-      immediate: true
-    })
+  if (invoice.value?.amountDue && invoice.value.amountDue < 0) {
+    $q.dialog({
+      message: lang.value.refund.messages.confirmRefund(
+        format(-invoice.value.amountDue)
+      ),
+      cancel: true
+    }).onOk(async () => {
+      if (invoice.value?.id) {
+        const result = useMutation('admin.refundInvoice', {
+          args: {
+            id: invoice.value.id
+          },
+          immediate: true
+        })
 
-    await result.immediatePromise
+        await result.immediatePromise
+      }
+    })
   }
 }
 

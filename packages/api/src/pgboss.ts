@@ -2,6 +2,7 @@ import PgBoss, { Job } from 'pg-boss'
 import { db, postgresConnectionString } from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
+import { RefundStatus } from '@modular-api/fastify-checkout/types'
 
 let boss: PgBoss
 const createSubscriptionWorker = ({ fastify }: { fastify: FastifyInstance }) =>
@@ -14,6 +15,27 @@ const createSubscriptionWorker = ({ fastify }: { fastify: FastifyInstance }) =>
       await fastify?.checkout?.invoiceHandler?.createInvoice(singleJob.data)
     }
     return true
+  }
+
+const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
+  async function refundWorker() {
+    const refunds = await db
+      .selectFrom('checkout.refunds')
+      .where((web) =>
+        web.or([
+          web('status', '=', RefundStatus.PENDING),
+          web('status', '=', RefundStatus.PROCESSING),
+          web('status', '=', RefundStatus.QUEUED)
+        ])
+      )
+      .select('id')
+      .execute()
+
+    for (const refund of refunds) {
+      await fastify.checkout?.paymentHandlers?.mollie?.getRefund({
+        id: refund.id
+      })
+    }
   }
 
 export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
@@ -34,6 +56,21 @@ export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
         subscriptionWorker
       )
     })
+
+  const refundWorker = createRefundWorker({ fastify })
+  await boss.work(
+    'checkRefunds',
+    { batchSize: 1, includeMetadata: true },
+    refundWorker
+  )
+  if (!schedules.some((schedule) => schedule.name === 'checkRefunds')) {
+    const queueName = `checkRefunds`
+
+    if (!(await boss.getQueue(queueName))) {
+      await boss.createQueue(queueName)
+    }
+    await boss.schedule(queueName, '0 0 * * *', {}, {})
+  }
   // await boss.work(
   //   'subscription:*',
   //   { batchSize: 1, includeMetadata: true },

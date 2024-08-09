@@ -217,7 +217,12 @@ const lang: Language = {
     }
   },
   refund: {
-    refund: 'Refund'
+    refund: 'Refund',
+    refunds: 'Refunds',
+    messages: {
+      confirmRefund: (amount) =>
+        `Are you sure you want to refund the amount of ${amount}?`
+    }
   }
 }
 

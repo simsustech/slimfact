@@ -344,6 +344,11 @@
         name="payments"
         :label="lang.payment.payments"
       />
+      <q-tab
+        v-if="modelValue.refunds?.length"
+        name="refunds"
+        :label="lang.refund.refunds"
+      />
     </q-tabs>
 
     <q-separator />
@@ -396,6 +401,15 @@
           />
         </q-list>
       </q-tab-panel>
+      <q-tab-panel v-if="modelValue.refunds?.length" name="refunds">
+        <q-list>
+          <refund-item
+            v-for="refund in modelValue.refunds"
+            :key="refund.id"
+            :model-value="refund"
+          />
+        </q-list>
+      </q-tab-panel>
     </q-tab-panels>
 
     <!-- <q-scroll-area :style="scrollAreaSize">
@@ -417,7 +431,8 @@ import Price from '../Price.vue'
 import {
   InvoiceLineRow,
   InvoiceDiscountSurchargeRow,
-  PaymentItem
+  PaymentItem,
+  RefundItem
 } from '@modular-api/quasar-components/checkout'
 import { computed, ref, toRefs } from 'vue'
 import { useQuasar } from 'quasar'

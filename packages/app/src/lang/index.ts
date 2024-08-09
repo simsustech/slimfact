@@ -241,6 +241,10 @@ export interface Language {
   }
   refund: {
     refund: string
+    refunds: string
+    messages: {
+      confirmRefund: (amount: number | string) => string
+    }
   }
 }
 

@@ -219,7 +219,12 @@ const lang: Language = {
     }
   },
   refund: {
-    refund: 'Terugbetaling'
+    refund: 'Terugbetaling',
+    refunds: 'Terugbetalingen',
+    messages: {
+      confirmRefund: (amount) =>
+        `Weet u zeker dat u een terugbetaling t.w.v. ${amount} wil doen?`
+    }
   }
 }
 
