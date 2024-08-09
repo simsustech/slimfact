@@ -63,6 +63,20 @@
         name="numberPrefix"
       /> -->
       <q-input
+        :model-value="modelValue.requiredDownPaymentAmount / 100"
+        :label="lang.invoice.fields.requiredDownPaymentAmount"
+        class="col-12 col-md-4"
+        :prefix="currencySymbols[modelValue.currency]"
+        :lang="$q.lang.isoName"
+        type="number"
+        step="0.01"
+        @update:model-value="
+          modelValue.requiredDownPaymentAmount = Math.round(
+            Number($event) * 100
+          )
+        "
+      />
+      <q-input
         v-model="modelValue.projectId"
         class="col-md-4 col-12"
         :label="lang.invoice.fields.projectId"
@@ -158,7 +172,7 @@ import {
   InvoiceLineRow,
   InvoiceDiscountSurchargeRow
 } from '@modular-api/quasar-components/checkout'
-import { QForm, extend } from 'quasar'
+import { QForm, extend, useQuasar } from 'quasar'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
@@ -203,6 +217,8 @@ const emit = defineEmits<{
   ): void
 }>()
 
+const $q = useQuasar()
+
 const initialValue: Invoice = {
   companyId: NaN,
   clientId: NaN,
@@ -214,7 +230,8 @@ const initialValue: Invoice = {
   discounts: [],
   surcharges: [],
   paymentTermDays: 14,
-  projectId: null
+  projectId: null,
+  requiredDownPaymentAmount: 0
 }
 
 const { filteredCompanies } = toRefs(props)
@@ -301,6 +318,11 @@ watch(
     if (defaultLocale) modelValue.value.locale = defaultLocale
   }
 )
+
+const currencySymbols = ref({
+  EUR: '€',
+  USD: '$'
+})
 
 const functions = ref({
   submit,

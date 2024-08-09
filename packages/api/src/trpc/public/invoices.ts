@@ -106,6 +106,61 @@ export const publicInvoiceRoutes = ({
         code: 'BAD_REQUEST'
       })
     }),
+  payDownPaymentWithIdeal: procedure
+    .input(z.object({ uuid: z.string() }))
+    .mutation(async ({ input }) => {
+      if (fastify.checkout?.invoiceHandler) {
+        const { uuid } = input
+        const invoice = await fastify.checkout.invoiceHandler.getInvoice({
+          uuid,
+          options: {
+            withAmountPaid: true,
+            withAmountDue: true
+          }
+        })
+        if (
+          (invoice?.status === InvoiceStatus.OPEN ||
+            invoice?.status === InvoiceStatus.BILL) &&
+          invoice.requiredDownPaymentAmount &&
+          invoice.requiredDownPaymentAmount > (invoice.amountPaid || 0)
+        ) {
+          if (fastify.checkout.paymentHandlers?.mollie) {
+            try {
+              const paymentResult =
+                await fastify.checkout.invoiceHandler.addPaymentToInvoice({
+                  uuid,
+                  payment: {
+                    amount:
+                      invoice.requiredDownPaymentAmount -
+                      (invoice.amountPaid || 0),
+                    currency: invoice.currency,
+                    description: invoice.number
+                      ? `${invoice.numberPrefix}${invoice.number}`
+                      : invoice.uuid,
+                    method: PaymentMethod.ideal,
+                    invoiceId: invoice.id,
+                    redirectUrl
+                  }
+                })
+              if (paymentResult.success) {
+                return paymentResult.checkoutUrl
+              } else {
+                fastify.log.error(paymentResult.errorMessage)
+              }
+            } catch (e) {
+              fastify.log.error(e)
+              throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: e as string
+              })
+            }
+          }
+        }
+      }
+      throw new TRPCError({
+        code: 'BAD_REQUEST'
+      })
+    }),
   payWithSmartpin: procedure
     .input(z.object({ uuid: z.string() }))
     .mutation(async ({ input }) => {

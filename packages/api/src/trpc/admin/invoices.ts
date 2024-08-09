@@ -144,6 +144,7 @@ export const adminInvoiceRoutes = ({
               locale: input.locale,
               notes: input.notes,
               projectId: input.projectId,
+              requiredDownPaymentAmount: input.requiredDownPaymentAmount,
               status: input.status,
               companyId: companyDetails.id,
               clientId: clientDetails.id
@@ -206,6 +207,7 @@ export const adminInvoiceRoutes = ({
               locale: input.locale,
               notes: input.notes,
               projectId: input.projectId,
+              requiredDownPaymentAmount: input.requiredDownPaymentAmount,
               status: input.status,
               companyId: companyDetails.id,
               clientId: clientDetails.id

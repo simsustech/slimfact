@@ -34,6 +34,7 @@ export const invoiceValidation = {
   numberPrefix: z.string().optional().nullable(),
   numberPrefixTemplate: z.string(),
   paymentTermDays: z.number(),
+  requiredDownPaymentAmount: z.number(),
   lines: invoiceLineValidation.array(),
   discounts: invoiceDiscountSurchargeValidation.array().optional().nullable(),
   surcharges: invoiceDiscountSurchargeValidation.array().optional().nullable(),

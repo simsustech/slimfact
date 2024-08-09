@@ -57,6 +57,36 @@
         </q-list>
       </q-menu>
     </q-btn>
+
+    <q-btn
+      v-if="
+        invoice &&
+        [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
+        invoice.requiredDownPaymentAmount &&
+        invoice.requiredDownPaymentAmount > (invoice.amountPaid || 0)
+      "
+      icon="payment"
+      :label="`${lang.payment.downPayment} ${format(invoice.requiredDownPaymentAmount - (invoice.amountPaid || 0))}`"
+      color="primary"
+    >
+      <q-menu>
+        <q-list>
+          <q-item
+            v-if="configuration.PAYMENT_HANDLERS.ideal"
+            clickable
+            @click="payDownPaymentWithIdeal"
+          >
+            <q-item-section avatar>
+              <q-icon name="fa-brands fa-ideal" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label> iDEAL </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-btn>
+
     <q-btn
       v-if="
         invoice &&
@@ -85,23 +115,27 @@
     />
   </div>
 
-  <div class="row justify-center">
-    <div v-if="invoice?.amountPaid && invoice?.amountPaid > 0" class="no-print">
-      {{ lang.payment.amountPaid }}:
-      <price
-        :model-value="invoice.amountPaid"
-        :currency="invoice.currency"
-        :locale="invoice.locale"
-      />
-    </div>
-    <div v-if="invoice?.amountDue && invoice?.amountDue > 0" class="no-print">
-      {{ lang.payment.amountDue }}:
-      <price
-        :model-value="invoice.amountDue"
-        :currency="invoice.currency"
-        :locale="invoice.locale"
-      />
-    </div>
+  <div
+    v-if="invoice?.amountPaid && invoice?.amountPaid > 0"
+    class="row justify-center no-print"
+  >
+    {{ lang.payment.amountPaid }}:
+    <price
+      :model-value="invoice.amountPaid"
+      :currency="invoice.currency"
+      :locale="invoice.locale"
+    />
+  </div>
+  <div
+    v-if="invoice?.amountDue && invoice?.amountDue > 0"
+    class="row justify-center no-print"
+  >
+    {{ lang.payment.amountDue }}:
+    <price
+      :model-value="invoice.amountDue"
+      :currency="invoice.currency"
+      :locale="invoice.locale"
+    />
   </div>
 
   <div v-if="invoice" class="row justify-center">
@@ -223,6 +257,19 @@ const invoiceRef = ref()
 
 const payWithIdeal = async () => {
   const result = useMutation('public.payWithIdeal', {
+    args: {
+      uuid: uuid.value
+    },
+    immediate: true
+  })
+
+  await result.immediatePromise
+
+  if (result.data.value) window.location.href = result.data.value
+}
+
+const payDownPaymentWithIdeal = async () => {
+  const result = useMutation('public.payDownPaymentWithIdeal', {
     args: {
       uuid: uuid.value
     },

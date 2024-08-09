@@ -112,7 +112,8 @@ const lang: Language = {
       paymentTermDays: 'Betalingstermijn in dagen',
       notes: 'Notities',
       projectId: 'Project ID',
-      status: 'Status'
+      status: 'Status',
+      requiredDownPaymentAmount: 'Vereiste aanbetaling'
     },
     status: {
       concept: 'Concept',
@@ -202,6 +203,7 @@ const lang: Language = {
     addPayment: 'Betaling toevoegen',
     amountDue: 'Te betalen',
     amountPaid: 'Betaald',
+    downPayment: 'Aanbetaling',
     fields: {
       transactionReference: 'Transactie referentie',
       description: 'Omschrijving'

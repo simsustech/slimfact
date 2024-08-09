@@ -111,6 +111,7 @@ export interface Language {
       notes: string
       projectId: string
       status: string
+      requiredDownPaymentAmount: string
     }
     status: {
       concept: string
@@ -224,6 +225,7 @@ export interface Language {
     addPayment: string
     amountDue: string
     amountPaid: string
+    downPayment: string
     fields: {
       transactionReference: string
       description: string

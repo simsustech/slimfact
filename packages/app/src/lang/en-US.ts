@@ -111,7 +111,8 @@ const lang: Language = {
       paymentTermDays: 'Payment term in days',
       notes: 'Notes',
       projectId: 'Project ID',
-      status: 'Status'
+      status: 'Status',
+      requiredDownPaymentAmount: 'Required down payment'
     },
     status: {
       concept: 'Concept',
@@ -200,6 +201,7 @@ const lang: Language = {
     addPayment: 'Add payment',
     amountDue: 'Amount due',
     amountPaid: 'Amount paid',
+    downPayment: 'Down payment',
     fields: {
       transactionReference: 'Transaction reference',
       description: 'Description'
