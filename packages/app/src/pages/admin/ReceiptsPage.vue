@@ -36,6 +36,9 @@
         />
       </q-list>
     </div>
+    <div class="row justify-center items-center">
+      <q-pagination v-model="page" :max="Math.ceil(total / rowsPerPage)" />
+    </div>
   </resource-page>
 
   <responsive-dialog
@@ -57,7 +60,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
@@ -80,11 +83,27 @@ const companyId = ref(NaN)
 const clientId = ref(NaN)
 const status = ref<InvoiceStatus>(InvoiceStatus.RECEIPT)
 
+const page = ref(1)
+const rowsPerPage = ref(5)
+const total = computed(() => invoices.value?.at(0)?.total || 0)
+const pagination = computed<{
+  limit: number
+  offset: number
+  sortBy: 'id' | 'companyId' | 'clientId' | 'totalIncludingTax'
+  descending: boolean
+}>(() => ({
+  limit: rowsPerPage.value,
+  offset: (page.value - 1) * rowsPerPage.value,
+  sortBy: 'id',
+  descending: true
+}))
+
 const { data: invoices, execute } = useQuery('admin.getInvoices', {
   args: reactive({
     companyId,
     clientId,
-    status
+    status,
+    pagination
   })
   // immediate: true
 })

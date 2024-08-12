@@ -48,7 +48,14 @@ export const userInvoiceRoutes = ({
       if (client?.id) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
           clientId: client.id,
-          status: InvoiceStatus.RECEIPT
+          status: InvoiceStatus.RECEIPT,
+          options: {
+            withPayments: true,
+            withAmountPaid: true,
+            withAmountDue: true,
+            withRefunds: true,
+            withAmountRefunded: true
+          }
         })
         return invoices
       }
@@ -68,7 +75,14 @@ export const userInvoiceRoutes = ({
       if (client?.id) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
           clientId: client.id,
-          status: InvoiceStatus.BILL
+          status: InvoiceStatus.BILL,
+          options: {
+            withPayments: true,
+            withAmountPaid: true,
+            withAmountDue: true,
+            withRefunds: true,
+            withAmountRefunded: true
+          }
         })
         return invoices
       }
