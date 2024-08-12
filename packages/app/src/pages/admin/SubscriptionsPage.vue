@@ -45,6 +45,9 @@
         />
       </q-list>
     </div>
+    <div class="row justify-center items-center">
+      <q-pagination v-model="page" :max="Math.ceil(total / rowsPerPage)" />
+    </div>
 
     <responsive-dialog ref="updateDialogRef" persistent @submit="update">
       <subscription-form
@@ -78,7 +81,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive } from 'vue'
+import { ref, nextTick, onMounted, reactive, computed } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import SubscriptionForm from '../../components/subscription/SubscriptionForm.vue'
@@ -101,11 +104,27 @@ const companyId = ref(NaN)
 const clientId = ref(NaN)
 const active = ref<boolean>()
 
+const page = ref(1)
+const rowsPerPage = ref(5)
+const total = computed(() => subscriptions.value?.at(0)?.total || 0)
+const pagination = computed<{
+  limit: number
+  offset: number
+  sortBy: 'id'
+  descending: boolean
+}>(() => ({
+  limit: rowsPerPage.value,
+  offset: (page.value - 1) * rowsPerPage.value,
+  sortBy: 'id',
+  descending: true
+}))
+
 const { data: subscriptions, execute } = useQuery('admin.getSubscriptions', {
   args: reactive({
     companyId,
     clientId,
-    active
+    active,
+    pagination
   }),
   reactive: true
   // immediate: true
@@ -124,7 +143,6 @@ const openUpdateDialog: InstanceType<
   typeof ResourcePage
 >['$props']['onUpdate'] = ({ data }) => {
   updateDialogRef.value?.functions.open()
-  console.log(data)
   nextTick(() => {
     updateSubscriptionFormRef.value?.functions.setValue(data)
   })

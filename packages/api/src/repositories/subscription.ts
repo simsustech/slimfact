@@ -48,10 +48,17 @@ function withClient(eb: ExpressionBuilder<Database, 'subscriptions'>) {
 
 function find({
   criteria,
-  select
+  select,
+  pagination
 }: {
   criteria: Partial<Subscription> & { name?: string }
   select?: (keyof Subscription)[]
+  pagination?: {
+    limit: number
+    offset: number
+    sortBy: 'id'
+    descending: boolean
+  }
 }) {
   if (select) select = [...defaultSelect, ...select]
   else select = [...defaultSelect]
@@ -74,7 +81,24 @@ function find({
     query = query.where('active', '=', criteria.active)
   }
 
-  return query.select(select).select([withClient, withCompany])
+  if (pagination) {
+    if (pagination.sortBy)
+      query = query.orderBy(
+        pagination.sortBy,
+        pagination.descending ? 'desc' : 'asc'
+      )
+
+    query = query.limit(pagination.limit).offset(pagination.offset)
+  }
+
+  return query
+    .select(select)
+    .select([withClient, withCompany])
+    .$if(pagination !== void 0, (qb) =>
+      qb.select((seb) =>
+        seb.cast<number>(seb.fn.count('id').over(), 'integer').as('total')
+      )
+    )
 }
 
 export async function findSubscription({
@@ -91,14 +115,22 @@ export async function findSubscription({
 
 export async function findSubscriptions({
   criteria,
-  select
+  select,
+  pagination
 }: {
   criteria: Partial<Subscription> & { name?: string }
   select?: (keyof Subscription)[]
+  pagination?: {
+    limit: number
+    offset: number
+    sortBy: 'id'
+    descending: boolean
+  }
 }) {
   const query = find({
     criteria,
-    select
+    select,
+    pagination
   })
   return query.execute()
 }

@@ -114,12 +114,21 @@ export const adminSubscriptionRoutes = ({
         .object({
           companyId: z.number().nullable().optional(),
           clientId: z.number().nullable().optional(),
-          active: z.boolean().optional()
+          active: z.boolean().optional(),
+          pagination: z
+            .object({
+              limit: z.number(),
+              offset: z.number(),
+              sortBy: z.literal('id'),
+              descending: z.boolean()
+            })
+            .optional()
         })
         .optional()
     )
     .query(async ({ input }) => {
       let { companyId, clientId } = input || {}
+      const pagination = input?.pagination
       const active = input?.active
       if (companyId === null) companyId = NaN
       if (clientId === null) clientId = NaN
@@ -128,7 +137,8 @@ export const adminSubscriptionRoutes = ({
           companyId,
           clientId,
           active
-        }
+        },
+        pagination
       })
 
       return subscriptions || []
