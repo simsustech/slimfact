@@ -24,6 +24,10 @@
         show-update-button
         @update="openUpdateDialog"
     /></q-list>
+
+    <div class="row justify-center items-center">
+      <q-pagination v-model="page" :max="Math.ceil(total / rowsPerPage)" />
+    </div>
     <!-- <div class="row" v-if="ready">
       <client-card
         v-for="client in data"
@@ -59,7 +63,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive } from 'vue'
+import { ref, nextTick, onMounted, reactive, computed } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import ClientForm from '../../components/client/ClientForm.vue'
@@ -72,11 +76,27 @@ const { useQuery, useMutation } = await createUseTrpc()
 const lang = useLang()
 
 const name = ref<string>('')
+
+const page = ref(1)
+const rowsPerPage = ref(5)
+const total = computed(() => data.value?.at(0)?.total || 0)
+const pagination = computed<{
+  limit: number
+  offset: number
+  sortBy: 'id'
+  descending: boolean
+}>(() => ({
+  limit: rowsPerPage.value,
+  offset: (page.value - 1) * rowsPerPage.value,
+  sortBy: 'id',
+  descending: true
+}))
+
 const { data, execute } = useQuery('admin.searchClients', {
   args: reactive({
-    name
+    name,
+    pagination
   })
-
   // immediate: true
 })
 

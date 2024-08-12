@@ -24,12 +24,27 @@ export const adminClientRoutes = ({
     if (result) return result
     throw new TRPCError({ code: 'BAD_REQUEST' })
   }),
-  getClients: procedure.query(async () => {
-    const clients = await findClients({
-      criteria: {}
-    })
-    return clients || []
-  }),
+  getClients: procedure
+    .input(
+      z.object({
+        pagination: z
+          .object({
+            limit: z.number(),
+            offset: z.number(),
+            sortBy: z.literal('id'),
+            descending: z.boolean()
+          })
+          .optional()
+      })
+    )
+    .query(async ({ input }) => {
+      const { pagination } = input
+      const clients = await findClients({
+        criteria: {},
+        pagination
+      })
+      return clients || []
+    }),
   updateClient: procedure.input(client).mutation(async ({ input }) => {
     if (input.id) {
       const result = await updateClient(
@@ -45,15 +60,24 @@ export const adminClientRoutes = ({
   searchClients: procedure
     .input(
       z.object({
-        name: z.string()
+        name: z.string(),
+        pagination: z
+          .object({
+            limit: z.number(),
+            offset: z.number(),
+            sortBy: z.literal('id'),
+            descending: z.boolean()
+          })
+          .optional()
       })
     )
     .query(async ({ input }) => {
-      const { name } = input
+      const { name, pagination } = input
       const clients = await searchClients({
         criteria: {
           name
-        }
+        },
+        pagination
       })
       if (clients) return clients
       throw new TRPCError({ code: 'BAD_REQUEST' })

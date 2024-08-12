@@ -20,10 +20,17 @@ const defaultSelect = [
 
 function find({
   criteria,
-  select
+  select,
+  pagination
 }: {
   criteria: Partial<Client> & { name?: string }
   select?: (keyof Client)[]
+  pagination?: {
+    limit: number
+    offset: number
+    sortBy: 'id'
+    descending: boolean
+  }
 }) {
   if (select) select = [...defaultSelect, ...select]
   else select = [...defaultSelect]
@@ -50,7 +57,23 @@ function find({
     )
   }
 
-  return query.select(select)
+  if (pagination) {
+    if (pagination.sortBy)
+      query = query.orderBy(
+        pagination.sortBy,
+        pagination.descending ? 'desc' : 'asc'
+      )
+
+    query = query.limit(pagination.limit).offset(pagination.offset)
+  }
+
+  return query
+    .$if(pagination !== void 0, (qb) =>
+      qb.select((seb) =>
+        seb.cast<number>(seb.fn.count('id').over(), 'integer').as('total')
+      )
+    )
+    .select([...select])
 }
 
 export async function findClient({
@@ -67,14 +90,22 @@ export async function findClient({
 
 export async function findClients({
   criteria,
-  select
+  select,
+  pagination
 }: {
   criteria: Partial<Client> & { name?: string }
   select?: (keyof Client)[]
+  pagination?: {
+    limit: number
+    offset: number
+    sortBy: 'id'
+    descending: boolean
+  }
 }) {
   const query = find({
     criteria,
-    select
+    select,
+    pagination
   })
   return query.execute()
 }
@@ -119,12 +150,19 @@ export async function deleteClient(id: number) {
 
 export async function searchClients({
   criteria,
-  select
+  select,
+  pagination
 }: {
   criteria: Partial<Client> & { name?: string }
   select?: (keyof Client)[]
+  pagination?: {
+    limit: number
+    offset: number
+    sortBy: 'id'
+    descending: boolean
+  }
 }) {
-  const query = find({ criteria, select })
+  const query = find({ criteria, select, pagination })
 
-  return query.orderBy('id', 'desc').limit(5).execute()
+  return query.orderBy('id', 'desc').execute()
 }
