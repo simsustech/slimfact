@@ -238,7 +238,14 @@ export const adminInvoiceRoutes = ({
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
           companyId,
           clientId,
-          status
+          status,
+          options: {
+            withPayments: true,
+            withAmountPaid: true,
+            withAmountDue: true,
+            withRefunds: true,
+            withAmountRefunded: true
+          },
         })
         return invoices
       }

@@ -21,7 +21,14 @@ export const userInvoiceRoutes = ({
       })
       if (client?.id) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
-          clientId: client.id
+          clientId: client.id,
+          options: {
+            withPayments: true,
+            withAmountPaid: true,
+            withAmountDue: true,
+            withRefunds: true,
+            withAmountRefunded: true
+          }
         })
         return invoices
       }
