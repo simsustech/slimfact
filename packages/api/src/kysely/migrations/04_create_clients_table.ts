@@ -12,7 +12,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn('postal_code', 'varchar', (col) => col.notNull())
     .addColumn('city', 'varchar', (col) => col.notNull())
     .addColumn('country', 'varchar')
-    .addColumn('email', 'varchar', (col) => col.notNull())
+    .addColumn('email', 'varchar', (col) => col.notNull().unique())
 
     .addColumn('account_id', 'integer', (col) => col.references('accounts.id'))
     .addColumn('created_at', 'text', (col) =>
