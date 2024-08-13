@@ -141,7 +141,14 @@
   <div v-if="invoice" class="row justify-center">
     <q-scroll-area :style="scrollAreaSize">
       <q-resize-observer @resize="onResize" />
-      <invoice-page id="invoice" ref="invoiceRef" :model-value="invoice" />
+      <invoice-page
+        id="invoice"
+        ref="invoiceRef"
+        :model-value="invoice"
+        :include-tax="
+          [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
+        "
+      />
     </q-scroll-area>
   </div>
 
