@@ -87,6 +87,7 @@ export interface Language {
       postalCode: string
       city: string
       country: string
+      vatIdNumber: string
       email: string
     }
     validations: {

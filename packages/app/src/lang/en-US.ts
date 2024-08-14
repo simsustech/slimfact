@@ -88,6 +88,7 @@ const lang: Language = {
       postalCode: 'Postal code',
       city: 'City',
       country: 'Country',
+      vatIdNumber: 'VAT ID number',
       email: 'Email'
     },
     validations: {

@@ -51,6 +51,7 @@ const fields = ref([
   'postalCode',
   'city',
   'country',
+  'vatIdNumber',
   'email'
 ] as const)
 

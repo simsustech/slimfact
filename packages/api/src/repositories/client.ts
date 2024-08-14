@@ -14,6 +14,7 @@ const defaultSelect = [
   'companyName',
   'contactPersonName',
   'country',
+  'vatIdNumber',
   'email',
   'postalCode'
 ] as (keyof Client)[]

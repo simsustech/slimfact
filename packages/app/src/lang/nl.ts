@@ -89,6 +89,7 @@ const lang: Language = {
       postalCode: 'Postcode',
       city: 'Woonplaats',
       country: 'Land',
+      vatIdNumber: 'BTW ID nummer',
       email: 'Email'
     },
     validations: {

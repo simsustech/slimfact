@@ -122,6 +122,7 @@ export const adminInvoiceRoutes = ({
                 'clients.postalCode',
                 'clients.city',
                 'clients.country',
+                'clients.vatIdNumber',
                 'clients.email',
                 'clients.number'
               ])
@@ -183,6 +184,7 @@ export const adminInvoiceRoutes = ({
                 'clients.postalCode',
                 'clients.city',
                 'clients.country',
+                'clients.vatIdNumber',
                 'clients.email',
                 'clients.number'
               ])

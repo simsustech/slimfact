@@ -8,6 +8,7 @@ export const clientValidation = {
   companyName: z.string().optional(),
   contactPersonName: z.string().optional(),
   country: z.string().optional(),
+  vatIdNumber: z.string().nullable().optional(),
   email: z.string().email(),
   postalCode: z.string(),
   accountId: z.number().nullable().optional()
