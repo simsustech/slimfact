@@ -32,7 +32,13 @@ export const publicInvoiceRoutes = ({
             withAmountRefunded: true
           }
         })
-        if (invoice?.status !== 'concept') return invoice
+        if (
+          invoice?.status &&
+          ![InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED].includes(
+            invoice.status
+          )
+        )
+          return invoice
       }
       throw new TRPCError({
         code: 'BAD_REQUEST'
