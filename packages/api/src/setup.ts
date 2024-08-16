@@ -9,6 +9,7 @@ import { db as kysely } from '../src/kysely/index.js'
 // import { createOrderHandler } from '@modular-api/fastify-cart'
 import {
   type FastifyCheckoutPaymentHandler,
+  type CheckoutPluginOptionsPaymentHandlers,
   createCashPaymentHandler,
   createInvoiceHandler,
   createMolliePaymentHandler,
@@ -81,16 +82,57 @@ export default async function (fastify: FastifyInstance) {
     kysely
   })
 
-  let molliePaymentHandler: FastifyCheckoutPaymentHandler | undefined
+  let molliePaymentHandler:
+    | CheckoutPluginOptionsPaymentHandlers['mollie']
+    | undefined
   if (env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY')) {
-    molliePaymentHandler = createMolliePaymentHandler({
-      fastify,
-      kysely,
-      options: {
-        apiKey: env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY'),
-        hostname
-      }
-    })
+    const mollieProfiles = Object.keys({
+      ...process.env,
+      ...import.meta.env
+    }).filter(
+      (envVar) =>
+        envVar.includes('MOLLIE_API_KEY_') ||
+        envVar.includes('VITE_MOLLIE_API_KEY_')
+    )
+    // molliePaymentHandler = createMolliePaymentHandler({
+    //   fastify,
+    //   kysely,
+    //   options: {
+    //     apiKey: env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY'),
+    //     hostname
+    //   }
+    // })
+
+    const profiles = {
+      default: createMolliePaymentHandler({
+        fastify,
+        kysely,
+        options: {
+          apiKey: env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY'),
+          hostname
+        }
+      }),
+      ...mollieProfiles.reduce(
+        (acc, cur) => {
+          acc[cur.replace('VITE_', '').replace('MOLLIE_API_KEY_', '')] =
+            createMolliePaymentHandler({
+              fastify,
+              kysely,
+              options: {
+                apiKey: env.read(cur),
+                hostname
+              }
+            })
+          return acc
+        },
+        {} as Record<string, FastifyCheckoutPaymentHandler>
+      )
+    }
+
+    molliePaymentHandler = {
+      profiles
+    }
+    console.log(profiles)
   }
 
   let smartpinPaymentHandler: FastifyCheckoutPaymentHandler | undefined

@@ -49,14 +49,14 @@ importers:
         specifier: 7.0.4
         version: 7.0.4
       '@modular-api/api':
-        specifier: ^0.4.22
-        version: 0.4.22(bcrypt@5.1.1)(fastify@4.27.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@5.6.5)(otplib@12.0.1)(typescript@5.4.5)(vue@3.4.27)
+        specifier: ^0.4.23
+        version: 0.4.23(bcrypt@5.1.1)(fastify@4.27.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@5.6.5)(otplib@12.0.1)(typescript@5.4.5)(vue@3.4.27)
       '@modular-api/fastify-cart':
         specifier: ^0.2.4
         version: 0.2.4(kysely@0.27.4)
       '@modular-api/fastify-checkout':
-        specifier: ^0.3.12
-        version: 0.3.12(kysely@0.27.4)
+        specifier: ^0.3.13
+        version: 0.3.13(kysely@0.27.4)
       '@modular-api/fastify-oidc':
         specifier: ^0.5.4
         version: 0.5.4(@fastify/static@7.0.4)(bcrypt@5.1.1)(fastify@4.27.0)(handlebars@4.7.8)(kysely@0.27.4)(otplib@12.0.1)(typescript@5.4.5)
@@ -201,8 +201,8 @@ importers:
         specifier: ^0.2.4
         version: 0.2.4(kysely@0.27.4)
       '@modular-api/fastify-checkout':
-        specifier: ^0.3.12
-        version: 0.3.12(kysely@0.27.4)
+        specifier: ^0.3.13
+        version: 0.3.13(kysely@0.27.4)
       '@modular-api/quasar-components':
         specifier: ^0.2.13
         version: 0.2.13(quasar@2.16.4)
@@ -2917,8 +2917,8 @@ packages:
       - supports-color
     dev: false
 
-  /@modular-api/api@0.4.22(bcrypt@5.1.1)(fastify@4.27.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@5.6.5)(otplib@12.0.1)(typescript@5.4.5)(vue@3.4.27):
-    resolution: {integrity: sha512-i7wQeyTWpaDK2aFaPPE+a/xqG0PP5FhZbMUkeQJHkInpIXGqhogYjLcSW2jPkR0EXMZ0jn84c8XN0iu1KSmjAg==}
+  /@modular-api/api@0.4.23(bcrypt@5.1.1)(fastify@4.27.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@5.6.5)(otplib@12.0.1)(typescript@5.4.5)(vue@3.4.27):
+    resolution: {integrity: sha512-sxEof1n87bI9NCg9gEzK7hEjW+fgmbAcv6GJ4KntaWyDCTZ1slEuCijZ2PFPNyq3PS8uaRB2/1v6mrVsWDinrw==}
     peerDependencies:
       kysely: ^0.27.4
       openid-client: ^5.6.5
@@ -2929,7 +2929,7 @@ packages:
       '@fastify/middie': 8.3.1
       '@fastify/static': 7.0.4
       '@modular-api/fastify-cart': 0.2.4(kysely@0.27.4)
-      '@modular-api/fastify-checkout': 0.3.12(kysely@0.27.4)
+      '@modular-api/fastify-checkout': 0.3.13(kysely@0.27.4)
       '@modular-api/fastify-oidc': 0.5.4(@fastify/static@7.0.4)(bcrypt@5.1.1)(fastify@4.27.0)(handlebars@4.7.8)(kysely@0.27.4)(otplib@12.0.1)(typescript@5.4.5)
       '@trpc/server': 10.45.2
       '@types/compression': 1.7.5
@@ -2971,8 +2971,8 @@ packages:
     transitivePeerDependencies:
       - debug
 
-  /@modular-api/fastify-checkout@0.3.12(kysely@0.27.4):
-    resolution: {integrity: sha512-QD7P0VZ3Fy+JXF1rS8wOz4727lPLCsbj0GF0jv3/h2skejCkpYC6WUZHCLJYtQV/1Y56iTh83StAV2qvbDujUQ==}
+  /@modular-api/fastify-checkout@0.3.13(kysely@0.27.4):
+    resolution: {integrity: sha512-o8j1z2DtNfjei2mq1eS6zEVfKH7E/K8saFyaI9DkAksC7i5vK6c4nhWrBWl9KDW2f+Y9noUDYP5zRlQhXSsy4w==}
     peerDependencies:
       kysely: ^0.27.4
     dependencies:

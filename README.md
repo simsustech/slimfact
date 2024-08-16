@@ -25,9 +25,11 @@ SlimFact streamlines your invoicing process, ensuring accuracy, security, and co
 - Ability to use decimals in invoice line quantity.
 - Define the tax rate per invoice line and define wether or not the price includes or excludes tax, and automatically calculate the correct amount.
 - Send invoices in different languages by defining the locale on invoice level.
-- Clients can easily pay their invoices or bills online with the help of a payment service provider (Mollie).
-    - Accept down payments.
-    - Refund payments.
+- Clients can easily pay their invoices or bills online with the help of a payment service provider.
+    - Mollie
+        - Support for multiple [profiles](https://docs.mollie.com/reference/profiles-api).
+        - Accept down payments.
+        - Refund payments.
 - Support for tracking cash or bank transaction payments.
 
 

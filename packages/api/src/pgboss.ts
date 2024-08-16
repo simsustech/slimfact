@@ -28,13 +28,16 @@ const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
           web('status', '=', RefundStatus.QUEUED)
         ])
       )
+      .where('checkout.refunds.paymentServiceProvider', '=', 'mollie')
       .select('id')
       .execute()
 
     for (const refund of refunds) {
-      await fastify.checkout?.paymentHandlers?.mollie?.getRefund({
-        id: refund.id
-      })
+      if (fastify.checkout?.paymentHandlers?.mollie) {
+        await fastify.checkout.paymentHandlers.mollie().getRefund({
+          id: refund.id
+        })
+      }
     }
   }
 
