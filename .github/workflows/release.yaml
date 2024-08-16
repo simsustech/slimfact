@@ -60,7 +60,7 @@ jobs:
           context: .
           push: true
           target: downloader
-          tags: ${{ steps.meta-meta_downloader.outputs.tags }}
+          tags: ${{ steps.meta_downloader.outputs.tags }}
           labels: ${{ steps.meta_downloader.outputs.labels }}
           secrets: |
             "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
