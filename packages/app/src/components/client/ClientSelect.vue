@@ -1,6 +1,6 @@
 <template>
   <filtered-model-select
-    :label="lang.client.client"
+    :label="`${lang.client.client}*`"
     :filtered-options="filteredOptions"
     label-key="companyName"
     :label-function="

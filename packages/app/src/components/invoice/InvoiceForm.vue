@@ -13,9 +13,23 @@
         v-model="modelValue.clientId"
         class="col-md-4 col-12"
         :filtered-options="filteredClients"
-        required
+        :rules="[
+          (val) =>
+            !!val ||
+            !!modelValue.clientDetails?.email ||
+            lang.client.validations.fieldRequired
+        ]"
         @filter="filterClients"
-      />
+      >
+        <template #append>
+          <q-btn
+            v-if="modelValue.clientDetails?.email && !modelValue.clientId"
+            icon="edit"
+            flat
+            @click.stop="openUpdateClientDialog"
+          />
+        </template>
+      </client-select>
       <number-prefix-select
         v-model="modelValue.numberPrefixTemplate"
         class="col-md-4 col-12"
@@ -153,6 +167,10 @@
       type="textarea"
     />
   </q-form>
+
+  <responsive-dialog ref="updateDialogRef" persistent @submit="submitClient">
+    <client-form ref="updateClientFormRef" @submit="updateClient"></client-form>
+  </responsive-dialog>
 </template>
 
 <script setup lang="ts">
@@ -165,7 +183,7 @@ import {
   type ClientDetails
 } from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
-import { ref, toRefs, watch } from 'vue'
+import { ref, toRefs, watch, nextTick } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
 import {
@@ -176,6 +194,7 @@ import { QForm, extend, useQuasar } from 'quasar'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
+import ClientForm from '../client/ClientForm.vue'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -323,6 +342,35 @@ const currencySymbols = ref({
   EUR: '€',
   USD: '$'
 })
+
+const updateClientFormRef = ref<typeof ClientForm>()
+const updateDialogRef = ref<typeof ResponsiveDialog>()
+
+const openUpdateClientDialog = () => {
+  const data = modelValue.value.clientDetails
+  updateDialogRef.value?.functions.open()
+  nextTick(() => {
+    updateClientFormRef.value?.functions.setValue(data)
+  })
+}
+
+const submitClient: InstanceType<
+  typeof ResponsiveDialog
+>['$props']['onSubmit'] = async ({ done }) => {
+  const afterUpdate = (success?: boolean) => {
+    done(success)
+  }
+  updateClientFormRef.value?.functions.submit({ done: afterUpdate })
+}
+
+const updateClient: InstanceType<
+  typeof ClientForm
+>['$props']['onSubmit'] = async ({ data, done }) => {
+  console.log(data)
+  modelValue.value.clientDetails = data
+
+  done()
+}
 
 const functions = ref({
   submit,
