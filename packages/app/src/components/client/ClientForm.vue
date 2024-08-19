@@ -118,7 +118,7 @@ export interface Props {
     | 'autofocus'
     | ('label' & { style?: Partial<CSSStyleDeclaration> })
   >
-  filteredAccounts: Account[]
+  filteredAccounts?: Account[]
 }
 defineProps<Props>()
 const emit = defineEmits<{
