@@ -248,6 +248,9 @@ export interface Language {
       confirmRefund: (amount: number | string) => string
     }
   }
+  export: {
+    title: string
+  }
 }
 
 import type { Ref } from 'vue'

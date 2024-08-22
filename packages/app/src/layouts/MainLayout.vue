@@ -180,6 +180,11 @@
                     <q-item-label> Accounts </q-item-label>
                   </q-item-section>
                 </q-item>
+                <q-item to="/settings/export">
+                  <q-item-section>
+                    <q-item-label> {{ lang.export.title }} </q-item-label>
+                  </q-item-section>
+                </q-item>
               </q-expansion-item>
             </q-expansion-item>
 

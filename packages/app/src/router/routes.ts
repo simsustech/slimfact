@@ -71,6 +71,10 @@ const routes: RouteRecordRaw[] = [
             path: 'initialnumberforprefixes',
             component: () =>
               import('../pages/settings/InitialNumberForPrefixesPage.vue')
+          },
+          {
+            path: 'export',
+            component: () => import('../pages/settings/ExportPage.vue')
           }
         ]
       },

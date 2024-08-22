@@ -10,6 +10,8 @@ import { Readable } from 'stream'
 import { Invoice } from '@modular-api/fastify-checkout'
 import { addDays } from 'date-fns'
 import { PaymentMethod, InvoiceStatus } from '@modular-api/fastify-checkout'
+import { json2csv } from 'json-2-csv'
+
 const hostname = env.read('API_HOSTNAME') || env.read('VITE_API_HOSTNAME')
 const slimfactDownloaderHostname =
   env.read('SLIMFACT_DOWNLOADER_HOSTNAME') ||
@@ -814,5 +816,99 @@ export const adminInvoiceRoutes = ({
       throw new TRPCError({
         code: 'BAD_REQUEST'
       })
+    }),
+  exportPayments: procedure
+    .input(
+      z.object({
+        startDate: z.string(),
+        endDate: z.string(),
+        paymentServiceProvider: z.literal('mollie').optional()
+      })
+    )
+    .query(async ({ input }) => {
+      const { startDate, endDate, paymentServiceProvider } = input
+      const paymentsQuery = db
+        .selectFrom('checkout.payments')
+        .selectAll()
+        .where('checkout.payments.paidAt', '>=', startDate)
+        .where('checkout.payments.paidAt', '<=', endDate)
+
+      if (paymentServiceProvider) {
+        paymentsQuery.where(
+          'checkout.payments.paymentServiceProvider',
+          '=',
+          paymentServiceProvider
+        )
+      }
+
+      const payments = await paymentsQuery.execute()
+
+      if (payments?.length) {
+        let invoices = await fastify.checkout?.invoiceHandler?.getInvoices({
+          ids: payments
+            .filter((payment) => !!payment.invoiceId)
+            .map((payment) => payment.invoiceId) as number[],
+          options: {
+            withPayments: true,
+            withRefunds: true,
+            withAmountPaid: true,
+            withAmountDue: true,
+            withAmountRefunded: true
+          }
+        })
+
+        invoices = invoices?.map((invoice) => {
+          invoice.payments = invoice.payments?.filter((invoicePayment) =>
+            payments.some((payment) => payment.id === invoicePayment.id)
+          )
+          return invoice
+        })
+
+        const invoicesMapped = invoices?.map((invoice) => {
+          return {
+            id: invoice.id,
+            uuid: invoice.uuid,
+            number: invoice.number,
+            numberPrefix: invoice.numberPrefix,
+            clientId: invoice.clientId,
+            companyId: invoice.companyId,
+            companyPrefix: invoice.companyPrefix,
+            currency: invoice.currency,
+            date: invoice.date,
+            lines: invoice.lines,
+            discounts: invoice.discounts,
+            surcharges: invoice.surcharges,
+            payments: invoice.payments,
+            refunds: invoice.refunds,
+            totalExcludingTax: invoice.totalExcludingTax,
+            totalIncludingTax: invoice.totalIncludingTax,
+            taxSummary: invoice.taxSummary,
+            amountPaid: invoice.amountPaid,
+            amountDue: invoice.amountDue,
+            amountRefunded: invoice.amountRefunded,
+            metadata: invoice.metadata,
+            status: invoice.status
+          }
+        })
+
+        const asdf = json2csv(invoicesMapped || [], {
+          // expandArrayObjects: true,
+          // unwindArrays: true,
+          // excludeKeys: [
+          //   'clientDetails',
+          //   'locale',
+          //   'numberPrefixTemplate',
+          //   'companyDetails',
+          //   'companyLogoPng',
+          //   'requiredDownPaymentAmount',
+          //   'notes',
+          //   'subscriptionId',
+          //   'reminderSentDates'
+          // ]
+        })
+        console.log(asdf)
+        console.log(JSON.stringify(invoicesMapped))
+        return asdf
+      }
     })
 })

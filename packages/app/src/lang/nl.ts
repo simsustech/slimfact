@@ -227,6 +227,9 @@ const lang: Language = {
       confirmRefund: (amount) =>
         `Weet u zeker dat u een terugbetaling t.w.v. ${amount} wil doen?`
     }
+  },
+  export: {
+    title: 'Exporteren'
   }
 }
 
