@@ -396,6 +396,10 @@
             disable
           />
         </div>
+
+        <div v-if="modelValue.notes">
+          {{ modelValue.notes }}
+        </div>
       </q-tab-panel>
       <q-tab-panel v-if="modelValue.payments?.length" name="payments">
         <q-list>
