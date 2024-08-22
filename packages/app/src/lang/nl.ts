@@ -204,6 +204,7 @@ const lang: Language = {
     addPayment: 'Betaling toevoegen',
     amountDue: 'Te betalen',
     amountPaid: 'Betaald',
+    amountRefunded: 'Terugbetaald',
     downPayment: 'Aanbetaling',
     fields: {
       transactionReference: 'Transactie referentie',

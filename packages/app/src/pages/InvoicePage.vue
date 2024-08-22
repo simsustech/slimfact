@@ -127,6 +127,17 @@
     />
   </div>
   <div
+    v-if="invoice?.amountRefunded && invoice?.amountRefunded > 0"
+    class="row justify-center no-print"
+  >
+    {{ lang.payment.amountRefunded }}:
+    <price
+      :model-value="invoice.amountRefunded"
+      :currency="invoice.currency"
+      :locale="invoice.locale"
+    />
+  </div>
+  <div
     v-if="invoice?.amountDue && invoice?.amountDue > 0"
     class="row justify-center no-print"
   >

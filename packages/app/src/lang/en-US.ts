@@ -202,6 +202,7 @@ const lang: Language = {
     addPayment: 'Add payment',
     amountDue: 'Amount due',
     amountPaid: 'Amount paid',
+    amountRefunded: 'Amount refunded',
     downPayment: 'Down payment',
     fields: {
       transactionReference: 'Transaction reference',

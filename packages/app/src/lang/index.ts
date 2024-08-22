@@ -226,6 +226,7 @@ export interface Language {
     addPayment: string
     amountDue: string
     amountPaid: string
+    amountRefunded: string
     downPayment: string
     fields: {
       transactionReference: string
