@@ -146,7 +146,8 @@ const lang: Language = {
       remindersSentOn: (dates) =>
         `Herinneringen verstuurd op ${dates.join('; ')}.`,
       cancelInvoice: ({ clientDetails, totalIncludingTax }) =>
-        `Weet u zeker dat u de factuur aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax} wilt annuleren?`
+        `Weet u zeker dat u de factuur aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax} wilt annuleren?`,
+      downPaymentReceived: 'Aanbetaling is ontvangen.'
     }
   },
   numberPrefix: {

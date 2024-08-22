@@ -9,6 +9,11 @@
               !!modelValue.amountPaid &&
               modelValue.amountPaid >= modelValue.totalIncludingTax
             "
+            :down-payment-received="
+              !!modelValue.amountPaid &&
+              !!modelValue.requiredDownPaymentAmount &&
+              modelValue.amountPaid >= modelValue.requiredDownPaymentAmount
+            "
           />
           <price
             :model-value="modelValue.totalIncludingTax"

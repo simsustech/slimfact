@@ -164,6 +164,7 @@ export interface Language {
         clientDetails: ClientDetails
         totalIncludingTax: number
       }) => string
+      downPaymentReceived: string
     }
   }
   numberPrefix: {
