@@ -25,7 +25,10 @@
             </q-item-section>
           </q-item>
           <q-item
-            v-if="configuration.PAYMENT_HANDLERS.bankTransfer"
+            v-if="
+              configuration.PAYMENT_HANDLERS.bankTransfer &&
+              invoice.status === InvoiceStatus.OPEN
+            "
             clickable
             @click="openBankTransferDialog"
           >
@@ -366,7 +369,7 @@ const onResize: InstanceType<typeof QResizeObserver>['$props']['onResize'] = (
 }
 
 const format = (value: number) =>
-  Intl.NumberFormat($q.lang.isoName, {
+  Intl.NumberFormat(invoice.value?.locale || $q.lang.isoName, {
     maximumFractionDigits: 2,
     style: 'currency',
     currency: invoice.value?.currency
