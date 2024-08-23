@@ -283,7 +283,10 @@ export const adminInvoiceRoutes = ({
           uuid,
           options: {
             withAmountPaid: true,
-            withPayments: true
+            withPayments: true,
+            withAmountDue: true,
+            withAmountRefunded: true,
+            withRefunds: true
           }
         })
         return invoice
