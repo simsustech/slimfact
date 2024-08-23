@@ -10,7 +10,8 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
       },
       ssr: {
         fastify: {
-          bodyLimit: 5e6
+          bodyLimit: 5e6,
+          maxParamLength: 5000
         },
         serverModules: [
           '@slimfact/app',
