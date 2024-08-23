@@ -133,6 +133,7 @@ export interface Language {
       markPaid: string
       cancel: string
       print: string
+      openReference: string
     }
     messages: {
       markPaid: ({

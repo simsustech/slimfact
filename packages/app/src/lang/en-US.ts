@@ -133,7 +133,8 @@ const lang: Language = {
       sendExhortation: 'Send exhortation',
       markPaid: 'Mark paid',
       cancel: 'Cancel',
-      print: 'Print'
+      print: 'Print',
+      openReference: 'Open reference'
     },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>

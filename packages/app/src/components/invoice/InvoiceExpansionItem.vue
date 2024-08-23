@@ -321,6 +321,21 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
+              <q-item
+                v-if="modelValue.metadata?.referenceUrl"
+                clickable
+                :href="modelValue.metadata?.referenceUrl"
+                target="_blank"
+              >
+                <q-item-section avatar
+                  ><q-icon name="open_in_new" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    {{ lang.invoice.labels.openReference }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
             </q-list>
           </q-menu>
         </q-btn>

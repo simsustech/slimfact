@@ -134,7 +134,8 @@ const lang: Language = {
       sendExhortation: 'Verstuur aanmaning',
       markPaid: 'Markeer betaald',
       cancel: 'Annuleer',
-      print: 'Print'
+      print: 'Print',
+      openReference: 'Open referentie'
     },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>

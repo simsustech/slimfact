@@ -148,7 +148,8 @@ export const adminInvoiceRoutes = ({
               requiredDownPaymentAmount: input.requiredDownPaymentAmount,
               status: input.status,
               companyId: companyDetails.id,
-              clientId: clientDetails.id
+              clientId: clientDetails.id,
+              metadata: input.metadata
             }
           )
 
@@ -212,7 +213,8 @@ export const adminInvoiceRoutes = ({
               requiredDownPaymentAmount: input.requiredDownPaymentAmount,
               status: input.status,
               companyId: companyDetails.id,
-              clientId: clientDetails.id
+              clientId: clientDetails.id,
+              metadata: input.metadata
             }
           )
 

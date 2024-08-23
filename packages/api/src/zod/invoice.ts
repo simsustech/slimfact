@@ -45,7 +45,8 @@ export const invoiceValidation = {
   projectId: z.string().nullable().optional(),
   notes: z.string().optional().nullable(),
   status: z.nativeEnum(InvoiceStatus).optional(),
-  paymentId: z.number().optional().nullable()
+  paymentId: z.number().optional().nullable(),
+  metadata: z.record(z.string(), z.unknown())
 }
 
 export const invoice = z.object(invoiceValidation)
