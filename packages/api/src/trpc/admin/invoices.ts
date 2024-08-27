@@ -311,6 +311,13 @@ export const adminInvoiceRoutes = ({
             id
           })
           if (invoice) {
+            const { emailBcc } =
+              (await db
+                .selectFrom('companies')
+                .select('emailBcc')
+                .where('id', '=', invoice.companyId)
+                .executeTakeFirst()) || {}
+
             const currentDate = new Date()
 
             const numberPrefix = handlebars.compile(
@@ -356,7 +363,7 @@ export const adminInvoiceRoutes = ({
                 from: `${invoice.companyDetails.name} <noreply@slimfact.app>`,
                 replyTo: invoice.companyDetails.email,
                 to: invoice.clientDetails.email,
-                bcc: invoice.companyDetails.emailBcc,
+                bcc: emailBcc,
                 subject,
                 html: body,
                 attachments
