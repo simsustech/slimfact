@@ -356,6 +356,7 @@ export const adminInvoiceRoutes = ({
                 from: `${invoice.companyDetails.name} <noreply@slimfact.app>`,
                 replyTo: invoice.companyDetails.email,
                 to: invoice.clientDetails.email,
+                bcc: invoice.companyDetails.emailBcc,
                 subject,
                 html: body,
                 attachments
