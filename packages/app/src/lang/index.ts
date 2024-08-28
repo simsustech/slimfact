@@ -67,6 +67,7 @@ export interface Language {
       bic: string
       defaultNumberPrefixTemplate: string
       defaultLocale: string
+      defaultCurrency: string
     }
     validations: {
       fieldRequired: string

@@ -25,7 +25,8 @@ const defaultSelect = [
   'prefix',
   'website',
   'defaultNumberPrefixTemplate',
-  'defaultLocale'
+  'defaultLocale',
+  'defaultCurrency'
 ] as (keyof Company)[]
 
 function find({

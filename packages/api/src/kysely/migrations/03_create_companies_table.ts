@@ -23,6 +23,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn('bic', 'varchar', (col) => col.notNull())
     .addColumn('default_number_prefix_template', 'varchar')
     .addColumn('default_locale', 'varchar')
+    .addColumn('default_currency', 'varchar')
 
     .addColumn('created_at', 'text', (col) =>
       col.defaultTo(sql`CURRENT_TIMESTAMP`).notNull()

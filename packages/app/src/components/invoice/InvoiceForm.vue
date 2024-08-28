@@ -335,6 +335,11 @@ watch(
       (company) => company.id === newVal
     )?.defaultLocale
     if (defaultLocale) modelValue.value.locale = defaultLocale
+
+    const defaultCurrency = filteredCompanies.value.find(
+      (company) => company.id === newVal
+    )?.defaultCurrency
+    if (defaultCurrency) modelValue.value.currency = defaultCurrency
   }
 )
 
@@ -366,7 +371,6 @@ const submitClient: InstanceType<
 const updateClient: InstanceType<
   typeof ClientForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  console.log(data)
   modelValue.value.clientDetails = data
 
   done()

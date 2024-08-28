@@ -161,15 +161,23 @@
         :filtered-options="filteredNumberPrefixes"
         bottom-slots
         lazy-rules
+        name="defaultNumberPrefixTemplate"
       />
       <locale-select
         v-model="modelValue.defaultLocale"
         :label="lang.company.fields.defaultLocale"
-        required
         class="col-md-3 col-12"
         bottom-slots
         lazy-rules
-        name="locale"
+        name="defaultLocale"
+      />
+      <currency-select
+        v-model="modelValue.defaultCurrency"
+        :label="lang.company.fields.defaultCurrency"
+        class="col-md-3 col-12"
+        bottom-slots
+        lazy-rules
+        name="defaultCurrency"
       />
     </div>
   </q-form>
@@ -183,7 +191,10 @@ import { type ResponsiveDialog } from '@simsustech/quasar-components'
 import { FormInput } from '@simsustech/quasar-components/form'
 import SvgAvatar from '../SvgAvatar.vue'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
-import { LocaleSelect } from '@simsustech/quasar-components/form'
+import {
+  LocaleSelect,
+  CurrencySelect
+} from '@simsustech/quasar-components/form'
 import { Company, NumberPrefix } from '@slimfact/api/zod'
 export interface Props {
   form?: QFormProps & Partial<HTMLFormElement> & Partial<HTMLDivElement>
@@ -232,7 +243,8 @@ const initialValue: Company = {
   prefix: '',
   website: null,
   defaultNumberPrefixTemplate: '',
-  defaultLocale: 'en-US'
+  defaultLocale: 'en-US',
+  defaultCurrency: 'EUR'
 }
 
 const modelValue = ref<Company>(initialValue)

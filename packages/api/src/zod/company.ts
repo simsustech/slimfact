@@ -19,7 +19,11 @@ export const companyValidation = {
   prefix: z.string(),
   logoSvg: z.string().nullable().optional(),
   defaultNumberPrefixTemplate: z.string().nullable().optional(),
-  defaultLocale: z.string().nullable().optional()
+  defaultLocale: z.string().nullable().optional(),
+  defaultCurrency: z
+    .union([z.literal('EUR'), z.literal('USD')])
+    .nullable()
+    .optional()
 }
 
 export const company = z.object(companyValidation)

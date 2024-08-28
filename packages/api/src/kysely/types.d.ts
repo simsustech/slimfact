@@ -46,6 +46,7 @@ export interface Companies {
   website?: string | null
   defaultNumberPrefixTemplate?: string | null
   defaultLocale?: string | null
+  defaultCurrency?: 'EUR' | 'USD' | null
   createdAt: Generated<string>
 }
 

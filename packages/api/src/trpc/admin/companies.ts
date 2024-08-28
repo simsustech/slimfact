@@ -39,7 +39,8 @@ export const adminCompanyRoutes = ({
       website,
       prefix,
       defaultNumberPrefixTemplate,
-      defaultLocale
+      defaultLocale,
+      defaultCurrency
     } = input
 
     let logoSvg = input.logoSvg
@@ -69,7 +70,8 @@ export const adminCompanyRoutes = ({
       prefix,
       logoSvg,
       defaultNumberPrefixTemplate,
-      defaultLocale
+      defaultLocale,
+      defaultCurrency
     })
     if (result) return result
 
@@ -117,7 +119,8 @@ export const adminCompanyRoutes = ({
         website,
         prefix,
         defaultNumberPrefixTemplate,
-        defaultLocale
+        defaultLocale,
+        defaultCurrency
       } = input
 
       let logoSvg = input.logoSvg
@@ -151,7 +154,8 @@ export const adminCompanyRoutes = ({
           prefix,
           logoSvg,
           defaultNumberPrefixTemplate,
-          defaultLocale
+          defaultLocale,
+          defaultCurrency
         }
       )
       if (result) return result
