@@ -20,23 +20,32 @@ types.setTypeParser(1700, function (val) {
 types.setTypeParser(1114, (str) => str)
 types.setTypeParser(1082, (str) => str)
 
+const host = env.read('POSTGRES_HOST') || env.read('VITE_POSTGRES_HOST')
+const user =
+  env.read('POSTGRES_USER') || env.read('VITE_POSTGRES_USER') || 'postgres'
+const password =
+  env.read('POSTGRES_PASSWORD') || env.read('VITE_POSTGRES_PASSWORD')
+const database = env.read('POSTGRES_DB') || env.read('VITE_POSTGRES_DB')
+const port = env.read('POSTGRES_PORT') || env.read('VITE_POSTGRES_PORT') || 5432
+// https://www.digitalocean.com/community/questions/cannot-connect-with-dev-database-due-to-ssl-issue
+const ssl =
+  env.read('POSTGRES_SSL') || env.read('VITE_POSTGRES_SSL')
+    ? {
+        rejectUnauthorized: false,
+        ca: process.env.CACERT
+      }
+    : false
+
+export const postgresConnectionString = `postgress://${user}:${password}@${host}:${port}/${database}?sslmode=${ssl ? (ssl.rejectUnauthorized ? 'prefer' : 'no-verify') : ''}&sslrootcert=${ssl ? (ssl.ca ? ssl.ca : '') : ''}`
+
 const dialect = new PostgresDialect({
   pool: new Pool({
-    host: env.read('POSTGRES_HOST') || env.read('VITE_POSTGRES_HOST'),
-    user:
-      env.read('POSTGRES_USER') || env.read('VITE_POSTGRES_USER') || 'postgres',
-    password:
-      env.read('POSTGRES_PASSWORD') || env.read('VITE_POSTGRES_PASSWORD'),
-    database: env.read('POSTGRES_DB') || env.read('VITE_POSTGRES_DB'),
-    port: env.read('POSTGRES_PORT') || env.read('VITE_POSTGRES_PORT') || 5432,
-    // https://www.digitalocean.com/community/questions/cannot-connect-with-dev-database-due-to-ssl-issue
-    ssl:
-      env.read('POSTGRES_SSL') || env.read('VITE_POSTGRES_SSL')
-        ? {
-            rejectUnauthorized: false,
-            ca: process.env.CACERT
-          }
-        : false
+    host,
+    user,
+    password,
+    database,
+    port,
+    ssl
   })
 })
 
