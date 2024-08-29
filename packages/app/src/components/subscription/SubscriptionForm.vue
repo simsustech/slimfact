@@ -95,7 +95,7 @@
       />
     </div>
     <div class="row items-center">
-      Lines <q-btn flat round icon="add" @click="addLine" />
+      {{ lang.invoice.lines }} <q-btn flat round icon="add" @click="addLine" />
     </div>
 
     <invoice-line-row
@@ -113,7 +113,8 @@
     ></invoice-line-row>
 
     <div class="row items-center">
-      Discounts <q-btn flat round icon="add" @click="addDiscount" />
+      {{ lang.invoice.discounts }}
+      <q-btn flat round icon="add" @click="addDiscount" />
     </div>
     <invoice-discount-surcharge-row
       v-for="(line, index) in modelValue.discounts"
@@ -130,7 +131,8 @@
     />
 
     <div class="row items-center">
-      Surcharges <q-btn flat round icon="add" @click="addSurcharge" />
+      {{ lang.invoice.surcharges }}
+      <q-btn flat round icon="add" @click="addSurcharge" />
     </div>
     <invoice-discount-surcharge-row
       v-for="(line, index) in modelValue.surcharges"
