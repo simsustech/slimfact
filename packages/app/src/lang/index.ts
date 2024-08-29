@@ -199,6 +199,10 @@ export interface Language {
       start: string
       stop: string
     }
+    types: {
+      invoice: string
+      bill: string
+    }
   }
   receipt: {
     title: string

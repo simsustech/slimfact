@@ -16,6 +16,7 @@
           }}
         </q-item-label>
         <q-item-label caption>
+          {{ lang.subscription.types[modelValue.type] }},
           {{
             cronstrue.toString(modelValue.cronSchedule, {
               locale: $q.lang.isoName.slice(0, 2)

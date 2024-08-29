@@ -181,6 +181,10 @@ const lang: Language = {
       update: 'Update',
       start: 'Start',
       stop: 'Stop'
+    },
+    types: {
+      invoice: 'Factuur',
+      bill: 'Rekening'
     }
   },
   receipt: {

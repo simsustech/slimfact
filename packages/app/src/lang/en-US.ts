@@ -179,6 +179,10 @@ const lang: Language = {
       update: 'Update',
       start: 'Start',
       stop: 'Stop'
+    },
+    types: {
+      invoice: 'Invoice',
+      bill: 'Bill'
     }
   },
   receipt: {
