@@ -1,6 +1,6 @@
 <template>
-  <div class="row justify-center no-print q-mb-md q-gutter-x-sm">
-    <q-btn
+  <div class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm">
+    <q-btn-dropdown
       v-if="
         invoice &&
         [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
@@ -10,58 +10,56 @@
       :label="lang.payment.pay"
       color="primary"
     >
-      <q-menu>
-        <q-list>
-          <q-item
-            v-if="configuration.PAYMENT_HANDLERS.ideal"
-            clickable
-            @click="payWithIdeal"
-          >
-            <q-item-section avatar>
-              <q-icon name="fa-brands fa-ideal" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label> iDEAL </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item
-            v-if="
-              configuration.PAYMENT_HANDLERS.bankTransfer &&
-              invoice.status === InvoiceStatus.OPEN
-            "
-            clickable
-            @click="openBankTransferDialog"
-          >
-            <q-item-section avatar>
-              <q-icon name="fa-solid fa-money-bill-transfer" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>
-                {{ lang.payment.methods.bankTransfer }}
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item
-            v-if="
-              configuration.PAYMENT_HANDLERS.smartpin &&
-              isMobile &&
-              user?.roles?.includes('pointofsale')
-            "
-            clickable
-            @click="payWithSmartpin"
-          >
-            <q-item-section avatar>
-              <q-icon name="credit_card" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label> SmartPin </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-menu>
-    </q-btn>
+      <q-list>
+        <q-item
+          v-if="configuration.PAYMENT_HANDLERS.ideal"
+          clickable
+          @click="payWithIdeal"
+        >
+          <q-item-section avatar>
+            <q-icon name="fa-brands fa-ideal" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label> iDEAL </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item
+          v-if="
+            configuration.PAYMENT_HANDLERS.bankTransfer &&
+            invoice.status === InvoiceStatus.OPEN
+          "
+          clickable
+          @click="openBankTransferDialog"
+        >
+          <q-item-section avatar>
+            <q-icon name="fa-solid fa-money-bill-transfer" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.payment.methods.bankTransfer }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item
+          v-if="
+            configuration.PAYMENT_HANDLERS.smartpin &&
+            isMobile &&
+            user?.roles?.includes('pointofsale')
+          "
+          clickable
+          @click="payWithSmartpin"
+        >
+          <q-item-section avatar>
+            <q-icon name="credit_card" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label> SmartPin </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-btn-dropdown>
 
-    <q-btn
+    <q-btn-dropdown
       v-if="
         invoice &&
         [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
@@ -72,23 +70,21 @@
       :label="`${lang.payment.downPayment} ${format(invoice.requiredDownPaymentAmount - (invoice.amountPaid || 0))}`"
       color="primary"
     >
-      <q-menu>
-        <q-list>
-          <q-item
-            v-if="configuration.PAYMENT_HANDLERS.ideal"
-            clickable
-            @click="payDownPaymentWithIdeal"
-          >
-            <q-item-section avatar>
-              <q-icon name="fa-brands fa-ideal" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label> iDEAL </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-menu>
-    </q-btn>
+      <q-list>
+        <q-item
+          v-if="configuration.PAYMENT_HANDLERS.ideal"
+          clickable
+          @click="payDownPaymentWithIdeal"
+        >
+          <q-item-section avatar>
+            <q-icon name="fa-brands fa-ideal" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label> iDEAL </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-btn-dropdown>
 
     <q-btn
       v-if="
@@ -100,21 +96,6 @@
       :label="`${lang.refund.refund} ${format(-invoice.amountDue)}`"
       color="primary"
       @click="refund"
-    />
-    <q-btn
-      v-if="invoice"
-      icon="download"
-      :label="lang.invoice.labels.download"
-      color="primary"
-      download="proposed_file_name"
-      :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${hostname}`"
-    />
-    <q-btn
-      v-if="invoice"
-      icon="print"
-      :label="lang.invoice.labels.print"
-      color="primary"
-      @click="print"
     />
   </div>
 
@@ -153,20 +134,63 @@
   </div>
 
   <div v-if="invoice" class="row justify-center">
-    <q-scroll-area :style="scrollAreaSize">
+    <q-scroll-area id="scroll-area" :style="scrollAreaSize">
       <q-resize-observer @resize="onResize" />
-      <invoice-page
-        id="invoice"
-        ref="invoiceRef"
-        :model-value="invoice"
-        :include-tax="
-          [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
-        "
-      />
+      <div
+        class="column col q-mt-lg"
+        :style="{ position: 'absolute', 'z-index': 10 }"
+      >
+        <q-btn
+          v-if="getZoomFraction() < 1"
+          round
+          :icon="zoomFraction === 1 ? 'zoom_out' : 'zoom_in'"
+          size="xl"
+          class="q-ml-lg q-mr-lg q-mb-lg no-print"
+          color="primary"
+          @click="onClickZoom"
+        />
+        <q-btn
+          v-if="invoice"
+          round
+          icon="download"
+          size="xl"
+          class="q-ml-lg q-mr-lg q-mb-lg no-print"
+          color="primary"
+          download="proposed_file_name"
+          :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${hostname}`"
+        >
+          <q-tooltip>
+            {{ lang.invoice.labels.download }}
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          v-if="invoice"
+          round
+          size="xl"
+          class="q-ml-lg q-mr-lg no-print"
+          icon="print"
+          color="primary"
+          @click="print"
+        >
+          <q-tooltip>
+            {{ lang.invoice.labels.print }}
+          </q-tooltip>
+        </q-btn>
+      </div>
+      <div id="wrapper" :style="{ zoom: zoomFraction, 'z-index': -1 }">
+        <invoice-page
+          id="invoice"
+          ref="invoiceRef"
+          :model-value="invoice"
+          :include-tax="
+            [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
+          "
+        />
+      </div>
     </q-scroll-area>
   </div>
 
-  <responsive-dialog ref="bankTransferDialogRef">
+  <responsive-dialog ref="bankTransferDialogRef" display>
     <div v-if="invoice">
       {{ lang.payment.messages.scanQrOrUseInformationBelow }}
       <div
@@ -368,6 +392,21 @@ const onResize: InstanceType<typeof QResizeObserver>['$props']['onResize'] = (
   scrollAreaSize.value.height = `${size.height}px`
 }
 
+const getZoomFraction = () => {
+  const fraction = $q.screen.width / ((210 * 96) / 25.4)
+  if (fraction > 1) return 1
+  return fraction
+}
+const zoomFraction = ref(getZoomFraction())
+
+const onClickZoom = () => {
+  if (zoomFraction.value === 1) {
+    zoomFraction.value = getZoomFraction()
+  } else {
+    zoomFraction.value = 1
+  }
+}
+
 const format = (value: number) =>
   Intl.NumberFormat(invoice.value?.locale || $q.lang.isoName, {
     maximumFractionDigits: 2,
@@ -405,7 +444,14 @@ onMounted(async () => {
     display: none !important;
   }
   #invoice {
-    border: none;
+    border: none !important;
+  }
+  #scroll-area {
+    width: 210mm !important;
+    height: 297mm !important;
+  }
+  #wrapper {
+    zoom: 1 !important;
   }
 }
 #invoice {
