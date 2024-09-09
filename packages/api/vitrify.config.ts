@@ -36,7 +36,8 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
           '@mollie/api-client',
           'axios',
           'playwright',
-          'svgo'
+          'svgo',
+          'compress-tag'
         ]
       },
       manualChunks: ['api.config', 'zod', 'date-fns']

@@ -35,9 +35,9 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          @send="($event) => openSendBillDialog('sendBill')!($event)"
+          @send="($event) => openSendBillDialog('bill')!($event)"
           @update="openUpdateDialog"
-          @send-receipt="($event) => openSendBillDialog('sendReceipt')!($event)"
+          @send-receipt="($event) => openSendBillDialog('receipt')!($event)"
           @add-payment-cash="openAddCashPaymentDialog"
           @cancel="openCancelDialog"
         />
@@ -318,13 +318,14 @@ const openCancelDialog: InstanceType<
 }
 
 const openSendBillDialog = (
-  type: 'sendBill' | 'sendReceipt'
+  type: 'bill' | 'receipt'
 ): InstanceType<typeof InvoiceExpansionItem>['$props']['onSend'] => {
   return async ({ data, done }) => {
     const result = useQuery('admin.getInvoiceEmail', {
       args: {
         id: data.id,
-        type
+        type,
+        action: 'send'
       },
       immediate: true
     })
@@ -336,7 +337,7 @@ const openSendBillDialog = (
       result.data.value?.subject &&
       result.data.value?.body
     ) {
-      sendBillEmailType.value = type
+      sendBillEmailType.value = type === 'bill' ? 'sendBill' : 'sendReceipt'
       sendBillEmailId.value = data.id
       sendBillEmailSubject.value = result.data.value.subject
       sendBillEmailBody.value = result.data.value.body

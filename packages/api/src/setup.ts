@@ -132,7 +132,6 @@ export default async function (fastify: FastifyInstance) {
     molliePaymentHandler = {
       profiles
     }
-    console.log(profiles)
   }
 
   let smartpinPaymentHandler: FastifyCheckoutPaymentHandler | undefined

@@ -45,6 +45,7 @@ export const invoiceValidation = {
   projectId: z.string().nullable().optional(),
   notes: z.string().optional().nullable(),
   status: z.nativeEnum(InvoiceStatus).optional(),
+  reminderSentDates: z.array(z.string()).optional(),
   paymentId: z.number().optional().nullable(),
   metadata: z.record(z.string(), z.unknown()).optional().nullable()
 }

@@ -30,9 +30,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          @send:invoice="
-            ($event) => openSendInvoiceDialog('sendInvoice')!($event)
-          "
+          @send:invoice="($event) => openSendInvoiceDialog()!($event)"
         />
       </q-list>
     </div>
@@ -140,14 +138,15 @@ const onFilterClients: InstanceType<
   if (done) done()
 }
 
-const openSendInvoiceDialog = (
-  type: 'sendInvoice'
-): InstanceType<typeof InvoiceExpansionItem>['$props']['onSend'] => {
+const openSendInvoiceDialog = (): InstanceType<
+  typeof InvoiceExpansionItem
+>['$props']['onSend'] => {
   return async ({ data, done }) => {
     const result = useQuery('admin.getInvoiceEmail', {
       args: {
         id: data.id,
-        type
+        type: 'invoice',
+        action: 'send'
       },
       immediate: true
     })

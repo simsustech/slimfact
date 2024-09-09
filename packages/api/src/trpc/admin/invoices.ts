@@ -10,6 +10,8 @@ import { Readable } from 'stream'
 import { Invoice } from '@modular-api/fastify-checkout'
 import { addDays } from 'date-fns'
 import { PaymentMethod, InvoiceStatus } from '@modular-api/fastify-checkout'
+import { emailTemplates } from '../../templates/email/index.js'
+
 const hostname = env.read('API_HOSTNAME') || env.read('VITE_API_HOSTNAME')
 const slimfactDownloaderHostname =
   env.read('SLIMFACT_DOWNLOADER_HOSTNAME') ||
@@ -376,7 +378,8 @@ export const adminInvoiceRoutes = ({
       } catch (e) {
         if (import.meta.env.DEBUG) fastify.log.debug(e)
         throw new TRPCError({
-          code: 'BAD_REQUEST'
+          code: 'BAD_REQUEST',
+          message: e as string
         })
       }
     }),
@@ -642,17 +645,20 @@ export const adminInvoiceRoutes = ({
       z.object({
         id: z.number(),
         type: z.union([
-          z.literal('sendInvoice'),
-          z.literal('remindInvoice'),
-          z.literal('exhortInvoice'),
-          z.literal('sendBill'),
-          z.literal('sendReceipt')
+          z.literal('invoice'),
+          z.literal('bill'),
+          z.literal('receipt')
+        ]),
+        action: z.union([
+          z.literal('send'),
+          z.literal('remind'),
+          z.literal('exhort')
         ])
       })
     )
     .query(async ({ input }) => {
       if (fastify.checkout?.invoiceHandler) {
-        const { id, type } = input
+        const { id, type, action } = input
         const invoice = await fastify.checkout.invoiceHandler.getInvoice({
           id,
           options: {
@@ -661,12 +667,14 @@ export const adminInvoiceRoutes = ({
           }
         })
         if (invoice) {
-          const { body: bodyTemplate, subject: subjectTemplate } = await db
-            .selectFrom('emailTemplates')
-            .select(['body', 'subject'])
-            .where('name', '=', `${type}`)
-            .where('locale', '=', invoice.locale)
-            .executeTakeFirstOrThrow()
+          let template: { subject: string; body: string }
+          try {
+            template =
+              await emailTemplates[`./${type}/${action}/${invoice.locale}.ts`]()
+          } catch (e) {
+            template = await emailTemplates[`./${type}/${action}/en-US.ts`]()
+          }
+          const { subject: subjectTemplate, body: bodyTemplate } = template
 
           const subject = handlebars.compile(subjectTemplate)({
             companyDetails: invoice.companyDetails,

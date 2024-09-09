@@ -37,12 +37,10 @@
           :key="invoice.id"
           :model-value="invoice"
           @update="openUpdateDialog"
-          @send="($event) => openSendInvoiceDialog('sendInvoice')!($event)"
-          @send:reminder="
-            ($event) => openSendInvoiceDialog('remindInvoice')!($event)
-          "
+          @send="($event) => openSendInvoiceDialog('send')!($event)"
+          @send:reminder="($event) => openSendInvoiceDialog('remind')!($event)"
           @send:exhortation="
-            ($event) => openSendInvoiceDialog('exhortInvoice')!($event)
+            ($event) => openSendInvoiceDialog('exhort')!($event)
           "
           @cancel="openCancelDialog"
           @add-payment-cash="openAddCashPaymentDialog"
@@ -253,25 +251,32 @@ const onFilterClients: InstanceType<
 }
 
 const openSendInvoiceDialog = (
-  type: 'sendInvoice' | 'remindInvoice' | 'exhortInvoice'
+  action: 'send' | 'remind' | 'exhort'
 ): InstanceType<typeof InvoiceExpansionItem>['$props']['onSend'] => {
   return async ({ data, done }) => {
     const result = useQuery('admin.getInvoiceEmail', {
       args: {
         id: data.id,
-        type
+        type: 'invoice',
+        action
       },
       immediate: true
     })
 
     await result.immediatePromise
 
+    function getType(action: 'send' | 'remind' | 'exhort') {
+      if (action === 'remind') return 'remindInvoice'
+      if (action === 'exhort') return 'exhortInvoice'
+      return 'sendInvoice'
+    }
+
     if (
       sendInvoiceDialogRef?.value &&
       result.data.value?.subject &&
       result.data.value?.body
     ) {
-      sendInvoiceEmailType.value = type
+      sendInvoiceEmailType.value = getType(action)
       sendInvoiceEmailId.value = data.id
       sendInvoiceEmailSubject.value = result.data.value.subject
       sendInvoiceEmailBody.value = result.data.value.body
