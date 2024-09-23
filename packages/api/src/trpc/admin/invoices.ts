@@ -749,7 +749,8 @@ export const adminInvoiceRoutes = ({
           description: z.string().optional(),
           amount: z.number(),
           currency: z.union([z.literal('EUR'), z.literal('USD')]),
-          method: z.nativeEnum(PaymentMethod)
+          method: z.nativeEnum(PaymentMethod),
+          redirectUrl: z.string().url().optional()
         })
       })
     )
@@ -771,7 +772,8 @@ export const adminInvoiceRoutes = ({
                 currency: payment.currency,
                 description: payment.description || `${invoice.uuid}`,
                 method: payment.method,
-                redirectUrl: `https://${hostname}/checkout/success`,
+                redirectUrl:
+                  payment.redirectUrl || `https://${hostname}/checkout/success`,
                 webhookUrl
               }
             })
