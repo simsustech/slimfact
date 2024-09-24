@@ -4,8 +4,8 @@ import { Kysely, PostgresDialect, CamelCasePlugin } from 'kysely'
 import env from '@vitrify/tools/env'
 // import type { Database as OidcDatabase } from '@modular-api/fastify-oidc'
 import type { DB } from './types.d.ts'
-export interface Database extends DB {}
-
+// export interface Database extends DB {}
+export type Database = DB
 Object.defineProperty(BigInt.prototype, 'toJSON', {
   get() {
     'use strict'

@@ -40,7 +40,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
           'compress-tag'
         ]
       },
-      manualChunks: ['api.config', 'zod', 'date-fns']
+      manualChunks: ['api.config', 'zod', 'date-fns', 'types']
     }
   }
   if (mode === 'development') {
