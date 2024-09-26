@@ -85,6 +85,9 @@ const options = ref({
           message: 'Automatically calculate all (discounted) totals and taxes.'
         },
         {
+          message: 'Can be used headless or integrated into other applications.'
+        },
+        {
           message: 'Personal support.'
         }
       ],
