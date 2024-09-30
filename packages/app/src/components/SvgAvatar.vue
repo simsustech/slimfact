@@ -8,6 +8,7 @@
             ? `data:image/svg+xml,${encodeURIComponent(modelValue)}`
             : undefined
         "
+        style="object-fit: contain"
       />
 
       <q-icon v-else size="lg" name="photo_camera" />
