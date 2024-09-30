@@ -416,6 +416,10 @@ const format = (value: number) =>
 
 const language = ref($q.lang.isoName)
 onMounted(async () => {
+  if (__IS_PWA__) {
+    await import('../pwa.js')
+  }
+
   await loadConfiguration(language)
 
   await useOAuthClient()
