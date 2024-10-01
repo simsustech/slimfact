@@ -35,6 +35,7 @@
           :icon="fabGithub"
           color="black"
           href="https://github.com/simsustech/slimfact"
+          target="_blank"
         />
       </q-toolbar>
     </q-header>

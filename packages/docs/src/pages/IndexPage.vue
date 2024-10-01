@@ -134,6 +134,17 @@ const features = ref({
       title: 'Mollie payment integration',
       content: 'Mollie (mollie.com) can be used to receive online payments.',
       imgSrc: '/features/ideal.png'
+    },
+    {
+      title: 'Number prefixes',
+      content: 'Use multiple invoice number prefixes for your company.',
+      imgSrc: '/features/numberprefixes.png'
+    },
+    {
+      title: 'Client account',
+      content:
+        'Clients can view an overview of their bills, receipts and invoices online.',
+      imgSrc: '/features/clientaccount.png'
     }
   ]
 })

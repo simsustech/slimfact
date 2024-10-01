@@ -58,7 +58,7 @@ const options = ref({
       price: '€15 per month',
       pros: [
         {
-          message: 'Unlimited bills, receipt and invoices.'
+          message: 'Unlimited bills, receipt and invoices (Fair Use Policy).'
         },
         {
           message:
