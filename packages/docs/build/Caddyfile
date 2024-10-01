@@ -1,0 +1,7 @@
+www.slimfact.app {
+  handle {
+    root * /srv/www.slimfact.app
+    try_files {path}.html {path} /index.html
+    file_server
+  }
+}
