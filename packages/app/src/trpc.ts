@@ -49,6 +49,7 @@ export const createUseTrpc = async () => {
         return res
       } catch (e) {
         console.error(e)
+        return res
       }
     })
   }
