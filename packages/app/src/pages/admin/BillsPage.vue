@@ -22,7 +22,9 @@
               v-model="clientId"
               :filtered-options="filteredClients"
               clearable
+              use-input
               @filter="onFilterClients"
+              @new-value="onNewValueClients"
             />
             <!-- <invoice-status-select v-model="status" /> -->
           </div>
@@ -90,7 +92,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive, computed } from 'vue'
+import { ref, nextTick, onMounted, reactive, computed, watch } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
@@ -104,7 +106,7 @@ import {
 import { PaymentMethod } from '@modular-api/fastify-checkout/types'
 import { InvoiceStatus } from '@slimfact/api/zod'
 
-import { useQuasar } from 'quasar'
+import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
 import PriceInputDialog from 'src/components/PriceInputDialog.vue'
@@ -117,7 +119,9 @@ const lang = useLang()
 const companyId = ref(NaN)
 const clientId = ref(NaN)
 const status = ref<InvoiceStatus | null>(InvoiceStatus.BILL)
-
+const clientDetails = ref({
+  name: null as string | null
+})
 const page = ref(1)
 const rowsPerPage = ref(5)
 const total = computed(() => invoices.value?.at(0)?.total || 0)
@@ -137,6 +141,7 @@ const { data: invoices, execute } = useQuery('admin.getInvoices', {
   args: reactive({
     companyId,
     clientId,
+    clientDetails,
     status,
     pagination
   })
@@ -383,6 +388,15 @@ const sendBill: InstanceType<
     execute()
   }
 }
+
+const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
+  clientId.value = NaN
+  clientDetails.value.name = input
+}
+
+watch(clientId, (newVal) => {
+  if (newVal) clientDetails.value.name = null
+})
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

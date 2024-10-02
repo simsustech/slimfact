@@ -17,7 +17,9 @@
               v-model="clientId"
               :filtered-options="filteredClients"
               clearable
+              use-input
               @filter="onFilterClients"
+              @new-value="onNewValueClients"
             />
             <!-- <invoice-status-select v-model="status" /> -->
           </div>
@@ -58,7 +60,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from 'vue'
+import { ref, onMounted, reactive, computed, watch } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
@@ -72,6 +74,7 @@ import {
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
 import { InvoiceStatus } from '@slimfact/api/zod'
+import { QSelect } from 'quasar'
 
 const { useQuery, useMutation } = await createUseTrpc()
 
@@ -79,6 +82,9 @@ const lang = useLang()
 
 const companyId = ref(NaN)
 const clientId = ref(NaN)
+const clientDetails = ref({
+  name: null as string | null
+})
 const status = ref<InvoiceStatus>(InvoiceStatus.RECEIPT)
 
 const page = ref(1)
@@ -100,6 +106,7 @@ const { data: invoices, execute } = useQuery('admin.getInvoices', {
   args: reactive({
     companyId,
     clientId,
+    clientDetails,
     status,
     pagination
   })
@@ -158,7 +165,7 @@ const openSendInvoiceDialog = (): InstanceType<
       result.data.value?.subject &&
       result.data.value?.body
     ) {
-      sendInvoiceEmailType.value = type
+      sendInvoiceEmailType.value = 'sendInvoice'
       sendInvoiceEmailId.value = data.id
       sendInvoiceEmailSubject.value = result.data.value.subject
       sendInvoiceEmailBody.value = result.data.value.body
@@ -203,6 +210,15 @@ const sendInvoice: InstanceType<
     execute()
   }
 }
+
+const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
+  clientId.value = NaN
+  clientDetails.value.name = input
+}
+
+watch(clientId, (newVal) => {
+  if (newVal) clientDetails.value.name = null
+})
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

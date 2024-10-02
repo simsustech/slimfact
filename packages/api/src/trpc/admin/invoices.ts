@@ -234,6 +234,12 @@ export const adminInvoiceRoutes = ({
         .object({
           companyId: z.number().nullable().optional(),
           clientId: z.number().nullable().optional(),
+          clientDetails: z
+            .object({
+              name: z.string().nullable()
+            })
+            .nullable()
+            .optional(),
           status: z.nativeEnum(InvoiceStatus).nullable(),
           pagination: z
             .object({
@@ -252,11 +258,13 @@ export const adminInvoiceRoutes = ({
         .optional()
     )
     .query(async ({ input }) => {
-      const { companyId, clientId, status, pagination } = input || {}
+      const { companyId, clientId, clientDetails, status, pagination } =
+        input || {}
       if (fastify.checkout?.invoiceHandler) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
           companyId,
           clientId,
+          clientDetails,
           status,
           options: {
             withPayments: true,
