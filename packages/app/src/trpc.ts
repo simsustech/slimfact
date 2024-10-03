@@ -28,7 +28,7 @@ export const createUseTrpc = async () => {
         if (!res.ok) {
           const body = await res.clone().json()
 
-          const serverErrors = body?.error
+          const serverErrors = body?.error || body?.[0]?.error
           let caption: string
           const { message, code, path, expected, received } = serverErrors
           if (message) {
