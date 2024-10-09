@@ -288,7 +288,7 @@ export default async function (fastify: FastifyInstance) {
     }
   })
 
-  fastify.register(appSsrPlugin, {
+  await fastify.register(appSsrPlugin, {
     host,
     onRendered: appOnRendered
   })
