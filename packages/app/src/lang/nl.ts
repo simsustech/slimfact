@@ -76,7 +76,7 @@ const lang: Language = {
     helpers: {
       emailBcc: 'Alle facturen worden BCC verstuurd naar dit adres.',
       prefix:
-        'Het bedrijfsvoorvoegsel gebruikt in het nummervoorvoegsel van een factuur.'
+        'Het bedrijfsvoorvoegsel gebruikt in o.a. het nummervoorvoegsel van een factuur. '
     }
   },
   client: {

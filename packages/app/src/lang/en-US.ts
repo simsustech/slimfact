@@ -75,7 +75,7 @@ const lang: Language = {
     },
     helpers: {
       emailBcc: 'All invoices will be sent as BCC to this address.',
-      prefix: 'The company prefix used in the invoice number prefix.'
+      prefix: 'The company prefix used in e.g. the invoice number prefix.'
     }
   },
   client: {

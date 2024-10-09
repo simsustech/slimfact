@@ -127,13 +127,22 @@
         v-bind="input"
         v-model="modelValue.prefix"
         :label="lang.company.fields.prefix"
+        :readonly="prefixLocked"
         class="col-md-3 col-12"
         required
         bottom-slots
         lazy-rules
         name="prefix"
         :hint="lang.company.helpers.prefix"
-      />
+      >
+        <template #append>
+          <q-icon
+            class="clickable"
+            :name="prefixLocked ? 'lock_open' : 'lock'"
+            @click="prefixLocked = !prefixLocked"
+          />
+        </template>
+      </form-input>
       <form-input
         v-bind="input"
         v-model="modelValue.email"
@@ -256,6 +265,7 @@ const formRef = ref<QForm>()
 
 const setValue = (newValue: Company) => {
   modelValue.value = extend({}, initialValue, newValue)
+  if (newValue.prefix) prefixLocked.value = true
 }
 
 const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
@@ -271,6 +281,8 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   })
   done(false)
 }
+
+const prefixLocked = ref(false)
 
 const functions = ref({
   submit,

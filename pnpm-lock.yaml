@@ -216,8 +216,8 @@ importers:
         specifier: 4.0.0-beta.16
         version: 4.0.0-beta.16
       '@simsustech/quasar-components':
-        specifier: ^0.10.4
-        version: 0.10.4(quasar@2.17.0)
+        specifier: ^0.10.5
+        version: 0.10.5(quasar@2.17.0)
       '@slimfact/api':
         specifier: workspace:*
         version: link:../api
@@ -1985,6 +1985,11 @@ packages:
 
   '@simsustech/quasar-components@0.10.4':
     resolution: {integrity: sha512-3pKK3/Lk6GJp/qURvXyyEyN9z1Zt6gmGoHIgRtozWgiGeUkTA3cENzxSzrINovZ1CFvCOyAql1Ogb57zgtQipQ==}
+    peerDependencies:
+      quasar: ^2.15.2
+
+  '@simsustech/quasar-components@0.10.5':
+    resolution: {integrity: sha512-fmevprWzhtJG1qtVojpNTA+fmuGZa2H108d05Y4Laf5jfzPZWW+Xa5VV5O3Dm2Hf1eDoE58xsCtDHAgDywJPAQ==}
     peerDependencies:
       quasar: ^2.15.2
 
@@ -7466,6 +7471,11 @@ snapshots:
     optional: true
 
   '@simsustech/quasar-components@0.10.4(quasar@2.17.0)':
+    dependencies:
+      quasar: 2.17.0
+      validator: 13.12.0
+
+  '@simsustech/quasar-components@0.10.5(quasar@2.17.0)':
     dependencies:
       quasar: 2.17.0
       validator: 13.12.0
