@@ -21,22 +21,40 @@ const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
   async function refundWorker() {
     const refunds = await db
       .selectFrom('checkout.refunds')
+      .innerJoin(
+        'checkout.payments',
+        'checkout.payments.id',
+        'checkout.refunds.paymentId'
+      )
+      .innerJoin(
+        'checkout.invoices',
+        'checkout.invoices.id',
+        'checkout.payments.invoiceId'
+      )
       .where((web) =>
         web.or([
-          web('status', '=', RefundStatus.PENDING),
-          web('status', '=', RefundStatus.PROCESSING),
-          web('status', '=', RefundStatus.QUEUED)
+          web('checkout.refunds.status', '=', RefundStatus.PENDING),
+          web('checkout.refunds.status', '=', RefundStatus.PROCESSING),
+          web('checkout.refunds.status', '=', RefundStatus.QUEUED)
         ])
       )
       .where('checkout.refunds.paymentServiceProvider', '=', 'mollie')
-      .select('id')
+      .select((seb) => [
+        'checkout.refunds.id',
+        seb
+          .ref('checkout.invoices.companyDetails', '->>')
+          .key('prefix')
+          .as('companyPrefix')
+      ])
       .execute()
 
     for (const refund of refunds) {
       if (fastify.checkout?.paymentHandlers?.mollie) {
-        await fastify.checkout.paymentHandlers.mollie().getRefund({
-          id: refund.id
-        })
+        await fastify.checkout.paymentHandlers
+          .mollie(refund.companyPrefix)
+          .getRefund({
+            id: refund.id
+          })
       }
     }
   }
