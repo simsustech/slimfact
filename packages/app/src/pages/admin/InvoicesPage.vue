@@ -47,6 +47,7 @@
           @cancel="openCancelDialog"
           @add-payment-cash="openAddCashPaymentDialog"
           @add-payment-bank-transfer="openAddBankTransferPaymentDialog"
+          @add-payment-pin="openAddPinPaymentDialog"
         />
       </q-list>
     </div>
@@ -403,6 +404,48 @@ const openAddBankTransferPaymentDialog: InstanceType<
             description: new Date().toISOString().slice(0, 10),
             transactionReference,
             method: PaymentMethod.banktransfer
+          }
+        },
+        immediate: true
+      })
+      await result.immediatePromise
+
+      if (!result.error.value) {
+        await execute()
+      }
+    })
+}
+
+const openAddPinPaymentDialog: InstanceType<
+  typeof InvoiceExpansionItem
+>['$props']['onMarkPaid'] = async ({ data, done }) => {
+  const format = (value: number) =>
+    Intl.NumberFormat($q.lang.isoName, {
+      maximumFractionDigits: 2,
+      style: 'currency',
+      currency: data.currency
+    }).format(value / 100)
+  return $q
+    .dialog({
+      component: AddPaymentDialog,
+      componentProps: {
+        message: lang.value.invoice.messages.addBankTransferPayment({
+          clientDetails: data.clientDetails,
+          totalIncludingTax: format(data.totalIncludingTax)
+        }),
+        currency: data.currency
+      }
+    })
+    .onOk(async ({ amount, transactionReference }) => {
+      const result = useMutation('admin.addPaymentToInvoice', {
+        args: {
+          id: data.id,
+          payment: {
+            amount,
+            currency: data.currency,
+            description: new Date().toISOString().slice(0, 10),
+            transactionReference,
+            method: PaymentMethod.pin
           }
         },
         immediate: true

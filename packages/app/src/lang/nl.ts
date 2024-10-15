@@ -220,7 +220,8 @@ const lang: Language = {
     methods: {
       cash: 'Contant',
       bankTransfer: 'Bank overschrijving',
-      ideal: 'iDEAL'
+      ideal: 'iDEAL',
+      pin: 'PIN'
     },
     messages: {
       scanQrOrUseInformationBelow:

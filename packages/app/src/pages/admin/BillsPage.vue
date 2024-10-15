@@ -41,6 +41,7 @@
           @update="openUpdateDialog"
           @send-receipt="($event) => openSendBillDialog('receipt')!($event)"
           @add-payment-cash="openAddCashPaymentDialog"
+          @add-payment-pin="openAddPinPaymentDialog"
           @cancel="openCancelDialog"
         />
       </q-list>
@@ -109,7 +110,8 @@ import { InvoiceStatus } from '@slimfact/api/zod'
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
-import PriceInputDialog from 'src/components/PriceInputDialog.vue'
+import PriceInputDialog from '../../components/PriceInputDialog.vue'
+import AddPaymentDialog from '../../components/AddPaymentDialog.vue'
 
 const { useQuery, useMutation } = await createUseTrpc()
 
@@ -287,6 +289,48 @@ const openAddCashPaymentDialog: InstanceType<
       await result.immediatePromise
 
       if (!result.error.value) execute()
+    })
+}
+
+const openAddPinPaymentDialog: InstanceType<
+  typeof InvoiceExpansionItem
+>['$props']['onMarkPaid'] = async ({ data, done }) => {
+  const format = (value: number) =>
+    Intl.NumberFormat($q.lang.isoName, {
+      maximumFractionDigits: 2,
+      style: 'currency',
+      currency: data.currency
+    }).format(value / 100)
+  return $q
+    .dialog({
+      component: AddPaymentDialog,
+      componentProps: {
+        message: lang.value.invoice.messages.addBankTransferPayment({
+          clientDetails: data.clientDetails,
+          totalIncludingTax: format(data.totalIncludingTax)
+        }),
+        currency: data.currency
+      }
+    })
+    .onOk(async ({ amount, transactionReference }) => {
+      const result = useMutation('admin.addPaymentToInvoice', {
+        args: {
+          id: data.id,
+          payment: {
+            amount,
+            currency: data.currency,
+            description: new Date().toISOString().slice(0, 10),
+            transactionReference,
+            method: PaymentMethod.pin
+          }
+        },
+        immediate: true
+      })
+      await result.immediatePromise
+
+      if (!result.error.value) {
+        await execute()
+      }
     })
 }
 

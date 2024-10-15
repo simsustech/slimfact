@@ -241,7 +241,9 @@
                     modelValue.status
                   ) &&
                   modelValue.amountDue &&
-                  (onAddPaymentCash || onAddPaymentBankTransfer)
+                  (onAddPaymentCash ||
+                    onAddPaymentBankTransfer ||
+                    onAddPaymentPin)
                 "
                 clickable
               >
@@ -281,6 +283,21 @@
                       <q-item-section>
                         <q-item-label>
                           {{ lang.payment.methods.bankTransfer }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item
+                      v-if="onAddPaymentPin"
+                      v-close-popup
+                      clickable
+                      @click="addPaymentPin(modelValue)"
+                    >
+                      <q-item-section avatar>
+                        <q-icon name="credit_card"></q-icon>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ lang.payment.methods.pin }}
                         </q-item-label>
                       </q-item-section>
                     </q-item>
@@ -468,6 +485,7 @@ import { InvoiceStatus } from '@slimfact/api/zod'
 
 export interface Props {
   modelValue: Invoice
+  onAddPaymentPin?: unknown
   onAddPaymentCash?: unknown
   onAddPaymentBankTransfer?: unknown
   onAddPaymentIdeal?: unknown
@@ -557,6 +575,16 @@ const emit = defineEmits<{
     }
   ): void
   (
+    e: 'addPaymentPin',
+    {
+      data,
+      done
+    }: {
+      data: Invoice
+      done: (success?: boolean) => void
+    }
+  ): void
+  (
     e: 'sendReceipt',
     {
       data,
@@ -637,6 +665,12 @@ const addPaymentIdeal = (data: Invoice) => {
     //
   }
   emit('addPaymentIdeal', { data: data, done })
+}
+const addPaymentPin = (data: Invoice) => {
+  function done() {
+    //
+  }
+  emit('addPaymentPin', { data: data, done })
 }
 const sendReceipt = (data: Invoice) => {
   function done() {

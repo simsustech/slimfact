@@ -14,9 +14,11 @@ import {
   createInvoiceHandler,
   createMolliePaymentHandler,
   createBankTransferPaymentHandler,
-  createSmartpinPaymentHandler
+  createSmartpinPaymentHandler,
+  createPinPaymentHandler
 } from '@modular-api/fastify-checkout'
 import { initialize } from './pgboss.js'
+import type { ClientMetadata } from 'oidc-provider'
 
 const getString = (str: string) => str
 const host = getString(__HOST__)
@@ -78,6 +80,11 @@ export default async function (fastify: FastifyInstance) {
   })
 
   const bankTransferPaymentHandler = createBankTransferPaymentHandler({
+    fastify,
+    kysely
+  })
+
+  const pinPaymentHandler = createPinPaymentHandler({
     fastify,
     kysely
   })
@@ -156,11 +163,12 @@ export default async function (fastify: FastifyInstance) {
       mollie: molliePaymentHandler,
       cash: cashPaymentHandler,
       bankTransfer: bankTransferPaymentHandler,
-      smartpin: smartpinPaymentHandler
+      smartpin: smartpinPaymentHandler,
+      pin: pinPaymentHandler
     }
   })
 
-  const clients = [
+  const clients: ClientMetadata[] = [
     {
       client_id:
         env.read('OIDC_CLIENT_ID') ||

@@ -243,6 +243,7 @@ export interface Language {
       cash: string
       bankTransfer: string
       ideal: string
+      pin: string
     }
     messages: {
       scanQrOrUseInformationBelow: string
