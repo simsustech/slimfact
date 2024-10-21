@@ -232,6 +232,7 @@ export const adminInvoiceRoutes = ({
     .input(
       z
         .object({
+          uuids: z.string().array().optional(),
           companyId: z.number().nullable().optional(),
           clientId: z.number().nullable().optional(),
           clientDetails: z
@@ -253,15 +254,24 @@ export const adminInvoiceRoutes = ({
               ]),
               descending: z.boolean()
             })
-            .optional()
+            .optional(),
+          paid: z.boolean().optional()
         })
         .optional()
     )
     .query(async ({ input }) => {
-      const { companyId, clientId, clientDetails, status, pagination } =
-        input || {}
+      const {
+        uuids,
+        companyId,
+        clientId,
+        clientDetails,
+        status,
+        pagination,
+        paid
+      } = input || {}
       if (fastify.checkout?.invoiceHandler) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
+          uuids,
           companyId,
           clientId,
           clientDetails,
@@ -273,7 +283,8 @@ export const adminInvoiceRoutes = ({
             withRefunds: true,
             withAmountRefunded: true
           },
-          pagination
+          pagination,
+          paid
         })
         return invoices
       }

@@ -26,6 +26,7 @@
               @filter="onFilterClients"
               @new-value="onNewValueClients"
             />
+            <boolean-select v-model="paid" :label="lang.invoice.status.paid" />
             <!-- <invoice-status-select v-model="status" /> -->
           </div>
         </q-menu>
@@ -96,7 +97,7 @@ export default {
 import { ref, nextTick, onMounted, reactive, computed, watch } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import { EmailInput } from '@simsustech/quasar-components/form'
+import { EmailInput, BooleanSelect } from '@simsustech/quasar-components/form'
 import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../lang/index.js'
@@ -138,6 +139,7 @@ const pagination = computed<{
   sortBy: 'id',
   descending: true
 }))
+const paid = ref()
 
 const { data: invoices, execute } = useQuery('admin.getInvoices', {
   args: reactive({
@@ -145,7 +147,8 @@ const { data: invoices, execute } = useQuery('admin.getInvoices', {
     clientId,
     clientDetails,
     status,
-    pagination
+    pagination,
+    paid
   })
   // immediate: true
 })
