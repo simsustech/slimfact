@@ -11,6 +11,7 @@
 
       <client-select
         v-model="modelValue.clientId"
+        required
         class="col-md-4 col-12"
         :filtered-options="filteredClients"
         :rules="[
