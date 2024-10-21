@@ -42,7 +42,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
         },
         workbox: {
           globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,pdf}'],
-          navigateFallbackDenylist: [/^\/(oidc|interaction)/]
+          navigateFallbackDenylist: [/^\/(oidc|interaction|callback)/]
         }
       }
       // pwa: true
