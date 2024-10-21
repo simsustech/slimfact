@@ -11,24 +11,22 @@
     <template #header-side>
       <invoice-status-toggle v-model="status" />
       <q-btn icon="search">
-        <q-menu>
-          <div class="q-pa-sm">
-            <company-select
-              v-model="companyId"
-              :filtered-options="filteredCompanies"
-              clearable
-              @filter="onFilterCompanies"
-            />
-            <client-select
-              v-model="clientId"
-              :filtered-options="filteredClients"
-              clearable
-              use-input
-              @filter="onFilterClients"
-              @new-value="onNewValueClients"
-            />
-            <!-- <invoice-status-select v-model="status" /> -->
-          </div>
+        <q-menu class="q-pa-sm">
+          <company-select
+            v-model="companyId"
+            :filtered-options="filteredCompanies"
+            clearable
+            @filter="onFilterCompanies"
+          />
+          <client-select
+            v-model="clientId"
+            :filtered-options="filteredClients"
+            clearable
+            use-input
+            @filter="onFilterClients"
+            @new-value="onNewValueClients"
+          />
+          <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
     </template>

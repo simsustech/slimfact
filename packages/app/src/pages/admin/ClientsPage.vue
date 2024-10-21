@@ -9,10 +9,8 @@
     </template>
     <template #header-side>
       <q-btn icon="search">
-        <q-menu>
-          <div class="q-pa-sm">
-            <q-input v-model="name" :label="lang.name" :debounce="300" />
-          </div>
+        <q-menu class="q-pa-sm">
+          <q-input v-model="name" :label="lang.name" :debounce="300" />
         </q-menu>
       </q-btn>
     </template>
