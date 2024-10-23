@@ -121,7 +121,7 @@ const lang: Language = {
       concept: 'Concept',
       open: 'Open',
       paid: 'Betaald',
-      receipt: 'Bon',
+      receipt: 'Kwitantie',
       canceled: 'Geannuleerd',
       bill: 'Rekening'
     },
@@ -190,14 +190,14 @@ const lang: Language = {
     }
   },
   receipt: {
-    title: 'Bonnen',
-    receipt: 'Bon'
+    title: 'Kwitanties',
+    receipt: 'Kwitantie'
   },
   bill: {
     title: 'Rekeningen',
     bill: 'Rekening',
     labels: {
-      sendReceipt: 'Verstuur bon'
+      sendReceipt: 'Verstuur kwitantie'
     },
     messages: {
       createReceipt: ({ clientDetails, totalIncludingTax }) =>
