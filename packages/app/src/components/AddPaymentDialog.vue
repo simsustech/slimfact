@@ -8,7 +8,7 @@
       <q-card-section>
         <q-form ref="formRef">
           <q-input
-            :model-value="amount / 100"
+            :model-value="amount === 0 ? '' : amount / 100"
             :prefix="currencySymbols[currency]"
             type="number"
             step="0.01"
