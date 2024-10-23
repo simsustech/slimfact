@@ -144,6 +144,8 @@ const lang: Language = {
         `Enter the amount that was paid in cash for the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
       addBankTransferPayment: ({ clientDetails, totalIncludingTax }) =>
         `Enter the amount that was paid by bank transfer for the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
+      addPinPayment: ({ clientDetails, totalIncludingTax }) =>
+        `Enter the amount that was paid by pin for the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
       remindersSentOn: (dates) => `Reminders sent on ${dates.join('; ')}.`,
       cancelInvoice: ({ clientDetails, totalIncludingTax }) =>
         `Are you sure you want to cancel the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}?`,

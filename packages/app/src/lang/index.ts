@@ -158,6 +158,13 @@ export interface Language {
         clientDetails: ClientDetails
         totalIncludingTax: number | string
       }) => string
+      addPinPayment: ({
+        clientDetails,
+        totalIncludingTax
+      }: {
+        clientDetails: ClientDetails
+        totalIncludingTax: number | string
+      }) => string
       remindersSentOn: (dates: string[]) => string
       cancelInvoice: ({
         clientDetails,

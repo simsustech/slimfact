@@ -145,6 +145,8 @@ const lang: Language = {
         `Vul het bedrag in dat contant is betaald aan de factuur aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}.`,
       addBankTransferPayment: ({ clientDetails, totalIncludingTax }) =>
         `Vul het bedrag in dat per bankoverschrijving is betaald aan de factuur aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}.`,
+      addPinPayment: ({ clientDetails, totalIncludingTax }) =>
+        `Vul het bedrag in dat per pin is betaald aan de factuur aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}.`,
       remindersSentOn: (dates) =>
         `Herinneringen verstuurd op ${dates.join('; ')}.`,
       cancelInvoice: ({ clientDetails, totalIncludingTax }) =>

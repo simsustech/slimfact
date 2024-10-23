@@ -306,7 +306,7 @@ const openAddPinPaymentDialog: InstanceType<
     .dialog({
       component: AddPaymentDialog,
       componentProps: {
-        message: lang.value.invoice.messages.addBankTransferPayment({
+        message: lang.value.invoice.messages.addPinPayment({
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
