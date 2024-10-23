@@ -229,6 +229,20 @@ export interface Language {
         clientDetails: ClientDetails
         totalIncludingTax: number | string
       }) => string
+      addCashPayment: ({
+        clientDetails,
+        totalIncludingTax
+      }: {
+        clientDetails: ClientDetails
+        totalIncludingTax: number | string
+      }) => string
+      addPinPayment: ({
+        clientDetails,
+        totalIncludingTax
+      }: {
+        clientDetails: ClientDetails
+        totalIncludingTax: number | string
+      }) => string
     }
   }
   checkout: {

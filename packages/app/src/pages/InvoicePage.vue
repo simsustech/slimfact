@@ -89,7 +89,8 @@
     <q-btn
       v-if="
         invoice &&
-        invoice.amountDue &&
+        invoice.amountDue !== void 0 &&
+        invoice.amountDue !== null &&
         invoice.amountDue < 0 &&
         user?.roles?.includes('administrator')
       "
@@ -97,6 +98,48 @@
       color="primary"
       @click="refund"
     />
+
+    <q-btn-dropdown
+      v-if="
+        invoice &&
+        invoice.amountDue !== void 0 &&
+        invoice.amountDue !== null &&
+        invoice.amountDue > 0 &&
+        user?.roles?.includes('administrator')
+      "
+      :label="lang.payment.addPayment"
+      color="primary"
+    >
+      <q-item
+        v-close-popup
+        clickable
+        @click="openAddCashPaymentDialog({ data: invoice })"
+      >
+        <q-item-section avatar>
+          <q-icon name="attach_money"></q-icon>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>
+            {{ lang.payment.methods.cash }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+
+      <q-item
+        v-close-popup
+        clickable
+        @click="openAddPinPaymentDialog({ data: invoice })"
+      >
+        <q-item-section avatar>
+          <q-icon name="credit_card"></q-icon>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>
+            {{ lang.payment.methods.pin }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-btn-dropdown>
   </div>
 
   <div
@@ -227,6 +270,10 @@ import { ResponsiveDialog } from '@simsustech/quasar-components'
 import Price from '../components/Price.vue'
 import { loadConfiguration, useConfiguration } from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
+import PriceInputDialog from '../components/PriceInputDialog.vue'
+import { PaymentMethod } from '@modular-api/fastify-checkout/types'
+import AddPaymentDialog from '../components/AddPaymentDialog.vue'
+import type { Invoice } from '@modular-api/fastify-checkout'
 
 const { useQuery, useMutation } = await createUseTrpc()
 const lang = useLang()
@@ -243,7 +290,7 @@ const slimfactDownloaderUrl = ref(
 const uuid = ref(
   Array.isArray(route.params.uuid) ? route.params.uuid[0] : route.params.uuid
 )
-const { data: invoice } = useQuery('public.getInvoice', {
+const { data: invoice, execute } = useQuery('public.getInvoice', {
   args: reactive({
     uuid
   }),
@@ -286,9 +333,9 @@ const qrSvg = computed(() => {
   if (invoice.value) {
     const data = generateEpcQrCodeData({
       name: invoice.value.companyDetails.name,
-      bic: 'RABONL2U' || invoice.value.companyDetails.bic,
-      iban: 'NL82RABO6579776978' || invoice.value.companyDetails.iban,
-      amount: invoice.value.amountDue,
+      bic: invoice.value.companyDetails.bic,
+      iban: invoice.value.companyDetails.iban,
+      amount: invoice.value.amountDue || 0,
       currency: invoice.value.currency,
       information: description.value,
       unstructuredReference: invoice.value.uuid
@@ -415,6 +462,85 @@ const format = (value: number) =>
   }).format(value / 100)
 
 const language = ref($q.lang.isoName)
+
+const openAddCashPaymentDialog = async ({ data }: { data: Invoice }) => {
+  const format = (value: number) =>
+    Intl.NumberFormat(data.locale, {
+      maximumFractionDigits: 2,
+      style: 'currency',
+      currency: data.currency
+    }).format(value / 100)
+  return $q
+    .dialog({
+      component: PriceInputDialog,
+      componentProps: {
+        message: lang.value.bill.messages.addCashPayment({
+          clientDetails: data.clientDetails,
+          totalIncludingTax: format(data.totalIncludingTax)
+        }),
+        currency: data.currency
+      }
+    })
+    .onOk(async (amount) => {
+      const result = useMutation('admin.addPaymentToInvoice', {
+        args: {
+          id: data.id,
+          payment: {
+            amount,
+            currency: data.currency,
+            description: new Date().toISOString().slice(0, 10),
+            method: PaymentMethod.cash
+          }
+        },
+        immediate: true
+      })
+
+      await result.immediatePromise
+
+      if (!result.error.value) execute()
+    })
+}
+
+const openAddPinPaymentDialog = async ({ data }: { data: Invoice }) => {
+  const format = (value: number) =>
+    Intl.NumberFormat($q.lang.isoName, {
+      maximumFractionDigits: 2,
+      style: 'currency',
+      currency: data.currency
+    }).format(value / 100)
+  return $q
+    .dialog({
+      component: AddPaymentDialog,
+      componentProps: {
+        message: lang.value.bill.messages.addPinPayment({
+          clientDetails: data.clientDetails,
+          totalIncludingTax: format(data.totalIncludingTax)
+        }),
+        currency: data.currency
+      }
+    })
+    .onOk(async ({ amount, transactionReference }) => {
+      const result = useMutation('admin.addPaymentToInvoice', {
+        args: {
+          id: data.id,
+          payment: {
+            amount,
+            currency: data.currency,
+            description: new Date().toISOString().slice(0, 10),
+            transactionReference,
+            method: PaymentMethod.pin
+          }
+        },
+        immediate: true
+      })
+      await result.immediatePromise
+
+      if (!result.error.value) {
+        await execute()
+      }
+    })
+}
+
 onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
@@ -423,13 +549,14 @@ onMounted(async () => {
   await loadConfiguration(language)
 
   await useOAuthClient()
-  await oAuthClient.value?.getUserInfo()
 
   try {
     await oAuthClient.value?.signInSilently({})
   } catch (e) {
     console.error('Failed to sign in silently')
   }
+
+  await oAuthClient.value?.getUserInfo()
 
   if (oAuthClient.value?.getAccessToken()) {
     user.value = await oAuthClient.value?.getUser()

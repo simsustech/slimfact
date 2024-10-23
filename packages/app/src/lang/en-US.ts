@@ -199,7 +199,11 @@ const lang: Language = {
     },
     messages: {
       createReceipt: ({ clientDetails, totalIncludingTax }) =>
-        `Are you sure you want to create a receipt for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}?`
+        `Are you sure you want to create a receipt for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}?`,
+      addCashPayment: ({ clientDetails, totalIncludingTax }) =>
+        `Enter the amount that was paid in cash for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
+      addPinPayment: ({ clientDetails, totalIncludingTax }) =>
+        `Enter the amount that was paid by pin for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`
     }
   },
   checkout: {

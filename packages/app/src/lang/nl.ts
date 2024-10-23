@@ -201,7 +201,11 @@ const lang: Language = {
     },
     messages: {
       createReceipt: ({ clientDetails, totalIncludingTax }) =>
-        `Weet u zeker dat u een bon wilt maken voor de rekening aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}?`
+        `Weet u zeker dat u een kwitantie wilt maken voor de rekening aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}?`,
+      addCashPayment: ({ clientDetails, totalIncludingTax }) =>
+        `Vul het bedrag in dat contant is betaald aan de rekening aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}.`,
+      addPinPayment: ({ clientDetails, totalIncludingTax }) =>
+        `Vul het bedrag in dat per pin is betaald aan de rekening aan ${clientDetails.companyName || clientDetails.contactPersonName} ter hoogte van ${totalIncludingTax}.`
     }
   },
   checkout: {
