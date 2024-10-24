@@ -197,7 +197,7 @@ export default async function (fastify: FastifyInstance) {
       client_name: 'Petboarding',
       logo_uri: 'https://www.petboarding.app/logo.png',
       grant_types: ['authorization_code', 'refresh_token'],
-      scope: 'openid offline_access profile email api',
+      scope: 'openid profile email api',
       client_secret: 'secret',
       redirect_uris: [`https://${petboardingClientHostname}/callback/slimfact`],
       token_endpoint_auth_method: 'none',
