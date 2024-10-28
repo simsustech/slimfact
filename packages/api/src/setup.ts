@@ -48,6 +48,7 @@ const sassVariables = {
  */
 export default async function (fastify: FastifyInstance) {
   const hostname = env.read('API_HOSTNAME') || env.read('VITE_API_HOSTNAME')
+  const corsOrigin = [`https://${hostname}`]
 
   if (!hostname)
     throw new Error(
@@ -208,7 +209,7 @@ export default async function (fastify: FastifyInstance) {
   await fastify.register(modularApiPlugin, {
     kysely,
     cors: {
-      origin: [`https://${hostname}`]
+      origin: corsOrigin
     },
     trpc: {
       createRouter,

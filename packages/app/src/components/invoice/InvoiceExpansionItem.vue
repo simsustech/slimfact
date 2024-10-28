@@ -254,7 +254,11 @@
                 <q-item-section side>
                   <q-icon name="keyboard_arrow_right" />
                 </q-item-section>
-                <q-menu anchor="top end" self="top start">
+                <q-menu
+                  :cover="$q.screen.lt.md"
+                  anchor="top end"
+                  self="top start"
+                >
                   <q-list>
                     <q-item
                       v-if="onAddPaymentCash"

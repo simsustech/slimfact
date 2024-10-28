@@ -49,8 +49,8 @@ importers:
         specifier: 8.0.2
         version: 8.0.2
       '@modular-api/api':
-        specifier: ^0.5.8
-        version: 0.5.8(bcrypt@5.1.1)(fastify@5.0.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.6.3)(vue@3.5.12(typescript@5.6.3))
+        specifier: ^0.5.10
+        version: 0.5.10(bcrypt@5.1.1)(fastify@5.0.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.6.3)(vue@3.5.12(typescript@5.6.3))
       '@modular-api/fastify-cart':
         specifier: ^0.3.1
         version: 0.3.1(kysely@0.27.4)
@@ -1779,8 +1779,8 @@ packages:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
 
-  '@modular-api/api@0.5.8':
-    resolution: {integrity: sha512-JrUcU53e+Yg7P1nD31TK3napKclpw4ZIBhqSQLA6/vMlhoITNgJwdHc93yph/3By+dDxxmSvpN/09Wk+zjFBfg==}
+  '@modular-api/api@0.5.10':
+    resolution: {integrity: sha512-cblIp3cRYrU3djMv0e5mfRNAQ3JjRykJ9cm22lPzMfvYFR92kNGONr9j1mzzanWbDt0L0GYivT0OkpWjHJ0t7A==}
     peerDependencies:
       kysely: ^0.27.4
       openid-client: ^6.1.3
@@ -4473,8 +4473,8 @@ packages:
   oauth-pkce@0.0.6:
     resolution: {integrity: sha512-hLLZvwJBAo1QHzPOvsM/QtDj/b9MBgQx/TH4kA/LPqFgWtICo4m7gtZUZARBiQ0I8lSKQRN8BhGTclVv8D45gg==}
 
-  oauth4webapi@3.1.1:
-    resolution: {integrity: sha512-0h4FZjsntbKQ5IHGM9mFT7uOwQCRdcTG7YhC0xXlWIcCch24wUa6Vggaipa3Sw6Ab7nEnmO4rctROmyuHBfP7Q==}
+  oauth4webapi@3.1.2:
+    resolution: {integrity: sha512-KQZkNU+xn02lWrFu5Vjqg9E81yPtDSxUZorRHlLWVoojD+H/0GFbH59kcnz5Thdjj7c4/mYMBPj/mhvGe/kKXA==}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -7437,7 +7437,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@modular-api/api@0.5.8(bcrypt@5.1.1)(fastify@5.0.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.6.3)(vue@3.5.12(typescript@5.6.3))':
+  '@modular-api/api@0.5.10(bcrypt@5.1.1)(fastify@5.0.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.6.3)(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@fastify/cookie': 11.0.1
       '@fastify/cors': 10.0.1
@@ -10334,7 +10334,7 @@ snapshots:
 
   oauth-pkce@0.0.6: {}
 
-  oauth4webapi@3.1.1: {}
+  oauth4webapi@3.1.2: {}
 
   object-assign@4.1.1: {}
 
@@ -10398,7 +10398,7 @@ snapshots:
   openid-client@6.1.3:
     dependencies:
       jose: 5.9.6
-      oauth4webapi: 3.1.1
+      oauth4webapi: 3.1.2
 
   optionator@0.9.4:
     dependencies:
