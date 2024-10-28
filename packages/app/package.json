@@ -47,7 +47,7 @@
     "@modular-api/quasar-components": "^0.3.3",
     "@quasar/extras": "1.16.12",
     "@quasar/quasar-ui-qcalendar": "4.0.0-beta.16",
-    "@simsustech/quasar-components": "^0.10.6",
+    "@simsustech/quasar-components": "^0.11.0",
     "@slimfact/api": "^0.1.0",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
