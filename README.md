@@ -5,7 +5,7 @@
 SlimFact is a powerful invoicing solution designed to simplify your billing process. Whether you’re a small business owner, freelancer, or enterprise, SlimFact offers seamless invoice management with the following features:
 
   1. Immutable invoices:
-      - Once an invoice is created, it remains unchanged. No accidental modifications or discrepancies.
+      - Once an invoice is opened, it remains unchanged. No accidental modifications or discrepancies.
       - Fully rendered in the browser, eliminating the need for additional PDF generation packages.
 
   2. Flexible billing:
