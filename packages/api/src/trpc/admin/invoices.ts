@@ -79,8 +79,9 @@ export const downloadPdf = async (invoice: Invoice) => {
   let filename
   let pdf
   try {
+    const protocol = 'https' // Dev server does not use https
     const pdfResponse = await fetch(
-      `https://${slimfactDownloaderHostname}/?uuid=${invoice.uuid}&host=${hostname}`
+      `${protocol}://${slimfactDownloaderHostname}/?uuid=${invoice.uuid}&host=${hostname}`
     )
 
     const header = pdfResponse.headers.get('Content-Disposition')
@@ -90,6 +91,7 @@ export const downloadPdf = async (invoice: Invoice) => {
     if (pdfResponse.body) pdf = Readable.fromWeb(pdfResponse.body)
     return { success: true as const, filename, pdf }
   } catch (e) {
+    if (import.meta.env.DEBUG) console.error(e)
     console.error('Failed to download PDF')
     return { success: false as const }
   }
