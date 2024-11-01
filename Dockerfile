@@ -1,4 +1,4 @@
-FROM node:20 AS install-stage
+FROM node:lts AS install-stage
 
 RUN --mount=type=secret,id=SIMSUSTECH_NPM_TOKEN echo "//npm.simsus.tech/:_authToken=$(cat /run/secrets/SIMSUSTECH_NPM_TOKEN)" > ~/.npmrc
 
