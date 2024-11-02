@@ -1,5 +1,5 @@
 import { db } from '../kysely/index.js'
-import type { NumberPrefixes } from '../kysely/types.d.ts'
+import type { NumberPrefixes } from '../kysely/types.js'
 
 import type { Insertable, Selectable, Updateable } from 'kysely'
 type NumberPrefix = Selectable<NumberPrefixes>

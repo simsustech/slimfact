@@ -3,7 +3,7 @@ const { Pool } = pg
 import { Kysely, PostgresDialect, CamelCasePlugin } from 'kysely'
 import env from '@vitrify/tools/env'
 // import type { Database as OidcDatabase } from '@modular-api/fastify-oidc'
-import type { DB } from './types.d.ts'
+import type { DB } from './types.js'
 // export interface Database extends DB {}
 export type Database = DB
 Object.defineProperty(BigInt.prototype, 'toJSON', {

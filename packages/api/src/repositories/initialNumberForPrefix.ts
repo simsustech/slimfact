@@ -1,6 +1,6 @@
 import { ExpressionBuilder } from 'kysely'
 import { db, type Database } from '../kysely/index.js'
-import type { InitialNumberForPrefixes } from '../kysely/types.d.ts'
+import type { InitialNumberForPrefixes } from '../kysely/types.js'
 
 import type { Insertable, Selectable, Updateable } from 'kysely'
 import { jsonObjectFrom } from 'kysely/helpers/postgres'

@@ -10,6 +10,7 @@ import type {
   RawInvoiceDiscount,
   RawInvoiceSurcharge
 } from '@modular-api/fastify-checkout'
+import type { Generated, JSONColumnType } from 'kysely'
 
 export interface Clients {
   address: string
