@@ -41,6 +41,17 @@
               color="accent"
             />
           </div>
+          <div class="row justify-center">
+            <a class="text-h5">Login: admin@slimfact.app / N6QD4HzGYf4h</a>
+          </div>
+          <div class="row justify-center">
+            <a class="text-h5">
+              Email:
+              <a href="https://mail.demo.slimfact.app"
+                >https://mail.demo.slimfact.app
+              </a>
+            </a>
+          </div>
         </div>
       </div>
     </div>
