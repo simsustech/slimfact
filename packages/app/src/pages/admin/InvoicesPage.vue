@@ -50,7 +50,11 @@
       </q-list>
     </div>
     <div class="row justify-center items-center">
-      <q-pagination v-model="page" :max="Math.ceil(total / rowsPerPage)" />
+      <q-pagination
+        v-model="page"
+        :max="Math.ceil(total / rowsPerPage)"
+        :max-pages="5"
+      />
     </div>
 
     <responsive-dialog ref="updateDialogRef" persistent @submit="update">

@@ -24,7 +24,11 @@
     /></q-list>
 
     <div class="row justify-center items-center">
-      <q-pagination v-model="page" :max="Math.ceil(total / rowsPerPage)" />
+      <q-pagination
+        v-model="page"
+        :max="Math.ceil(total / rowsPerPage)"
+        :max-pages="5"
+      />
     </div>
     <!-- <div class="row" v-if="ready">
       <client-card
