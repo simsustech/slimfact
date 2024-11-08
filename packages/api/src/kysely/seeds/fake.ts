@@ -1,7 +1,20 @@
 import { db } from '../index.js'
-import type { Clients, Companies } from '../types.js'
+import type { Companies } from '../types.js'
 import type { Insertable } from 'kysely'
 import { c } from 'compress-tag'
+import {
+  createInvoiceHandler,
+  InvoiceStatus
+} from '@modular-api/fastify-checkout'
+import { fastify as createFastify } from 'fastify'
+import { readFileSync } from 'fs'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const chunk = (arr: any[], size: number) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+    arr.slice(i * size, i * size + size)
+  )
+
 const logo = c`
 <svg
    width="35mm"
@@ -49,52 +62,64 @@ const logo = c`
   </g>
 </svg>`
 
-const companies: Insertable<Companies>[] = [
-  {
-    name: 'Acme Inc',
-    address: 'Hoofdweg 1',
-    postalCode: '1234 AB',
-    city: 'Amsterdam',
-    country: 'Netherlands',
-    email: 'john@acme.local',
-    telephoneNumber: '0987654321',
-    cocNumber: '123456789',
-    iban: 'NL82RABO6579776978',
-    bic: 'RABONL2U',
-    prefix: 'acme',
-    vatIdNumber: 'NL12345678',
-    emailBcc: 'bcc@acme.local',
-    logoSvg: logo.replaceAll(/(\r\n|\n|\r)/gm, '')
-  }
-]
-
-const clients: Insertable<Clients>[] = [
-  {
-    companyName: 'Goods For All',
-    address: 'Hoofdweg 2',
-    postalCode: '1234 AB',
-    city: 'Amsterdam',
-    country: 'Nederland',
-    email: 'jane@goodsforall.local',
-    contactPersonName: 'Jane Doe'
-  }
-]
-
-// const initialNumberForPrefixes: Insertable<InitialNumberForPrefixes>[] = [
-//   {
-//     companyId: 1,
-//     numberPrefix: '2024.',
-//     initialNumber: 5
-//   }
-// ]
+const fastify = createFastify()
+const kysely = db
+const invoiceHandler = createInvoiceHandler({
+  fastify,
+  kysely
+})
 
 const seed = async () => {
-  await db.insertInto('companies').values(companies).execute()
-  await db.insertInto('clients').values(clients).execute()
-  // await db
-  //   .insertInto('initialNumberForPrefixes')
-  //   .values(initialNumberForPrefixes)
-  //   .execute()
+  const { companies, clients, invoiceLines } = JSON.parse(
+    readFileSync(new URL('./fake/data.json', import.meta.url).pathname, 'utf-8')
+  )
+
+  await db
+    .insertInto('companies')
+    .values(
+      companies.map((company: Insertable<Companies>) => ({
+        ...company,
+        logoSvg: logo.replaceAll(/(\r\n|\n|\r)/gm, '')
+      }))
+    )
+    .execute()
+
+  for (const insertClients of chunk(clients, 1000)) {
+    await db.insertInto('clients').values(insertClients).execute()
+  }
+
+  const insertedCompanies = await db
+    .selectFrom('companies')
+    .selectAll()
+    .execute()
+  const insertedClients = await db.selectFrom('clients').selectAll().execute()
+  const numberPrefix = await db
+    .selectFrom('numberPrefixes')
+    .selectAll()
+    .executeTakeFirstOrThrow()
+
+  for (const client of insertedClients) {
+    const company =
+      insertedCompanies[Math.floor(Math.random() * companies.length)]
+
+    for (let i = 0; i < Math.floor(Math.random() * 10); i++) {
+      await invoiceHandler.createInvoice({
+        companyDetails: company,
+        clientDetails: client,
+        companyPrefix: company.prefix,
+        numberPrefixTemplate: numberPrefix.template,
+        currency: 'EUR',
+        lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+        discounts: [],
+        surcharges: [],
+        paymentTermDays: 14,
+        locale: 'en-US',
+        status: Math.random() > 0.2 ? InvoiceStatus.BILL : undefined,
+        companyId: company.id,
+        clientId: client.id
+      })
+    }
+  }
 }
 
 await seed()
