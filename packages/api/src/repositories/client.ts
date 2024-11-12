@@ -16,7 +16,8 @@ const defaultSelect = [
   'country',
   'vatIdNumber',
   'email',
-  'postalCode'
+  'postalCode',
+  'accountId'
 ] as (keyof Client)[]
 
 function find({
@@ -56,6 +57,10 @@ function find({
         )
       ])
     )
+  }
+
+  if (criteria.accountId) {
+    query = query.where('accountId', '=', criteria.accountId)
   }
 
   if (pagination) {
