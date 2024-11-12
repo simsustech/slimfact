@@ -1,5 +1,8 @@
 <template>
-  <div class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm">
+  <div
+    v-if="invoice && invoice.status && invoice.status !== InvoiceStatus.CONCEPT"
+    class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm"
+  >
     <q-btn-dropdown
       v-if="
         invoice &&
@@ -142,44 +145,47 @@
     </q-btn-dropdown>
   </div>
 
-  <div
-    v-if="invoice?.amountPaid && invoice?.amountPaid > 0"
-    class="row justify-center no-print"
-  >
-    {{ lang.payment.amountPaid }}:
-    <price
-      :model-value="invoice.amountPaid"
-      :currency="invoice.currency"
-      :locale="invoice.locale"
-    />
-  </div>
-  <div
-    v-if="invoice?.amountRefunded && invoice?.amountRefunded > 0"
-    class="row justify-center no-print"
-  >
-    {{ lang.payment.amountRefunded }}:
-    <price
-      :model-value="invoice.amountRefunded"
-      :currency="invoice.currency"
-      :locale="invoice.locale"
-    />
-  </div>
-  <div
-    v-if="invoice?.amountDue && invoice?.amountDue > 0"
-    class="row justify-center no-print"
-  >
-    {{ lang.payment.amountDue }}:
-    <price
-      :model-value="invoice.amountDue"
-      :currency="invoice.currency"
-      :locale="invoice.locale"
-    />
+  <div v-if="invoice?.status && invoice.status !== InvoiceStatus.CONCEPT">
+    <div
+      v-if="invoice?.amountPaid && invoice?.amountPaid > 0"
+      class="row justify-center no-print"
+    >
+      {{ lang.payment.amountPaid }}:
+      <price
+        :model-value="invoice.amountPaid"
+        :currency="invoice.currency"
+        :locale="invoice.locale"
+      />
+    </div>
+    <div
+      v-if="invoice?.amountRefunded && invoice?.amountRefunded > 0"
+      class="row justify-center no-print"
+    >
+      {{ lang.payment.amountRefunded }}:
+      <price
+        :model-value="invoice.amountRefunded"
+        :currency="invoice.currency"
+        :locale="invoice.locale"
+      />
+    </div>
+    <div
+      v-if="invoice?.amountDue && invoice?.amountDue > 0"
+      class="row justify-center no-print"
+    >
+      {{ lang.payment.amountDue }}:
+      <price
+        :model-value="invoice.amountDue"
+        :currency="invoice.currency"
+        :locale="invoice.locale"
+      />
+    </div>
   </div>
 
-  <div v-if="invoice" class="row justify-center">
+  <div v-if="invoice" class="row justify-center q-mt-md">
     <q-scroll-area id="scroll-area" :style="scrollAreaSize">
       <q-resize-observer @resize="onResize" />
       <div
+        v-if="invoice?.status !== InvoiceStatus.CONCEPT"
         class="column col q-mt-lg"
         :style="{ position: 'absolute', 'z-index': 10 }"
       >
@@ -309,6 +315,10 @@ useMeta(() => {
     title = `${lang.value.receipt.receipt} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}.pdf`
   } else if (invoice.value && invoice.value?.status === InvoiceStatus.BILL) {
     title = `${lang.value.bill.bill} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}.pdf`
+  } else if (invoice.value && invoice.value?.status === InvoiceStatus.CONCEPT) {
+    title = `${invoice.value.companyDetails.name}
+      ${lang.value.invoice.status.concept}
+      .pdf`
   } else if (invoice.value) {
     title = `${invoice.value.date} ${invoice.value.companyDetails.name}
       ${lang.value.invoice.invoice}

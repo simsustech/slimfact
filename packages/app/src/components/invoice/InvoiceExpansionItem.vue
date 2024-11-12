@@ -85,11 +85,7 @@
           <q-menu>
             <q-list>
               <q-item
-                v-if="
-                  ![InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED].includes(
-                    modelValue.status
-                  )
-                "
+                v-if="![InvoiceStatus.CANCELED].includes(modelValue.status)"
                 v-close-popup
                 :href="`/invoice/${modelValue.uuid}`"
                 target="_blank"

@@ -34,9 +34,7 @@ export const publicInvoiceRoutes = ({
         })
         if (
           invoice?.status &&
-          ![InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED].includes(
-            invoice.status
-          )
+          ![InvoiceStatus.CANCELED].includes(invoice.status)
         )
           return invoice
       }
