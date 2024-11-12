@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server'
 import { t } from '../index.js'
 import type { FastifyInstance } from 'fastify'
 import { findClient } from 'src/repositories/client.js'
@@ -21,6 +20,7 @@ export const userInvoiceRoutes = ({
       })
       if (client?.id) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
+          statuses: [InvoiceStatus.OPEN, InvoiceStatus.PAID],
           clientId: client.id,
           options: {
             withPayments: true,
@@ -33,9 +33,7 @@ export const userInvoiceRoutes = ({
         return invoices
       }
     }
-    throw new TRPCError({
-      code: 'BAD_REQUEST'
-    })
+    return []
   }),
   getReceipts: procedure.query(async ({ ctx }) => {
     if (fastify.checkout?.invoiceHandler) {
@@ -60,9 +58,7 @@ export const userInvoiceRoutes = ({
         return invoices
       }
     }
-    throw new TRPCError({
-      code: 'BAD_REQUEST'
-    })
+    return []
   }),
   getBills: procedure.query(async ({ ctx }) => {
     if (fastify.checkout?.invoiceHandler) {
@@ -87,8 +83,6 @@ export const userInvoiceRoutes = ({
         return invoices
       }
     }
-    throw new TRPCError({
-      code: 'BAD_REQUEST'
-    })
+    return []
   })
 })
