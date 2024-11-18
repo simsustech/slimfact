@@ -25,7 +25,7 @@ const InvoiceStatusColors = {
   [InvoiceStatus.CONCEPT]: 'black',
   [InvoiceStatus.RECEIPT]: 'green',
   [InvoiceStatus.CANCELED]: 'red',
-  [InvoiceStatus.BILL]: 'orange'
+  [InvoiceStatus.BILL]: 'grey'
 }
 
 interface Props {
