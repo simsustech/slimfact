@@ -119,10 +119,20 @@ import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
 import InvoiceStatusToggle from '../../components/invoice/InvoiceStatusToggle.vue'
 import AddPaymentDialog from '../../components/AddPaymentDialog.vue'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 const { useQuery, useMutation } = await createUseTrpc()
 
 const $q = useQuasar()
 const lang = useLang()
+
+const route = useRoute()
+
+const uuids = ref((route.params.uuids as string[]) || [])
+onBeforeRouteUpdate((to) => {
+  if (to.params.uuids && Array.isArray(to.params.ids)) {
+    uuids.value = to.params.uuids
+  }
+})
 
 const companyId = ref(NaN)
 const clientId = ref(NaN)
@@ -152,7 +162,8 @@ const { data: invoices, execute } = useQuery('admin.getInvoices', {
     clientId,
     clientDetails,
     status,
-    pagination
+    pagination,
+    uuids
   })
   // immediate: true
 })

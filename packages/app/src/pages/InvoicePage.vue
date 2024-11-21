@@ -143,6 +143,13 @@
         </q-item-section>
       </q-item>
     </q-btn-dropdown>
+
+    <q-btn
+      v-if="user?.roles?.includes('administrator')"
+      color="primary"
+      icon="open_in_new"
+      :to="`/admin/invoices/${invoice.uuid}`"
+    />
   </div>
 
   <div v-if="invoice?.status && invoice.status !== InvoiceStatus.CONCEPT">
