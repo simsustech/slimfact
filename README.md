@@ -37,7 +37,7 @@ SlimFact streamlines your invoicing process, ensuring accuracy, security, and co
 [Invoice status flowchart](./packages/docs/Flowchart.md)
 
 ## Self hosted
-## Self hosted
+You will need a running [Caddy](https://github.com/lucaslorentz/caddy-docker-proxy) container.
 ```sh
 wget https://raw.githubusercontent.com/simsustech/slimfact/main/docker-compose.yaml
 wget https://raw.githubusercontent.com/simsustech/slimfact/main/.env.example -O .env
