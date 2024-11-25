@@ -1,26 +1,6 @@
 services:
   api:
-    image: "ghcr.io/simsustech/slimfact"
-    build:
-      context: .
-      secrets:
-        - POSTGRES_PASSWORD
-        - OTP_SECRET
-        - SIMSUSTECH_NPM_TOKEN
-      dockerfile: Dockerfile
-      target: api
-      # args:
-      # App env variables
-      # - VITE_API_HOSTNAME=${HOSTNAME}
-      # - VITE_API_HOSTNAME=vitrify.local
-      # - VITE_OIDC_ISSUER=https://${HOSTNAME}/oidc
-      # - VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
-      # - VITE_OIDC_REDIRECT_URI=https://${HOSTNAME}/redirect
-      # - VITE_OIDC_EMAIL_CHANGE_URI=https://${HOSTNAME}/interaction/email/change
-      # - VITE_OIDC_EMAIL_VERIFY_URI=https://${HOSTNAME}/interaction/email/verify
-      # - VITE_OIDC_PASSWORD_CHANGE_URI=https://${HOSTNAME}/interaction/password/change
-      # - VITE_TITLE=Modularapi
-      # - VITE_LANG=nl
+    image: "ghcr.io/simsustech/slimfact:latest"
     labels:
       caddy: ${HOSTNAME}
       caddy.reverse_proxy: "{{upstreams 80}}"
@@ -37,7 +17,7 @@ services:
       MAIL_USER: ${MAIL_USER}
       MAIL_PASS: ${MAIL_PASS}
       LICENSE_KEY: ${LICENSE_KEY}
-      OIDC_COOKIES_KEYS: # openssl rand -base64 32
+      OIDC_COOKIES_KEYS: /run/secrets/OIDC_COOKIES_KEYS
       OTP_SECRET_FILE: /run/secrets/OTP_SECRET
       OTP_VALIDITY_SECONDS: 3600
       EMAIL_FOOTER: "Footer"
@@ -48,8 +28,8 @@ services:
     # entrypoint: ["/bin/sh", "-c", "tail -f /dev/null"]
     secrets:
       - POSTGRES_PASSWORD
-      - SIMSUSTECH_NPM_TOKEN
       - OTP_SECRET
+      - OIDC_COOKIES_KEYS
     networks:
       web:
       slimfact:
@@ -75,10 +55,10 @@ services:
 secrets:
   POSTGRES_PASSWORD:
     file: ./env/POSTGRES_PASSWORD
-  SIMSUSTECH_NPM_TOKEN:
-    file: ./env/SIMSUSTECH_NPM_TOKEN
   OTP_SECRET:
     file: ./env/OTP_SECRET
+  OIDC_COOKIES_KEYS:
+    file: ./env/OIDC_COOKIES_KEYS
 
 networks:
   slimfact:

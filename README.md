@@ -36,6 +36,33 @@ SlimFact streamlines your invoicing process, ensuring accuracy, security, and co
 ## Documentation
 [Invoice status flowchart](./packages/docs/Flowchart.md)
 
+## Self hosted
+## Self hosted
+```sh
+wget https://raw.githubusercontent.com/simsustech/slimfact/main/docker-compose.yaml
+wget https://raw.githubusercontent.com/simsustech/slimfact/main/.env.example -O .env
+mkdir env
+nano -L .env  # Change environment
+nano -L env/POSTGRES_PASSWORD # Enter postgress password
+nano -L env/OTP_SECRET  # Enter OTP secret, use openssl rand -base64 32
+nano -L env/OIDC_COOKIES_KEYS # Enter OIDC cookies keys, use openssl rand -base64 32, comma separated
+docker compose up
+```
+
+## Developers
+SlimFact is built on top of [Modular API](https://www.simsus.tech/modularapi). You will need an account for private NPM access.
+
+```
+git clone https://github.com/simsustech/slimfact.git
+cd slimfact
+pnpm i
+docker compose -f docker-compose.dev.yaml up
+cd packages/api
+POSTGRES_PASSWORD=ufgouifdgjdfg POSTGRES_DB=slimfact pnpm run migrate:latest
+POSTGRES_PASSWORD=ufgouifdgjdfg POSTGRES_DB=slimfact pnpm run seed:fake
+pnpm run dev
+```
+
 ## License
 Copyright © simsustech 2024-present
 
