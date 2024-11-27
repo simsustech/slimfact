@@ -45,11 +45,11 @@ const routes: RouteRecordRaw[] = [
             component: () => import('../pages/admin/SubscriptionsPage.vue')
           },
           {
-            path: 'receipts',
+            path: 'receipts/:uuids*',
             component: () => import('../pages/admin/ReceiptsPage.vue')
           },
           {
-            path: 'bills',
+            path: 'bills/:uuids*',
             component: () => import('../pages/admin/BillsPage.vue')
           }
         ]

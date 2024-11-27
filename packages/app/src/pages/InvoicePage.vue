@@ -148,7 +148,7 @@
       v-if="user?.roles?.includes('administrator')"
       color="primary"
       icon="open_in_new"
-      :to="`/admin/invoices/${invoice.uuid}`"
+      :to="getAdminUrl()"
     />
   </div>
 
@@ -556,6 +556,21 @@ const openAddPinPaymentDialog = async ({ data }: { data: Invoice }) => {
         await execute()
       }
     })
+}
+
+const getAdminUrl = () => {
+  if (invoice.value) {
+    const statusRouteMap = {
+      [InvoiceStatus.BILL]: 'bills',
+      [InvoiceStatus.RECEIPT]: 'receipts',
+      [InvoiceStatus.CONCEPT]: 'invoices',
+      [InvoiceStatus.OPEN]: 'invoices',
+      [InvoiceStatus.PAID]: 'invoices',
+      [InvoiceStatus.CANCELED]: 'invoices'
+    }
+    return `/admin/${statusRouteMap[invoice.value.status]}/${invoice.value.uuid}`
+  }
+  return
 }
 
 onMounted(async () => {

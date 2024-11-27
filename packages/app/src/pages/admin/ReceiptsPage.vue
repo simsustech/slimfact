@@ -77,10 +77,20 @@ import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
 import { InvoiceStatus } from '@slimfact/api/zod'
 import { QSelect } from 'quasar'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 
 const { useQuery, useMutation } = await createUseTrpc()
 
 const lang = useLang()
+
+const route = useRoute()
+
+const uuids = ref((route.params.uuids as string[]) || [])
+onBeforeRouteUpdate((to) => {
+  if (to.params.uuids && Array.isArray(to.params.ids)) {
+    uuids.value = to.params.uuids
+  }
+})
 
 const companyId = ref(NaN)
 const clientId = ref(NaN)
@@ -110,7 +120,8 @@ const { data: invoices, execute } = useQuery('admin.getInvoices', {
     clientId,
     clientDetails,
     status,
-    pagination
+    pagination,
+    uuids
   })
   // immediate: true
 })
