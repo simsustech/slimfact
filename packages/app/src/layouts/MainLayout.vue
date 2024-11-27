@@ -264,7 +264,7 @@ const userRoute = {
 const title = computed(() => configuration.value.TITLE)
 const language = ref($q.lang.isoName)
 
-const quasarLang = import.meta.glob<QuasarLanguage>(
+const quasarLang = import.meta.glob<{ default: QuasarLanguage }>(
   '../../node_modules/quasar/lang/*.js'
 )
 
@@ -275,7 +275,7 @@ const languageImports = ref(
       if (langKey) acc[langKey] = value
       return acc
     },
-    {} as Record<string, () => Promise<QuasarLanguage>>
+    {} as Record<string, () => Promise<{ default: QuasarLanguage }>>
   )
 )
 

@@ -131,8 +131,8 @@ const language = ref($q.lang.isoName)
 watch($q.lang, () => {
   loadLang($q.lang.isoName)
 })
-const quasarLang = import.meta.glob<QuasarLanguage>(
-  '../../node_modules/quasar/lang/*.mjs'
+const quasarLang = import.meta.glob<{ default: QuasarLanguage }>(
+  '../../node_modules/quasar/lang/*.js'
 )
 
 const languageImports = ref(
@@ -142,10 +142,9 @@ const languageImports = ref(
       if (langKey) acc[langKey] = value
       return acc
     },
-    {} as Record<string, () => Promise<QuasarLanguage>>
+    {} as Record<string, () => Promise<{ default: QuasarLanguage }>>
   )
 )
-
 const leftDrawerOpen = ref(false)
 
 const toggleLeftDrawer = () => {
