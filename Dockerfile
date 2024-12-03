@@ -44,7 +44,7 @@ EXPOSE 80
 CMD ["npm", "start"]
 
 FROM node:20-slim AS downloader
-RUN npx -y playwright@1.46.1 install --with-deps
+RUN npx -y playwright install --with-deps
 LABEL "io.slimfact.vendor"="simsustech"
 WORKDIR /app
 COPY --from=api-deploy /build/downloader /app
