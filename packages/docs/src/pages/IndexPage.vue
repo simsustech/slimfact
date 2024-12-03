@@ -47,7 +47,7 @@
           <div class="row justify-center">
             <a class="text-h5">
               Email:
-              <a href="https://mail.demo.slimfact.app"
+              <a class="text-h5" href="https://mail.demo.slimfact.app"
                 >https://mail.demo.slimfact.app
               </a>
             </a>
