@@ -9,12 +9,17 @@
         <q-avatar
           square
           style="height: 50px; width: 50px"
-          class="q-mt-xs q-mb-xs q-ml-lg"
+          :class="{
+            'q-mt-xs': true,
+            'q-mb-xs': true,
+            'q-ml-sm': $q.screen.lt.lg,
+            'q-ml-md': $q.screen.gt.md
+          }"
         >
           <img alt="Logo" :src="logo" />
         </q-avatar>
 
-        <q-toolbar-title> SlimFact </q-toolbar-title>
+        <q-toolbar-title :shrink="$q.screen.lt.md"> SlimFact </q-toolbar-title>
 
         <q-tabs v-model="tab" class="gt-sm">
           <q-route-tab
