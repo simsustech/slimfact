@@ -15,6 +15,13 @@
 export default {
   name: 'App'
 }
+
+import { QBtn } from 'quasar'
+
+QBtn.props.rounded = {
+  type: QBtn.props.rounded,
+  default: true
+}
 </script>
 
 <script setup lang="ts"></script>
