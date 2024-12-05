@@ -31,10 +31,10 @@
     >
       <div class="q-pa-none q-ma-none">
         <div class="col-4">
-          <div class="row justify-center">
+          <div class="row justify-center q-mb-sm">
             <a class="text-h5">Try the demo</a>
           </div>
-          <div class="row justify-center">
+          <div class="row justify-center q-mb-sm">
             <q-btn
               href="https://demo.slimfact.app"
               label="Open demo"
@@ -66,7 +66,7 @@
       />
     </div>
 
-    <div class="row full-width justify-center q-pb-lg q-ma-md">
+    <!-- <div class="row full-width justify-center q-pb-lg q-ma-md">
       <q-carousel
         v-model="responsiveSlide"
         class="full-width"
@@ -87,7 +87,7 @@
           </div>
         </q-carousel-slide>
       </q-carousel>
-    </div>
+    </div> -->
   </q-page>
 </template>
 
