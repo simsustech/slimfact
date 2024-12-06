@@ -38,6 +38,7 @@
     "vue-eslint-parser": "^9.4.3"
   },
   "dependencies": {
+    "@modular-api/fastify-checkout": "^0.4.11",
     "@rgrove/parse-xml": "^4.2.0",
     "fast-xml-parser": "^4.5.0",
     "handlebars": "^4.7.8",

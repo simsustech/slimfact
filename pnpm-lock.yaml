@@ -325,7 +325,7 @@ importers:
         version: 0.21.0(vite@5.2.13(@types/node@22.10.0)(sass@1.81.0)(terser@5.33.0))(workbox-build@7.1.1)(workbox-window@7.3.0)
       vitrify:
         specifier: ^0.16.3
-        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@2.79.1)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
+        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@4.22.4)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
       vue:
         specifier: 3.5.13
         version: 3.5.13(typescript@5.7.2)
@@ -434,7 +434,7 @@ importers:
         version: 5.2.13(@types/node@22.10.0)(sass@1.81.0)(terser@5.33.0)
       vitrify:
         specifier: 0.16.3
-        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@4.22.4)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
+        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@2.79.1)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
       workbox-window:
         specifier: 7.3.0
         version: 7.3.0
@@ -488,8 +488,8 @@ importers:
   packages/tools:
     dependencies:
       '@modular-api/fastify-checkout':
-        specifier: ^0.4.10
-        version: 0.4.10(kysely@0.27.4)
+        specifier: ^0.4.11
+        version: 0.4.11(kysely@0.27.4)
       '@rgrove/parse-xml':
         specifier: ^4.2.0
         version: 4.2.0
@@ -1794,11 +1794,6 @@ packages:
 
   '@modular-api/fastify-cart@0.3.2':
     resolution: {integrity: sha512-tLHtlrCAiL12vpDxW/OlNzoojTAiuDrDrcNWgEO+phlx9wYtGv8rHtuC5jboUv/KRsvf9k2jheFLdxh6c7R+ig==}
-    peerDependencies:
-      kysely: ^0.27.4
-
-  '@modular-api/fastify-checkout@0.4.10':
-    resolution: {integrity: sha512-PQHQV20NTDTgTVLlcuprBBVVR0fDNxI8+9FcWwyAS1jVzUwCUt1OITWJDJnmMVfRWyG27P7sgnLMnhwsWvGx0A==}
     peerDependencies:
       kysely: ^0.27.4
 
@@ -7439,18 +7434,6 @@ snapshots:
       - vue
 
   '@modular-api/fastify-cart@0.3.2(kysely@0.27.4)':
-    dependencies:
-      '@fastify/cookie': 11.0.1
-      '@fastify/middie': 9.0.2
-      '@fastify/static': 8.0.3
-      '@mollie/api-client': 4.1.0
-      '@vitrify/tools': 0.2.2
-      fastify-plugin: 5.0.1
-      kysely: 0.27.4
-    transitivePeerDependencies:
-      - encoding
-
-  '@modular-api/fastify-checkout@0.4.10(kysely@0.27.4)':
     dependencies:
       '@fastify/cookie': 11.0.1
       '@fastify/middie': 9.0.2
