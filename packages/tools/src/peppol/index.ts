@@ -24,7 +24,7 @@ export const createPeppolInvoice = ({
     xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
     <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
     <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
-    <cbc:ID>${invoice.uuid}</cbc:ID>
+    <cbc:ID>${invoice.numberPrefix}${invoice.number}</cbc:ID>
     <cbc:IssueDate>${invoice.date}</cbc:IssueDate>
     <cbc:DueDate>${invoice.dueDate}</cbc:DueDate>
     <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
