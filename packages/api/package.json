@@ -57,6 +57,7 @@
     "@modular-api/fastify-oidc": "^0.6.4",
     "@mollie/api-client": "^4.1.0",
     "@slimfact/app": "^0.1.0",
+    "@slimfact/tools": "^0.1.0",
     "@trpc/server": "^10.45.2",
     "@vitrify/tools": "^0.2.3",
     "axios": "^1.7.8",

@@ -15,6 +15,10 @@
     "./epc-qr": {
       "types": "./dist/types/epc-qr/index.d.ts",
       "import": "./dist/epc-qr/index.js"
+    },
+    "./peppol": {
+      "types": "./dist/types/peppol/index.d.ts",
+      "import": "./dist/peppol/index.js"
     }
   },
   "scripts": {

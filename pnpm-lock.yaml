@@ -66,6 +66,9 @@ importers:
       '@slimfact/app':
         specifier: workspace:*
         version: link:../app
+      '@slimfact/tools':
+        specifier: workspace:*
+        version: link:../tools
       '@trpc/server':
         specifier: ^10.45.2
         version: 10.45.2
@@ -325,7 +328,7 @@ importers:
         version: 0.21.0(vite@5.2.13(@types/node@22.10.0)(sass@1.81.0)(terser@5.33.0))(workbox-build@7.1.1)(workbox-window@7.3.0)
       vitrify:
         specifier: ^0.16.3
-        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@4.22.4)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
+        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@2.79.1)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
       vue:
         specifier: 3.5.13
         version: 3.5.13(typescript@5.7.2)
@@ -434,7 +437,7 @@ importers:
         version: 5.2.13(@types/node@22.10.0)(sass@1.81.0)(terser@5.33.0)
       vitrify:
         specifier: 0.16.3
-        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@2.79.1)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
+        version: 0.16.3(@babel/parser@7.25.6)(@fastify/static@8.0.3)(@types/node@22.10.0)(fastify@5.1.0)(quasar@2.17.4)(rollup@4.22.4)(terser@5.33.0)(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))(workbox-build@7.1.1)
       workbox-window:
         specifier: 7.3.0
         version: 7.3.0
