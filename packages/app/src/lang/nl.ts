@@ -91,6 +91,7 @@ const lang: Language = {
       city: 'Woonplaats',
       country: 'Land',
       vatIdNumber: 'BTW ID nummer',
+      cocNumber: 'KvK nummer',
       email: 'Email'
     },
     validations: {

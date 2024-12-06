@@ -90,6 +90,7 @@ const lang: Language = {
       city: 'City',
       country: 'Country',
       vatIdNumber: 'VAT ID number',
+      cocNumber: 'CoC number',
       email: 'Email'
     },
     validations: {

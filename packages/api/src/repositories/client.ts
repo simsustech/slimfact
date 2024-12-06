@@ -15,6 +15,7 @@ const defaultSelect = [
   'contactPersonName',
   'country',
   'vatIdNumber',
+  'cocNumber',
   'email',
   'postalCode',
   'accountId'

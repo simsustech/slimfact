@@ -70,6 +70,15 @@
       />
       <form-input
         v-bind="input"
+        v-model="modelValue.cocNumber"
+        :label="lang.client.fields.cocNumber"
+        class="col-md-3 col-12"
+        bottom-slots
+        lazy-rules
+        name="cocNumber"
+      />
+      <form-input
+        v-bind="input"
         v-model="modelValue.email"
         :label="lang.client.fields.email"
         class="col-md-3 col-12"

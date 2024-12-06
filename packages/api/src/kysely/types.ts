@@ -19,6 +19,7 @@ export interface Clients {
   contactPersonName: string | null
   country: string
   vatIdNumber: string | null
+  cocNumber: string | null
   createdAt: Generated<string>
   email: string
   id: Generated<number>
