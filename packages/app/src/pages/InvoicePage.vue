@@ -102,7 +102,7 @@
       @click="refund"
     />
 
-    <q-btn-dropdown
+    <!-- <q-btn-dropdown
       v-if="
         invoice &&
         invoice.amountDue !== void 0 &&
@@ -142,7 +142,7 @@
           </q-item-label>
         </q-item-section>
       </q-item>
-    </q-btn-dropdown>
+    </q-btn-dropdown> -->
 
     <q-btn
       v-if="user?.roles?.includes('administrator')"
@@ -283,10 +283,6 @@ import { ResponsiveDialog } from '@simsustech/quasar-components'
 import Price from '../components/Price.vue'
 import { loadConfiguration, useConfiguration } from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
-import PriceInputDialog from '../components/PriceInputDialog.vue'
-import { PaymentMethod } from '@modular-api/fastify-checkout/types'
-import AddPaymentDialog from '../components/AddPaymentDialog.vue'
-import type { Invoice } from '@modular-api/fastify-checkout'
 
 const { useQuery, useMutation } = await createUseTrpc()
 const lang = useLang()
@@ -303,7 +299,7 @@ const slimfactDownloaderUrl = ref(
 const uuid = ref(
   Array.isArray(route.params.uuid) ? route.params.uuid[0] : route.params.uuid
 )
-const { data: invoice, execute } = useQuery('public.getInvoice', {
+const { data: invoice } = useQuery('public.getInvoice', {
   args: reactive({
     uuid
   }),
@@ -479,84 +475,6 @@ const format = (value: number) =>
   }).format(value / 100)
 
 const language = ref($q.lang.isoName)
-
-const openAddCashPaymentDialog = async ({ data }: { data: Invoice }) => {
-  const format = (value: number) =>
-    Intl.NumberFormat(data.locale, {
-      maximumFractionDigits: 2,
-      style: 'currency',
-      currency: data.currency
-    }).format(value / 100)
-  return $q
-    .dialog({
-      component: PriceInputDialog,
-      componentProps: {
-        message: lang.value.bill.messages.addCashPayment({
-          clientDetails: data.clientDetails,
-          totalIncludingTax: format(data.totalIncludingTax)
-        }),
-        currency: data.currency
-      }
-    })
-    .onOk(async (amount) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
-          id: data.id,
-          payment: {
-            amount,
-            currency: data.currency,
-            description: new Date().toISOString().slice(0, 10),
-            method: PaymentMethod.cash
-          }
-        },
-        immediate: true
-      })
-
-      await result.immediatePromise
-
-      if (!result.error.value) execute()
-    })
-}
-
-const openAddPinPaymentDialog = async ({ data }: { data: Invoice }) => {
-  const format = (value: number) =>
-    Intl.NumberFormat($q.lang.isoName, {
-      maximumFractionDigits: 2,
-      style: 'currency',
-      currency: data.currency
-    }).format(value / 100)
-  return $q
-    .dialog({
-      component: AddPaymentDialog,
-      componentProps: {
-        message: lang.value.bill.messages.addPinPayment({
-          clientDetails: data.clientDetails,
-          totalIncludingTax: format(data.totalIncludingTax)
-        }),
-        currency: data.currency
-      }
-    })
-    .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
-          id: data.id,
-          payment: {
-            amount,
-            currency: data.currency,
-            description: new Date().toISOString().slice(0, 10),
-            transactionReference,
-            method: PaymentMethod.pin
-          }
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
-        await execute()
-      }
-    })
-}
 
 const getAdminUrl = () => {
   if (invoice.value) {
