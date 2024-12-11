@@ -7,7 +7,8 @@
       v-if="
         invoice &&
         [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
-        invoice.amountDue
+        invoice.amountDue &&
+        invoice.amountDue > 0
       "
       icon="payment"
       :label="lang.payment.pay"
