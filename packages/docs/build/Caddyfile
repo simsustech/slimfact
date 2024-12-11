@@ -1,7 +1,12 @@
 www.slimfact.app {
-  handle {
+  handle_path /* {
     root * /srv/www.slimfact.app
     try_files {path}.html {path} /404.html
+    file_server
+  }
+  handle / {
+    root * /srv/www.slimfact.app
+    try_files index.html
     file_server
   }
 }
