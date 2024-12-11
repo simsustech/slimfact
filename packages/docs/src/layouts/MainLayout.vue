@@ -177,7 +177,7 @@ const pages = ref({
   ],
   'en-US': [
     {
-      id: 'Home',
+      id: 'home',
       label: 'Home',
       icon: 'home'
     },

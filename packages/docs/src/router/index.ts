@@ -12,6 +12,7 @@ export default function createRouter() {
     history: import.meta.env.SSR
       ? createMemoryHistory(__BASE_URL__)
       : createWebHistory(__BASE_URL__),
-    routes
+    routes,
+    sensitive: true
   })
 }

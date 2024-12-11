@@ -1,60 +1,64 @@
 <template>
   <q-page>
-    <div class="row q-mt-xl justify-center q-ma-md">
-      <a class="text-h5"> Streamlined invoicing made easy </a>
-    </div>
-
-    <div class="row full-width justify-center q-pb-lg q-ma-md">
-      <q-carousel
-        v-model="slide"
-        class="full-width"
-        animated
-        arrows
-        infinite
-        control-color="primary"
-        style="height: 100%"
-      >
-        <q-carousel-slide
-          v-for="(slide, index) in slides[lang]"
-          :key="index"
-          :name="index"
-        >
-          <q-img :src="slide.imgSrc" style="height: 400px" fit="contain" />
-          <div class="text-subtitle1 text-center">
-            {{ slide.title }}
+    <div class="column justify-center" style="min-height: inherit">
+      <div class="col bg-primary"></div>
+      <div class="col bg-primary">
+        <div class="row items-center">
+          <div class="col-12 col-md-5 justify-center q-pa-md">
+            <div class="row justify-center">
+              <div v-if="lang === 'en-US'" style="max-width: 350px">
+                <a class="text-h4"> Streamlined invoicing made easy. </a>
+                <br />
+                <a class="text-h6">
+                  SlimFact is a smart invoicing solution designed to simplify
+                  your billing process.
+                </a>
+                <br />
+                <q-btn
+                  class="q-mt-md"
+                  color="accent"
+                  href="https://demo.slimfact.app"
+                >
+                  Open the demo
+                </q-btn>
+                <br />
+                <router-link class="text-caption" to="/pricing"
+                  >Or look at the options.</router-link
+                >
+              </div>
+            </div>
           </div>
-        </q-carousel-slide>
-      </q-carousel>
-    </div>
-    <div
-      class="row full-width justify-center bg-primary q-pb-lg q-pt-lg q-mt-lg q-ma-md"
-    >
-      <div class="q-pa-none q-ma-none">
-        <div class="col-4">
-          <div class="row justify-center q-mb-sm">
-            <a class="text-h5">Try the demo</a>
-          </div>
-          <div class="row justify-center q-mb-sm">
-            <q-btn
-              href="https://demo.slimfact.app"
-              label="Open demo"
-              color="accent"
-            />
-          </div>
-          <div class="row justify-center">
-            <a class="text-h5">Login: admin@slimfact.app / N6QD4HzGYf4h</a>
-          </div>
-          <div class="row justify-center">
-            <a class="text-h5">
-              Email:
-              <a class="text-h5" href="https://mail.demo.slimfact.app"
-                >https://mail.demo.slimfact.app
-              </a>
-            </a>
+          <div class="col-12 col-md-7">
+            <q-carousel
+              v-model="slide"
+              class="bg-primary"
+              animated
+              arrows
+              infinite
+              control-color="secondary"
+              style="height: 100%"
+            >
+              <q-carousel-slide
+                v-for="(slide, index) in slides[lang]"
+                :key="index"
+                :name="index"
+              >
+                <q-img
+                  :src="slide.imgSrc"
+                  style="height: 400px"
+                  fit="contain"
+                />
+                <div class="text-subtitle1 text-center">
+                  {{ slide.title }}
+                </div>
+              </q-carousel-slide>
+            </q-carousel>
           </div>
         </div>
+        <div class="col bg-primary"></div>
       </div>
     </div>
+
     <div class="row justify-center q-col-gutter-x-md q-ma-md">
       <feature-card
         v-for="(feature, index) in features[lang]"
