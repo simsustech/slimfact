@@ -35,7 +35,7 @@
               animated
               arrows
               infinite
-              control-color="secondary"
+              control-color="accent"
               style="height: 100%"
             >
               <q-carousel-slide
