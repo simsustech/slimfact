@@ -7,12 +7,12 @@
           <div class="col-12 col-md-5 justify-center q-pa-md">
             <div class="row justify-center">
               <div v-if="lang === 'en-US'" style="max-width: 350px">
-                <a class="text-h4"> Streamlined invoicing made easy. </a>
+                <div class="text-h4">Streamlined invoicing made easy.</div>
                 <br />
-                <a class="text-h6">
+                <div class="text-h6">
                   SlimFact is a smart invoicing solution designed to simplify
                   your billing process.
-                </a>
+                </div>
                 <br />
                 <q-btn
                   class="q-mt-md"

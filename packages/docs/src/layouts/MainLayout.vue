@@ -62,7 +62,17 @@
 
     <q-drawer v-model="leftDrawerOpen" bordered>
       <q-list>
-        <q-item to="/home">
+        <q-item v-for="page in pages[$q.lang.isoName]" :key="page.id">
+          <q-item-section avatar>
+            <q-icon :name="page.icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ page.label }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <!-- <q-item to="/home">
           <q-item-section avatar>
             <q-icon name="home" />
           </q-item-section>
@@ -91,7 +101,7 @@
               {{ lang.contact.title }}
             </q-item-label>
           </q-item-section>
-        </q-item>
+        </q-item> -->
         <q-item href="https://github.com/simsustech/slimfact">
           <q-item-section>
             <q-item-label>
@@ -108,7 +118,7 @@
         <q-space horizontal />
         <div class="column">
           <div class="row">
-            <a class="text-subtitle1"> Copyright © 2024 simsustech </a>
+            <div class="text-subtitle1">Copyright © 2024 simsustech</div>
           </div>
           <div class="row">
             <a href="https://www.simsus.tech"> https://www.simsus.tech </a>
