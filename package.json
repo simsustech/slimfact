@@ -36,11 +36,11 @@
     "test:e2e": "run-s test:e2e:api"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.5",
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
+    "@changesets/cli": "^2.27.10",
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
     "changesets": "^1.0.2",
-    "git-conventional-commits": "^2.6.7",
+    "git-conventional-commits": "^2.7.1",
     "npm-run-all": "^4.1.5",
     "simple-git-hooks": "^2.11.1"
   },
