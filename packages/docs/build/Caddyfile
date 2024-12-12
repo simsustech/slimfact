@@ -1,4 +1,5 @@
 www.slimfact.app {
+  encode zstd gzip
   handle_path /* {
     root * /srv/www.slimfact.app
     try_files {path}.html {path} /404.html

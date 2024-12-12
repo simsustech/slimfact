@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "vitrify dev",
     "dev:ssr": "vitrify dev -m ssr",
-    "build": "run-s build:ssg gzip",
+    "build": "run-s build:ssg",
     "build:csr": "vitrify build",
     "build:ssr": "vitrify build -m ssr",
     "build:ssg": "vitrify build -m ssg",
