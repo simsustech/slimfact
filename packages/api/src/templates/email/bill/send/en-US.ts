@@ -1,10 +1,10 @@
 import { c } from 'compress-tag'
 
-const subject = `You have an outstanding bill`
+const subject = `View or pay your outstanding bill`
 const body = c`</p>Dear {{#if clientDetails.contactPersonName}}{{clientDetails.contactPersonName}}{{else}}{{clientDetails.companyName}}{{/if}},</p>
 
 <p>In the attachment you can find the bill with an amount due of {{amountDue}}.
-We would like to request you to pay this amount online.</p>
+We would like to request you to pay this amount with the link below.</p>
 
 <p>You can view and pay the bill <a href="\\{{invoiceUrl}}">here</a>.
 

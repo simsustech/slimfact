@@ -1,11 +1,11 @@
 import { c } from 'compress-tag'
 
-const subject = `U heeft een openstaande rekening`
+const subject = `Bekijk of betaal uw openstaande rekening`
 const body = c`
   <p>Beste {{#if clientDetails.contactPersonName}}{{clientDetails.contactPersonName}}{{else}}{{clientDetails.companyName}}{{/if}},</p>
 
   <p>Bijgevoegd treft u uw rekening aan met een openstaand bedrag ter hoogte van {{amountDue}}.
-  We willen u verzoeken om dit bedrag online te betalen.</p>
+  We willen u verzoeken om dit bedrag via onderstaande link te betalen.</p>
 
   <p>U kunt de rekening <a href="\\{{invoiceUrl}}">hier</a> bekijken en betalen.
 
