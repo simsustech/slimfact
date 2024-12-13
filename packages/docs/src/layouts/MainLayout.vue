@@ -16,7 +16,7 @@
             'q-ml-md': $q.screen.gt.md
           }"
         >
-          <img alt="Logo" :src="logo" />
+          <img alt="Logo" width="50px" height="50px" :src="logo" />
         </q-avatar>
 
         <q-toolbar-title :shrink="$q.screen.lt.md"> SlimFact </q-toolbar-title>
