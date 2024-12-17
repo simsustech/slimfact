@@ -21,6 +21,7 @@ const lang: Language = {
   settings: 'Instellingen',
   name: 'Naam',
   overview: 'Overzicht',
+  noResultsAvailable: 'Geen resultaten beschikbaar.',
   account: {
     title: 'Account',
     name: 'Account',
@@ -98,7 +99,8 @@ const lang: Language = {
       fieldRequired: 'Veld is vereist'
     },
     messages: {
-      linkAccount: 'Link account aan klant.'
+      linkAccount: 'Link account aan klant.',
+      addClient: 'Voeg een klant toe.'
     }
   },
   invoice: {

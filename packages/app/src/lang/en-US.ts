@@ -21,6 +21,7 @@ const lang: Language = {
   settings: 'Settings',
   name: 'Name',
   overview: 'Overview',
+  noResultsAvailable: 'No results available.',
   account: {
     title: 'Account',
     name: 'Account',
@@ -97,7 +98,8 @@ const lang: Language = {
       fieldRequired: 'Field is required'
     },
     messages: {
-      linkAccount: 'Link account to client.'
+      linkAccount: 'Link account to client.',
+      addClient: 'Add a client.'
     }
   },
   invoice: {

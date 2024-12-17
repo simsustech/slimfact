@@ -20,6 +20,7 @@ export interface Language {
   settings: string
   name: string
   overview: string
+  noResultsAvailable: string
   account: {
     title: string
     name: string
@@ -97,6 +98,7 @@ export interface Language {
     }
     messages: {
       linkAccount: string
+      addClient: string
     }
   }
   invoice: {

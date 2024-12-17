@@ -14,6 +14,16 @@
     >
       <slot :scope="scope" :name="slot"></slot>
     </template>
+    <template #no-option>
+      <q-item>
+        <q-item-section class="text-italic text-grey">
+          {{ lang.noResultsAvailable }}
+          <router-link to="/admin/clients">{{
+            lang.client.messages.addClient
+          }}</router-link>
+        </q-item-section>
+      </q-item>
+    </template>
   </filtered-model-select>
 </template>
 
