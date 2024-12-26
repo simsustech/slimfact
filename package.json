@@ -54,7 +54,7 @@
       "@slimfact/api": "workspace:*",
       "@slimfact/downloader": "workspace:*",
       "@slimfact/tools": "workspace:*",
-      "vite": "5.2.13"
+      "vite": "6.0.3"
     }
   }
 }
