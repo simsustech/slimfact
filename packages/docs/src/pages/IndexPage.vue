@@ -104,9 +104,14 @@ export default {
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import FeatureCard from '../components/FeatureCard.vue'
-import { useQuasar } from 'quasar'
+import { useQuasar, useMeta } from 'quasar'
 
 const $q = useQuasar()
+useMeta(() => ({
+  link: {
+    material: { rel: 'canonical', href: window?.location.origin }
+  }
+}))
 
 const lang = ref($q.lang.isoName)
 watch($q.lang, (newVal) => {
