@@ -38,6 +38,8 @@ app.get(
         printBackground: true
       })
 
+      await page.close()
+
       reply.header(
         'Content-Disposition',
         `attachment; filename=${await page.title()}`
