@@ -12,6 +12,8 @@ await app.register(fastifyRateLimit, {
   timeWindow: '1 minute'
 })
 
+const browser = await chromium.launch({})
+
 app.get(
   '/',
   async (
@@ -26,7 +28,6 @@ app.get(
       }
       app.log.info(host)
       app.log.info(uuid)
-      const browser = await chromium.launch({})
       const page = await browser.newPage({
         ignoreHTTPSErrors: !!process.env.DEV
       })
