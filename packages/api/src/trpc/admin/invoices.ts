@@ -273,7 +273,7 @@ export const adminInvoiceRoutes = ({
       } = input || {}
       if (fastify.checkout?.invoiceHandler) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
-          uuids: uuids?.length ? uuids : undefined,
+          uuids: uuids,
           companyId,
           clientId,
           clientDetails,

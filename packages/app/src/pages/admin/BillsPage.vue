@@ -124,10 +124,12 @@ const lang = useLang()
 
 const route = useRoute()
 
-const uuids = ref((route.params.uuids as string[]) || [])
+const uuids = ref<string[]>((route.params.uuids as string[]) || undefined)
 onBeforeRouteUpdate((to) => {
   if (to.params.uuids && Array.isArray(to.params.ids)) {
-    uuids.value = to.params.uuids
+    uuids.value = to.params.uuids as string[]
+  } else {
+    uuids.value = undefined
   }
 })
 
