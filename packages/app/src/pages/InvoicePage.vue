@@ -216,7 +216,7 @@
           download="proposed_file_name"
           :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${hostname}`"
         >
-          <q-tooltip>
+          <q-tooltip class="no-print">
             {{ lang.invoice.labels.download }}
           </q-tooltip>
         </q-btn>
@@ -229,7 +229,7 @@
           color="primary"
           @click="print"
         >
-          <q-tooltip>
+          <q-tooltip class="no-print">
             {{ lang.invoice.labels.print }}
           </q-tooltip>
         </q-btn>
