@@ -20,7 +20,6 @@ app.get(
     request: FastifyRequest<{ Querystring: { host: string; uuid: string } }>,
     reply: FastifyReply
   ) => {
-    console.log(browser)
     try {
       const { host, uuid } = request.query
       if (!host || !uuid) {
