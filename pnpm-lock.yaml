@@ -1461,8 +1461,8 @@ packages:
   '@fastify/fast-json-stringify-compiler@5.0.1':
     resolution: {integrity: sha512-f2d3JExJgFE3UbdFcpPwqNUEoHWmt8pAKf8f+9YuLESdefA0WgqxeT6DrGL4Yrf/9ihXNSKOqpjEmurV405meA==}
 
-  '@fastify/formbody@8.0.1':
-    resolution: {integrity: sha512-LPrcadSIK8TrQk510Zdj56fnw7cyHq0/PW0YHGGM8ycGL4X7XAex+FKcwpzB4i5lF9eykc71a4EtcO9AEoByqw==}
+  '@fastify/formbody@8.0.2':
+    resolution: {integrity: sha512-84v5J2KrkXzjgBpYnaNRPqwgMsmY7ZDjuj0YVuMR3NXCJRCgKEZy/taSP1wUYGn0onfxJpLyRGDLa+NMaDJtnA==}
 
   '@fastify/merge-json-schemas@0.1.1':
     resolution: {integrity: sha512-fERDVz7topgNjtXsJTTW1JKLy0rhuLRcquYqNR9rF7OcVpCa2OVW49ZPDIhaRRCaUuvVxI+N416xUoF76HNSXA==}
@@ -7024,7 +7024,7 @@ snapshots:
     dependencies:
       fast-json-stringify: 6.0.0
 
-  '@fastify/formbody@8.0.1':
+  '@fastify/formbody@8.0.2':
     dependencies:
       fast-querystring: 1.1.2
       fastify-plugin: 5.0.1
@@ -7234,7 +7234,7 @@ snapshots:
     dependencies:
       '@fastify/cookie': 11.0.1
       '@fastify/cors': 10.0.1
-      '@fastify/formbody': 8.0.1
+      '@fastify/formbody': 8.0.2
       '@fastify/middie': 9.0.2
       '@fastify/static': 8.0.3
       '@modular-api/fastify-cart': 0.3.2(kysely@0.27.4)

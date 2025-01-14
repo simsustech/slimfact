@@ -529,8 +529,9 @@ onMounted(async () => {
     border: none !important;
   }
   #scroll-area {
+    overflow: auto;
     width: 210mm !important;
-    height: 297mm !important;
+    height: 292mm !important;
   }
   #wrapper {
     zoom: 1 !important;
