@@ -15,7 +15,17 @@ export const companyValidation = {
   bic: z.string(),
   email: z.string().email(),
   website: z.union([z.string().url().nullish(), z.literal('')]),
-  emailBcc: z.union([z.string().email().nullish(), z.literal('')]),
+  emailBcc: z.union([
+    z.literal(''),
+    z
+      .string()
+      .refine((emailValue) =>
+        emailValue
+          .split(',')
+          .every((item) => z.string().email().nullish().safeParse(item).success)
+      )
+  ]),
+
   prefix: z.string(),
   logoSvg: z.string().nullable().optional(),
   defaultNumberPrefixTemplate: z.string().nullable().optional(),
