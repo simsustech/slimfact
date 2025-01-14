@@ -3,7 +3,6 @@
     :model-value="modelValue"
     :options="options"
     :label="lang.invoice.fields.status"
-    stack-label
     map-options
     emit-value
     @update:model-value="($event) => emit('update:modelValue', $event)"

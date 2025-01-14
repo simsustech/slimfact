@@ -9,9 +9,10 @@
       {{ lang.invoice.title }}
     </template>
     <template #header-side>
-      <invoice-status-toggle v-model="status" />
       <q-btn icon="search">
         <q-menu class="q-pa-sm">
+          <invoice-status-select v-model="status" />
+
           <company-select
             v-model="companyId"
             :filtered-options="filteredCompanies"
@@ -117,7 +118,7 @@ import { InvoiceStatus } from '@slimfact/api/zod'
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
-import InvoiceStatusToggle from '../../components/invoice/InvoiceStatusToggle.vue'
+import InvoiceStatusSelect from '../../components/invoice/InvoiceStatusSelect.vue'
 import AddPaymentDialog from '../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 const { useQuery, useMutation } = await createUseTrpc()
