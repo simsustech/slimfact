@@ -20,6 +20,7 @@ app.get(
     request: FastifyRequest<{ Querystring: { host: string; uuid: string } }>,
     reply: FastifyReply
   ) => {
+    console.log(browser)
     try {
       const { host, uuid } = request.query
       if (!host || !uuid) {
@@ -39,14 +40,14 @@ app.get(
         printBackground: true
       })
 
-      await page.close()
-
       reply.header(
         'Content-Disposition',
         `attachment; filename=${await page.title()}`
       )
 
       reply.send(download)
+
+      await page.close()
     } catch (e) {
       app.log.info(e)
       reply.statusCode = 404
