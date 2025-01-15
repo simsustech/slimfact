@@ -366,7 +366,8 @@ const openAddCashPaymentDialog: InstanceType<
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
-        currency: data.currency
+        currency: data.currency,
+        totalIncludingTax: data.totalIncludingTax
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
@@ -407,7 +408,8 @@ const openAddBankTransferPaymentDialog: InstanceType<
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
-        currency: data.currency
+        currency: data.currency,
+        totalIncludingTax: data.totalIncludingTax
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
@@ -449,7 +451,8 @@ const openAddPinPaymentDialog: InstanceType<
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
-        currency: data.currency
+        currency: data.currency,
+        totalIncludingTax: data.totalIncludingTax
       }
     })
     .onOk(async ({ amount, transactionReference }) => {

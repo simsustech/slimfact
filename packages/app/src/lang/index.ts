@@ -174,7 +174,7 @@ export interface Language {
         totalIncludingTax
       }: {
         clientDetails: ClientDetails
-        totalIncludingTax: number
+        totalIncludingTax: number | string
       }) => string
       downPaymentReceived: string
     }

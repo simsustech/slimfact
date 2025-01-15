@@ -16,7 +16,11 @@
             @update:model-value="
               ($event) => (amount = Math.round(Number($event) * 100))
             "
-          />
+          >
+            <template #append>
+              <q-btn icon="paid" outline @click="amount = totalIncludingTax" />
+            </template>
+          </q-input>
           <q-input
             v-model="transactionReference"
             :label="lang.payment.fields.transactionReference"
@@ -39,6 +43,7 @@ import { useLang } from '../lang/index.js'
 export interface Props {
   message: string
   currency: 'EUR' | 'USD'
+  totalIncludingTax?: number
 }
 const amount = ref(0)
 const transactionReference = ref('')
