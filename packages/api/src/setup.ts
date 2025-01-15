@@ -85,10 +85,17 @@ export default async function (fastify: FastifyInstance) {
     kysely
   })
 
-  const pinPaymentHandler = createPinPaymentHandler({
-    fastify,
-    kysely
-  })
+  let pinPaymentHandler: FastifyCheckoutPaymentHandler | undefined
+
+  if (
+    env.read('PIN_ENABLED') === 'true' ||
+    env.read('VITE_PIN_ENABLED') === 'true'
+  ) {
+    pinPaymentHandler = createPinPaymentHandler({
+      fastify,
+      kysely
+    })
+  }
 
   let molliePaymentHandler:
     | CheckoutPluginOptionsPaymentHandlers['mollie']
