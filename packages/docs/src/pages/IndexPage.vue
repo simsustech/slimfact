@@ -107,11 +107,16 @@ import FeatureCard from '../components/FeatureCard.vue'
 import { useQuasar, useMeta } from 'quasar'
 
 const $q = useQuasar()
-useMeta(() => ({
-  link: {
-    material: { rel: 'canonical', href: window?.location.origin }
+useMeta(() => {
+  if (!import.meta.env.SSR) {
+    return {
+      link: {
+        material: { rel: 'canonical', href: window?.location.origin }
+      }
+    }
   }
-}))
+  return {}
+})
 
 const lang = ref($q.lang.isoName)
 watch($q.lang, (newVal) => {
