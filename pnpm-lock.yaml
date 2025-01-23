@@ -49,8 +49,8 @@ importers:
         specifier: 8.0.3
         version: 8.0.3
       '@modular-api/api':
-        specifier: ^0.5.18
-        version: 0.5.18(bcrypt@5.1.1)(fastify@5.1.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2))
+        specifier: ^0.5.19
+        version: 0.5.19(bcrypt@5.1.1)(fastify@5.1.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2))
       '@modular-api/fastify-cart':
         specifier: ^0.3.2
         version: 0.3.2(kysely@0.27.4)
@@ -515,6 +515,9 @@ importers:
       '@types/node':
         specifier: ^22.10.0
         version: 22.10.0
+      csv-parse:
+        specifier: ^5.6.0
+        version: 5.6.0
       eslint:
         specifier: 9.15.0
         version: 9.15.0(jiti@1.21.6)
@@ -1654,8 +1657,8 @@ packages:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
 
-  '@modular-api/api@0.5.18':
-    resolution: {integrity: sha512-mE3b7sL2tlKRcoSnlj4sFVh9TAN0+95WhnkZERl63PBU6OOTn4UKmsAbEdvcGnfS2EHLcPrhZKI1iKg7VWU9nQ==}
+  '@modular-api/api@0.5.19':
+    resolution: {integrity: sha512-G4Nt1xc3XWk4H+3YT6jrqNcBad7qZS/KVD6YYv0AyS2/5Ddmeatpjeo/tyfpAdXb0BWaxPY3xcto9SE6kVnOSw==}
     peerDependencies:
       kysely: ^0.27.4
       openid-client: ^6.1.4
@@ -2798,6 +2801,7 @@ packages:
 
   critters@0.0.25:
     resolution: {integrity: sha512-ROF/tjJyyRdM8/6W0VqoN5Ql05xAGnkf5b7f3sTEl1bI5jTQQf8O918RD/V9tEb9pRY/TKcvJekDbJtniHyPtQ==}
+    deprecated: Ownership of Critters has moved to the Nuxt team, who will be maintaining the project going forward. If you'd like to keep using Critters, please switch to the actively-maintained fork at https://github.com/danielroe/beasties
 
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
@@ -2857,6 +2861,9 @@ packages:
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  csv-parse@5.6.0:
+    resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
   dargs@8.1.0:
     resolution: {integrity: sha512-wAV9QHOsNbwnWdNW2FYvE1P56wtgSbM+3SZcdGiWQILwVjACCXDCI3Ai8QlCjMDB8YK5zySiXZYBiwGmNY3lnw==}
@@ -5209,6 +5216,7 @@ packages:
 
   sudo-prompt@8.2.5:
     resolution: {integrity: sha512-rlBo3HU/1zAJUrkY6jNxDOC9eVYliG6nS4JA8u8KAshITd07tafMc/Br7xQwCSseXwJ2iCcHCE8SNWX3q8Z+kw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -7230,7 +7238,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@modular-api/api@0.5.18(bcrypt@5.1.1)(fastify@5.1.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2))':
+  '@modular-api/api@0.5.19(bcrypt@5.1.1)(fastify@5.1.0)(handlebars@4.7.8)(kysely@0.27.4)(openid-client@6.1.3)(otplib@12.0.1)(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2))':
     dependencies:
       '@fastify/cookie': 11.0.1
       '@fastify/cors': 10.0.1
@@ -8581,6 +8589,8 @@ snapshots:
       css-tree: 2.2.1
 
   csstype@3.1.3: {}
+
+  csv-parse@5.6.0: {}
 
   dargs@8.1.0: {}
 

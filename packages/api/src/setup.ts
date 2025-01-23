@@ -230,7 +230,7 @@ export default async function (fastify: FastifyInstance) {
       issuer: `https://${hostname}`,
       accountMethods,
       firstPartyClients: ['slimfact'],
-      jwksURL: new URL('jwks.json', import.meta.url),
+      jwksURL: new URL('jwks/jwks.json', import.meta.url),
       configuration: {
         cookies: {
           // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#cookieskeys

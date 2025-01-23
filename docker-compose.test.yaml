@@ -45,7 +45,7 @@ services:
         aliases:
           - mailhog
 
-  app:
+  api:
     build:
       context: .
       secrets:
@@ -58,6 +58,8 @@ services:
     labels:
       caddy: localhost:3000
       caddy.reverse_proxy: "{{upstreams 80}}"
+    volumes:
+      - ./jwks/:/app/dist/server/jwks/
     environment:
       # API env variables
       VITE_API_HOSTNAME: localhost:3000
