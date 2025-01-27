@@ -43,8 +43,8 @@
   },
   "devDependencies": {
     "@modular-api/fastify-cart": "^0.3.2",
-    "@modular-api/fastify-checkout": "^0.4.12",
-    "@modular-api/quasar-components": "^0.3.7",
+    "@modular-api/fastify-checkout": "^0.4.13",
+    "@modular-api/quasar-components": "^0.3.8",
     "@quasar/extras": "1.16.13",
     "@quasar/quasar-ui-qcalendar": "4.0.0-beta.16",
     "@simsustech/quasar-components": "^0.11.6",

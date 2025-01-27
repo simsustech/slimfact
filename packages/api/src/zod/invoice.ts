@@ -11,6 +11,10 @@ export { PaymentStatus, InvoiceStatus }
 const invoiceLineValidation = z.object({
   quantity: z.number(),
   quantityPerMille: z.boolean(),
+  quantityUnit: z
+    .union([z.literal('kg'), z.literal('m'), z.literal('h')])
+    .nullable()
+    .optional(),
   description: z.string(),
   listPrice: z.number(),
   discount: z.number(),
