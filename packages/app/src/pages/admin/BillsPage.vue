@@ -36,12 +36,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          @send="($event) => openSendBillDialog('bill')!($event)"
-          @update="openUpdateDialog"
-          @send-receipt="($event) => openSendBillDialog('receipt')!($event)"
-          @add-payment-cash="openAddCashPaymentDialog"
-          @add-payment-pin="openAddPinPaymentDialog"
-          @cancel="openCancelDialog"
+          v-on="invoiceExpansionItemHandlers"
         />
       </q-list>
     </div>
@@ -113,11 +108,12 @@ import { InvoiceStatus } from '@slimfact/api/zod'
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
-import PriceInputDialog from '../../components/PriceInputDialog.vue'
 import AddPaymentDialog from '../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { useConfiguration } from '../../configuration.js'
 
 const { useQuery, useMutation } = await createUseTrpc()
+const configuration = useConfiguration()
 
 const $q = useQuasar()
 const lang = useLang()
@@ -281,13 +277,14 @@ const openAddCashPaymentDialog: InstanceType<
     }).format(value / 100)
   return $q
     .dialog({
-      component: PriceInputDialog,
+      component: AddPaymentDialog,
       componentProps: {
         message: lang.value.invoice.messages.addCashPayment({
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
-        currency: data.currency
+        currency: data.currency,
+        totalIncludingTax: data.totalIncludingTax
       }
     })
     .onOk(async (amount) => {
@@ -327,7 +324,8 @@ const openAddPinPaymentDialog: InstanceType<
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
-        currency: data.currency
+        currency: data.currency,
+        totalIncludingTax: data.totalIncludingTax
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
@@ -459,6 +457,19 @@ const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
 watch(clientId, (newVal) => {
   if (newVal) clientDetails.value.name = null
 })
+
+const invoiceExpansionItemHandlers = {
+  send: openSendBillDialog('bill'),
+  update: openUpdateDialog,
+  sendReceipt: openSendBillDialog('receipt'),
+  addPaymentPin: configuration.value.PAYMENT_HANDLERS.pin
+    ? openAddPinPaymentDialog
+    : undefined,
+  addPaymentCash: configuration.value.PAYMENT_HANDLERS.cash
+    ? openAddCashPaymentDialog
+    : undefined,
+  cancel: openCancelDialog
+}
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

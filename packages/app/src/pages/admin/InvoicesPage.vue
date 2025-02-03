@@ -37,16 +37,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          @update="openUpdateDialog"
-          @send="($event) => openSendInvoiceDialog('send')!($event)"
-          @send:reminder="($event) => openSendInvoiceDialog('remind')!($event)"
-          @send:exhortation="
-            ($event) => openSendInvoiceDialog('exhort')!($event)
-          "
-          @cancel="openCancelDialog"
-          @add-payment-cash="openAddCashPaymentDialog"
-          @add-payment-bank-transfer="openAddBankTransferPaymentDialog"
-          @add-payment-pin="openAddPinPaymentDialog"
+          v-on="invoiceExpansionItemHandlers"
         />
       </q-list>
     </div>
@@ -121,7 +112,10 @@ import ClientSelect from '../../components/client/ClientSelect.vue'
 import InvoiceStatusSelect from '../../components/invoice/InvoiceStatusSelect.vue'
 import AddPaymentDialog from '../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { useConfiguration } from '../../configuration.js'
+
 const { useQuery, useMutation } = await createUseTrpc()
+const configuration = useConfiguration()
 
 const $q = useQuasar()
 const lang = useLang()
@@ -545,6 +539,23 @@ const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
 watch(clientId, (newVal) => {
   if (newVal) clientDetails.value.name = null
 })
+
+const invoiceExpansionItemHandlers = {
+  update: openUpdateDialog,
+  send: openSendInvoiceDialog('send'),
+  sendReminder: openSendInvoiceDialog('remind'),
+  sendExhortation: openSendInvoiceDialog('exhort'),
+  addPaymentPin: configuration.value.PAYMENT_HANDLERS.pin
+    ? openAddPinPaymentDialog
+    : undefined,
+  addPaymentCash: configuration.value.PAYMENT_HANDLERS.cash
+    ? openAddCashPaymentDialog
+    : undefined,
+  addPaymentBankTransfer: configuration.value.PAYMENT_HANDLERS.bankTransfer
+    ? openAddBankTransferPaymentDialog
+    : undefined,
+  cancel: openCancelDialog
+}
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

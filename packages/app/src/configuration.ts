@@ -23,6 +23,7 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
   }
   PAYMENT_HANDLERS: {
     cash: boolean
+    pin: boolean
     ideal: boolean
     bankTransfer: boolean
     smartpin: boolean

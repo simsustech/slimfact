@@ -288,6 +288,7 @@ export default async function (fastify: FastifyInstance) {
       SASS_VARIABLES: sassVariables,
       PAYMENT_HANDLERS: {
         cash: cashPaymentHandler !== void 0,
+        pin: pinPaymentHandler !== void 0,
         ideal: molliePaymentHandler !== void 0,
         bankTransfer: bankTransferPaymentHandler !== void 0,
         smartpin: smartpinPaymentHandler !== void 0
