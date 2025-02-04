@@ -30,7 +30,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          @send:invoice="($event) => openSendInvoiceDialog()!($event)"
+          @send-invoice="openSendInvoiceDialog()"
         />
       </q-list>
     </div>

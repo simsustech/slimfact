@@ -515,7 +515,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    e: 'send:invoice',
+    e: 'sendInvoice',
     {
       data,
       done
@@ -525,7 +525,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    e: 'send:reminder',
+    e: 'sendReminder',
     {
       data,
       done
@@ -535,7 +535,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    e: 'send:exhortation',
+    e: 'sendExhortation',
     {
       data,
       done
@@ -630,21 +630,21 @@ const sendInvoice = (data: Invoice) => {
   function done() {
     //
   }
-  emit('send:invoice', { data: data, done })
+  emit('sendInvoice', { data: data, done })
 }
 
 const sendReminder = (data: Invoice) => {
   function done() {
     //
   }
-  emit('send:reminder', { data: data, done })
+  emit('sendReminder', { data: data, done })
 }
 
 const sendExhortation = (data: Invoice) => {
   function done() {
     //
   }
-  emit('send:exhortation', { data: data, done })
+  emit('sendExhortation', { data: data, done })
 }
 
 const addPaymentCash = (data: Invoice) => {
