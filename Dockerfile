@@ -32,7 +32,7 @@ RUN gzip -k -r /build/api/dist/server/*
 RUN gzip -k -r /build/app/dist/ssr/client/*
 RUN rm /build/app/dist/ssr/client/logo.svg.gz
 
-FROM node:20-slim AS api
+FROM node:lts-slim AS api
 LABEL "io.stak.vendor"="simsustech"
 RUN apt-get update && apt-get install -y curl
 WORKDIR /app

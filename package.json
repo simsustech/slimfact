@@ -50,11 +50,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@slimfact/app": "workspace:*",
-      "@slimfact/api": "workspace:*",
-      "@slimfact/downloader": "workspace:*",
-      "@slimfact/tools": "workspace:*",
-      "vite": "6.0.3"
+      "vite": "6.0.11"
     }
   }
 }

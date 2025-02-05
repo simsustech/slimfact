@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { db } from '../index.js'
 import type { Insertable } from 'kysely'
 import type { Clients, Companies, NumberPrefixes } from '../types.js'

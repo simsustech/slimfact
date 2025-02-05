@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { db } from '../index.js'
 import env from '@vitrify/tools/env'
 import type { Insertable } from 'kysely'
