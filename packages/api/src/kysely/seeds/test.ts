@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs'
+import { hashPassword } from '@vitrify/tools/scrypt'
 import { db } from '../index.js'
 import type { Insertable } from 'kysely'
 import type { Clients, Companies, NumberPrefixes } from '../types.js'
@@ -179,7 +179,7 @@ const seed = async () => {
       {
         accountId: admin.id,
         provider: 'native',
-        password: await bcrypt.hash(ADMIN_PASSWORD, 10)
+        password: await hashPassword(ADMIN_PASSWORD)
       }
     ])
     .execute()
