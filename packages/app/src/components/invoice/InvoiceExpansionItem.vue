@@ -392,42 +392,38 @@
 
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="overview">
-        <div class="row items-center">
-          {{ lang.invoice.lines }}
-        </div>
-        <invoice-line-row
-          v-for="(line, index) in modelValue.lines"
-          :key="index"
-          :model-value="line"
-          :currency="modelValue.currency"
-          disable
-        />
+        <q-list separator bordered>
+          <q-item-label header>{{ lang.invoice.lines }}</q-item-label>
+          <invoice-line-item
+            v-for="(line, index) in modelValue.lines"
+            :key="index"
+            :model-value="line"
+            :locale="modelValue.locale"
+            :currency="modelValue.currency"
+          ></invoice-line-item>
+        </q-list>
 
-        <div v-if="modelValue.discounts?.length">
-          <div class="row items-center">
-            {{ lang.invoice.discounts }}
-          </div>
-          <invoice-discount-surcharge-row
+        <q-list separator bordered>
+          <q-item-label header>{{ lang.invoice.discounts }}</q-item-label>
+          <invoice-line-item
             v-for="(discount, index) in modelValue.discounts"
             :key="index"
             :model-value="discount"
+            :locale="modelValue.locale"
             :currency="modelValue.currency"
-            disable
-          />
-        </div>
+          ></invoice-line-item>
+        </q-list>
 
-        <div v-if="modelValue.surcharges?.length">
-          <div class="row items-center">
-            {{ lang.invoice.surcharges }}
-          </div>
-          <invoice-discount-surcharge-row
+        <q-list separator bordered>
+          <q-item-label header>{{ lang.invoice.surcharges }}</q-item-label>
+          <invoice-line-item
             v-for="(surcharge, index) in modelValue.surcharges"
             :key="index"
             :model-value="surcharge"
+            :locale="modelValue.locale"
             :currency="modelValue.currency"
-            disable
-          />
-        </div>
+          ></invoice-line-item>
+        </q-list>
 
         <div v-if="modelValue.notes">
           {{ modelValue.notes }}
@@ -470,8 +466,7 @@
 import type { Invoice } from '@modular-api/fastify-checkout'
 import Price from '../Price.vue'
 import {
-  InvoiceLineRow,
-  InvoiceDiscountSurchargeRow,
+  InvoiceLineItem,
   PaymentItem,
   RefundItem
 } from '@modular-api/quasar-components/checkout'

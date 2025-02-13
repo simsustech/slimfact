@@ -98,55 +98,52 @@
       {{ lang.invoice.lines }} <q-btn flat round icon="add" @click="addLine" />
     </div>
 
-    <invoice-line-row
-      v-for="(line, index) in modelValue.lines"
-      :key="index"
-      v-model="modelValue.lines[index]"
-      :currency="modelValue.currency"
-      :locale="modelValue.locale"
-      @delete="
-        modelValue.lines = [
-          ...modelValue.lines.slice(0, index),
-          ...modelValue.lines.slice(index + 1)
-        ]
-      "
-    ></invoice-line-row>
+    <q-list separator>
+      <invoice-line-item
+        v-for="(line, index) in modelValue.lines"
+        :key="index"
+        v-ripple
+        :model-value="line"
+        :locale="modelValue.locale"
+        :currency="modelValue.currency"
+        editable
+        @delete="deleteLine(modelValue.lines, index)"
+      ></invoice-line-item>
+    </q-list>
 
     <div class="row items-center">
       {{ lang.invoice.discounts }}
       <q-btn flat round icon="add" @click="addDiscount" />
     </div>
-    <invoice-discount-surcharge-row
-      v-for="(line, index) in modelValue.discounts"
-      :key="index"
-      v-model="modelValue.discounts[index]"
-      :currency="modelValue.currency"
-      :locale="modelValue.locale"
-      @delete="
-        modelValue.discounts = [
-          ...modelValue.discounts.slice(0, index),
-          ...modelValue.discounts.slice(index + 1)
-        ]
-      "
-    />
+    <q-list separator>
+      <invoice-line-item
+        v-for="(discount, index) in modelValue.discounts"
+        :key="index"
+        v-ripple
+        :model-value="discount"
+        :locale="modelValue.locale"
+        :currency="modelValue.currency"
+        editable
+        @delete="deleteLine(modelValue.discounts, index)"
+      ></invoice-line-item>
+    </q-list>
 
     <div class="row items-center">
       {{ lang.invoice.surcharges }}
       <q-btn flat round icon="add" @click="addSurcharge" />
     </div>
-    <invoice-discount-surcharge-row
-      v-for="(line, index) in modelValue.surcharges"
-      :key="index"
-      v-model="modelValue.surcharges[index]"
-      :currency="modelValue.currency"
-      :locale="modelValue.locale"
-      @delete="
-        modelValue.surcharges = [
-          ...modelValue.surcharges.slice(0, index),
-          ...modelValue.surcharges.slice(index + 1)
-        ]
-      "
-    />
+    <q-list separator>
+      <invoice-line-item
+        v-for="(surcharge, index) in modelValue.surcharges"
+        :key="index"
+        v-ripple
+        :model-value="surcharge"
+        :locale="modelValue.locale"
+        :currency="modelValue.currency"
+        editable
+        @delete="deleteLine(modelValue.surcharges, index)"
+      ></invoice-line-item>
+    </q-list>
   </q-form>
 </template>
 
@@ -161,14 +158,16 @@ import { useLang } from '../../lang/index.js'
 import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
-import {
-  InvoiceLineRow,
-  InvoiceDiscountSurchargeRow
-} from '@modular-api/quasar-components/checkout'
+import { InvoiceLineItem } from '@modular-api/quasar-components/checkout'
 import { QForm, extend } from 'quasar'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import { Client, Company, NumberPrefix, Subscription } from '@slimfact/api/zod'
+import {
+  type RawInvoiceDiscount,
+  type RawInvoiceLine,
+  type RawInvoiceSurcharge
+} from '@modular-api/fastify-checkout'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -339,6 +338,14 @@ watch(
     if (defaultCurrency) modelValue.value.currency = defaultCurrency
   }
 )
+
+const deleteLine = (
+  array?: (RawInvoiceLine | RawInvoiceDiscount | RawInvoiceSurcharge)[] | null,
+  index?: number
+) => {
+  if (array && index)
+    array = [...array.slice(0, index), ...array.slice(index + 1)]
+}
 
 const functions = ref({
   submit,

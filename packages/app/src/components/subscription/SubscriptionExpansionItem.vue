@@ -73,34 +73,38 @@
       </q-item-section>
     </template>
 
-    <div class="row">
-      <a>Lines</a>
-      <invoice-line-row
+    <q-list separator bordered>
+      <q-item-label header>{{ lang.invoice.lines }}</q-item-label>
+      <invoice-line-item
         v-for="(line, index) in modelValue.lines"
         :key="index"
         :model-value="line"
+        :locale="modelValue.locale"
         :currency="modelValue.currency"
-        disable
-      />
-    </div>
-    <div v-if="modelValue.discounts?.length" class="row">
-      <a>Discounts</a>
-      <invoice-discount-surcharge-row
+      ></invoice-line-item>
+    </q-list>
+
+    <q-list separator bordered>
+      <q-item-label header>{{ lang.invoice.discounts }}</q-item-label>
+      <invoice-line-item
         v-for="(discount, index) in modelValue.discounts"
         :key="index"
         :model-value="discount"
+        :locale="modelValue.locale"
         :currency="modelValue.currency"
-      />
-    </div>
-    <div v-if="modelValue.surcharges?.length" class="row">
-      <a>Surcharges</a>
-      <invoice-discount-surcharge-row
+      ></invoice-line-item>
+    </q-list>
+
+    <q-list separator bordered>
+      <q-item-label header>{{ lang.invoice.surcharges }}</q-item-label>
+      <invoice-line-item
         v-for="(surcharge, index) in modelValue.surcharges"
         :key="index"
         :model-value="surcharge"
+        :locale="modelValue.locale"
         :currency="modelValue.currency"
-      />
-    </div>
+      ></invoice-line-item>
+    </q-list>
   </q-expansion-item>
 </template>
 
@@ -109,10 +113,7 @@ import { Subscription } from '@slimfact/api/zod'
 import { toRefs } from 'vue'
 import { useQuasar } from 'quasar'
 import { useLang } from '../../lang/index.js'
-import {
-  InvoiceLineRow,
-  InvoiceDiscountSurchargeRow
-} from '@modular-api/quasar-components/checkout'
+import { InvoiceLineItem } from '@modular-api/quasar-components/checkout'
 import cronstrue from 'cronstrue'
 import 'cronstrue/locales/nl'
 import 'cronstrue/locales/en'
