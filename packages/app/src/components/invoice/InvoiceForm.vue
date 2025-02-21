@@ -111,7 +111,7 @@
         :locale="modelValue.locale"
         :currency="modelValue.currency"
         editable
-        @delete="deleteLine(modelValue.lines, index)"
+        @click="openInvoiceLineDialog(modelValue.lines, index)"
       ></invoice-line-item>
     </q-list>
 
@@ -128,7 +128,7 @@
         :locale="modelValue.locale"
         :currency="modelValue.currency"
         editable
-        @delete="deleteLine(modelValue.discounts, index)"
+        @click="openInvoiceLineDialog(modelValue.discounts, index)"
       ></invoice-line-item>
     </q-list>
 
@@ -145,7 +145,7 @@
         :locale="modelValue.locale"
         :currency="modelValue.currency"
         editable
-        @delete="deleteLine(modelValue.surcharges, index)"
+        @click="openInvoiceLineDialog(modelValue.surcharges, index)"
       ></invoice-line-item>
     </q-list>
 
@@ -177,7 +177,10 @@ import { useLang } from '../../lang/index.js'
 import { ref, toRefs, watch, nextTick } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
-import { InvoiceLineItem } from '@modular-api/quasar-components/checkout'
+import {
+  InvoiceLineItem,
+  InvoiceLineDialog
+} from '@modular-api/quasar-components/checkout'
 import { QForm, extend, useQuasar } from 'quasar'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
@@ -364,12 +367,26 @@ const updateClient: InstanceType<
   done()
 }
 
-const deleteLine = (
+const openInvoiceLineDialog = (
   array?: (RawInvoiceLine | RawInvoiceDiscount | RawInvoiceSurcharge)[] | null,
   index?: number
 ) => {
-  if (array && index)
-    array = [...array.slice(0, index), ...array.slice(index + 1)]
+  if (array && index !== void 0) {
+    const deleteFn = () => {
+      if (array && index !== void 0) {
+        array.splice(index, 1)
+      }
+    }
+    $q.dialog({
+      component: InvoiceLineDialog,
+      componentProps: {
+        invoiceLine: array[index],
+        currency: modelValue.value.currency,
+        locale: modelValue.value.locale,
+        deleteFn
+      }
+    })
+  }
 }
 
 const functions = ref({
