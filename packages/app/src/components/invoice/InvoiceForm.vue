@@ -270,6 +270,10 @@ const addLine = () => {
     quantityPerMille: true,
     discount: 0
   })
+  openInvoiceLineDialog(
+    modelValue.value.lines,
+    modelValue.value.lines.length - 1
+  )
 }
 
 const addDiscount = () => {
@@ -280,6 +284,10 @@ const addDiscount = () => {
     taxRate: 21,
     description: ''
   })
+  openInvoiceLineDialog(
+    modelValue.value.discounts,
+    modelValue.value.discounts.length - 1
+  )
 }
 
 const addSurcharge = () => {
@@ -290,6 +298,10 @@ const addSurcharge = () => {
     taxRate: 21,
     description: ''
   })
+  openInvoiceLineDialog(
+    modelValue.value.surcharges,
+    modelValue.value.surcharges.length - 1
+  )
 }
 
 const formRef = ref<QForm>()
@@ -380,6 +392,7 @@ const openInvoiceLineDialog = (
     $q.dialog({
       component: InvoiceLineDialog,
       componentProps: {
+        persistent: true,
         invoiceLine: array[index],
         currency: modelValue.value.currency,
         locale: modelValue.value.locale,
