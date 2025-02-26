@@ -95,14 +95,6 @@
                   <q-item-label> {{ lang.administrator }} </q-item-label>
                 </q-item-section>
               </template>
-              <q-item to="/admin/companies">
-                <q-item-section avatar>
-                  <q-icon name="store" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.company.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
               <q-item to="/admin/clients">
                 <q-item-section avatar>
                   <q-icon name="people" />
@@ -111,36 +103,38 @@
                   <q-item-label> {{ lang.client.title }} </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-item to="/admin/subscriptions">
-                <q-item-section avatar>
-                  <q-icon name="subscriptions" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.subscription.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item to="/admin/bills">
-                <q-item-section avatar>
-                  <q-icon name="request_quote" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.bill.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item to="/admin/receipts">
-                <q-item-section avatar>
-                  <q-icon name="receipt" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.receipt.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
+              <q-expansion-item to="/admin/bills">
+                <template #header>
+                  <q-item-section avatar>
+                    <q-icon name="request_quote" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> {{ lang.bill.title }} </q-item-label>
+                  </q-item-section>
+                </template>
+                <q-item to="/admin/receipts">
+                  <q-item-section avatar>
+                    <q-icon name="receipt" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> {{ lang.receipt.title }} </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-expansion-item>
               <q-item to="/admin/invoices">
                 <q-item-section avatar>
                   <q-icon name="receipt_long" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label> {{ lang.invoice.title }} </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item to="/admin/subscriptions">
+                <q-item-section avatar>
+                  <q-icon name="subscriptions" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.subscription.title }} </q-item-label>
                 </q-item-section>
               </q-item>
               <q-expansion-item
@@ -159,6 +153,14 @@
                   </q-item-section>
                   <q-item-section side> </q-item-section>
                 </template>
+                <q-item to="/admin/companies">
+                  <!-- <q-item-section avatar>
+                    <q-icon name="store" />
+                  </q-item-section> -->
+                  <q-item-section>
+                    <q-item-label> {{ lang.company.title }} </q-item-label>
+                  </q-item-section>
+                </q-item>
                 <q-expansion-item to="/settings/numberprefixes">
                   <template #header>
                     <q-item-section>
@@ -268,15 +270,13 @@ const quasarLang = import.meta.glob<{ default: QuasarLanguage }>(
   '../../node_modules/quasar/lang/*.js'
 )
 
+// prettier-ignore
 const languageImports = ref(
-  Object.entries(quasarLang).reduce(
-    (acc, [key, value]) => {
-      const langKey = key.split('/').at(-1)?.split('.').at(0)
-      if (langKey) acc[langKey] = value
-      return acc
-    },
-    {} as Record<string, () => Promise<{ default: QuasarLanguage }>>
-  )
+  Object.entries(quasarLang).reduce((acc, [key, value]) => {
+    const langKey = key.split('/').at(-1)?.split('.').at(0)
+    if (langKey) acc[langKey] = value
+    return acc
+  }, {} as Record<string, () => Promise<{ default: QuasarLanguage }>>)
 )
 
 if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
