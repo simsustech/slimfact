@@ -3,7 +3,7 @@
     <div class="row">
       <company-select
         v-model="modelValue.companyId"
-        class="col-md-4 col-12"
+        class="col-md-6 col-12"
         :filtered-options="filteredCompanies"
         required
         @filter="filterCompanies"
@@ -12,7 +12,7 @@
       <client-select
         v-model="modelValue.clientId"
         required
-        class="col-md-4 col-12"
+        class="col-md-6 col-12"
         :filtered-options="filteredClients"
         :rules="[
           (val) =>
@@ -31,45 +31,63 @@
           />
         </template>
       </client-select>
-      <number-prefix-select
-        v-model="modelValue.numberPrefixTemplate"
-        class="col-md-4 col-12"
-        :filtered-options="filteredNumberPrefixes"
-        bottom-slots
-        lazy-rules
-        required
-      />
     </div>
-    <div class="row">
-      <currency-select
-        v-model="modelValue.currency"
-        required
-        class="col-md-4 col-12"
-        bottom-slots
-        lazy-rules
-        name="currency"
-      />
-      <locale-select
-        v-model="modelValue.locale"
-        required
-        class="col-md-4 col-12"
-        bottom-slots
-        lazy-rules
-        name="locale"
-      />
-      <q-input
-        v-model.number="modelValue.paymentTermDays"
-        class="col-md-4 col-12"
-        :label="`${lang.invoice.fields.paymentTermDays}*`"
-        bottom-slots
-        lazy-rules
-        type="number"
-        name="paymentTermDays"
-        :rules="[(val) => !!val]"
-      />
-    </div>
-    <div class="row">
-      <!-- <form-input
+    <div
+      v-show="
+        !Number.isNaN(modelValue.companyId) &&
+        !Number.isNaN(modelValue.clientId)
+      "
+    >
+      <div class="row">
+        <number-prefix-select
+          v-model="modelValue.numberPrefixTemplate"
+          :disable="!modelValue.companyId"
+          class="col-md-4 col-12"
+          :filtered-options="filteredNumberPrefixes"
+          bottom-slots
+          lazy-rules
+          required
+          :hint="computeNumberPrefix(modelValue)"
+        />
+        <currency-select
+          v-model="modelValue.currency"
+          :disable="!modelValue.companyId"
+          required
+          class="col-md-4 col-12"
+          bottom-slots
+          lazy-rules
+          name="currency"
+        />
+        <locale-select
+          v-model="modelValue.locale"
+          :disable="!modelValue.companyId"
+          required
+          class="col-md-4 col-12"
+          bottom-slots
+          lazy-rules
+          name="locale"
+        />
+        <q-input
+          v-model.number="modelValue.paymentTermDays"
+          :disable="!modelValue.companyId"
+          class="col-md-4 col-12"
+          :label="`${lang.invoice.fields.paymentTermDays}*`"
+          bottom-slots
+          lazy-rules
+          type="number"
+          name="paymentTermDays"
+          :rules="[(val) => !!val]"
+        />
+        <q-input
+          v-model="modelValue.projectId"
+          :disable="!modelValue.companyId"
+          class="col-md-4 col-12"
+          :label="lang.invoice.fields.projectId"
+          bottom-slots
+        />
+      </div>
+      <div class="row">
+        <!-- <form-input
         v-model="modelValue.numberPrefix"
         class="col-md-4 col-12"
         :label="lang.invoice.fields.numberPrefix"
@@ -77,83 +95,80 @@
         lazy-rules
         name="numberPrefix"
       /> -->
+        <q-input
+          :model-value="(modelValue.requiredDownPaymentAmount || 0) / 100"
+          :label="lang.invoice.fields.requiredDownPaymentAmount"
+          :disable="!modelValue.companyId"
+          class="col-12 col-md-4"
+          :prefix="currencySymbols[modelValue.currency]"
+          :lang="$q.lang.isoName"
+          type="number"
+          step="0.01"
+          @update:model-value="
+            modelValue.requiredDownPaymentAmount = Math.round(
+              Number($event) * 100
+            )
+          "
+        />
+      </div>
+      <div class="row items-center">
+        {{ lang.invoice.lines }}
+        <q-btn flat round icon="add" @click="addLine" />
+      </div>
+
+      <q-list separator>
+        <invoice-line-item
+          v-for="(line, index) in modelValue.lines"
+          :key="index"
+          v-ripple
+          :model-value="line"
+          :locale="modelValue.locale"
+          :currency="modelValue.currency"
+          editable
+          @click="openInvoiceLineDialog(modelValue.lines, index)"
+        ></invoice-line-item>
+      </q-list>
+
+      <div class="row items-center">
+        {{ lang.invoice.discounts }}
+        <q-btn flat round icon="add" @click="addDiscount" />
+      </div>
+      <q-list separator>
+        <invoice-line-item
+          v-for="(discount, index) in modelValue.discounts"
+          :key="index"
+          v-ripple
+          :model-value="discount"
+          :locale="modelValue.locale"
+          :currency="modelValue.currency"
+          editable
+          @click="openInvoiceLineDialog(modelValue.discounts, index)"
+        ></invoice-line-item>
+      </q-list>
+
+      <div class="row items-center">
+        {{ lang.invoice.surcharges }}
+        <q-btn flat round icon="add" @click="addSurcharge" />
+      </div>
+      <q-list separator>
+        <invoice-line-item
+          v-for="(surcharge, index) in modelValue.surcharges"
+          :key="index"
+          v-ripple
+          :model-value="surcharge"
+          :locale="modelValue.locale"
+          :currency="modelValue.currency"
+          editable
+          @click="openInvoiceLineDialog(modelValue.surcharges, index)"
+        ></invoice-line-item>
+      </q-list>
+
       <q-input
-        :model-value="modelValue.requiredDownPaymentAmount / 100"
-        :label="lang.invoice.fields.requiredDownPaymentAmount"
-        class="col-12 col-md-4"
-        :prefix="currencySymbols[modelValue.currency]"
-        :lang="$q.lang.isoName"
-        type="number"
-        step="0.01"
-        @update:model-value="
-          modelValue.requiredDownPaymentAmount = Math.round(
-            Number($event) * 100
-          )
-        "
-      />
-      <q-input
-        v-model="modelValue.projectId"
-        class="col-md-4 col-12"
-        :label="lang.invoice.fields.projectId"
-        bottom-slots
+        v-model="modelValue.notes"
+        :label="lang.invoice.fields.notes"
+        type="textarea"
       />
     </div>
-    <div class="row items-center">
-      {{ lang.invoice.lines }} <q-btn flat round icon="add" @click="addLine" />
-    </div>
-
-    <q-list separator>
-      <invoice-line-item
-        v-for="(line, index) in modelValue.lines"
-        :key="index"
-        v-ripple
-        :model-value="line"
-        :locale="modelValue.locale"
-        :currency="modelValue.currency"
-        editable
-        @click="openInvoiceLineDialog(modelValue.lines, index)"
-      ></invoice-line-item>
-    </q-list>
-
-    <div class="row items-center">
-      {{ lang.invoice.discounts }}
-      <q-btn flat round icon="add" @click="addDiscount" />
-    </div>
-    <q-list separator>
-      <invoice-line-item
-        v-for="(discount, index) in modelValue.discounts"
-        :key="index"
-        v-ripple
-        :model-value="discount"
-        :locale="modelValue.locale"
-        :currency="modelValue.currency"
-        editable
-        @click="openInvoiceLineDialog(modelValue.discounts, index)"
-      ></invoice-line-item>
-    </q-list>
-
-    <div class="row items-center">
-      {{ lang.invoice.surcharges }}
-      <q-btn flat round icon="add" @click="addSurcharge" />
-    </div>
-    <q-list separator>
-      <invoice-line-item
-        v-for="(surcharge, index) in modelValue.surcharges"
-        :key="index"
-        v-ripple
-        :model-value="surcharge"
-        :locale="modelValue.locale"
-        :currency="modelValue.currency"
-        editable
-        @click="openInvoiceLineDialog(modelValue.surcharges, index)"
-      ></invoice-line-item>
-    </q-list>
-
-    <q-input
-      v-model="modelValue.notes"
-      :label="lang.invoice.fields.notes"
-      type="textarea"
-    />
   </q-form>
 
   <responsive-dialog ref="updateDialogRef" persistent @submit="submitClient">
@@ -186,6 +201,7 @@ import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
 import ClientForm from '../client/ClientForm.vue'
+import { computeNumberPrefix } from 'src/tools.js'
 
 export interface Props {
   filteredCompanies: Company[]
