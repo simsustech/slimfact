@@ -3,7 +3,7 @@
     <div class="row">
       <company-select
         v-model="modelValue.companyId"
-        class="col-md-4 col-12"
+        class="col-md-6 col-12"
         :filtered-options="filteredCompanies"
         required
         @filter="filterCompanies"
@@ -11,139 +11,149 @@
 
       <client-select
         v-model="modelValue.clientId"
-        class="col-md-4 col-12"
+        class="col-md-6 col-12"
         :filtered-options="filteredClients"
         required
         @filter="filterClients"
       />
-      <number-prefix-select
-        v-model="modelValue.numberPrefixTemplate"
-        class="col-md-4 col-12"
-        :filtered-options="filteredNumberPrefixes"
-        bottom-slots
-        lazy-rules
-        required
-      />
     </div>
-    <div class="row">
-      <currency-select
-        v-model="modelValue.currency"
-        required
-        class="col-md-4 col-12"
-        bottom-slots
-        lazy-rules
-        name="currency"
-      />
-      <locale-select
-        v-model="modelValue.locale"
-        required
-        class="col-md-4 col-12"
-        bottom-slots
-        lazy-rules
-        name="locale"
-      />
-      <q-input
-        v-model.number="modelValue.paymentTermDays"
-        class="col-md-4 col-12"
-        :label="`${lang.invoice.fields.paymentTermDays}*`"
-        bottom-slots
-        lazy-rules
-        type="number"
-        name="paymentTermDays"
-        :rules="[(val) => !!val]"
-      />
-    </div>
-    <div class="row">
-      <q-select
-        v-model="modelValue.type"
-        class="col-md-3 col-12"
-        :options="typeOptions"
-        :label="lang.subscription.fields.type"
-        map-options
-        emit-value
-      />
-      <date-input
-        v-model="modelValue.startDate"
-        :label="lang.subscription.fields.startDate"
-        format="DD-MM-YYYY"
-        clearable
-        required
-        class="col-md-3 col-12"
-        :date="{
-          noUnset: true,
-          defaultView: 'Years',
-          options: futureDateOptionsFn,
-          firstDayOfWeek: '1'
-        }"
-      />
-      <date-input
-        v-model="modelValue.endDate"
-        :label="lang.subscription.fields.endDate"
-        format="DD-MM-YYYY"
-        clearable
-        class="col-md-3 col-12"
-        :date="{
-          noUnset: true,
-          defaultView: 'Years',
-          options: (date) => futureDateOptionsFn(date, modelValue.startDate),
-          firstDayOfWeek: '1'
-        }"
-      />
-      <cron-schedule-input
-        v-model="modelValue.cronSchedule"
-        class="col-md-3 col-12"
-      />
-    </div>
-    <div class="row items-center">
-      {{ lang.invoice.lines }} <q-btn flat round icon="add" @click="addLine" />
-    </div>
+    <div
+      v-show="
+        !Number.isNaN(modelValue.companyId) &&
+        !Number.isNaN(modelValue.clientId)
+      "
+    >
+      <div class="row">
+        <q-select
+          v-model="modelValue.type"
+          class="col-md-4 col-12"
+          :options="typeOptions"
+          :label="lang.subscription.fields.type"
+          map-options
+          emit-value
+        />
+        <number-prefix-select
+          v-model="modelValue.numberPrefixTemplate"
+          :disable="!modelValue.companyId"
+          class="col-md-4 col-12"
+          :filtered-options="filteredNumberPrefixes"
+          bottom-slots
+          lazy-rules
+          required
+          :hint="computeNumberPrefix(modelValue)"
+        />
+        <currency-select
+          v-model="modelValue.currency"
+          required
+          class="col-md-4 col-12"
+          bottom-slots
+          lazy-rules
+          name="currency"
+        />
+        <locale-select
+          v-model="modelValue.locale"
+          required
+          class="col-md-4 col-12"
+          bottom-slots
+          lazy-rules
+          name="locale"
+        />
+        <q-input
+          v-model.number="modelValue.paymentTermDays"
+          class="col-md-4 col-12"
+          :label="`${lang.invoice.fields.paymentTermDays}*`"
+          bottom-slots
+          lazy-rules
+          type="number"
+          name="paymentTermDays"
+          :rules="[(val) => !!val]"
+        />
+      </div>
+      <div class="row">
+        <date-input
+          v-model="modelValue.startDate"
+          :label="lang.subscription.fields.startDate"
+          format="DD-MM-YYYY"
+          clearable
+          required
+          class="col-md-4 col-12"
+          :date="{
+            noUnset: true,
+            defaultView: 'Years',
+            options: futureDateOptionsFn,
+            firstDayOfWeek: '1'
+          }"
+        />
+        <date-input
+          v-model="modelValue.endDate"
+          :label="lang.subscription.fields.endDate"
+          format="DD-MM-YYYY"
+          clearable
+          class="col-md-4 col-12"
+          :date="{
+            noUnset: true,
+            defaultView: 'Years',
+            options: (date) => futureDateOptionsFn(date, modelValue.startDate),
+            firstDayOfWeek: '1'
+          }"
+        />
+        <cron-schedule-input
+          v-model="modelValue.cronSchedule"
+          class="col-md-4 col-12"
+        />
+      </div>
+      <div class="row items-center">
+        {{ lang.invoice.lines }}
+        <q-btn flat round icon="add" @click="addLine" />
+      </div>
 
-    <q-list separator>
-      <invoice-line-item
-        v-for="(line, index) in modelValue.lines"
-        :key="index"
-        v-ripple
-        :model-value="line"
-        :locale="modelValue.locale"
-        :currency="modelValue.currency"
-        editable
-        @click="openInvoiceLineDialog(modelValue.lines, index)"
-      ></invoice-line-item>
-    </q-list>
+      <q-list separator>
+        <invoice-line-item
+          v-for="(line, index) in modelValue.lines"
+          :key="index"
+          v-ripple
+          :model-value="line"
+          :locale="modelValue.locale"
+          :currency="modelValue.currency"
+          editable
+          @click="openInvoiceLineDialog(modelValue.lines, index)"
+        ></invoice-line-item>
+      </q-list>
 
-    <div class="row items-center">
-      {{ lang.invoice.discounts }}
-      <q-btn flat round icon="add" @click="addDiscount" />
-    </div>
-    <q-list separator>
-      <invoice-line-item
-        v-for="(discount, index) in modelValue.discounts"
-        :key="index"
-        v-ripple
-        :model-value="discount"
-        :locale="modelValue.locale"
-        :currency="modelValue.currency"
-        editable
-        @click="openInvoiceLineDialog(modelValue.discounts, index)"
-      ></invoice-line-item>
-    </q-list>
+      <div class="row items-center">
+        {{ lang.invoice.discounts }}
+        <q-btn flat round icon="add" @click="addDiscount" />
+      </div>
+      <q-list separator>
+        <invoice-line-item
+          v-for="(discount, index) in modelValue.discounts"
+          :key="index"
+          v-ripple
+          :model-value="discount"
+          :locale="modelValue.locale"
+          :currency="modelValue.currency"
+          editable
+          @click="openInvoiceLineDialog(modelValue.discounts, index)"
+        ></invoice-line-item>
+      </q-list>
 
-    <div class="row items-center">
-      {{ lang.invoice.surcharges }}
-      <q-btn flat round icon="add" @click="addSurcharge" />
+      <div class="row items-center">
+        {{ lang.invoice.surcharges }}
+        <q-btn flat round icon="add" @click="addSurcharge" />
+      </div>
+      <q-list separator>
+        <invoice-line-item
+          v-for="(surcharge, index) in modelValue.surcharges"
+          :key="index"
+          v-ripple
+          :model-value="surcharge"
+          :locale="modelValue.locale"
+          :currency="modelValue.currency"
+          editable
+          @click="openInvoiceLineDialog(modelValue.surcharges, index)"
+        ></invoice-line-item>
+      </q-list>
     </div>
-    <q-list separator>
-      <invoice-line-item
-        v-for="(surcharge, index) in modelValue.surcharges"
-        :key="index"
-        v-ripple
-        :model-value="surcharge"
-        :locale="modelValue.locale"
-        :currency="modelValue.currency"
-        editable
-        @click="openInvoiceLineDialog(modelValue.surcharges, index)"
-      ></invoice-line-item>
-    </q-list>
   </q-form>
 </template>
 
@@ -171,6 +181,7 @@ import {
   type RawInvoiceLine,
   type RawInvoiceSurcharge
 } from '@modular-api/fastify-checkout'
+import { computeNumberPrefix } from 'src/tools.js'
 
 export interface Props {
   filteredCompanies: Company[]
