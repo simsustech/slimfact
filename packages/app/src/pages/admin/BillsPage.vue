@@ -287,7 +287,7 @@ const openAddCashPaymentDialog: InstanceType<
         totalIncludingTax: data.totalIncludingTax
       }
     })
-    .onOk(async (amount) => {
+    .onOk(async ({ amount, transactionReference }) => {
       const result = useMutation('admin.addPaymentToInvoice', {
         args: {
           id: data.id,
@@ -458,7 +458,7 @@ watch(clientId, (newVal) => {
   if (newVal) clientDetails.value.name = null
 })
 
-const invoiceExpansionItemHandlers = {
+const invoiceExpansionItemHandlers = computed(() => ({
   send: openSendBillDialog('bill'),
   update: openUpdateDialog,
   sendReceipt: openSendBillDialog('receipt'),
@@ -469,7 +469,7 @@ const invoiceExpansionItemHandlers = {
     ? openAddCashPaymentDialog
     : undefined,
   cancel: openCancelDialog
-}
+}))
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

@@ -540,7 +540,7 @@ watch(clientId, (newVal) => {
   if (newVal) clientDetails.value.name = null
 })
 
-const invoiceExpansionItemHandlers = {
+const invoiceExpansionItemHandlers = computed(() => ({
   update: openUpdateDialog,
   send: openSendInvoiceDialog('send'),
   sendReminder: openSendInvoiceDialog('remind'),
@@ -555,7 +555,7 @@ const invoiceExpansionItemHandlers = {
     ? openAddBankTransferPaymentDialog
     : undefined,
   cancel: openCancelDialog
-}
+}))
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
