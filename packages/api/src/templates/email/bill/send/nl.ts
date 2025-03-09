@@ -5,7 +5,7 @@ const body = c`
   <p>Beste {{#if clientDetails.contactPersonName}}{{clientDetails.contactPersonName}}{{else}}{{clientDetails.companyName}}{{/if}},</p>
 
   <p>Bijgevoegd treft u uw rekening aan met een openstaand bedrag ter hoogte van {{amountDue}}.
-  We willen u verzoeken om dit bedrag <b>via onderstaande link<b/> te betalen.</p>
+  We willen u verzoeken om dit bedrag <b>via onderstaande link</b> te betalen.</p>
 
   <p>U kunt de rekening <a href="\\{{invoiceUrl}}">hier</a> bekijken en betalen.
 
