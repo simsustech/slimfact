@@ -47,7 +47,7 @@
           bottom-slots
           lazy-rules
           required
-          :hint="computeNumberPrefix(modelValue)"
+          :hint="computedNumberPrefix"
         />
         <currency-select
           v-model="modelValue.currency"
@@ -189,7 +189,7 @@ import {
   type RawInvoiceSurcharge
 } from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
-import { ref, toRefs, watch, nextTick } from 'vue'
+import { ref, toRefs, watch, nextTick, computed } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
 import {
@@ -260,7 +260,7 @@ const initialValue: Invoice = {
   requiredDownPaymentAmount: 0
 }
 
-const { filteredCompanies } = toRefs(props)
+const { filteredCompanies, filteredClients } = toRefs(props)
 
 const modelValue = ref<Invoice>(initialValue)
 
@@ -361,6 +361,30 @@ watch(
     if (defaultCurrency) modelValue.value.currency = defaultCurrency
   }
 )
+
+const computedNumberPrefix = computed(() => {
+  if (modelValue.value.companyId && modelValue.value.clientId) {
+    const company = filteredCompanies.value.find(
+      (company) => company.id === modelValue.value.companyId
+    )
+
+    const client = filteredClients.value.find(
+      (client) => client.id === modelValue.value.clientId
+    )
+
+    return computeNumberPrefix({
+      numberPrefixTemplate: modelValue.value.numberPrefixTemplate,
+      companyDetails: {
+        prefix: company!.prefix
+      },
+      clientDetails: {
+        number: client!.number
+      },
+      projectId: modelValue.value.projectId
+    })
+  }
+  return ''
+})
 
 const currencySymbols = ref({
   EUR: '€',

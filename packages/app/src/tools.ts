@@ -1,22 +1,34 @@
-// import { type Invoice } from '@modular-api/fastify-checkout'
-
-export const computeNumberPrefix = (invoice) => {
-  if (invoice.numberPrefixTemplate) {
+export const computeNumberPrefix = ({
+  numberPrefixTemplate,
+  companyDetails,
+  clientDetails,
+  projectId
+}: {
+  numberPrefixTemplate: string
+  companyDetails: {
+    prefix: string
+  }
+  clientDetails?: {
+    number?: string | number | null
+  }
+  projectId?: string | null
+}) => {
+  if (numberPrefixTemplate) {
     const currentDate = new Date()
 
     const template = {
       YYYY: currentDate.getFullYear(),
       MM: currentDate.getMonth() + 1,
       clientDetails: {
-        number: invoice.clientDetails?.number
+        number: clientDetails?.number
       },
       companyDetails: {
-        prefix: invoice.companyPrefix
+        prefix: companyDetails?.prefix
       },
-      projectId: invoice.projectId
+      projectId: projectId
     }
     return (
-      invoice.numberPrefixTemplate
+      numberPrefixTemplate
         .replace('{{YYYY}}', template.YYYY.toString())
         .replace('{{MM}}', template.MM.toString())
         .replace(

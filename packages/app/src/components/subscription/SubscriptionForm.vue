@@ -40,7 +40,7 @@
           bottom-slots
           lazy-rules
           required
-          :hint="computeNumberPrefix(modelValue)"
+          :hint="computedNumberPrefix"
         />
         <currency-select
           v-model="modelValue.currency"
@@ -226,7 +226,7 @@ const emit = defineEmits<{
 
 const $q = useQuasar()
 
-const { filteredCompanies } = toRefs(props)
+const { filteredCompanies, filteredClients } = toRefs(props)
 
 const initialValue: Subscription = {
   name: '',
@@ -389,6 +389,29 @@ const openInvoiceLineDialog = (
     })
   }
 }
+
+const computedNumberPrefix = computed(() => {
+  if (modelValue.value.companyId && modelValue.value.clientId) {
+    const company = filteredCompanies.value.find(
+      (company) => company.id === modelValue.value.companyId
+    )
+
+    const client = filteredClients.value.find(
+      (client) => client.id === modelValue.value.clientId
+    )
+
+    return computeNumberPrefix({
+      numberPrefixTemplate: modelValue.value.numberPrefixTemplate,
+      companyDetails: {
+        prefix: company!.prefix
+      },
+      clientDetails: {
+        number: client!.number
+      }
+    })
+  }
+  return ''
+})
 
 const functions = ref({
   submit,
