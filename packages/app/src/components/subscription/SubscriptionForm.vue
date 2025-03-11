@@ -319,9 +319,8 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
 }
 const setValue = (newValue: Subscription) => {
   modelValue.value = extend(true, {}, initialValue, newValue)
-  modelValue.value.lines = newValue.lines
-  modelValue.value.discounts = newValue.discounts
-  modelValue.value.surcharges = newValue.surcharges
+  modelValue.value.companyId = newValue.companyId
+  modelValue.value.clientId = newValue.clientId
 }
 
 const futureDateOptionsFn = (date: string, startDate?: string) => {
