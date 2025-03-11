@@ -363,7 +363,12 @@ watch(
 )
 
 const computedNumberPrefix = computed(() => {
-  if (modelValue.value.companyId && modelValue.value.clientId) {
+  if (
+    modelValue.value.companyId &&
+    modelValue.value.clientId &&
+    filteredCompanies.value.length &&
+    filteredClients.value.length
+  ) {
     const company = filteredCompanies.value.find(
       (company) => company.id === modelValue.value.companyId
     )
