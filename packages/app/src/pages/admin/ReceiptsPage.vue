@@ -62,7 +62,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
@@ -117,14 +117,18 @@ const pagination = computed<{
 }))
 
 const { data: invoices, execute } = useQuery('admin.getInvoices', {
-  args: reactive({
-    companyId,
-    clientId,
-    clientDetails,
-    status,
-    pagination,
-    uuids
-  })
+  args: () => ({
+    companyId: companyId.value,
+    clientId: clientId.value,
+    clientDetails: clientDetails.value,
+    status: status.value,
+    pagination: pagination.value,
+    uuids:
+      companyId.value || clientId.value || clientDetails.value.name
+        ? undefined
+        : uuids.value
+  }),
+  reactive: true
   // immediate: true
 })
 
