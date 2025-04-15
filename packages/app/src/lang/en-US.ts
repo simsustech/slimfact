@@ -142,16 +142,26 @@ const lang: Language = {
     },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>
-        `Are you sure you want to mark the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax} as paid?`,
+        `Are you sure you want to mark the invoice to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax} as paid?`,
       addCashPayment: ({ clientDetails, totalIncludingTax }) =>
-        `Enter the amount that was paid in cash for the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
+        `Enter the amount that was paid in cash for the invoice to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}`,
       addBankTransferPayment: ({ clientDetails, totalIncludingTax }) =>
-        `Enter the amount that was paid by bank transfer for the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
+        `Enter the amount that was paid by bank transfer for the invoice to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}`,
       addPinPayment: ({ clientDetails, totalIncludingTax }) =>
-        `Enter the amount that was paid by pin for the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
+        `Enter the amount that was paid by pin for the invoice to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}`,
       remindersSentOn: (dates) => `Reminders sent on ${dates.join('; ')}.`,
       cancelInvoice: ({ clientDetails, totalIncludingTax }) =>
-        `Are you sure you want to cancel the invoice to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}?`,
+        `Are you sure you want to cancel the invoice to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}?`,
       downPaymentReceived: 'Down payment has been received.'
     }
   },
@@ -202,11 +212,17 @@ const lang: Language = {
     },
     messages: {
       createReceipt: ({ clientDetails, totalIncludingTax }) =>
-        `Are you sure you want to create a receipt for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}?`,
+        `Are you sure you want to create a receipt for the bill to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}?`,
       addCashPayment: ({ clientDetails, totalIncludingTax }) =>
-        `Enter the amount that was paid in cash for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`,
+        `Enter the amount that was paid in cash for the bill to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}`,
       addPinPayment: ({ clientDetails, totalIncludingTax }) =>
-        `Enter the amount that was paid by pin for the bill to ${clientDetails.companyName || clientDetails.contactPersonName} with the amount of ${totalIncludingTax}`
+        `Enter the amount that was paid by pin for the bill to ${
+          clientDetails.companyName || clientDetails.contactPersonName
+        } with the amount of ${totalIncludingTax}`
     }
   },
   checkout: {
@@ -242,6 +258,9 @@ const lang: Language = {
       confirmRefund: (amount) =>
         `Are you sure you want to refund the amount of ${amount}?`
     }
+  },
+  exports: {
+    title: 'Exports'
   }
 }
 

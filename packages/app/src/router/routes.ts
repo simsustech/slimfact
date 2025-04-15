@@ -51,6 +51,10 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'bills/:uuids*',
             component: () => import('../pages/admin/BillsPage.vue')
+          },
+          {
+            path: 'exports',
+            component: () => import('../pages/admin/ExportsPage.vue')
           }
         ]
       },
