@@ -114,8 +114,9 @@ export const adminInvoiceRoutes = ({
             .selectAll()
             .executeTakeFirstOrThrow()
 
-          const clientDetails =
-            (await db
+          let clientDetails
+          if (input.clientId) {
+            clientDetails = await db
               .selectFrom('clients')
               .where('id', '=', input.clientId)
               .select([
@@ -130,7 +131,10 @@ export const adminInvoiceRoutes = ({
                 'clients.email',
                 'clients.number'
               ])
-              .executeTakeFirst()) || input.clientDetails
+              .executeTakeFirst()
+          } else {
+            clientDetails = input.clientDetails
+          }
 
           if (!clientDetails)
             throw new Error('Please define clientDetails or clientId.')
@@ -177,8 +181,9 @@ export const adminInvoiceRoutes = ({
             .selectAll()
             .executeTakeFirstOrThrow()
 
-          const clientDetails =
-            (await db
+          let clientDetails
+          if (input.clientId) {
+            clientDetails = await db
               .selectFrom('clients')
               .where('id', '=', input.clientId)
               .select([
@@ -193,7 +198,10 @@ export const adminInvoiceRoutes = ({
                 'clients.email',
                 'clients.number'
               ])
-              .executeTakeFirst()) || input.clientDetails
+              .executeTakeFirst()
+          } else {
+            clientDetails = input.clientDetails
+          }
 
           if (!clientDetails)
             throw new Error('Please define clientDetails or clientId.')
