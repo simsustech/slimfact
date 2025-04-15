@@ -103,54 +103,13 @@
       @click="refund"
     />
 
-    <!-- <q-btn-dropdown
-      v-if="
-        invoice &&
-        invoice.amountDue !== void 0 &&
-        invoice.amountDue !== null &&
-        invoice.amountDue > 0 &&
-        user?.roles?.includes('administrator')
-      "
-      :label="lang.payment.addPayment"
-      color="primary"
-    >
-      <q-item
-        v-close-popup
-        clickable
-        @click="openAddCashPaymentDialog({ data: invoice })"
-      >
-        <q-item-section avatar>
-          <q-icon name="attach_money"></q-icon>
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>
-            {{ lang.payment.methods.cash }}
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-
-      <q-item
-        v-close-popup
-        clickable
-        @click="openAddPinPaymentDialog({ data: invoice })"
-      >
-        <q-item-section avatar>
-          <q-icon name="credit_card"></q-icon>
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>
-            {{ lang.payment.methods.pin }}
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-btn-dropdown> -->
-
     <q-btn
       v-if="user?.roles?.includes('administrator')"
       color="primary"
       icon="open_in_new"
       :to="getAdminUrl()"
     />
+    <q-btn v-else color="primary" icon="home" to="/" />
   </div>
 
   <div v-if="invoice?.status && invoice.status !== InvoiceStatus.CONCEPT">
