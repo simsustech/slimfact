@@ -1,7 +1,13 @@
 import type { VitrifyConfig } from 'vitrify'
 import { certificateFor } from 'devcert'
 
-export default async function ({ mode, command }): Promise<VitrifyConfig> {
+export default async function ({
+  mode,
+  command
+}: {
+  mode: string
+  command: string
+}): Promise<VitrifyConfig> {
   const config: VitrifyConfig = {
     vitrify: {
       lang: process.env.VITE_LANG,

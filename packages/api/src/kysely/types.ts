@@ -17,7 +17,7 @@ export interface Clients {
   city: string
   companyName: string | null
   contactPersonName: string | null
-  country: string
+  country: string | null
   vatIdNumber: string | null
   cocNumber: string | null
   createdAt: Generated<string>
@@ -34,21 +34,21 @@ export interface Companies {
   bic: string
   city: string
   cocNumber: string
-  contactPersonName?: string | null
+  contactPersonName: string | null
   country: string
   email: string
-  emailBcc?: string | null
+  emailBcc: string | null
   iban: string
-  logoSvg?: string | null
+  logoSvg: string | null
   name: string
   postalCode: string
   prefix: string
-  telephoneNumber?: string | null
+  telephoneNumber: string | null
   vatIdNumber: string
-  website?: string | null
-  defaultNumberPrefixTemplate?: string | null
-  defaultLocale?: string | null
-  defaultCurrency?: 'EUR' | 'USD' | null
+  website: string | null
+  defaultNumberPrefixTemplate: string | null
+  defaultLocale: string | null
+  defaultCurrency: 'EUR' | 'USD' | null
   createdAt: Generated<string>
 }
 
@@ -78,15 +78,15 @@ export interface Subscriptions {
   id: Generated<number>
   uuid: Generated<string>
   name: string | null
-  active?: boolean
+  active: boolean | null
   companyId: number
   clientId: number
   numberPrefixTemplate: string
   locale: string
   currency: 'EUR' | 'USD'
   lines: JSONColumnType<RawInvoiceLine[], string>
-  discounts?: JSONColumnType<RawInvoiceDiscount[], string> | null
-  surcharges?: JSONColumnType<RawInvoiceSurcharge[], string> | null
+  discounts: JSONColumnType<RawInvoiceDiscount[], string> | null
+  surcharges: JSONColumnType<RawInvoiceSurcharge[], string> | null
   paymentTermDays: number
   startDate: string
   endDate: string | null

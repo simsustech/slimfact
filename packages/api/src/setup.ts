@@ -3,7 +3,9 @@ import modularApiPlugin from '@modular-api/api'
 import { createAccountMethods } from '@modular-api/fastify-oidc/kysely'
 import { createRouter, createContext } from './trpc/index.js'
 import env from '@vitrify/tools/env'
+// @ts-expect-error no types
 import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plugin'
+// @ts-expect-error no types
 import { onRendered as appOnRendered } from '@slimfact/app/hooks'
 import { db as kysely } from '../src/kysely/index.js'
 // import { createOrderHandler } from '@modular-api/fastify-cart'
@@ -21,6 +23,7 @@ import { initialize } from './pgboss.js'
 import type { ClientMetadata } from 'oidc-provider'
 
 const getString = (str: string) => str
+// @ts-expect-error vitrify variable
 const host = getString(__HOST__)
 
 const sassVariables = {

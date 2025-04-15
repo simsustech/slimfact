@@ -51,7 +51,7 @@ function find({
     )
   }
 
-  return query.select(select).select([])
+  return query.select([...select])
 }
 
 export async function findCompany({
