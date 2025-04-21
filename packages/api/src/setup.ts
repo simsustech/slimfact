@@ -8,7 +8,7 @@ import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plug
 // @ts-expect-error no types
 import { onRendered as appOnRendered } from '@slimfact/app/hooks'
 import { db as kysely } from '../src/kysely/index.js'
-// import { createOrderHandler } from '@modular-api/fastify-cart'
+
 import {
   type FastifyCheckoutPaymentHandler,
   type CheckoutPluginOptionsPaymentHandlers,
