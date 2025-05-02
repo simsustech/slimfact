@@ -45,7 +45,8 @@ const dialect = new PostgresDialect({
     password,
     database,
     port,
-    ssl
+    ssl,
+    max: 3
   })
 })
 
