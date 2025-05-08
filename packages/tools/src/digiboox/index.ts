@@ -59,7 +59,9 @@ export const exportDigibooxInvoices = (invoices: Invoice[]) => {
           }),
           Omschrijving: invoiceLine.description,
           'Btw-percentage': invoiceLine.taxRate,
-          Aantal: invoiceLine.quantity,
+          Aantal: invoiceLine.quantityPerMille
+            ? invoiceLine.quantity / 1000
+            : invoiceLine.quantity,
           'Bedrag excl. btw': formatPrice({
             value: invoiceLine.discountedLinePriceExcludingTax,
             locale: 'en-US'
