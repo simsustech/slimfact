@@ -46,29 +46,29 @@ importers:
         specifier: 8.1.1
         version: 8.1.1
       '@modular-api/api':
-        specifier: ^0.5.31
-        version: 0.5.31(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(openid-client@6.4.1)(otplib@12.0.1)(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
+        specifier: ^0.5.35
+        version: 0.5.35(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(openid-client@6.5.0)(otplib@12.0.1)(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
       '@modular-api/fastify-cart':
-        specifier: ^0.3.4
-        version: 0.3.4(kysely@0.27.6)
+        specifier: ^0.3.7
+        version: 0.3.7(kysely@0.27.6)
       '@modular-api/fastify-checkout':
-        specifier: ^0.4.18
-        version: 0.4.18(kysely@0.27.6)
+        specifier: ^0.4.21
+        version: 0.4.21(kysely@0.27.6)
       '@modular-api/fastify-oidc':
-        specifier: ^0.7.2
-        version: 0.7.2(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)
+        specifier: ^0.9.1
+        version: 0.9.1(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)
       '@mollie/api-client':
         specifier: ^4.3.0
         version: 4.3.0
       '@slimfact/app':
         specifier: workspace:*
-        version: link:../app
+        version: file:packages/app(kysely@0.27.6)
       '@slimfact/tools':
         specifier: workspace:*
         version: link:../tools
       '@trpc/server':
         specifier: ^11.0.2
-        version: 11.0.2(typescript@5.8.3)
+        version: 11.1.0(typescript@5.8.3)
       '@vitrify/tools':
         specifier: ^0.4.0
         version: 0.4.0
@@ -201,7 +201,7 @@ importers:
         version: 8.1.1
       '@slimfact/tools':
         specifier: workspace:*
-        version: link:../tools
+        version: file:packages/tools(kysely@0.27.6)
       cronstrue:
         specifier: ^2.58.0
         version: 2.58.0
@@ -211,13 +211,13 @@ importers:
     devDependencies:
       '@modular-api/fastify-cart':
         specifier: ^0.3.4
-        version: 0.3.4(kysely@0.27.6)
+        version: 0.3.5
       '@modular-api/fastify-checkout':
-        specifier: ^0.4.18
-        version: 0.4.18(kysely@0.27.6)
+        specifier: ^0.4.21
+        version: 0.4.21(kysely@0.27.6)
       '@modular-api/quasar-components':
-        specifier: ^0.3.15
-        version: 0.3.15(quasar@2.18.1)
+        specifier: ^0.3.17
+        version: 0.3.17(quasar@2.18.1)
       '@quasar/extras':
         specifier: 1.16.17
         version: 1.16.17
@@ -225,17 +225,17 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       '@simsustech/quasar-components':
-        specifier: ^0.11.8
-        version: 0.11.8(quasar@2.18.1)
+        specifier: ^0.11.13
+        version: 0.11.13(quasar@2.18.1)(vue@3.5.13(typescript@5.8.3))
       '@slimfact/api':
         specifier: link:../api
         version: link:../api
       '@trpc/client':
         specifier: ^11.0.2
-        version: 11.0.2(@trpc/server@11.0.2(typescript@5.8.3))(typescript@5.8.3)
+        version: 11.0.2(@trpc/server@11.1.0(typescript@5.8.3))(typescript@5.8.3)
       '@trpc/server':
         specifier: ^11.0.2
-        version: 11.0.2(typescript@5.8.3)
+        version: 11.1.0(typescript@5.8.3)
       '@typescript-eslint/eslint-plugin':
         specifier: 8.29.0
         version: 8.29.0(@typescript-eslint/parser@8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3)
@@ -300,8 +300,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       lionel-oauth-client:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: npm:@stefanvh/lionel-oauth-client@^0.7.0
+        version: '@stefanvh/lionel-oauth-client@0.7.0'
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -492,7 +492,7 @@ importers:
     dependencies:
       '@modular-api/fastify-checkout':
         specifier: ^0.4.16
-        version: 0.4.18(kysely@0.27.6)
+        version: 0.4.21(kysely@0.27.6)
       '@rgrove/parse-xml':
         specifier: ^4.2.0
         version: 4.2.0
@@ -1705,62 +1705,52 @@ packages:
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
 
-  '@modular-api/api@0.5.31':
-    resolution: {integrity: sha512-nt4VKiGbS3KTSkHyeAT96/UBrE89PGfo1OHWgnsrEY5x8oHr+PmIlNGK8x6PUy88PyoBNZVnit1H8X/N0zdVNQ==}
+  '@modular-api/api@0.5.35':
+    resolution: {integrity: sha512-mqGQSsyHe9MzO/+dvkITvhmTIOPyLk++Rc5iOjxlZ4Uyl5bQWcQGomPF7cFHnzoalxPK7ArIVlYCsky4OnKfiw==}
     peerDependencies:
-      kysely: ^0.27.6
-      openid-client: ^6.4.1
-
-  '@modular-api/fastify-cart@0.3.4':
-    resolution: {integrity: sha512-bkUvyh8N8KqD/HtxeHyU4VEqAfFBlNRoI+Yr25F74BmAiVGp6nxgYikfWwCOo5cFqbZolP8lbaXlOdDzpmFufw==}
-    peerDependencies:
-      kysely: ^0.27.6
+      kysely: ^0.28.2
+      openid-client: ^6.5.0
 
   '@modular-api/fastify-cart@0.3.5':
     resolution: {integrity: sha512-gxOpztu2DzjhBwdOlXz8g15fSR2VY+tQcPngl91GEdbTn1UYoqfloc2LWdRfIjTwFf2zAoHb8gDFcqyAj/sP7A==}
     peerDependencies:
       kysely: ^0.27.6
 
-  '@modular-api/fastify-checkout@0.4.18':
-    resolution: {integrity: sha512-yB+y1wNvIPY1eQh0fS5wEpBioQnV7ovRpEYUrkCIADn4WolgezlciF0Rn1MVAvkWgniKsYIsHOxPHJVH48mqJw==}
+  '@modular-api/fastify-cart@0.3.7':
+    resolution: {integrity: sha512-l79qblv4hTgru35MYVHfZku70fF89m+XTpg/vnDdVVZCxeMwNkbwoJIVGYgr4Ijb0PXVUS20bHnFMt3PUcnM+w==}
     peerDependencies:
-      kysely: ^0.27.6
+      kysely: ^0.28.2
 
-  '@modular-api/fastify-oidc@0.7.2':
-    resolution: {integrity: sha512-bN9kSBLWSswD38jmTZe3slqP4fwxV+yrsgVWvRq7ABfzb3Q3fdPoNiqcGi1eZ8HJVFEbPBJNQ7sWDUQnsrBjow==}
+  '@modular-api/fastify-checkout@0.4.21':
+    resolution: {integrity: sha512-WGfpCzSiARPJJNS4asR5LTQIeBWHb0TSTm8aaiTZxqiOYSqyV1OXgQiTxE2us8takClC87kLfaP5hxXm3RSN9A==}
     peerDependencies:
-      bcryptjs: ^3.0.2
-      handlebars: ^4.7.8
-      kysely: ^0.27.6
-      otplib: ^12.0.1
+      kysely: ^0.28.2
 
-  '@modular-api/fastify-oidc@0.7.3':
-    resolution: {integrity: sha512-biRLPQAwTrF9fGCdOEur0QNTcpmm1eWJ9CmDnbMU49ejEsVYkGZa5JdxldV7x6zJQT6ab2OiG16QoM9n3j81Tg==}
+  '@modular-api/fastify-oidc@0.9.1':
+    resolution: {integrity: sha512-h1o8z4TOCqL76jroa4+fhUyPXtbQYD5eK+CgcLvQ7viRbljL64wpBUFd8dLj/6LV0oC+3TQZ6OnPvD+iAgLmnQ==}
     peerDependencies:
       bcryptjs: ^3.0.2
       handlebars: ^4.7.8
-      kysely: ^0.27.6
+      kysely: ^0.28.2
       otplib: ^12.0.1
 
-  '@modular-api/oidc-interactions@0.5.5':
-    resolution: {integrity: sha512-EWA5Xm8qL1k4xt0XOyKLzUHuUdMdWcpwOyPkI209lXuoR6xHf5g0ThKs6CDtMdrixQQPwXzyLyKEUOHhFT85BQ==}
+  '@modular-api/oidc-interactions@0.7.1':
+    resolution: {integrity: sha512-Qb5rSOu23HfmcRSQSmvqEc7RJodIQwg4wb1t16118whKtAb0FSOebBJln2Tz3FeNVHelE5uP2WlQ6yz50oH0Dw==}
     peerDependencies:
       '@fastify/static': ^8.1.1
-      fastify: ^5.2.2
+      fastify: ^5.3.2
 
-  '@modular-api/oidc-interactions@0.5.6':
-    resolution: {integrity: sha512-eAtn/c41D9jFASpfjJLw4aKjqXhxT3VpFbJATTIRS/a8OetzekJcRj7bUfM1a54LCg8GWvd5bN2dERPWfshlPw==}
-    peerDependencies:
-      '@fastify/static': ^8.1.1
-      fastify: ^5.2.2
-
-  '@modular-api/quasar-components@0.3.15':
-    resolution: {integrity: sha512-yofMcFLq8f9lT3Gl9Mv7pz2uhyccFmhhTr+uBMRKPbdUIOsSOMd5YI0aRNroBdDfhQcjfsTUEWgmHbjHw0naVQ==}
+  '@modular-api/quasar-components@0.3.17':
+    resolution: {integrity: sha512-F9LNutXr4sO51rOT7RvYyuVMLlagrHvjzZKXUq4NozfBjm/xtRxdgZueZlKW/Rdc5Z6QRhixOCAgxM61z+csXQ==}
     peerDependencies:
       quasar: ^2.18.1
 
   '@mollie/api-client@4.3.0':
     resolution: {integrity: sha512-6e/oIj9ZuhauhSkKJEdI0t+1wWg/alt78oKq4dTw7tY98B0BXr+J5a6KW5HhYLKw43onOzdrD/Gx6NkXfdBVPw==}
+    engines: {node: '>=8'}
+
+  '@mollie/api-client@4.3.2':
+    resolution: {integrity: sha512-6/Zc3MgagOxzIj1YBvtRhZPHeIQaMR9gxLktGz4Ydx7EMTAQf3mkWPAX1iMgRkOIaVGs/0NlusK7gMSNJ6E5Vg==}
     engines: {node: '>=8'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -2031,6 +2021,11 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@rollup/rollup-linux-x64-gnu@4.40.2':
+    resolution: {integrity: sha512-lG7Xa+BmBNwpjmVUbmyKxdQJ3Q6whHjMjzQplOs5Z+Gj7mxPtWakGHqzMqNER68G67kmCX9qX57aRsW5V0VOng==}
+    cpu: [x64]
+    os: [linux]
+
   '@rollup/rollup-linux-x64-musl@4.39.0':
     resolution: {integrity: sha512-ThFdkrFDP55AIsIZDKSBWEt/JcWlCzydbZHinZ0F/r1h83qbGeenCt/G/wG2O0reuENDD2tawfAj2s8VK7Bugg==}
     cpu: [x64]
@@ -2051,6 +2046,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@simsustech/quasar-components@0.11.13':
+    resolution: {integrity: sha512-JjIJwjkqHxZD/apjJJVLqlhtxe50wUBTkgWVrD/9rxsOVeTnkIuwSoeYAMZCj7gQ+KoT17klTtf0NluODEXunw==}
+    peerDependencies:
+      quasar: ^2.18.1
+
   '@simsustech/quasar-components@0.11.8':
     resolution: {integrity: sha512-DsXmxH3VDUDEdCzN4ZVYkZ1aQqMG1xf+BKaGm9+OMd681VdgY51NOIH/VLDR7v1LbcscOSAUisOjBK6oExx7/g==}
     peerDependencies:
@@ -2059,6 +2059,15 @@ packages:
   '@sindresorhus/is@5.6.0':
     resolution: {integrity: sha512-TV7t8GKYaJWsn00tFDqBw8+Uqmr8A0fRU1tvTQhyZzGv0sJCGRQL3JGMI3ucuKo3XIZdUP+Lx7/gh2t3lewy7g==}
     engines: {node: '>=14.16'}
+
+  '@slimfact/app@file:packages/app':
+    resolution: {directory: packages/app, type: directory}
+
+  '@slimfact/tools@file:packages/tools':
+    resolution: {directory: packages/tools, type: directory}
+
+  '@stefanvh/lionel-oauth-client@0.7.0':
+    resolution: {integrity: sha512-DV+jiJkzxPjqXpE4ctVVT4QeQcUsFbje+jLDNHd9Uhkbx2ARXjmkTou5SqMgnyMS2UV+o/E3Sl1Thc9k1/iEqw==}
 
   '@surma/rollup-plugin-off-main-thread@2.2.3':
     resolution: {integrity: sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ==}
@@ -2081,13 +2090,13 @@ packages:
   '@trpc/server@10.45.2':
     resolution: {integrity: sha512-wOrSThNNE4HUnuhJG6PfDRp4L2009KDVxsd+2VYH8ro6o/7/jwYZ8Uu5j+VaW+mOmc8EHerHzGcdbGNQSAUPgg==}
 
-  '@trpc/server@11.0.2':
-    resolution: {integrity: sha512-PIcm8UWFyE0AnIYjxsyc1zfVa6X10m9Opm1SJ2ou9Vu8dlXO6rMtmafLUXJsMeQk/3ecxObFtEiZIX8TvB3eCg==}
+  '@trpc/server@11.1.0':
+    resolution: {integrity: sha512-uAJ7ikejeujVkf53XFJ/0W8nr7bDjul+Szk5Rsepq97Hb/WS1RkRXdyX4KqAyCE9b1vDFCJVJwSxiIZdRtbTZQ==}
     peerDependencies:
       typescript: '>=5.7.2'
 
-  '@trpc/server@11.1.0':
-    resolution: {integrity: sha512-uAJ7ikejeujVkf53XFJ/0W8nr7bDjul+Szk5Rsepq97Hb/WS1RkRXdyX4KqAyCE9b1vDFCJVJwSxiIZdRtbTZQ==}
+  '@trpc/server@11.1.2':
+    resolution: {integrity: sha512-Oi9zWHG0ZDkbDo4sYkduoV7q4sIe6UwjrRLC91vNMYQK+PVgpbTCmK1laRwewAGu0zaayqcGDosANjceOIC3GA==}
     peerDependencies:
       typescript: '>=5.7.2'
 
@@ -2433,6 +2442,10 @@ packages:
     resolution: {integrity: sha512-cW8bQRxzn5yY9/TFBYkP6MF6zIyukrFrp67zxEExtdTU9pUaOGrCCVxYV4ccfelD9bIPG0UJISH8wnuO+rhvTA==}
     engines: {node: '>=20.0.0'}
 
+  '@vitrify/tools@0.4.1':
+    resolution: {integrity: sha512-NM2i2kH2ifVW0caDzg3bgWTSv+Y3VV4ch2ydoRF1YXeRpTDGF7QxnwNZ1blBfCEFF1itm2L9ymrn2tR0VWV+Bw==}
+    engines: {node: '>=20.0.0'}
+
   '@volar/language-core@2.4.12':
     resolution: {integrity: sha512-RLrFdXEaQBWfSnYGVxvR2WrO6Bub0unkdHYIdC31HzIEqATIuuhRRzYu76iGPZ6OtA4Au1SnW0ZwIqPP217YhA==}
 
@@ -2490,11 +2503,24 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  '@vueuse/core@13.2.0':
+    resolution: {integrity: sha512-n5TZoIAxbWAQ3PqdVPDzLgIRQOujFfMlatdI+f7ditSmoEeNpPBvp7h2zamzikCmrhFIePAwdEQB6ENccHr7Rg==}
+    peerDependencies:
+      vue: ^3.5.0
+
   '@vueuse/metadata@13.0.0':
     resolution: {integrity: sha512-TRNksqmvtvqsuHf7bbgH9OSXEV2b6+M3BSN4LR5oxWKykOFT9gV78+C2/0++Pq9KCp9KQ1OQDPvGlWNQpOb2Mw==}
 
+  '@vueuse/metadata@13.2.0':
+    resolution: {integrity: sha512-kPpzuQCU0+D8DZCzK0iPpIcXI+6ufWSgwnjJ6//GNpEn+SHViaCtR+XurzORChSgvpHO9YC8gGM97Y1kB+UabA==}
+
   '@vueuse/shared@13.0.0':
     resolution: {integrity: sha512-9MiHhAPw+sqCF/RLo8V6HsjRqEdNEWVpDLm2WBRW2G/kSQjb8X901sozXpSCaeLG0f7TEfMrT4XNaA5m1ez7Dg==}
+    peerDependencies:
+      vue: ^3.5.0
+
+  '@vueuse/shared@13.2.0':
+    resolution: {integrity: sha512-vx9ZPDF5HcU9up3Jgt3G62dMUfZEdk6tLyBAHYAG4F4n73vpaA7J5hdncDI/lS9Vm7GA/FPlbOmh9TrDZROTpg==}
     peerDependencies:
       vue: ^3.5.0
 
@@ -4292,6 +4318,9 @@ packages:
   jose@6.0.10:
     resolution: {integrity: sha512-skIAxZqcMkOrSwjJvplIPYrlXGpxTPnro2/QWTDCxAdWQrSTV5/KqspMWmi5WAx5+ULswASJiZ0a+1B/Lxt9cw==}
 
+  jose@6.0.11:
+    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -4399,6 +4428,10 @@ packages:
     resolution: {integrity: sha512-umfX9d3iuSxTQP4pnzLOz0HKnPg0FaUUIKcye2lOiz3KPu1Y3M3xlz76dISdFPQs37P9eJz1wUpcTS6KDPn9fA==}
     engines: {node: ^4.8.4 || ^6.10.1 || ^7.10.1 || >= 8.1.4}
 
+  koa@3.0.0:
+    resolution: {integrity: sha512-Usyqf1o+XN618R3Jzq4S4YWbKsRtPcGpgyHXD4APdGYQQyqQ59X+Oyc7fXHS2429stzLsBiDjj6zqqYe8kknfw==}
+    engines: {node: '>= 18'}
+
   kolorist@1.8.0:
     resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
 
@@ -4465,9 +4498,6 @@ packages:
 
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
-
-  lionel-oauth-client@0.6.0:
-    resolution: {integrity: sha512-6EdUcG8j01/+axyuO7ykKQHTM0GqO6xArgO+SiiQTl9oANmNNt3eHVRrHrV8FdoAHmlNnc1cV3AjT0e5/ORyTA==}
 
   load-json-file@4.0.0:
     resolution: {integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==}
@@ -4594,6 +4624,10 @@ packages:
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
+
+  media-typer@1.1.0:
+    resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
+    engines: {node: '>= 0.8'}
 
   memorystream@0.3.1:
     resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
@@ -4762,8 +4796,8 @@ packages:
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
 
-  nodemailer@6.10.0:
-    resolution: {integrity: sha512-SQ3wZCExjeSatLE/HBaXS5vqUOQk6GtBdIIKxiFdmm01mOQZX/POJkO3SUX1wDiYcwUOJwT23scFSC9fY2H8IA==}
+  nodemailer@7.0.3:
+    resolution: {integrity: sha512-Ajq6Sz1x7cIK3pN6KesGTah+1gnwMnx5gKl3piQlQQE/PwyJ4Mbc8is2psWYxK3RJTVeqsDaCv8ZzXLCDHMTZw==}
     engines: {node: '>=6.0.0'}
 
   nodeunit@0.11.3:
@@ -4795,14 +4829,14 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  oauth-pkce@0.0.6:
-    resolution: {integrity: sha512-hLLZvwJBAo1QHzPOvsM/QtDj/b9MBgQx/TH4kA/LPqFgWtICo4m7gtZUZARBiQ0I8lSKQRN8BhGTclVv8D45gg==}
+  oauth-pkce@0.0.7:
+    resolution: {integrity: sha512-HMMakoec7G3Fyhq/VfYfQXmsJhZGQLncPCj/ir0xQQqX/kRDE9w1WFOaMJXlxfNlDDq3XDSy4mXGFPqU6oMAGg==}
 
   oauth-sign@0.9.0:
     resolution: {integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==}
 
-  oauth4webapi@3.4.0:
-    resolution: {integrity: sha512-5lcbectYuzQHvh0Ni7Epvc13sMVq7BxWUlHEYHaNko64OA1hcats0Huq30vZjqCZULcVE/PZxAGGPansfRAWKQ==}
+  oauth4webapi@3.5.1:
+    resolution: {integrity: sha512-txg/jZQwcbaF7PMJgY7aoxc9QuCxHVFMiEkDIJ60DwDz3PbtXPQnrzo+3X4IRYGChIwWLabRBRpf1k9hO9+xrQ==}
 
   object-hash@3.0.0:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
@@ -4828,6 +4862,9 @@ packages:
 
   oidc-provider@8.8.1:
     resolution: {integrity: sha512-qVChpayTwojUREJxLkFofUSK8kiSRIdzPrVSsoGibqRHl/YO60ege94OZS8vh7zaK+zxcG/Gu8UMaYB5ulohCQ==}
+
+  oidc-provider@9.1.1:
+    resolution: {integrity: sha512-kkH1yWjjEUKVe2pbWS7vvE3ibRae/yjCcRq1Q8PKu5eGOg4MWlmino7A1Hm1bDYm+bLAdHIVcMdb2i9nbeUTeA==}
 
   oidc-token-hash@5.1.0:
     resolution: {integrity: sha512-y0W+X7Ppo7oZX6eovsRkuzcSM40Bicg2JEJkDJ4irIt1wsYAP5MLSNv+QAogO8xivMffw/9OvV3um1pxXgt1uA==}
@@ -4859,8 +4896,8 @@ packages:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
     hasBin: true
 
-  openid-client@6.4.1:
-    resolution: {integrity: sha512-Bwta7kyGn0vyRGOatIAAvEOYCIiTwxBptrBpJgV9KdV0OGJ8OPe8wWY7bQbDqCJrDCclq6xbJMfK2Ilp5TugbA==}
+  openid-client@6.5.0:
+    resolution: {integrity: sha512-fAfYaTnOYE2kQCqEJGX9KDObW2aw7IQy4jWpU/+3D3WoCFLbix5Hg6qIPQ6Js9r7f8jDUmsnnguRNCSw4wU/IQ==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -5032,8 +5069,14 @@ packages:
   pg-cloudflare@1.1.1:
     resolution: {integrity: sha512-xWPagP/4B6BgFO+EKz3JONXv3YDgvkbVrGw2mTo3D6tVDQRh1e7cqVGvyR3BE+eQgAvx1XhW/iEASj4/jCWl3Q==}
 
+  pg-cloudflare@1.2.5:
+    resolution: {integrity: sha512-OOX22Vt0vOSRrdoUPKJ8Wi2OpE/o/h9T8X1s4qSkCedbNah9ei2W2765be8iMVxQUsvgT7zIAT2eIa9fs5+vtg==}
+
   pg-connection-string@2.7.0:
     resolution: {integrity: sha512-PI2W9mv53rXJQEOb8xNR8lH7Hr+EKa6oJa38zsK0S/ky2er16ios1wLKhZyxzD7jUReiWokc9WK5nxSnC7W1TA==}
+
+  pg-connection-string@2.9.0:
+    resolution: {integrity: sha512-P2DEBKuvh5RClafLngkAuGe9OUlFV7ebu8w1kmaaOgPcpJd1RIFh7otETfI6hAR8YupOLFTY7nuvvIn7PLciUQ==}
 
   pg-int8@1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
@@ -5043,10 +5086,18 @@ packages:
     resolution: {integrity: sha512-BM/Thnrw5jm2kKLE5uJkXqqExRUY/toLHda65XgFTBTFYZyopbKjBe29Ii3RbkvlsMoFwD+tHeGaCjjv0gHlyw==}
     engines: {node: '>=4'}
 
+  pg-pool@3.10.0:
+    resolution: {integrity: sha512-DzZ26On4sQ0KmqnO34muPcmKbhrjmyiO4lCCR0VwEd7MjmiKf5NTg/6+apUEu0NF7ESa37CGzFxH513CoUmWnA==}
+    peerDependencies:
+      pg: '>=8.0'
+
   pg-pool@3.8.0:
     resolution: {integrity: sha512-VBw3jiVm6ZOdLBTIcXLNdSotb6Iy3uOCwDGFAksZCXmi10nyRvnP2v3jl4d+IsLYRyXf6o9hIm/ZtUzlByNUdw==}
     peerDependencies:
       pg: '>=8.0'
+
+  pg-protocol@1.10.0:
+    resolution: {integrity: sha512-IpdytjudNuLv8nhlHs/UrVBhU0e78J0oIS/0AVdTbWxSOkFUVdsHC/NrorO6nXsQNDTT1kzDSOMJubBQviX18Q==}
 
   pg-protocol@1.8.0:
     resolution: {integrity: sha512-jvuYlEkL03NRvOoyoRktBK7+qU5kOvlAwvmrH8sr3wbLrOdVWsRxQfz8mMy9sZFsqJ1hEWNfdWKI4SAmoL+j7g==}
@@ -5061,6 +5112,15 @@ packages:
 
   pg@8.14.1:
     resolution: {integrity: sha512-0TdbqfjwIun9Fm/r89oB7RFQ0bLgduAhiIqIXOsyKoiC/L54DbuAAzIEN/9Op0f1Po9X7iCPXGoa/Ah+2aI8Xw==}
+    engines: {node: '>= 8.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
+  pg@8.16.0:
+    resolution: {integrity: sha512-7SKfdvP8CTNXjMUzfcVTaI+TDzBEeaUnVwiVGZQD1Hh33Kpev7liQba9uLd4CfN8r9mCVsD0JIpq03+Unpz+kg==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
       pg-native: '>=3.0.1'
@@ -5258,6 +5318,10 @@ packages:
 
   quick-lru@7.0.0:
     resolution: {integrity: sha512-MX8gB7cVYTrYcFfAnfLlhRd0+Toyl8yX8uBx1MrX7K0jegiz9TumwOK27ldXrgDlHRdVi+MqU9Ssw6dr4BNreg==}
+    engines: {node: '>=18'}
+
+  quick-lru@7.0.1:
+    resolution: {integrity: sha512-kLjThirJMkWKutUKbZ8ViqFc09tDQhlbQo2MNuVeLWbRauqYP96Sm6nzlQ24F0HFjUNZ4i9+AgldJ9H6DZXi7g==}
     engines: {node: '>=18'}
 
   raf@3.4.1:
@@ -5976,6 +6040,10 @@ packages:
 
   type-is@1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
+    engines: {node: '>= 0.6'}
+
+  type-is@2.0.1:
+    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
     engines: {node: '>= 0.6'}
 
   typed-array-buffer@1.0.3:
@@ -7879,28 +7947,28 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@modular-api/api@0.5.31(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(openid-client@6.4.1)(otplib@12.0.1)(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))':
+  '@modular-api/api@0.5.35(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(openid-client@6.5.0)(otplib@12.0.1)(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/cors': 11.0.1
       '@fastify/formbody': 8.0.2
       '@fastify/middie': 9.0.3
       '@fastify/static': 8.1.1
-      '@modular-api/fastify-cart': 0.3.5(kysely@0.27.6)
-      '@modular-api/fastify-checkout': 0.4.18(kysely@0.27.6)
-      '@modular-api/fastify-oidc': 0.7.3(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)
-      '@trpc/server': 11.1.0(typescript@5.8.3)
+      '@modular-api/fastify-cart': 0.3.7(kysely@0.27.6)
+      '@modular-api/fastify-checkout': 0.4.21(kysely@0.27.6)
+      '@modular-api/fastify-oidc': 0.9.1(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)
+      '@trpc/server': 11.1.2(typescript@5.8.3)
       '@types/compression': 1.7.5
       '@types/serve-static': 1.15.7
       '@vue/server-renderer': 3.5.13(vue@3.5.13(typescript@5.8.3))
       compression: 1.8.0
-      fastify-mailer: 2.3.1(nodemailer@6.10.0)
+      fastify-mailer: 2.3.1(nodemailer@7.0.3)
       fastify-plugin: 5.0.1
-      jose: 6.0.10
+      jose: 6.0.11
       kysely: 0.27.6
-      nodemailer: 6.10.0
-      openid-client: 6.4.1
-      pg: 8.14.1
+      nodemailer: 7.0.3
+      openid-client: 6.5.0
+      pg: 8.16.0
       serve-static: 2.2.0
     transitivePeerDependencies:
       - bcryptjs
@@ -7913,7 +7981,7 @@ snapshots:
       - typescript
       - vue
 
-  '@modular-api/fastify-cart@0.3.4(kysely@0.27.6)':
+  '@modular-api/fastify-cart@0.3.5':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.0.3
@@ -7921,46 +7989,45 @@ snapshots:
       '@mollie/api-client': 4.3.0
       '@vitrify/tools': 0.4.0
       fastify-plugin: 5.0.1
-      kysely: 0.27.6
     transitivePeerDependencies:
       - encoding
 
-  '@modular-api/fastify-cart@0.3.5(kysely@0.27.6)':
+  '@modular-api/fastify-cart@0.3.7(kysely@0.27.6)':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.0.3
       '@fastify/static': 8.1.1
-      '@mollie/api-client': 4.3.0
-      '@vitrify/tools': 0.4.0
+      '@mollie/api-client': 4.3.2
+      '@vitrify/tools': 0.4.1
       fastify-plugin: 5.0.1
       kysely: 0.27.6
     transitivePeerDependencies:
       - encoding
 
-  '@modular-api/fastify-checkout@0.4.18(kysely@0.27.6)':
+  '@modular-api/fastify-checkout@0.4.21(kysely@0.27.6)':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.0.3
       '@fastify/static': 8.1.1
-      '@mollie/api-client': 4.3.0
-      '@vitrify/tools': 0.4.0
+      '@mollie/api-client': 4.3.2
+      '@vitrify/tools': 0.4.1
       fastify-plugin: 5.0.1
       kysely: 0.27.6
     transitivePeerDependencies:
       - encoding
 
-  '@modular-api/fastify-oidc@0.7.2(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)':
+  '@modular-api/fastify-oidc@0.9.1(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.0.3
-      '@modular-api/oidc-interactions': 0.5.5(@fastify/static@8.1.1)(fastify@5.2.2)
-      '@vitrify/tools': 0.4.0
+      '@modular-api/oidc-interactions': 0.7.1(@fastify/static@8.1.1)(fastify@5.2.2)
+      '@vitrify/tools': 0.4.1
       bcryptjs: 3.0.2
       fastify-plugin: 5.0.1
       handlebars: 4.7.8
       kysely: 0.27.6
-      oidc-provider: 8.8.1
-      openid-client: 6.4.1
+      oidc-provider: 9.1.1
+      openid-client: 6.5.0
       otplib: 12.0.1
       vue: 3.5.13(typescript@5.8.3)
     transitivePeerDependencies:
@@ -7969,42 +8036,25 @@ snapshots:
       - supports-color
       - typescript
 
-  '@modular-api/fastify-oidc@0.7.3(@fastify/static@8.1.1)(bcryptjs@3.0.2)(fastify@5.2.2)(handlebars@4.7.8)(kysely@0.27.6)(otplib@12.0.1)(typescript@5.8.3)':
-    dependencies:
-      '@fastify/cookie': 11.0.2
-      '@fastify/middie': 9.0.3
-      '@modular-api/oidc-interactions': 0.5.6(@fastify/static@8.1.1)(fastify@5.2.2)
-      '@vitrify/tools': 0.4.0
-      bcryptjs: 3.0.2
-      fastify-plugin: 5.0.1
-      handlebars: 4.7.8
-      kysely: 0.27.6
-      oidc-provider: 8.8.1
-      openid-client: 6.4.1
-      otplib: 12.0.1
-      vue: 3.5.13(typescript@5.8.3)
-    transitivePeerDependencies:
-      - '@fastify/static'
-      - fastify
-      - supports-color
-      - typescript
-
-  '@modular-api/oidc-interactions@0.5.5(@fastify/static@8.1.1)(fastify@5.2.2)':
+  '@modular-api/oidc-interactions@0.7.1(@fastify/static@8.1.1)(fastify@5.2.2)':
     dependencies:
       '@fastify/static': 8.1.1
       fastify: 5.2.2
 
-  '@modular-api/oidc-interactions@0.5.6(@fastify/static@8.1.1)(fastify@5.2.2)':
-    dependencies:
-      '@fastify/static': 8.1.1
-      fastify: 5.2.2
-
-  '@modular-api/quasar-components@0.3.15(quasar@2.18.1)':
+  '@modular-api/quasar-components@0.3.17(quasar@2.18.1)':
     dependencies:
       quasar: 2.18.1
       validator: 13.15.0
 
   '@mollie/api-client@4.3.0':
+    dependencies:
+      '@types/node-fetch': 2.6.12
+      node-fetch: 2.7.0
+      ruply: 1.0.1
+    transitivePeerDependencies:
+      - encoding
+
+  '@mollie/api-client@4.3.2':
     dependencies:
       '@types/node-fetch': 2.6.12
       node-fetch: 2.7.0
@@ -8224,6 +8274,9 @@ snapshots:
   '@rollup/rollup-linux-x64-gnu@4.39.0':
     optional: true
 
+  '@rollup/rollup-linux-x64-gnu@4.40.2':
+    optional: true
+
   '@rollup/rollup-linux-x64-musl@4.39.0':
     optional: true
 
@@ -8236,12 +8289,49 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.39.0':
     optional: true
 
+  '@simsustech/quasar-components@0.11.13(quasar@2.18.1)(vue@3.5.13(typescript@5.8.3))':
+    dependencies:
+      '@vueuse/core': 13.2.0(vue@3.5.13(typescript@5.8.3))
+      quasar: 2.18.1
+      validator: 13.15.0
+    transitivePeerDependencies:
+      - vue
+
   '@simsustech/quasar-components@0.11.8(quasar@2.18.1)':
     dependencies:
       quasar: 2.18.1
       validator: 13.15.0
 
   '@sindresorhus/is@5.6.0': {}
+
+  '@slimfact/app@file:packages/app(kysely@0.27.6)':
+    dependencies:
+      '@fastify/middie': 9.0.3
+      '@fastify/static': 8.1.1
+      '@slimfact/tools': file:packages/tools(kysely@0.27.6)
+      cronstrue: 2.58.0
+      uqr: 0.1.2
+    transitivePeerDependencies:
+      - encoding
+      - kysely
+
+  '@slimfact/tools@file:packages/tools(kysely@0.27.6)':
+    dependencies:
+      '@modular-api/fastify-checkout': 0.4.21(kysely@0.27.6)
+      '@rgrove/parse-xml': 4.2.0
+      export-to-csv: 1.4.0
+      fast-xml-parser: 5.2.0
+      handlebars: 4.7.8
+      ibantools: 4.5.1
+    transitivePeerDependencies:
+      - encoding
+      - kysely
+
+  '@stefanvh/lionel-oauth-client@0.7.0':
+    dependencies:
+      oauth-pkce: 0.0.7
+    optionalDependencies:
+      '@rollup/rollup-linux-x64-gnu': 4.40.2
 
   '@surma/rollup-plugin-off-main-thread@2.2.3':
     dependencies:
@@ -8258,18 +8348,18 @@ snapshots:
     dependencies:
       '@trpc/server': 10.45.2
 
-  '@trpc/client@11.0.2(@trpc/server@11.0.2(typescript@5.8.3))(typescript@5.8.3)':
+  '@trpc/client@11.0.2(@trpc/server@11.1.0(typescript@5.8.3))(typescript@5.8.3)':
     dependencies:
-      '@trpc/server': 11.0.2(typescript@5.8.3)
+      '@trpc/server': 11.1.0(typescript@5.8.3)
       typescript: 5.8.3
 
   '@trpc/server@10.45.2': {}
 
-  '@trpc/server@11.0.2(typescript@5.8.3)':
+  '@trpc/server@11.1.0(typescript@5.8.3)':
     dependencies:
       typescript: 5.8.3
 
-  '@trpc/server@11.1.0(typescript@5.8.3)':
+  '@trpc/server@11.1.2(typescript@5.8.3)':
     dependencies:
       typescript: 5.8.3
 
@@ -8735,6 +8825,10 @@ snapshots:
     dependencies:
       handlebars: 4.7.8
 
+  '@vitrify/tools@0.4.1':
+    dependencies:
+      handlebars: 4.7.8
+
   '@volar/language-core@2.4.12':
     dependencies:
       '@volar/source-map': 2.4.12
@@ -8828,9 +8922,22 @@ snapshots:
       '@vueuse/shared': 13.0.0(vue@3.5.13(typescript@5.8.3))
       vue: 3.5.13(typescript@5.8.3)
 
+  '@vueuse/core@13.2.0(vue@3.5.13(typescript@5.8.3))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.21
+      '@vueuse/metadata': 13.2.0
+      '@vueuse/shared': 13.2.0(vue@3.5.13(typescript@5.8.3))
+      vue: 3.5.13(typescript@5.8.3)
+
   '@vueuse/metadata@13.0.0': {}
 
+  '@vueuse/metadata@13.2.0': {}
+
   '@vueuse/shared@13.0.0(vue@3.5.13(typescript@5.8.3))':
+    dependencies:
+      vue: 3.5.13(typescript@5.8.3)
+
+  '@vueuse/shared@13.2.0(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       vue: 3.5.13(typescript@5.8.3)
 
@@ -9274,7 +9381,7 @@ snapshots:
 
   compressible@2.0.18:
     dependencies:
-      mime-db: 1.54.0
+      mime-db: 1.52.0
 
   compression@1.8.0:
     dependencies:
@@ -9995,10 +10102,10 @@ snapshots:
     dependencies:
       strnum: 2.0.5
 
-  fastify-mailer@2.3.1(nodemailer@6.10.0):
+  fastify-mailer@2.3.1(nodemailer@7.0.3):
     dependencies:
       fastify-plugin: 3.0.1
-      nodemailer: 6.10.0
+      nodemailer: 7.0.3
 
   fastify-plugin@3.0.1: {}
 
@@ -10700,6 +10807,8 @@ snapshots:
 
   jose@6.0.10: {}
 
+  jose@6.0.11: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -10828,6 +10937,30 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  koa@3.0.0:
+    dependencies:
+      accepts: 1.3.8
+      cache-content-type: 1.0.1
+      content-disposition: 0.5.4
+      content-type: 1.0.5
+      cookies: 0.9.1
+      debug: 4.4.0
+      delegates: 1.0.0
+      destroy: 1.2.0
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      fresh: 0.5.2
+      http-assert: 1.5.0
+      http-errors: 2.0.0
+      koa-compose: 4.1.0
+      on-finished: 2.4.1
+      parseurl: 1.3.3
+      statuses: 2.0.1
+      type-is: 2.0.1
+      vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
+
   kolorist@1.8.0: {}
 
   kysely-codegen@0.18.3(kysely@0.27.6)(pg@8.14.1)(typescript@5.8.3):
@@ -10869,10 +11002,6 @@ snapshots:
       set-cookie-parser: 2.7.1
 
   lines-and-columns@1.2.4: {}
-
-  lionel-oauth-client@0.6.0:
-    dependencies:
-      oauth-pkce: 0.0.6
 
   load-json-file@4.0.0:
     dependencies:
@@ -10977,6 +11106,8 @@ snapshots:
   mdn-data@2.12.2: {}
 
   media-typer@0.3.0: {}
+
+  media-typer@1.1.0: {}
 
   memorystream@0.3.1: {}
 
@@ -11109,7 +11240,7 @@ snapshots:
 
   node-releases@2.0.19: {}
 
-  nodemailer@6.10.0: {}
+  nodemailer@7.0.3: {}
 
   nodeunit@0.11.3:
     dependencies:
@@ -11175,11 +11306,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  oauth-pkce@0.0.6: {}
+  oauth-pkce@0.0.7: {}
 
   oauth-sign@0.9.0: {}
 
-  oauth4webapi@3.4.0: {}
+  oauth4webapi@3.5.1: {}
 
   object-hash@3.0.0: {}
 
@@ -11222,6 +11353,22 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  oidc-provider@9.1.1:
+    dependencies:
+      '@koa/cors': 5.0.0
+      '@koa/router': 13.1.0
+      debug: 4.4.0
+      eta: 3.5.0
+      jose: 6.0.10
+      jsesc: 3.1.0
+      koa: 3.0.0
+      nanoid: 5.1.5
+      oidc-token-hash: 5.1.0
+      quick-lru: 7.0.1
+      raw-body: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+
   oidc-token-hash@5.1.0: {}
 
   on-exit-leak-free@2.1.2: {}
@@ -11246,10 +11393,10 @@ snapshots:
 
   opener@1.5.2: {}
 
-  openid-client@6.4.1:
+  openid-client@6.5.0:
     dependencies:
       jose: 6.0.10
-      oauth4webapi: 3.4.0
+      oauth4webapi: 3.5.1
 
   optionator@0.9.4:
     dependencies:
@@ -11408,15 +11555,26 @@ snapshots:
   pg-cloudflare@1.1.1:
     optional: true
 
+  pg-cloudflare@1.2.5:
+    optional: true
+
   pg-connection-string@2.7.0: {}
+
+  pg-connection-string@2.9.0: {}
 
   pg-int8@1.0.1: {}
 
   pg-numeric@1.0.2: {}
 
+  pg-pool@3.10.0(pg@8.16.0):
+    dependencies:
+      pg: 8.16.0
+
   pg-pool@3.8.0(pg@8.14.1):
     dependencies:
       pg: 8.14.1
+
+  pg-protocol@1.10.0: {}
 
   pg-protocol@1.8.0: {}
 
@@ -11447,6 +11605,16 @@ snapshots:
       pgpass: 1.0.5
     optionalDependencies:
       pg-cloudflare: 1.1.1
+
+  pg@8.16.0:
+    dependencies:
+      pg-connection-string: 2.9.0
+      pg-pool: 3.10.0(pg@8.16.0)
+      pg-protocol: 1.10.0
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.2.5
 
   pgpass@1.0.5:
     dependencies:
@@ -11595,6 +11763,8 @@ snapshots:
   quick-lru@5.1.1: {}
 
   quick-lru@7.0.0: {}
+
+  quick-lru@7.0.1: {}
 
   raf@3.4.1:
     dependencies:
@@ -12507,6 +12677,12 @@ snapshots:
     dependencies:
       media-typer: 0.3.0
       mime-types: 2.1.35
+
+  type-is@2.0.1:
+    dependencies:
+      content-type: 1.0.5
+      media-typer: 1.1.0
+      mime-types: 3.0.1
 
   typed-array-buffer@1.0.3:
     dependencies:
