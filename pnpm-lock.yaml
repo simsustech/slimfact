@@ -42,6 +42,9 @@ importers:
       '@fastify/middie':
         specifier: 9.0.3
         version: 9.0.3
+      '@fastify/one-line-logger':
+        specifier: ^2.0.2
+        version: 2.0.2
       '@fastify/static':
         specifier: 8.1.1
         version: 8.1.1
@@ -180,7 +183,7 @@ importers:
         version: 6.3.5(@types/node@22.15.18)(jiti@2.4.2)(sass@1.87.0)(terser@5.39.0)(yaml@2.7.1)
       vitrify:
         specifier: ^0.22.0
-        version: 0.22.0(@babel/parser@7.27.2)(@fastify/static@8.1.1)(@types/node@22.15.18)(animate.css@4.1.1)(fastify@5.3.3)(jiti@2.4.2)(postcss@8.5.3)(quasar@2.18.1)(rollup@4.39.0)(terser@5.39.0)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3))(workbox-build@7.3.0)(yaml@2.7.1)
+        version: 0.22.0(@babel/parser@7.27.2)(@fastify/static@8.1.1)(@types/node@22.15.18)(animate.css@4.1.1)(fastify@5.3.3)(jiti@2.4.2)(postcss@8.5.3)(quasar@2.18.1)(rollup@2.79.2)(terser@5.39.0)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3))(workbox-build@7.3.0)(yaml@2.7.1)
       vue:
         specifier: 3.5.14
         version: 3.5.14(typescript@5.8.3)
@@ -328,7 +331,7 @@ importers:
         version: 1.0.0(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(sass@1.87.0)(terser@5.39.0)(yaml@2.7.1))(workbox-build@7.3.0)(workbox-window@7.3.0)
       vitrify:
         specifier: ^0.22.0
-        version: 0.22.0(@babel/parser@7.27.2)(@fastify/static@8.1.1)(@types/node@22.15.18)(animate.css@4.1.1)(fastify@5.3.3)(jiti@2.4.2)(postcss@8.5.3)(quasar@2.18.1)(rollup@2.79.2)(terser@5.39.0)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3))(workbox-build@7.3.0)(yaml@2.7.1)
+        version: 0.22.0(@babel/parser@7.27.2)(@fastify/static@8.1.1)(@types/node@22.15.18)(animate.css@4.1.1)(fastify@5.3.3)(jiti@2.4.2)(postcss@8.5.3)(quasar@2.18.1)(rollup@4.39.0)(terser@5.39.0)(typescript@5.8.3)(vue-router@4.5.1(vue@3.5.14(typescript@5.8.3)))(vue@3.5.14(typescript@5.8.3))(workbox-build@7.3.0)(yaml@2.7.1)
       vue:
         specifier: 3.5.14
         version: 3.5.14(typescript@5.8.3)
@@ -4882,6 +4885,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch-native@1.6.6:
     resolution: {integrity: sha512-8Mc2HhqPdlIfedsuZoc3yioPuzp6b+L5jRCRY1QzuWZh2EGJVQrGppC6V6cF0bLdbW0+O2YpqCA25aF/1lvipQ==}
@@ -6689,10 +6693,10 @@ snapshots:
       '@babel/helper-compilation-targets': 7.27.0
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.10)
       '@babel/helpers': 7.27.0
-      '@babel/parser': 7.27.0
+      '@babel/parser': 7.27.2
       '@babel/template': 7.27.0
       '@babel/traverse': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
       convert-source-map: 2.0.0
       debug: 4.4.0
       gensync: 1.0.0-beta.2
@@ -6711,7 +6715,7 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@7.25.9':
     dependencies:
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
 
   '@babel/helper-compilation-targets@7.27.0':
     dependencies:
@@ -6755,14 +6759,14 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.25.9':
     dependencies:
       '@babel/traverse': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-module-imports@7.25.9':
     dependencies:
       '@babel/traverse': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
     transitivePeerDependencies:
       - supports-color
 
@@ -6770,14 +6774,14 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-module-imports': 7.25.9
-      '@babel/helper-validator-identifier': 7.25.9
+      '@babel/helper-validator-identifier': 7.27.1
       '@babel/traverse': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-optimise-call-expression@7.25.9':
     dependencies:
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
 
   '@babel/helper-plugin-utils@7.26.5': {}
 
@@ -6802,7 +6806,7 @@ snapshots:
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9':
     dependencies:
       '@babel/traverse': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
     transitivePeerDependencies:
       - supports-color
 
@@ -6820,14 +6824,14 @@ snapshots:
     dependencies:
       '@babel/template': 7.27.0
       '@babel/traverse': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helpers@7.27.0':
     dependencies:
       '@babel/template': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
 
   '@babel/parser@7.27.0':
     dependencies:
@@ -7054,7 +7058,7 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.10)
       '@babel/helper-plugin-utils': 7.26.5
-      '@babel/helper-validator-identifier': 7.25.9
+      '@babel/helper-validator-identifier': 7.27.1
       '@babel/traverse': 7.27.0
     transitivePeerDependencies:
       - supports-color
@@ -7290,7 +7294,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
-      '@babel/types': 7.27.0
+      '@babel/types': 7.27.1
       esutils: 2.0.3
 
   '@babel/runtime@7.27.0':
