@@ -137,14 +137,6 @@
                   <q-item-label> {{ lang.subscription.title }} </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-item to="/admin/exports">
-                <q-item-section avatar>
-                  <q-icon name="download" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.exports.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
               <q-expansion-item
                 ref="settingsExpansionItemRef"
                 :label="lang.administrator"
@@ -188,6 +180,14 @@
                 <q-item to="/settings/accounts">
                   <q-item-section>
                     <q-item-label> Accounts </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item to="/admin/exports">
+                  <q-item-section avatar>
+                    <q-icon name="download" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> {{ lang.exports.title }} </q-item-label>
                   </q-item-section>
                 </q-item>
               </q-expansion-item>
