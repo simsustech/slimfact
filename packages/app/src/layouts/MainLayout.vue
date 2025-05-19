@@ -12,6 +12,7 @@
             v-model="language"
             :language-imports="languageImports"
             :locales="languageLocales"
+            borderless
           />
 
           <user-menu-button

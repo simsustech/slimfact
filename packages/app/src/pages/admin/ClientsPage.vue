@@ -39,7 +39,12 @@
       />
     </div> -->
 
-    <responsive-dialog ref="updateDialogRef" persistent @submit="update">
+    <responsive-dialog
+      padding
+      ref="updateDialogRef"
+      persistent
+      @submit="update"
+    >
       <client-form
         ref="updateClientFormRef"
         :filtered-accounts="filteredAccounts"
@@ -47,7 +52,12 @@
         @filter:accounts="onFilterAccounts"
       ></client-form>
     </responsive-dialog>
-    <responsive-dialog ref="createDialogRef" persistent @submit="create">
+    <responsive-dialog
+      padding
+      ref="createDialogRef"
+      persistent
+      @submit="create"
+    >
       <client-form
         ref="createClientFormRef"
         :filtered-accounts="filteredAccounts"

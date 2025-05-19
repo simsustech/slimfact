@@ -49,7 +49,12 @@
       />
     </div>
 
-    <responsive-dialog ref="updateDialogRef" persistent @submit="update">
+    <responsive-dialog
+      padding
+      ref="updateDialogRef"
+      persistent
+      @submit="update"
+    >
       <invoice-form
         ref="updateInvoiceFormRef"
         :filtered-companies="filteredCompanies"
@@ -60,7 +65,12 @@
         @filter:clients="onFilterClients"
       ></invoice-form>
     </responsive-dialog>
-    <responsive-dialog ref="createDialogRef" persistent @submit="create">
+    <responsive-dialog
+      padding
+      ref="createDialogRef"
+      persistent
+      @submit="create"
+    >
       <invoice-form
         ref="createInvoiceFormRef"
         :filtered-companies="filteredCompanies"
@@ -72,6 +82,7 @@
       ></invoice-form>
     </responsive-dialog>
     <responsive-dialog
+      padding
       ref="sendInvoiceDialogRef"
       button-type="send"
       persistent

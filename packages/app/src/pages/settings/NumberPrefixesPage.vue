@@ -17,13 +17,23 @@
       </q-list>
     </div>
 
-    <responsive-dialog ref="updateDialogRef" persistent @submit="update">
+    <responsive-dialog
+      padding
+      ref="updateDialogRef"
+      persistent
+      @submit="update"
+    >
       <number-prefix-form
         ref="updateNumberPrefixFormRef"
         @submit="updateNumberPrefix"
       ></number-prefix-form>
     </responsive-dialog>
-    <responsive-dialog ref="createDialogRef" persistent @submit="create">
+    <responsive-dialog
+      padding
+      ref="createDialogRef"
+      persistent
+      @submit="create"
+    >
       <number-prefix-form
         ref="createNumberPrefixFormRef"
         @submit="createNumberPrefix"

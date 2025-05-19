@@ -17,7 +17,12 @@
       </q-list>
     </div>
 
-    <responsive-dialog ref="updateDialogRef" persistent @submit="update">
+    <responsive-dialog
+      padding
+      ref="updateDialogRef"
+      persistent
+      @submit="update"
+    >
       <initial-number-for-prefix-form
         ref="updateInitialNumberForPrefixFormRef"
         :filtered-companies="filteredCompanies"
@@ -25,7 +30,12 @@
         @filter:companies="onFilterCompanies"
       ></initial-number-for-prefix-form>
     </responsive-dialog>
-    <responsive-dialog ref="createDialogRef" persistent @submit="create">
+    <responsive-dialog
+      padding
+      ref="createDialogRef"
+      persistent
+      @submit="create"
+    >
       <initial-number-for-prefix-form
         ref="createInitialNumberForPrefixFormRef"
         :filtered-companies="filteredCompanies"

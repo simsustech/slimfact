@@ -44,6 +44,7 @@
   </resource-page>
 
   <responsive-dialog
+    padding
     ref="sendInvoiceDialogRef"
     persistent
     @submit="sendInvoice"

@@ -51,7 +51,12 @@
       />
     </div>
 
-    <responsive-dialog ref="updateDialogRef" persistent @submit="update">
+    <responsive-dialog
+      padding
+      ref="updateDialogRef"
+      persistent
+      @submit="update"
+    >
       <subscription-form
         ref="updateSubscriptionFormRef"
         :filtered-companies="filteredCompanies"
@@ -62,7 +67,12 @@
         @filter:clients="onFilterClients"
       ></subscription-form>
     </responsive-dialog>
-    <responsive-dialog ref="createDialogRef" persistent @submit="create">
+    <responsive-dialog
+      padding
+      ref="createDialogRef"
+      persistent
+      @submit="create"
+    >
       <subscription-form
         ref="createSubscriptionFormRef"
         :filtered-companies="filteredCompanies"

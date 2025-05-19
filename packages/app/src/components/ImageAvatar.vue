@@ -25,7 +25,7 @@
       @update:model-value="setImage"
     />
   </div>
-  <responsive-dialog ref="imageDialog" persistent display>
+  <responsive-dialog padding ref="imageDialog" persistent display>
     <base64-image class="text-center" :model-value="modelValue" />
   </responsive-dialog>
 </template>

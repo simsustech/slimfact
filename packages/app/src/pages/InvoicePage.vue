@@ -206,7 +206,7 @@
     </q-scroll-area>
   </div>
 
-  <responsive-dialog ref="bankTransferDialogRef" display>
+  <responsive-dialog padding ref="bankTransferDialogRef" display>
     <div v-if="invoice">
       {{ lang.payment.messages.scanQrOrUseInformationBelow }}
       <div

@@ -62,6 +62,7 @@
           v-model="modelValue.locale"
           :disable="!modelValue.companyId"
           :locales="languageLocales"
+          :borderless="false"
           required
           class="col-md-4 col-12"
           bottom-slots
@@ -172,7 +173,12 @@
     </div>
   </q-form>
 
-  <responsive-dialog ref="updateDialogRef" persistent @submit="submitClient">
+  <responsive-dialog
+    padding
+    ref="updateDialogRef"
+    persistent
+    @submit="submitClient"
+  >
     <client-form ref="updateClientFormRef" @submit="updateClient"></client-form>
   </responsive-dialog>
 </template>

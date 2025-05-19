@@ -16,14 +16,24 @@
       />
     </div>
 
-    <responsive-dialog ref="updateDialogRef" persistent @submit="update">
+    <responsive-dialog
+      padding
+      ref="updateDialogRef"
+      persistent
+      @submit="update"
+    >
       <company-form
         ref="updateCompanyFormRef"
         :filtered-number-prefixes="numberPrefixes"
         @submit="updateCompany"
       ></company-form>
     </responsive-dialog>
-    <responsive-dialog ref="createDialogRef" persistent @submit="create">
+    <responsive-dialog
+      padding
+      ref="createDialogRef"
+      persistent
+      @submit="create"
+    >
       <company-form
         ref="createCompanyFormRef"
         :filtered-number-prefixes="numberPrefixes"
