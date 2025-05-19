@@ -52,6 +52,7 @@
         />
         <locale-select
           v-model="modelValue.locale"
+          :locales="languageLocales"
           required
           class="col-md-4 col-12"
           bottom-slots
@@ -248,6 +249,17 @@ const initialValue: Subscription = {
 const modelValue = ref<Subscription>(initialValue)
 
 const lang = useLang()
+
+const languageLocales = ref([
+  {
+    icon: 'i-flagpack-nl',
+    isoName: 'nl'
+  },
+  {
+    icon: 'i-flagpack-us',
+    isoName: 'en-US'
+  }
+])
 
 const filterCompanies: InstanceType<
   typeof CompanySelect

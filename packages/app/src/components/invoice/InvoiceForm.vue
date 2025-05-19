@@ -61,6 +61,7 @@
         <locale-select
           v-model="modelValue.locale"
           :disable="!modelValue.companyId"
+          :locales="languageLocales"
           required
           class="col-md-4 col-12"
           bottom-slots
@@ -265,6 +266,17 @@ const { filteredCompanies, filteredClients } = toRefs(props)
 const modelValue = ref<Invoice>(initialValue)
 
 const lang = useLang()
+
+const languageLocales = ref([
+  {
+    icon: 'i-flagpack-nl',
+    isoName: 'nl'
+  },
+  {
+    icon: 'i-flagpack-us',
+    isoName: 'en-US'
+  }
+])
 
 const filterCompanies: InstanceType<
   typeof CompanySelect

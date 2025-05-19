@@ -175,6 +175,7 @@
       <locale-select
         v-model="modelValue.defaultLocale"
         :label="lang.company.fields.defaultLocale"
+        :locales="languageLocales"
         class="col-md-3 col-12"
         bottom-slots
         lazy-rules
@@ -260,6 +261,17 @@ const modelValue = ref<Company>(initialValue)
 
 // const $q = useQuasar()
 const lang = useLang()
+
+const languageLocales = ref([
+  {
+    icon: 'i-flagpack-nl',
+    isoName: 'nl'
+  },
+  {
+    icon: 'i-flagpack-us',
+    isoName: 'en-US'
+  }
+])
 
 const formRef = ref<QForm>()
 
