@@ -238,7 +238,7 @@ importers:
         specifier: ^0.3.7
         version: 0.3.7(kysely@0.28.2)
       '@modular-api/fastify-checkout':
-        specifier: ^0.4.21
+        specifier: ^0.4.22
         version: 0.4.22(kysely@0.28.2)
       '@modular-api/quasar-components':
         specifier: ^0.3.17
