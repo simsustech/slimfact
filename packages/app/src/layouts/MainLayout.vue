@@ -11,6 +11,7 @@
           <q-language-select
             v-model="language"
             :language-imports="languageImports"
+            :locales="languageLocales"
           />
 
           <user-menu-button
@@ -244,8 +245,6 @@ import { useLang, loadLang } from '../lang/index.js'
 import { useConfiguration, loadConfiguration } from '../configuration'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
 
-import type { QuasarLanguage } from 'quasar'
-
 const configuration = useConfiguration()
 
 const router = useRouter()
@@ -272,20 +271,25 @@ const userRoute = {
 }
 
 const title = computed(() => configuration.value.TITLE)
+
 const language = ref($q.lang.isoName)
 
-const quasarLang = import.meta.glob<{ default: QuasarLanguage }>(
-  '../../node_modules/quasar/lang/*.js'
-)
+const languageLocales = ref([
+  {
+    icon: 'i-flagpack-nl',
+    isoName: 'nl'
+  },
+  {
+    icon: 'i-flagpack-us',
+    isoName: 'en-US'
+  }
+])
 
 // prettier-ignore
-const languageImports = ref(
-  Object.entries(quasarLang).reduce((acc, [key, value]) => {
-    const langKey = key.split('/').at(-1)?.split('.').at(0)
-    if (langKey) acc[langKey] = value
-    return acc
-  }, {} as Record<string, () => Promise<{ default: QuasarLanguage }>>)
-)
+const languageImports = ref({
+  nl: () => import(`../../node_modules/quasar/lang/nl.js`),
+  'en-US': () => import(`../../node_modules/quasar/lang/en-US.js`)
+})
 
 if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
 watch($q.lang, () => {

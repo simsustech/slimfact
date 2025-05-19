@@ -30,8 +30,7 @@
                 loading="eager"
                 style="max-width: 100px"
                 :img-style="{ overflow: 'visible', width: '100%' }"
-                :src="logoUrl"
-                placeholder-src="~assets/logo.svg"
+                :src="logo"
               />
             </div>
           </template>
@@ -59,12 +58,14 @@ import { LoginButton } from '@simsustech/quasar-components/authentication'
 import { QStyledCard } from '@simsustech/quasar-components'
 import { useConfiguration } from '../configuration.js'
 import { useLang } from '../lang/index.js'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import petboardingLogo from '../assets/logo.svg'
+
 const configuration = useConfiguration()
 const lang = useLang()
+const logo = ref(petboardingLogo)
 
 const title = computed(() => configuration.value.TITLE)
-const logoUrl = `./logo.svg`
 const login = () => {
   if (oAuthClient.value) oAuthClient.value.signIn({})
 }
