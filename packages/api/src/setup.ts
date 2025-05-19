@@ -21,11 +21,15 @@ import {
 } from '@modular-api/fastify-checkout'
 import { initialize } from './pgboss.js'
 import type { ClientMetadata } from 'oidc-provider'
+import { generateTheme } from 'unocss-preset-quasar/theme'
 
 const getString = (str: string) => str
 // @ts-expect-error vitrify variable
 const host = getString(__HOST__)
 
+const theme = generateTheme(
+  env.read('SOURCE_COLOR') || env.read('VITE_SOURCE_COLOR') || '#00a4e6'
+)
 const sassVariables = {
   $primary:
     env.read('SASS_VARIABLE_PRIMARY') || env.read('VITE_SASS_VARIABLE_PRIMARY'),
@@ -229,6 +233,7 @@ export default async function (fastify: FastifyInstance) {
       issuerName:
         env.read('OIDC_ISSUER_NAME') || env.read('VITE_OIDC_ISSUER_NAME'),
       locale: env.read('VITE_LANG') || 'en-US',
+      themeColors: theme['colors'],
       sassVariables,
       issuer: `https://${hostname}`,
       accountMethods,
