@@ -33,6 +33,7 @@ app.get(
       })
       await page.goto(`https://${host}/invoice/${uuid}`)
       await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('domcontentloaded')
 
       const download = await page.pdf({
         format: 'A4',
