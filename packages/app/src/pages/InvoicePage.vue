@@ -187,17 +187,21 @@
     </q-header>
 
     <q-page-container>
-      <q-scroll-area class="no-print" style="height: 210mm; max-width: 210mm">
-        <invoice-page
-          v-if="invoice"
-          id="invoice"
-          ref="invoiceRef"
-          :model-value="invoice"
-          :include-tax="
-            [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
-          "
-        />
-      </q-scroll-area>
+      <div class="row justify-center">
+        <q-scroll-area class="no-print" style="height: 210mm; width: 212mm">
+          <invoice-page
+            v-if="invoice"
+            id="invoice"
+            ref="invoiceRef"
+            :model-value="invoice"
+            :include-tax="
+              [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+                invoice.status
+              )
+            "
+          />
+        </q-scroll-area>
+      </div>
 
       <invoice-page
         v-if="invoice"
