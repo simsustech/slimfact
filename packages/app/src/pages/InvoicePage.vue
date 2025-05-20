@@ -471,6 +471,7 @@ onMounted(async () => {
 <style>
 @page {
   size: a4;
+  margin-top: 15mm;
   margin-left: 15mm;
 }
 @media print {
