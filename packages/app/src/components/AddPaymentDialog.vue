@@ -18,7 +18,11 @@
             "
           >
             <template #append>
-              <q-btn icon="paid" outline @click="amount = totalIncludingTax" />
+              <q-btn
+                icon="i-mdi-dollar"
+                outline
+                @click="amount = totalIncludingTax"
+              />
             </template>
           </q-input>
           <q-input

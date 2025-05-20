@@ -25,7 +25,7 @@
         <template #append>
           <q-btn
             v-if="modelValue.clientDetails?.email && !modelValue.clientId"
-            icon="edit"
+            icon="i-mdi-edit"
             flat
             @click.stop="openUpdateClientDialog"
           />
@@ -62,6 +62,7 @@
           v-model="modelValue.locale"
           :disable="!modelValue.companyId"
           :locales="languageLocales"
+          filled
           :borderless="false"
           required
           class="col-md-4 col-12"
@@ -115,7 +116,7 @@
       </div>
       <div class="row items-center">
         {{ lang.invoice.lines }}
-        <q-btn flat round icon="add" @click="addLine" />
+        <q-btn flat round icon="i-mdi-add" @click="addLine" />
       </div>
 
       <q-list separator>
@@ -133,7 +134,7 @@
 
       <div class="row items-center">
         {{ lang.invoice.discounts }}
-        <q-btn flat round icon="add" @click="addDiscount" />
+        <q-btn flat round icon="i-mdi-add" @click="addDiscount" />
       </div>
       <q-list separator>
         <invoice-line-item
@@ -150,7 +151,7 @@
 
       <div class="row items-center">
         {{ lang.invoice.surcharges }}
-        <q-btn flat round icon="add" @click="addSurcharge" />
+        <q-btn flat round icon="i-mdi-add" @click="addSurcharge" />
       </div>
       <q-list separator>
         <invoice-line-item
@@ -174,6 +175,7 @@
   </q-form>
 
   <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
     padding
     ref="updateDialogRef"
     persistent

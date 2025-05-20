@@ -20,6 +20,10 @@
           defaultView: 'Years',
           firstDayOfWeek: '1'
         }"
+        :icons="{
+          event: 'i-mdi-event',
+          clear: 'i-mdi-clear'
+        }"
       />
       <date-input
         v-model="endDate"
@@ -32,13 +36,17 @@
           defaultView: 'Years',
           firstDayOfWeek: '1'
         }"
+        :icons="{
+          event: 'i-mdi-event',
+          clear: 'i-mdi-clear'
+        }"
       />
     </div>
     <q-list>
       <q-item>
         <q-item-section> DigiBoox </q-item-section>
         <q-item-section side>
-          <q-btn icon="download" @click="downloadDigibooxInvoices" />
+          <q-btn icon="i-mdi-download" @click="downloadDigibooxInvoices" />
         </q-item-section>
       </q-item>
     </q-list>

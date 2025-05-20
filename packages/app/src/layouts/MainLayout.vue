@@ -4,34 +4,37 @@
       <q-header elevated>
         <q-toolbar>
           <q-btn flat dense round aria-label="Menu" @click="toggleLeftDrawer">
-            <q-icon :name="matMenu" />
+            <q-icon name="i-mdi-menu" />
           </q-btn>
 
           <q-toolbar-title> {{ title }} </q-toolbar-title>
-          <q-language-select
-            v-model="language"
-            :language-imports="languageImports"
-            :locales="languageLocales"
-            borderless
-          />
 
           <user-menu-button
             v-if="user"
             color="accent"
+            :icons="{
+              person: 'i-mdi-person'
+            }"
             :user-route="userRoute"
             @sign-out="logout"
           />
           <login-button v-else color="accent" @click="login" />
-          <q-btn icon="more_vert" flat>
+          <q-btn icon="i-mdi-more-vert" flat>
             <q-menu>
               <q-list>
-                <q-item clickable href="/privacypolicy.pdf" target="_blank">
+                <q-language-select
+                  v-model="language"
+                  :language-imports="languageImports"
+                  :locales="languageLocales"
+                  borderless
+                />
+                <!-- <q-item clickable href="/privacypolicy.pdf" target="_blank">
                   <q-item-section>
                     <q-item-label>
                       {{ lang.privacyPolicy }}
                     </q-item-label>
                   </q-item-section>
-                </q-item>
+                </q-item> -->
               </q-list>
             </q-menu>
           </q-btn>
@@ -52,7 +55,7 @@
             >
               <template #header>
                 <q-item-section avatar>
-                  <q-icon name="person" />
+                  <q-icon name="i-mdi-person" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-section>
@@ -60,25 +63,27 @@
                   </q-item-section>
                 </q-item-section>
               </template>
-              <q-item to="/account/bills">
-                <q-item-section avatar>
-                  <q-icon name="request_quote" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.bill.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item to="/account/receipts">
-                <q-item-section avatar>
-                  <q-icon name="receipt" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ lang.receipt.title }} </q-item-label>
-                </q-item-section>
-              </q-item>
+              <q-expansion-item to="/account/bills">
+                <template #header>
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-receipt-outline" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> {{ lang.bill.title }} </q-item-label>
+                  </q-item-section>
+                </template>
+                <q-item to="/account/receipts">
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-receipt" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> {{ lang.receipt.title }} </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-expansion-item>
               <q-item to="/account/invoices">
                 <q-item-section avatar>
-                  <q-icon name="receipt_long" />
+                  <q-icon name="i-mdi-invoice" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label> {{ lang.invoice.title }} </q-item-label>
@@ -91,7 +96,7 @@
             >
               <template #header>
                 <q-item-section avatar>
-                  <q-icon name="admin_panel_settings" />
+                  <q-icon name="i-mdi-account-cog" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label> {{ lang.administrator }} </q-item-label>
@@ -99,7 +104,7 @@
               </template>
               <q-item to="/admin/clients">
                 <q-item-section avatar>
-                  <q-icon name="people" />
+                  <q-icon name="i-mdi-person" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label> {{ lang.client.title }} </q-item-label>
@@ -108,7 +113,7 @@
               <q-expansion-item to="/admin/bills">
                 <template #header>
                   <q-item-section avatar>
-                    <q-icon name="request_quote" />
+                    <q-icon name="i-mdi-receipt-outline" />
                   </q-item-section>
                   <q-item-section>
                     <q-item-label> {{ lang.bill.title }} </q-item-label>
@@ -116,7 +121,7 @@
                 </template>
                 <q-item to="/admin/receipts">
                   <q-item-section avatar>
-                    <q-icon name="receipt" />
+                    <q-icon name="i-mdi-receipt" />
                   </q-item-section>
                   <q-item-section>
                     <q-item-label> {{ lang.receipt.title }} </q-item-label>
@@ -125,7 +130,7 @@
               </q-expansion-item>
               <q-item to="/admin/invoices">
                 <q-item-section avatar>
-                  <q-icon name="receipt_long" />
+                  <q-icon name="i-mdi-invoice" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label> {{ lang.invoice.title }} </q-item-label>
@@ -133,7 +138,7 @@
               </q-item>
               <q-item to="/admin/subscriptions">
                 <q-item-section avatar>
-                  <q-icon name="subscriptions" />
+                  <q-icon name="i-mdi-subscriptions" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label> {{ lang.subscription.title }} </q-item-label>
@@ -148,7 +153,7 @@
               >
                 <template #header>
                   <q-item-section avatar>
-                    <q-icon name="settings" />
+                    <q-icon name="i-mdi-account-settings" />
                   </q-item-section>
                   <q-item-section>
                     <q-item-label> {{ lang.settings }} </q-item-label>
@@ -185,9 +190,6 @@
                   </q-item-section>
                 </q-item>
                 <q-item to="/admin/exports">
-                  <q-item-section avatar>
-                    <q-icon name="download" />
-                  </q-item-section>
                   <q-item-section>
                     <q-item-label> {{ lang.exports.title }} </q-item-label>
                   </q-item-section>
@@ -195,11 +197,9 @@
               </q-expansion-item>
             </q-expansion-item>
 
-            <q-separator />
-
             <q-item to="/" exact>
               <q-item-section avatar>
-                <q-icon color="primary" name="home" />
+                <q-icon color="primary" name="i-mdi-home" />
               </q-item-section>
 
               <q-item-section>
@@ -232,7 +232,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import { useQuasar } from 'quasar'
-import { matMenu } from '@quasar/extras/material-icons'
 import {
   LoginButton,
   UserMenuButton

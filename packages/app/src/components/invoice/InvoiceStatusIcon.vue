@@ -12,12 +12,12 @@ import { useLang } from '../../lang/index.js'
 import { InvoiceStatus } from '@slimfact/api/zod'
 
 const InvoiceStatusIcons = {
-  [InvoiceStatus.OPEN]: 'pending',
-  [InvoiceStatus.PAID]: 'paid',
-  [InvoiceStatus.CONCEPT]: 'edit_note',
-  [InvoiceStatus.RECEIPT]: 'receipt',
-  [InvoiceStatus.CANCELED]: 'cancel',
-  [InvoiceStatus.BILL]: 'request_quote'
+  [InvoiceStatus.OPEN]: 'i-mdi-receipt-pending',
+  [InvoiceStatus.PAID]: 'i-mdi-dollar',
+  [InvoiceStatus.CONCEPT]: 'i-mdi-note-edit',
+  [InvoiceStatus.RECEIPT]: 'i-mdi-receipt',
+  [InvoiceStatus.CANCELED]: 'i-mdi-cancel',
+  [InvoiceStatus.BILL]: 'i-mdi-receipt-outline'
 }
 const InvoiceStatusColors = {
   [InvoiceStatus.OPEN]: 'orange',

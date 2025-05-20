@@ -54,6 +54,7 @@
           v-model="modelValue.locale"
           :locales="languageLocales"
           required
+          filled
           class="col-md-4 col-12"
           bottom-slots
           lazy-rules
@@ -84,6 +85,10 @@
             options: futureDateOptionsFn,
             firstDayOfWeek: '1'
           }"
+          :icons="{
+            event: 'i-mdi-event',
+            clear: 'i-mdi-clear'
+          }"
         />
         <date-input
           v-model="modelValue.endDate"
@@ -97,15 +102,22 @@
             options: (date) => futureDateOptionsFn(date, modelValue.startDate),
             firstDayOfWeek: '1'
           }"
+          :icons="{
+            event: 'i-mdi-event',
+            clear: 'i-mdi-clear'
+          }"
         />
         <cron-schedule-input
           v-model="modelValue.cronSchedule"
           class="col-md-4 col-12"
+          show-minute
+          show-hour
+          show-day-of-week
         />
       </div>
       <div class="row items-center">
         {{ lang.invoice.lines }}
-        <q-btn flat round icon="add" @click="addLine" />
+        <q-btn flat round icon="i-mdi-add" @click="addLine" />
       </div>
 
       <q-list separator>
@@ -123,7 +135,7 @@
 
       <div class="row items-center">
         {{ lang.invoice.discounts }}
-        <q-btn flat round icon="add" @click="addDiscount" />
+        <q-btn flat round icon="i-mdi-add" @click="addDiscount" />
       </div>
       <q-list separator>
         <invoice-line-item
@@ -140,7 +152,7 @@
 
       <div class="row items-center">
         {{ lang.invoice.surcharges }}
-        <q-btn flat round icon="add" @click="addSurcharge" />
+        <q-btn flat round icon="i-mdi-add" @click="addSurcharge" />
       </div>
       <q-list separator>
         <invoice-line-item

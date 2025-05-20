@@ -4,13 +4,16 @@
       <q-styled-card v-if="user">
         <q-item>
           <q-item-section avatar>
-            <q-icon name="person"></q-icon>
+            <q-icon name="i-mdi-person"></q-icon>
           </q-item-section>
 
           <q-item-section>
             <q-item-label
               >{{ user.email }}
-              <q-icon name="check" :color="user.verified ? 'green' : 'grey'">
+              <q-icon
+                name="i-mdi-check"
+                :color="user.verified ? 'green' : 'grey'"
+              >
                 <q-tooltip>
                   {{ user.verified ? 'Email verified' : 'Email not verified' }}
                 </q-tooltip>

@@ -1,5 +1,6 @@
 <template>
   <resource-page
+    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
     type="create"
     @create="openCreateDialog"
     @update="openUpdateDialog"
@@ -8,7 +9,7 @@
       {{ lang.client.title }}
     </template>
     <template #header-side>
-      <q-btn icon="search">
+      <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <q-input v-model="name" :label="lang.name" :debounce="300" />
         </q-menu>
@@ -40,6 +41,7 @@
     </div> -->
 
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="updateDialogRef"
       persistent
@@ -53,6 +55,7 @@
       ></client-form>
     </responsive-dialog>
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="createDialogRef"
       persistent
