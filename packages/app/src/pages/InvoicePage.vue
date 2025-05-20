@@ -188,7 +188,7 @@
 
     <q-page-container>
       <div class="row justify-center">
-        <q-scroll-area class="no-print" style="height: 210mm; width: 212mm">
+        <q-scroll-area class="no-print" style="height: 297mm; width: 212mm">
           <invoice-page
             v-if="invoice"
             id="invoice"
@@ -207,7 +207,7 @@
         v-if="invoice"
         id="invoice"
         ref="invoiceRef"
-        class="hidden print:!block"
+        class="invisible print:!visible"
         :model-value="invoice"
         :include-tax="
           [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
