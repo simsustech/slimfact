@@ -1,5 +1,6 @@
 <template>
   <resource-page
+    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
     style="min-height: inherit"
     type="create"
     @create="openCreateDialog"
@@ -9,7 +10,7 @@
       {{ lang.invoice.title }}
     </template>
     <template #header-side>
-      <q-btn icon="search">
+      <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <invoice-status-select v-model="status" />
 
@@ -50,6 +51,7 @@
     </div>
 
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="updateDialogRef"
       persistent
@@ -66,6 +68,7 @@
       ></invoice-form>
     </responsive-dialog>
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="createDialogRef"
       persistent
@@ -82,6 +85,7 @@
       ></invoice-form>
     </responsive-dialog>
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="sendInvoiceDialogRef"
       button-type="send"

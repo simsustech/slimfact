@@ -17,7 +17,7 @@
       <q-item-label>
         <q-btn
           v-if="showUpdateButton"
-          icon="edit"
+          icon="i-mdi-edit"
           @click="update(modelValue)"
         />
       </q-item-label>

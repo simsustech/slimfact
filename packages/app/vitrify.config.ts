@@ -1,7 +1,7 @@
 import type { VitrifyConfig } from 'vitrify'
 import { QuasarPlugin, type QuasarPluginOptions } from 'vitrify/plugins'
 import { QuasarPreset } from 'unocss-preset-quasar'
-import { MaterialDesign2 } from 'unocss-preset-quasar/styles'
+import { MaterialDesign3 } from 'unocss-preset-quasar/styles'
 import { certificateFor } from 'devcert'
 import QuasarComponentsPlugin from '@simsustech/quasar-components/vite-plugin'
 import ModularApiQuasarComponentsPlugin from '@modular-api/quasar-components/vite-plugin'
@@ -152,14 +152,12 @@ const iconifyJsonIconSet = {
 const quasarConf: QuasarPluginOptions = {
   framework: {
     plugins: ['Dialog', 'Notify', 'Loading', 'Meta'],
-    iconSet: 'material-icons'
-    // iconSet: iconifyJsonIconSet
+    iconSet: iconifyJsonIconSet
   },
-  extras: ['material-icons'],
   /*
    * Disable SASS if you use UnoCSS
    */
-  disableSass: false
+  disableSass: true
 }
 
 export default async function ({ mode, command }): Promise<VitrifyConfig> {
@@ -186,7 +184,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
       unocss: {
         presets: [
           QuasarPreset({
-            style: MaterialDesign2,
+            style: MaterialDesign3,
             sourceColor: env.VITE_SOURCE_COLOR,
             plugins: quasarConf['framework']['plugins'],
             iconSet: quasarConf['framework']['iconSet']

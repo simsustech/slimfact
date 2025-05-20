@@ -1,232 +1,250 @@
 <template>
-  <div
-    v-if="invoice && invoice.status && invoice.status !== InvoiceStatus.CONCEPT"
-    class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm"
-  >
-    <q-btn-dropdown
-      v-if="
-        invoice &&
-        [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
-        invoice.amountDue &&
-        invoice.amountDue > 0
-      "
-      icon="payment"
-      :label="lang.payment.pay"
-      color="primary"
-    >
-      <q-list>
-        <q-item
-          v-if="configuration.PAYMENT_HANDLERS.ideal"
-          clickable
-          @click="payWithIdeal"
-        >
-          <q-item-section avatar>
-            <q-icon name="fa-brands fa-ideal" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label> iDEAL </q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item
+  <q-layout>
+    <q-header class="no-print">
+      <q-toolbar>
+        <div
           v-if="
-            configuration.PAYMENT_HANDLERS.bankTransfer &&
-            invoice.status === InvoiceStatus.OPEN
+            invoice &&
+            invoice.status &&
+            invoice.status !== InvoiceStatus.CONCEPT
           "
-          clickable
-          @click="openBankTransferDialog"
+          class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm"
         >
-          <q-item-section avatar>
-            <q-icon name="fa-solid fa-money-bill-transfer" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>
-              {{ lang.payment.methods.bankTransfer }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item
+          <q-btn-dropdown
+            v-if="
+              invoice &&
+              [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(
+                invoice.status
+              ) &&
+              invoice.amountDue &&
+              invoice.amountDue > 0
+            "
+            icon="i-mdi-payment"
+            :label="lang.payment.pay"
+            color="primary"
+          >
+            <q-list>
+              <q-item
+                v-if="configuration.PAYMENT_HANDLERS.ideal"
+                clickable
+                @click="payWithIdeal"
+              >
+                <q-item-section avatar>
+                  <q-icon name="i-fa6-brands-ideal" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> iDEAL </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-if="
+                  configuration.PAYMENT_HANDLERS.bankTransfer &&
+                  invoice.status === InvoiceStatus.OPEN &&
+                  qrSvg
+                "
+                clickable
+                @click="openBankTransferDialog"
+              >
+                <q-item-section avatar>
+                  <q-icon name="i-fa6-solid-money-bill-transfer" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    {{ lang.payment.methods.bankTransfer }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-if="
+                  configuration.PAYMENT_HANDLERS.smartpin &&
+                  isMobile &&
+                  user?.roles?.includes('pointofsale')
+                "
+                clickable
+                @click="payWithSmartpin"
+              >
+                <q-item-section avatar>
+                  <q-icon name="i-mdi-credit-card" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> SmartPin </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+
+          <q-btn-dropdown
+            v-if="
+              invoice &&
+              [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(
+                invoice.status
+              ) &&
+              invoice.requiredDownPaymentAmount &&
+              invoice.requiredDownPaymentAmount > (invoice.amountPaid || 0)
+            "
+            icon="i-mdi-payment"
+            :label="`${lang.payment.downPayment} ${format(invoice.requiredDownPaymentAmount - (invoice.amountPaid || 0))}`"
+            color="primary"
+          >
+            <q-list>
+              <q-item
+                v-if="configuration.PAYMENT_HANDLERS.ideal"
+                clickable
+                @click="payDownPaymentWithIdeal"
+              >
+                <q-item-section avatar>
+                  <q-icon name="i-fa6-brands-ideal" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> iDEAL </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+
+          <q-btn
+            v-if="
+              invoice &&
+              invoice.amountDue !== void 0 &&
+              invoice.amountDue !== null &&
+              invoice.amountDue < 0 &&
+              user?.roles?.includes('administrator')
+            "
+            :label="`${lang.refund.refund} ${format(-invoice.amountDue)}`"
+            color="primary"
+            @click="refund"
+          />
+
+          <q-btn
+            v-if="invoice"
+            icon="i-mdi-download"
+            color="primary"
+            download="proposed_file_name"
+            :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${hostname}`"
+          >
+            <q-tooltip class="no-print">
+              {{ lang.invoice.labels.download }}
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            v-if="invoice"
+            icon="i-mdi-printer"
+            color="primary"
+            @click="print"
+          >
+            <q-tooltip class="no-print">
+              {{ lang.invoice.labels.print }}
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            v-if="user?.roles?.includes('administrator')"
+            color="primary"
+            icon="i-mdi-open-in-new"
+            :to="getAdminUrl()"
+          />
+          <q-btn v-else color="primary" icon="i-mdi-home" to="/" />
+        </div>
+        <div
           v-if="
-            configuration.PAYMENT_HANDLERS.smartpin &&
-            isMobile &&
-            user?.roles?.includes('pointofsale')
+            invoice?.amountPaid &&
+            invoice?.amountPaid > 0 &&
+            invoice?.status &&
+            invoice.status !== InvoiceStatus.CONCEPT
           "
-          clickable
-          @click="payWithSmartpin"
+          class="row justify-center no-print"
         >
-          <q-item-section avatar>
-            <q-icon name="credit_card" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label> SmartPin </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
-
-    <q-btn-dropdown
-      v-if="
-        invoice &&
-        [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoice.status) &&
-        invoice.requiredDownPaymentAmount &&
-        invoice.requiredDownPaymentAmount > (invoice.amountPaid || 0)
-      "
-      icon="payment"
-      :label="`${lang.payment.downPayment} ${format(invoice.requiredDownPaymentAmount - (invoice.amountPaid || 0))}`"
-      color="primary"
-    >
-      <q-list>
-        <q-item
-          v-if="configuration.PAYMENT_HANDLERS.ideal"
-          clickable
-          @click="payDownPaymentWithIdeal"
+          {{ lang.payment.amountPaid }}:
+          <price
+            :model-value="invoice.amountPaid"
+            :currency="invoice.currency"
+            :locale="invoice.locale"
+          />
+        </div>
+        <div
+          v-if="invoice?.amountRefunded && invoice?.amountRefunded > 0"
+          class="row justify-center no-print"
         >
-          <q-item-section avatar>
-            <q-icon name="fa-brands fa-ideal" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label> iDEAL </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
+          {{ lang.payment.amountRefunded }}:
+          <price
+            :model-value="invoice.amountRefunded"
+            :currency="invoice.currency"
+            :locale="invoice.locale"
+          />
+        </div>
+        <div
+          v-if="invoice?.amountDue && invoice?.amountDue > 0"
+          class="row justify-center no-print"
+        >
+          {{ lang.payment.amountDue }}:
+          <price
+            :model-value="invoice.amountDue"
+            :currency="invoice.currency"
+            :locale="invoice.locale"
+          />
+        </div>
+      </q-toolbar>
+    </q-header>
 
-    <q-btn
-      v-if="
-        invoice &&
-        invoice.amountDue !== void 0 &&
-        invoice.amountDue !== null &&
-        invoice.amountDue < 0 &&
-        user?.roles?.includes('administrator')
-      "
-      :label="`${lang.refund.refund} ${format(-invoice.amountDue)}`"
-      color="primary"
-      @click="refund"
-    />
+    <q-page-container>
+      <div class="row justify-center">
+        <q-scroll-area class="no-print" style="height: 297mm; width: 212mm">
+          <invoice-page
+            v-if="invoice"
+            id="invoice"
+            ref="invoiceRef"
+            :model-value="invoice"
+            :include-tax="
+              [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+                invoice.status
+              )
+            "
+          />
+        </q-scroll-area>
+      </div>
 
-    <q-btn
-      v-if="user?.roles?.includes('administrator')"
-      color="primary"
-      icon="open_in_new"
-      :to="getAdminUrl()"
-    />
-    <q-btn v-else color="primary" icon="home" to="/" />
-  </div>
-
-  <div v-if="invoice?.status && invoice.status !== InvoiceStatus.CONCEPT">
-    <div
-      v-if="invoice?.amountPaid && invoice?.amountPaid > 0"
-      class="row justify-center no-print"
-    >
-      {{ lang.payment.amountPaid }}:
-      <price
-        :model-value="invoice.amountPaid"
-        :currency="invoice.currency"
-        :locale="invoice.locale"
+      <invoice-page
+        v-if="invoice"
+        id="invoice"
+        ref="invoiceRef"
+        class="invisible print:!visible"
+        :model-value="invoice"
+        :include-tax="
+          [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
+        "
       />
-    </div>
-    <div
-      v-if="invoice?.amountRefunded && invoice?.amountRefunded > 0"
-      class="row justify-center no-print"
-    >
-      {{ lang.payment.amountRefunded }}:
-      <price
-        :model-value="invoice.amountRefunded"
-        :currency="invoice.currency"
-        :locale="invoice.locale"
-      />
-    </div>
-    <div
-      v-if="invoice?.amountDue && invoice?.amountDue > 0"
-      class="row justify-center no-print"
-    >
-      {{ lang.payment.amountDue }}:
-      <price
-        :model-value="invoice.amountDue"
-        :currency="invoice.currency"
-        :locale="invoice.locale"
-      />
-    </div>
-  </div>
-
-  <div v-if="invoice" class="row justify-center q-mt-md">
-    <q-scroll-area id="scroll-area" :style="scrollAreaSize">
-      <q-resize-observer @resize="onResize" />
-      <div
-        v-if="invoice?.status !== InvoiceStatus.CONCEPT"
-        class="column col q-mt-lg"
-        :style="{ position: 'absolute', 'z-index': 10 }"
+      <responsive-dialog
+        :icons="{ close: 'i-mdi-close' }"
+        class="no-print"
+        padding
+        ref="bankTransferDialogRef"
+        display
       >
-        <q-btn
-          v-if="getZoomFraction() < 1"
-          round
-          :icon="zoomFraction === 1 ? 'zoom_out' : 'zoom_in'"
-          size="xl"
-          class="q-ml-lg q-mr-lg q-mb-lg no-print"
-          color="primary"
-          @click="onClickZoom"
-        />
-        <q-btn
-          v-if="invoice"
-          round
-          icon="download"
-          size="xl"
-          class="q-ml-lg q-mr-lg q-mb-lg no-print"
-          color="primary"
-          download="proposed_file_name"
-          :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${hostname}`"
-        >
-          <q-tooltip class="no-print">
-            {{ lang.invoice.labels.download }}
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          v-if="invoice"
-          round
-          size="xl"
-          class="q-ml-lg q-mr-lg no-print"
-          icon="print"
-          color="primary"
-          @click="print"
-        >
-          <q-tooltip class="no-print">
-            {{ lang.invoice.labels.print }}
-          </q-tooltip>
-        </q-btn>
-      </div>
-      <div id="wrapper" :style="{ zoom: zoomFraction, 'z-index': -1 }">
-        <invoice-page
-          id="invoice"
-          ref="invoiceRef"
-          :model-value="invoice"
-          :include-tax="
-            [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
-          "
-        />
-      </div>
-    </q-scroll-area>
-  </div>
-
-  <responsive-dialog padding ref="bankTransferDialogRef" display>
-    <div v-if="invoice">
-      {{ lang.payment.messages.scanQrOrUseInformationBelow }}
-      <div
-        id="qrcode"
-        style="max-width: 5cm; max-height: 5cm"
-        v-html="qrSvg"
-      ></div>
-      <div>
-        {{ lang.company.fields.name }}: {{ invoice?.companyDetails.name }}
-      </div>
-      <div>
-        {{ lang.company.fields.iban }}: {{ invoice?.companyDetails.iban }}
-      </div>
-      <div>
-        {{ lang.company.fields.bic }}: {{ invoice?.companyDetails.bic }}
-      </div>
-      <div>{{ lang.payment.fields.description }}: {{ description }}</div>
-      <price :currency="invoice.currency" :model-value="invoice.amountDue" />
-    </div>
-  </responsive-dialog>
+        <div v-if="invoice && qrSvg">
+          {{ lang.payment.messages.scanQrOrUseInformationBelow }}
+          <div
+            id="qrcode"
+            style="max-width: 5cm; max-height: 5cm"
+            v-html="qrSvg"
+          ></div>
+          <div>
+            {{ lang.company.fields.name }}: {{ invoice?.companyDetails.name }}
+          </div>
+          <div>
+            {{ lang.company.fields.iban }}: {{ invoice?.companyDetails.iban }}
+          </div>
+          <div>
+            {{ lang.company.fields.bic }}: {{ invoice?.companyDetails.bic }}
+          </div>
+          <div>{{ lang.payment.fields.description }}: {{ description }}</div>
+          <price
+            :currency="invoice.currency"
+            :model-value="invoice.amountDue"
+          />
+        </div>
+      </responsive-dialog>
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script setup lang="ts">
@@ -235,7 +253,7 @@ import { createUseTrpc } from '../trpc.js'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
-import { QResizeObserver, useMeta, useQuasar } from 'quasar'
+import { useMeta, useQuasar } from 'quasar'
 import { InvoiceStatus } from '@slimfact/api/zod'
 import { generateEpcQrCodeData } from '@slimfact/tools/epc-qr'
 import { renderSVG } from 'uqr'
@@ -304,16 +322,20 @@ const description = computed(() => {
 
 const qrSvg = computed(() => {
   if (invoice.value) {
-    const data = generateEpcQrCodeData({
-      name: invoice.value.companyDetails.name,
-      bic: invoice.value.companyDetails.bic,
-      iban: invoice.value.companyDetails.iban,
-      amount: invoice.value.amountDue || 0,
-      currency: invoice.value.currency,
-      information: description.value,
-      unstructuredReference: invoice.value.uuid
-    })
-    return renderSVG(data)
+    try {
+      const data = generateEpcQrCodeData({
+        name: invoice.value.companyDetails.name,
+        bic: invoice.value.companyDetails.bic,
+        iban: invoice.value.companyDetails.iban,
+        amount: invoice.value.amountDue || 0,
+        currency: invoice.value.currency,
+        information: description.value,
+        unstructuredReference: invoice.value.uuid
+      })
+      return renderSVG(data)
+    } catch (e) {
+      return null
+    }
   }
   return null
 })
@@ -399,34 +421,6 @@ const isMobile = computed(() => {
   return /Android|iPhone|iPad/i.test(window.navigator.userAgent)
 })
 
-const scrollAreaSize = ref({
-  width: '100%',
-  'max-width': '210mm',
-  height: '200px'
-})
-const minWidth = 210
-const onResize: InstanceType<typeof QResizeObserver>['$props']['onResize'] = (
-  size
-) => {
-  scrollAreaSize.value.width = size.width > minWidth ? '100%' : `${minWidth}px`
-  scrollAreaSize.value.height = `${size.height}px`
-}
-
-const getZoomFraction = () => {
-  const fraction = $q.screen.width / ((210 * 96) / 25.4)
-  if (fraction > 1) return 1
-  return fraction
-}
-const zoomFraction = ref(getZoomFraction())
-
-const onClickZoom = () => {
-  if (zoomFraction.value === 1) {
-    zoomFraction.value = getZoomFraction()
-  } else {
-    zoomFraction.value = 1
-  }
-}
-
 const format = (value: number) =>
   Intl.NumberFormat(invoice.value?.locale || $q.lang.isoName, {
     maximumFractionDigits: 2,
@@ -475,28 +469,25 @@ onMounted(async () => {
 </script>
 
 <style>
+@page {
+  size: a4;
+  margin-top: 15mm;
+  margin-left: 15mm;
+}
 @media print {
-  @page {
-    size: auto;
-    margin: 0mm;
-  }
   .no-print,
   .no-print * {
     display: none !important;
   }
   #invoice {
+    margin-top: -76px;
+    padding: 0;
+    padding: 0 !important;
     border: none !important;
-  }
-  #scroll-area {
-    overflow: auto;
-    width: 210mm !important;
-    height: 292mm !important;
-  }
-  #wrapper {
-    zoom: 1 !important;
   }
 }
 #invoice {
+  padding: 15mm;
   border: 1px solid grey;
 }
 </style>
