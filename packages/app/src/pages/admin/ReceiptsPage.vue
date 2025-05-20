@@ -1,10 +1,10 @@
 <template>
-  <resource-page>
+  <resource-page :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }">
     <template #header>
       {{ lang.receipt.title }}
     </template>
     <template #header-side>
-      <q-btn icon="search">
+      <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
@@ -44,6 +44,7 @@
   </resource-page>
 
   <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
     padding
     ref="sendInvoiceDialogRef"
     persistent

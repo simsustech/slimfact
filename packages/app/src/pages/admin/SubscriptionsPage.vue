@@ -1,5 +1,6 @@
 <template>
   <resource-page
+    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
     type="create"
     @create="openCreateDialog"
     @update="openUpdateDialog"
@@ -13,7 +14,7 @@
         :label="lang.subscription.fields.active"
         left-label
       />
-      <q-btn icon="search">
+      <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
@@ -52,6 +53,7 @@
     </div>
 
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="updateDialogRef"
       persistent
@@ -68,6 +70,7 @@
       ></subscription-form>
     </responsive-dialog>
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="createDialogRef"
       persistent

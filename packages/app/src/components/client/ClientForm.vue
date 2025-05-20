@@ -97,7 +97,7 @@
         @filter="($event) => emit('filter:accounts', $event)"
       >
         <template #prepend>
-          <q-icon name="search" />
+          <q-icon name="i-mdi-search" />
         </template>
       </account-select>
     </div>

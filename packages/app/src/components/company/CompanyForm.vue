@@ -138,7 +138,7 @@
         <template #append>
           <q-icon
             class="clickable"
-            :name="prefixLocked ? 'lock_open' : 'lock'"
+            :name="prefixLocked ? 'i-mdi-lock-open' : 'i-mdi-lock'"
             @click="prefixLocked = !prefixLocked"
           />
         </template>
@@ -176,6 +176,7 @@
         v-model="modelValue.defaultLocale"
         :label="lang.company.fields.defaultLocale"
         :locales="languageLocales"
+        filled
         class="col-md-3 col-12"
         bottom-slots
         lazy-rules

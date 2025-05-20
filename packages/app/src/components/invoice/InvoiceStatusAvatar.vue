@@ -4,12 +4,12 @@
   </q-avatar>
   <q-icon
     v-if="[InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) && paid"
-    name="check"
+    name="i-mdi-check"
     color="green"
     rounded
     size="xs"
     padding="xs"
-    style="position: relative; width: 0; height: 0; right: 16px; bottom: -15px"
+    style="position: relative; right: 16px; bottom: -15px"
     ><q-tooltip>
       {{ lang.invoice.status.paid }}
     </q-tooltip>
@@ -19,12 +19,12 @@
       [InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) &&
       downPaymentReceived
     "
-    name="check"
+    name="i-mdi-check"
     color="orange"
     rounded
     size="xs"
     padding="xs"
-    style="position: relative; width: 0; height: 0; right: 16px; bottom: -15px"
+    style="position: relative; right: 16px; bottom: -15px"
     ><q-tooltip>
       {{ lang.invoice.messages.downPaymentReceived }}
     </q-tooltip>

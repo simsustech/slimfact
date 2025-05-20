@@ -55,7 +55,7 @@
       </q-item-label>
     </q-item-section>
     <q-item-section side>
-      <q-btn flat round icon="more_vert">
+      <q-btn flat round icon="i-mdi-more-vert">
         <q-menu>
           <q-list>
             <q-item
@@ -70,7 +70,7 @@
               clickable
             >
               <q-item-section avatar>
-                <q-icon name="open_in_new" />
+                <q-icon name="i-mdi-open-in-new" />
               </q-item-section>
               <q-item-section>
                 <q-item-label>

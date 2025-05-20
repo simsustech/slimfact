@@ -2,7 +2,9 @@
   <q-styled-card>
     <template #title>
       {{ modelValue.email }}
-      <q-icon :name="modelValue.verified ? 'check' : 'close'"></q-icon>
+      <q-icon
+        :name="modelValue.verified ? 'i-mdi-check' : 'i-mdi-close'"
+      ></q-icon>
     </template>
     <template #default>
       <q-list>

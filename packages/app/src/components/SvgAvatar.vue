@@ -11,7 +11,7 @@
         style="object-fit: contain"
       />
 
-      <q-icon v-else size="lg" name="photo_camera" />
+      <q-icon v-else size="lg" name="i-mdi-camera" />
     </q-avatar>
     <q-btn
       v-if="allowChange"
@@ -21,7 +21,7 @@
       size="xs"
       padding="xs"
       style="position: relative; right: 18px; bottom: -15px"
-      :icon="modelValue ? 'edit' : 'add'"
+      :icon="modelValue ? 'i-mdi-edit' : 'i-mdi-add'"
       @click="pickFiles"
     ></q-btn>
     <q-file
@@ -33,7 +33,13 @@
       @update:model-value="setImage"
     />
   </div>
-  <responsive-dialog padding ref="imageDialog" persistent display>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="imageDialog"
+    persistent
+    display
+  >
     <svg-image class="text-center" :model-value="modelValue" />
   </responsive-dialog>
 </template>

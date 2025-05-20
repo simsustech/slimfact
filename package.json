@@ -50,6 +50,7 @@
     "commit-msg": "pnpm exec commitlint --edit $1"
   },
   "dependencies": {
+    "@modular-api/quasar-components": "link:../modular-api/packages/components",
     "@simsustech/quasar-components": "link:../quasar-components/packages/components"
   }
 }

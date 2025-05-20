@@ -1,5 +1,5 @@
 <template>
-  <resource-page>
+  <resource-page :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }">
     <template #header>
       {{ lang.receipt.title }}
     </template>

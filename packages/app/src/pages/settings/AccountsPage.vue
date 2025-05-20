@@ -6,6 +6,11 @@
     :model-value="accounts"
     :mapped-roles="mappedRoles"
     :count="count"
+    :icons="{
+      search: 'i-mdi-search',
+      cancel: 'i-mdi-cancel',
+      moreVert: 'i-mdi-more-vert'
+    }"
     @add-role="onAddRole"
     @remove-role="onRemoveRole"
   />

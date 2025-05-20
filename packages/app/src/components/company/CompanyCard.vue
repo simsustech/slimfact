@@ -4,7 +4,7 @@
       <div class="row justify-between">
         <svg-avatar :model-value="modelValue.logoSvg" />
         <div class="col text-right">
-          <q-btn outline icon="edit" @click="update(modelValue)"> </q-btn>
+          <q-btn outline icon="i-mdi-edit" @click="update(modelValue)"> </q-btn>
         </div>
       </div>
     </template>

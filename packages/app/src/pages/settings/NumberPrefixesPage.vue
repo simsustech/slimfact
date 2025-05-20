@@ -1,5 +1,6 @@
 <template>
   <resource-page
+    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
     type="create"
     @create="openCreateDialog"
     @update="openUpdateDialog"
@@ -18,6 +19,7 @@
     </div>
 
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="updateDialogRef"
       persistent
@@ -29,6 +31,7 @@
       ></number-prefix-form>
     </responsive-dialog>
     <responsive-dialog
+      :icons="{ close: 'i-mdi-close' }"
       padding
       ref="createDialogRef"
       persistent

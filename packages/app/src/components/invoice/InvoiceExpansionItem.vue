@@ -81,7 +81,7 @@
         </q-item-label> -->
       </q-item-section>
       <q-item-section side>
-        <q-btn flat round icon="more_vert">
+        <q-btn flat round icon="i-mdi-more-vert">
           <q-menu>
             <q-list>
               <q-item
@@ -92,7 +92,7 @@
                 clickable
               >
                 <q-item-section avatar>
-                  <q-icon name="open_in_new" />
+                  <q-icon name="i-mdi-open-in-new" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -111,7 +111,7 @@
                 @click.stop="update(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="edit" />
+                  <q-icon name="i-mdi-edit" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -130,7 +130,7 @@
                 @click.stop="send(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="send" />
+                  <q-icon name="i-mdi-send" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -145,7 +145,7 @@
                 @click.stop="sendInvoice(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="send" />
+                  <q-icon name="i-mdi-send" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -163,7 +163,7 @@
                 @click.stop="sendReminder(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="notifications" color="yellow" />
+                  <q-icon name="i-mdi-notifications" color="yellow" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -182,7 +182,7 @@
                 @click.stop="sendExhortation(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="notifications" color="red" />
+                  <q-icon name="i-mdi-notifications" color="red" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -223,7 +223,7 @@
                 @click="sendReceipt(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="receipt" />
+                  <q-icon name="i-mdi-receipt-send" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -244,11 +244,11 @@
                 clickable
               >
                 <q-item-section avatar>
-                  <q-icon name="payment" />
+                  <q-icon name="i-mdi-payment" />
                 </q-item-section>
                 <q-item-section>{{ lang.payment.addPayment }}</q-item-section>
                 <q-item-section side>
-                  <q-icon name="keyboard_arrow_right" />
+                  <q-icon name="i-mdi-chevron-right" />
                 </q-item-section>
                 <q-menu
                   :cover="$q.screen.lt.md"
@@ -263,7 +263,7 @@
                       @click="addPaymentCash(modelValue)"
                     >
                       <q-item-section avatar>
-                        <q-icon name="attach_money"></q-icon>
+                        <q-icon name="i-mdi-attach-money"></q-icon>
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>
@@ -278,7 +278,7 @@
                       @click="addPaymentBankTransfer(modelValue)"
                     >
                       <q-item-section avatar>
-                        <q-icon name="account_balance"></q-icon>
+                        <q-icon name="i-mdi-acccount-balance"></q-icon>
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>
@@ -293,7 +293,7 @@
                       @click="addPaymentPin(modelValue)"
                     >
                       <q-item-section avatar>
-                        <q-icon name="credit_card"></q-icon>
+                        <q-icon name="i-mdi-credit-card"></q-icon>
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>
@@ -308,7 +308,7 @@
                       @click="addPaymentIdeal(modelValue)"
                     >
                       <q-item-section avatar>
-                        <q-icon name="fa-brands fa-ideal"></q-icon>
+                        <q-icon name="i-fa6-brands-ideal"></q-icon>
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>
@@ -330,7 +330,7 @@
                 @click.stop="cancel(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="cancel" color="red" />
+                  <q-icon name="i-mdi-cancel" color="red" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -345,7 +345,7 @@
                 target="_blank"
               >
                 <q-item-section avatar
-                  ><q-icon name="open_in_new" />
+                  ><q-icon name="i-mdi-open-in-new" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
