@@ -263,6 +263,16 @@ const lang: Language = {
   },
   exports: {
     title: 'Exporteren'
+  },
+  dashboard: {
+    account: {
+      menu: {
+        title: 'Snelmenu',
+        bills: 'Bekijk mijn rekeningen.',
+        receipts: 'Bekijk mijn kwitanties.',
+        invoices: 'Bekijk mijn facturen.'
+      }
+    }
   }
 }
 

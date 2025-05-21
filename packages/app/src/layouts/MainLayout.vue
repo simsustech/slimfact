@@ -1,51 +1,87 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <div v-show="ready">
-      <q-header elevated>
-        <q-toolbar>
-          <q-btn flat dense round aria-label="Menu" @click="toggleLeftDrawer">
-            <q-icon name="i-mdi-menu" />
-          </q-btn>
+  <md3-layout :ready="ready">
+    <template #header-toolbar>
+      <q-toolbar-title> {{ title }} </q-toolbar-title>
 
-          <q-toolbar-title> {{ title }} </q-toolbar-title>
+      <user-menu-button
+        v-if="user"
+        color="accent"
+        :user-route="userRoute"
+        :icons="{ person: 'i-mdi-person' }"
+        @sign-out="logout"
+      />
+      <login-button v-else color="accent" @click="login" />
+      <q-btn icon="i-mdi-more-vert" flat>
+        <q-menu>
+          <q-list>
+            <q-item clickable href="/privacypolicy.pdf" target="_blank">
+              <q-item-section avatar>
+                <q-icon name="i-mdi-document" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+                  {{ lang.privacyPolicy }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
 
-          <user-menu-button
-            v-if="user"
-            color="accent"
-            :icons="{
-              person: 'i-mdi-person'
-            }"
-            :user-route="userRoute"
-            @sign-out="logout"
-          />
-          <login-button v-else color="accent" @click="login" />
-          <q-btn icon="i-mdi-more-vert" flat>
-            <q-menu>
-              <q-list>
-                <q-language-select
-                  v-model="language"
-                  :language-imports="languageImports"
-                  :locales="languageLocales"
-                  borderless
+            <q-item
+              :href="`https://www.petboarding.app/documentation/users?lang=${$q.lang.isoName}`"
+              target="_blank"
+            >
+              <q-item-section avatar>
+                <q-icon name="i-mdi-link" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ lang.documentation }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item v-if="configuration.SUPPORT_EMAIL">
+              <q-item-section avatar>
+                <q-icon name="i-mdi-email" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+                  {{ configuration.SUPPORT_EMAIL }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-language-select
+              v-model="language"
+              :language-imports="languageImports"
+              :locales="languageLocales"
+            />
+            <q-item>
+              <q-item-section label>
+                {{ lang.darkMode }}
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle
+                  :model-value="$q.dark.isActive"
+                  checked-icon="i-mdi-moon-and-stars"
+                  unchecked-icon="i-mdi-brightness-7"
+                  size="2em"
+                  @update:model-value="$q.dark.set"
                 />
-                <!-- <q-item clickable href="/privacypolicy.pdf" target="_blank">
-                  <q-item-section>
-                    <q-item-label>
-                      {{ lang.privacyPolicy }}
-                    </q-item-label>
-                  </q-item-section>
-                </q-item> -->
-              </q-list>
-            </q-menu>
-          </q-btn>
-        </q-toolbar>
-      </q-header>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+    </template>
 
-      <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-        <q-scroll-area
-          style="height: calc(100% - 60px); border-right: 1px solid #ddd"
-        >
-          <q-drawer-list>
+    <template #drawer-mini-navigation>
+      <div class="col">
+        <navigation-tabs vertical dense />
+      </div>
+    </template>
+
+    <template #drawer>
+      <q-scroll-area class="fit">
+        <div class="q-px-md">
+          <div class="text-overline">{{ title }}</div>
+          <q-list>
             <q-expansion-item
               v-if="user"
               ref="accountExpansionItemRef"
@@ -206,27 +242,35 @@
                 <q-item-label> Home </q-item-label>
               </q-item-section>
             </q-item>
-          </q-drawer-list>
-        </q-scroll-area>
-        <q-space />
-        <q-list v-if="!configuration.HIDE_BRANDING">
-          <q-item>
-            <q-item-section avatar>
-              <slimfact-icon size="lg" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label> SlimFact </q-item-label>
-              <q-item-label caption> © simsustech </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-drawer>
+          </q-list>
+        </div>
+      </q-scroll-area>
+      <q-list
+        v-if="!configuration.HIDE_BRANDING"
+        class="items-end justify-end self-end"
+      >
+        <q-item>
+          <q-item-section avatar>
+            <slimfact-icon size="lg" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label> SlimFact </q-item-label>
+            <q-item-label caption> © simsustech </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </template>
 
-      <q-page-container>
-        <router-view />
-      </q-page-container>
-    </div>
-  </q-layout>
+    <template #footer>
+      <div class="column fit items-center justify-center">
+        <navigation-tabs dense class="col-12 lt-md" />
+      </div>
+    </template>
+
+    <template #fabs="{ showSticky }">
+      <router-view name="fabs" :show-sticky="showSticky" />
+    </template>
+  </md3-layout>
 </template>
 
 <script setup lang="ts">
@@ -236,7 +280,8 @@ import {
   LoginButton,
   UserMenuButton
 } from '@simsustech/quasar-components/authentication'
-import { QLanguageSelect, QDrawerList } from '@simsustech/quasar-components'
+import { QLanguageSelect } from '@simsustech/quasar-components'
+import { Md3Layout } from '@simsustech/quasar-components/md3'
 import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { useOAuthClient, userRouteKey, user, oAuthClient } from '../oauth.js'
@@ -244,6 +289,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useLang, loadLang } from '../lang/index.js'
 import { useConfiguration, loadConfiguration } from '../configuration'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
+import NavigationTabs from './NavigationTabs.vue'
 
 const configuration = useConfiguration()
 
@@ -252,11 +298,6 @@ const route = useRoute()
 const lang = useLang()
 
 const $q = useQuasar()
-const leftDrawerOpen = ref(false)
-
-const toggleLeftDrawer = () => {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
 
 const login = () => {
   if (oAuthClient.value) oAuthClient.value.signIn({})
@@ -270,7 +311,12 @@ const userRoute = {
   name: userRouteKey
 }
 
-const title = computed(() => configuration.value.TITLE)
+const title = computed(() => {
+  let title = configuration.value.TITLE
+  // @ts-expect-error key might not exist
+  if (lang.value[route.meta?.lang]) title = lang.value[route.meta.lang].title
+  return title
+})
 
 const language = ref($q.lang.isoName)
 
@@ -298,11 +344,6 @@ watch($q.lang, () => {
   loadCheckoutLang($q.lang.isoName)
 })
 
-watch(route, (val) => {
-  if (val.path.includes('account')) accountExpansionItemRef.value.show()
-  if (val.path.includes('settings')) settingsExpansionItemRef.value.show()
-  // if (val.path.includes('admin')) adminExpansionItemRef.value.show()
-})
 const accountExpansionItemRef = ref()
 const settingsExpansionItemRef = ref()
 // const adminExpansionItemRef = ref()

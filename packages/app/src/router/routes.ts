@@ -81,19 +81,31 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'account',
-        component: () => import('../pages/AccountPage.vue'),
         children: [
           {
+            path: '',
+            component: () => import('../pages/AccountPage.vue')
+          },
+          {
             path: 'bills',
-            component: () => import('../pages/account/BillsPage.vue')
+            component: () => import('../pages/account/BillsPage.vue'),
+            meta: {
+              lang: 'bill'
+            }
           },
           {
             path: 'receipts',
-            component: () => import('../pages/account/ReceiptsPage.vue')
+            component: () => import('../pages/account/ReceiptsPage.vue'),
+            meta: {
+              lang: 'receipt'
+            }
           },
           {
             path: 'invoices',
-            component: () => import('../pages/account/InvoicesPage.vue')
+            component: () => import('../pages/account/InvoicesPage.vue'),
+            meta: {
+              lang: 'invoice'
+            }
           }
         ]
       },

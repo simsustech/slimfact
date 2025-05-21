@@ -261,6 +261,16 @@ const lang: Language = {
   },
   exports: {
     title: 'Exports'
+  },
+  dashboard: {
+    account: {
+      menu: {
+        title: 'Quick menu',
+        bills: 'View my bills.',
+        receipts: 'View my receipts.',
+        invoices: 'View my invoices.'
+      }
+    }
   }
 }
 

@@ -283,6 +283,16 @@ export interface Language {
   exports: {
     title: string
   }
+  dashboard: {
+    account: {
+      menu: {
+        title: string
+        bills: string
+        receipts: string
+        invoices: string
+      }
+    }
+  }
 }
 
 import type { Ref } from 'vue'
