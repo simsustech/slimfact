@@ -76,3 +76,7 @@ export const loadConfiguration = async (language: Ref<string>) => {
       })
     })
 }
+
+export const BILL_ICON = 'i-mdi-receipt-outline'
+export const RECEIPT_ICON = 'i-mdi-receipt'
+export const INVOICE_ICON = 'i-mdi-invoice'

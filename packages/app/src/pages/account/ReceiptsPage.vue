@@ -1,8 +1,5 @@
 <template>
-  <resource-page :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }">
-    <template #header>
-      {{ lang.receipt.title }}
-    </template>
+  <q-page padding>
     <div v-if="ready" class="row">
       <q-list class="full-width" dense>
         <invoice-item
@@ -12,7 +9,7 @@
         />
       </q-list>
     </div>
-  </resource-page>
+  </q-page>
 </template>
 
 <script lang="ts">
@@ -24,14 +21,10 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
-import { ResourcePage } from '@simsustech/quasar-components'
 // import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
 import InvoiceItem from '../../components/invoice/InvoiceItem.vue'
-import { useLang } from '../../lang/index.js'
 
 const { useQuery } = await createUseTrpc()
-
-const lang = useLang()
 
 const { data: invoices, execute } = useQuery('user.getReceipts', {
   // immediate: true
