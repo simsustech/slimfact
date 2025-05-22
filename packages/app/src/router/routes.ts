@@ -18,27 +18,54 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'admin',
-        component: () => import('../pages/AdminPage.vue'),
         children: [
+          {
+            path: '',
+            component: () => import('../pages/AdminPage.vue')
+          },
           {
             path: 'accounts',
             component: () => import('../pages/admin/AccountsPage.vue')
           },
           {
             path: 'companies',
-            component: () => import('../pages/admin/CompaniesPage.vue')
+            components: {
+              default: () =>
+                import('../pages/admin/CompaniesPage/CompaniesPage.vue'),
+              fabs: () =>
+                import('../pages/admin/CompaniesPage/CompaniesPageFabs.vue')
+            }
           },
           {
             path: 'clients',
-            component: () => import('../pages/admin/ClientsPage.vue')
+            components: {
+              default: () =>
+                import('../pages/admin/ClientsPage/ClientsPage.vue'),
+              fabs: () =>
+                import('../pages/admin/ClientsPage/ClientsPageFabs.vue')
+            }
           },
           {
             path: 'invoices/:uuids*',
-            component: () => import('../pages/admin/InvoicesPage.vue')
+            components: {
+              default: () =>
+                import('../pages/admin/InvoicesPage/InvoicesPage.vue'),
+              fabs: () =>
+                import('../pages/admin/InvoicesPage/InvoicesPageFabs.vue')
+            }
           },
           {
             path: 'subscriptions',
-            component: () => import('../pages/admin/SubscriptionsPage.vue')
+            components: {
+              default: () =>
+                import(
+                  '../pages/admin/SubscriptionsPage/SubscriptionsPage.vue'
+                ),
+              fabs: () =>
+                import(
+                  '../pages/admin/SubscriptionsPage/SubscriptionsPageFabs.vue'
+                )
+            }
           },
           {
             path: 'receipts/:uuids*',
@@ -46,19 +73,20 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: 'bills/:uuids*',
-            component: () => import('../pages/admin/BillsPage.vue')
-          },
-          {
-            path: 'exports',
-            component: () => import('../pages/admin/ExportsPage.vue')
+            components: {
+              default: () => import('../pages/admin/BillsPage/BillsPage.vue'),
+              fabs: () => import('../pages/admin/BillsPage/BillsPageFabs.vue')
+            }
           }
         ]
       },
-
       {
         path: 'settings',
-        component: () => import('../pages/SettingsPage.vue'),
         children: [
+          {
+            path: '',
+            component: () => import('../pages/SettingsPage.vue')
+          },
           {
             path: 'accounts',
             component: () => import('../pages/settings/AccountsPage.vue')
@@ -71,13 +99,12 @@ const routes: RouteRecordRaw[] = [
             path: 'initialnumberforprefixes',
             component: () =>
               import('../pages/settings/InitialNumberForPrefixesPage.vue')
+          },
+          {
+            path: 'exports',
+            component: () => import('../pages/admin/ExportsPage.vue')
           }
         ]
-      },
-      {
-        path: 'employee',
-        component: () => import('../pages/EmployeePage.vue'),
-        children: []
       },
       {
         path: 'account',

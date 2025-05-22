@@ -18,12 +18,13 @@ const lang: Language = {
   goHome: 'Ga naar home page',
   updateAvailable: 'Er is een update beschikbaar.',
   refresh: 'Vernieuwen',
-  settings: 'Instellingen',
   name: 'Naam',
   overview: 'Overzicht',
   noResultsAvailable: 'Geen resultaten beschikbaar.',
+  add: 'Toevoegen',
   account: {
     title: 'Account',
+    accounts: 'Accounts',
     name: 'Account',
     fields: {
       email: 'Email',
@@ -273,6 +274,9 @@ const lang: Language = {
         invoices: 'Bekijk mijn facturen.'
       }
     }
+  },
+  settings: {
+    title: 'Instellingen'
   }
 }
 

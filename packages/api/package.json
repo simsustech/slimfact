@@ -48,6 +48,7 @@
     "@modular-api/fastify-checkout": "^0.4.22",
     "@modular-api/fastify-oidc": "^0.9.2",
     "@mollie/api-client": "^4.3.2",
+    "@orpc/server": "^1.2.0",
     "@slimfact/app": "workspace:*",
     "@slimfact/tools": "workspace:*",
     "@trpc/server": "^11.1.2",

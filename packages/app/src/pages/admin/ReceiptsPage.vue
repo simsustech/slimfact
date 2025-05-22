@@ -1,9 +1,7 @@
 <template>
-  <resource-page :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }">
-    <template #header>
-      {{ lang.receipt.title }}
-    </template>
-    <template #header-side>
+  <q-page padding>
+    <q-toolbar>
+      <q-space />
       <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <company-select
@@ -23,7 +21,7 @@
           <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
-    </template>
+    </q-toolbar>
     <div v-if="ready" class="row">
       <q-list class="full-width" dense>
         <invoice-expansion-item
@@ -41,7 +39,7 @@
         :max-pages="5"
       />
     </div>
-  </resource-page>
+  </q-page>
 
   <responsive-dialog
     :icons="{ close: 'i-mdi-close' }"
@@ -66,11 +64,10 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { createUseTrpc } from '../../trpc.js'
-import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
+import { ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
 import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
-import { useLang } from '../../lang/index.js'
 import {
   type CompanyDetails,
   type ClientDetails
@@ -82,8 +79,6 @@ import { QSelect } from 'quasar'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 
 const { useQuery, useMutation } = await createUseTrpc()
-
-const lang = useLang()
 
 const route = useRoute()
 

@@ -1,5 +1,6 @@
 import type { VitrifyConfig } from 'vitrify'
 import { certificateFor } from 'devcert'
+import { loadEnv } from 'vite'
 
 export default async function ({
   mode,
@@ -8,9 +9,11 @@ export default async function ({
   mode: string
   command: string
 }): Promise<VitrifyConfig> {
+  const env = loadEnv(mode, process.cwd(), '')
+
   const config: VitrifyConfig = {
     vitrify: {
-      lang: process.env.VITE_LANG,
+      lang: env.VITE_LANG,
       hooks: {
         onSetup: [new URL('src/setup.ts', import.meta.url)]
       },

@@ -3,11 +3,11 @@
     <div class="row justify-center">
       <svg-avatar v-model="modelValue.logoSvg" allow-change />
     </div>
-    <div class="row q-col-gutter-y-md">
+    <div class="grid grid-cols-12 gap-3">
       <form-input
         v-bind="input"
         v-model="modelValue.name"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="name"
         bottom-slots
@@ -18,7 +18,7 @@
         v-bind="input"
         v-model="modelValue.contactPersonName"
         :label="lang.company.fields.contactPersonName"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="contactPersonName"
@@ -26,7 +26,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.address"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="address"
         bottom-slots
@@ -36,7 +36,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.postalCode"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="postalCode"
         bottom-slots
@@ -47,7 +47,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.city"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="city"
         bottom-slots
@@ -58,7 +58,7 @@
         v-bind="input"
         v-model="modelValue.country"
         :label="lang.company.fields.country"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -67,7 +67,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.telephoneNumber"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="telephoneNumber"
         bottom-slots
@@ -78,7 +78,7 @@
         v-bind="input"
         v-model="modelValue.website"
         :label="lang.company.fields.website"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="website"
@@ -87,7 +87,7 @@
         v-bind="input"
         v-model="modelValue.cocNumber"
         :label="lang.company.fields.cocNumber"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -97,7 +97,7 @@
         v-bind="input"
         v-model="modelValue.iban"
         :label="lang.company.fields.iban"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -107,7 +107,7 @@
         v-bind="input"
         v-model="modelValue.bic"
         :label="lang.company.fields.bic"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -117,7 +117,7 @@
         v-bind="input"
         v-model="modelValue.vatIdNumber"
         :label="lang.company.fields.vatIdNumber"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -128,7 +128,7 @@
         v-model="modelValue.prefix"
         :label="lang.company.fields.prefix"
         :readonly="prefixLocked"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -147,7 +147,7 @@
         v-bind="input"
         v-model="modelValue.email"
         :label="lang.company.fields.email"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -157,7 +157,7 @@
         v-bind="input"
         v-model="modelValue.emailBcc"
         :label="lang.company.fields.emailBcc"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="emailBcc"
@@ -165,7 +165,7 @@
       />
       <number-prefix-select
         v-model="modelValue.defaultNumberPrefixTemplate"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         :label="lang.company.fields.defaultNumberPrefixTemplate"
         :filtered-options="filteredNumberPrefixes"
         bottom-slots
@@ -177,7 +177,7 @@
         :label="lang.company.fields.defaultLocale"
         :locales="languageLocales"
         filled
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="defaultLocale"
@@ -185,7 +185,7 @@
       <currency-select
         v-model="modelValue.defaultCurrency"
         :label="lang.company.fields.defaultCurrency"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="defaultCurrency"

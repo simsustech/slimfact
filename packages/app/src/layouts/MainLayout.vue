@@ -14,28 +14,6 @@
       <q-btn icon="i-mdi-more-vert" flat>
         <q-menu>
           <q-list>
-            <q-item clickable href="/privacypolicy.pdf" target="_blank">
-              <q-item-section avatar>
-                <q-icon name="i-mdi-document" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  {{ lang.privacyPolicy }}
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item
-              :href="`https://www.petboarding.app/documentation/users?lang=${$q.lang.isoName}`"
-              target="_blank"
-            >
-              <q-item-section avatar>
-                <q-icon name="i-mdi-link" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ lang.documentation }}</q-item-label>
-              </q-item-section>
-            </q-item>
             <q-item v-if="configuration.SUPPORT_EMAIL">
               <q-item-section avatar>
                 <q-icon name="i-mdi-email" />
@@ -51,6 +29,7 @@
               v-model="language"
               :language-imports="languageImports"
               :locales="languageLocales"
+              is-item
             />
             <q-item>
               <q-item-section label>
@@ -88,6 +67,7 @@
               :header-class="
                 route.path.includes('/account/') ? 'text-primary' : undefined
               "
+              :content-inset-level="1"
             >
               <template #header>
                 <q-item-section avatar>
@@ -129,6 +109,7 @@
             <q-expansion-item
               v-if="user?.roles?.includes('administrator')"
               default-opened
+              :content-inset-level="1"
             >
               <template #header>
                 <q-item-section avatar>
@@ -146,7 +127,7 @@
                   <q-item-label> {{ lang.client.title }} </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-expansion-item to="/admin/bills">
+              <q-expansion-item to="/admin/bills" :content-inset-level="1">
                 <template #header>
                   <q-item-section avatar>
                     <q-icon name="i-mdi-receipt-outline" />
@@ -186,13 +167,14 @@
                 :header-class="
                   route.path.includes('/settings/') ? 'text-primary' : undefined
                 "
+                :content-inset-level="1"
               >
                 <template #header>
                   <q-item-section avatar>
                     <q-icon name="i-mdi-account-settings" />
                   </q-item-section>
                   <q-item-section>
-                    <q-item-label> {{ lang.settings }} </q-item-label>
+                    <q-item-label> {{ lang.settings.title }} </q-item-label>
                   </q-item-section>
                   <q-item-section side> </q-item-section>
                 </template>
@@ -204,7 +186,10 @@
                     <q-item-label> {{ lang.company.title }} </q-item-label>
                   </q-item-section>
                 </q-item>
-                <q-expansion-item to="/settings/numberprefixes">
+                <q-expansion-item
+                  to="/settings/numberprefixes"
+                  :content-inset-level="1"
+                >
                   <template #header>
                     <q-item-section>
                       <q-item-label>
@@ -222,10 +207,10 @@
                 </q-expansion-item>
                 <q-item to="/settings/accounts">
                   <q-item-section>
-                    <q-item-label> Accounts </q-item-label>
+                    <q-item-label> {{ lang.account.accounts }} </q-item-label>
                   </q-item-section>
                 </q-item>
-                <q-item to="/admin/exports">
+                <q-item to="/settings/exports">
                   <q-item-section>
                     <q-item-label> {{ lang.exports.title }} </q-item-label>
                   </q-item-section>
@@ -337,7 +322,6 @@ const languageImports = ref({
   'en-US': () => import(`../../node_modules/quasar/lang/en-US.js`)
 })
 
-if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
 watch($q.lang, () => {
   loadLang($q.lang.isoName)
   loadFormLang($q.lang.isoName)
@@ -360,6 +344,7 @@ onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
   }
+  if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
   await loadConfiguration(language)
   await useOAuthClient()
   await oAuthClient.value?.getUserInfo()

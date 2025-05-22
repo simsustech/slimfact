@@ -172,7 +172,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
           options: quasarConf
         }
       ],
-      lang: process.env.VITE_LANG,
+      lang: env.VITE_LANG,
       productName: 'SlimFact',
       hooks: {
         onSetup: [new URL('src/setup.ts', import.meta.url)]
@@ -185,7 +185,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
         presets: [
           QuasarPreset({
             style: MaterialDesign3,
-            sourceColor: env.VITE_SOURCE_COLOR,
+            sourceColor: env.VITE_SOURCE_COLOR || '#00a4e6',
             plugins: quasarConf['framework']['plugins'],
             iconSet: quasarConf['framework']['iconSet']
           })

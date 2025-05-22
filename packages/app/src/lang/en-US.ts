@@ -18,12 +18,13 @@ const lang: Language = {
   goHome: 'Go to home page',
   updateAvailable: 'An update is available.',
   refresh: 'Refresh',
-  settings: 'Settings',
   name: 'Name',
   overview: 'Overview',
   noResultsAvailable: 'No results available.',
+  add: 'Add',
   account: {
     title: 'Account',
+    accounts: 'Accounts',
     name: 'Account',
     fields: {
       email: 'Email',
@@ -271,7 +272,8 @@ const lang: Language = {
         invoices: 'View my invoices.'
       }
     }
-  }
+  },
+  settings: { title: 'Settings' }
 }
 
 export default lang

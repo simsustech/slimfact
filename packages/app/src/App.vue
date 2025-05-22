@@ -34,6 +34,18 @@ import {
 
 import { setDefaultPropsMd3 } from 'unocss-preset-quasar/styles'
 
+import { EventBus } from 'quasar'
+import { provide } from 'vue'
+
+const bus = new EventBus<{
+  'administrator-open-companies-create-dialog': () => void
+  'administrator-open-clients-create-dialog': () => void
+  'administrator-open-bills-create-dialog': () => void
+  'administrator-open-invoices-create-dialog': () => void
+  'administrator-open-subscriptions-create-dialog': () => void
+}>()
+provide<EventBus>('bus', bus)
+
 const configuration = useConfiguration()
 useMeta(() => {
   return {

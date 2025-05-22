@@ -1,14 +1,7 @@
 <template>
-  <resource-page
-    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
-    type="create"
-    @create="openCreateDialog"
-    @update="openUpdateDialog"
-  >
-    <template #header>
-      {{ lang.subscription.title }}
-    </template>
-    <template #header-side>
+  <q-page padding>
+    <q-toolbar>
+      <q-space />
       <q-toggle
         v-model="active"
         :label="lang.subscription.fields.active"
@@ -31,7 +24,7 @@
           <!-- <subscription-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
-    </template>
+    </q-toolbar>
     <div v-if="ready" class="row">
       <q-list class="full-width" dense>
         <subscription-expansion-item
@@ -51,42 +44,42 @@
         :max-pages="5"
       />
     </div>
+  </q-page>
 
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="updateDialogRef"
-      persistent
-      @submit="update"
-    >
-      <subscription-form
-        ref="updateSubscriptionFormRef"
-        :filtered-companies="filteredCompanies"
-        :filtered-clients="filteredClients"
-        :filtered-number-prefixes="numberPrefixes || []"
-        @submit="updateSubscription"
-        @filter:companies="onFilterCompanies"
-        @filter:clients="onFilterClients"
-      ></subscription-form>
-    </responsive-dialog>
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="createDialogRef"
-      persistent
-      @submit="create"
-    >
-      <subscription-form
-        ref="createSubscriptionFormRef"
-        :filtered-companies="filteredCompanies"
-        :filtered-clients="filteredClients"
-        :filtered-number-prefixes="numberPrefixes || []"
-        @submit="createSubscription"
-        @filter:companies="onFilterCompanies"
-        @filter:clients="onFilterClients"
-      ></subscription-form>
-    </responsive-dialog>
-  </resource-page>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="updateDialogRef"
+    persistent
+    @submit="update"
+  >
+    <subscription-form
+      ref="updateSubscriptionFormRef"
+      :filtered-companies="filteredCompanies"
+      :filtered-clients="filteredClients"
+      :filtered-number-prefixes="numberPrefixes || []"
+      @submit="updateSubscription"
+      @filter:companies="onFilterCompanies"
+      @filter:clients="onFilterClients"
+    ></subscription-form>
+  </responsive-dialog>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="createDialogRef"
+    persistent
+    @submit="create"
+  >
+    <subscription-form
+      ref="createSubscriptionFormRef"
+      :filtered-companies="filteredCompanies"
+      :filtered-clients="filteredClients"
+      :filtered-number-prefixes="numberPrefixes || []"
+      @submit="createSubscription"
+      @filter:companies="onFilterCompanies"
+      @filter:clients="onFilterClients"
+    ></subscription-form>
+  </responsive-dialog>
 </template>
 
 <script lang="ts">
@@ -96,19 +89,29 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive, computed } from 'vue'
-import { createUseTrpc } from '../../trpc.js'
+import { ref, nextTick, onMounted, reactive, computed, inject } from 'vue'
+import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import SubscriptionForm from '../../components/subscription/SubscriptionForm.vue'
-import { useLang } from '../../lang/index.js'
+import SubscriptionForm from '../../../components/subscription/SubscriptionForm.vue'
+import { useLang } from '../../../lang/index.js'
 import {
   type CompanyDetails,
   type ClientDetails
 } from '@modular-api/fastify-checkout'
 // import { useQuasar } from 'quasar'
-import CompanySelect from '../../components/company/CompanySelect.vue'
-import ClientSelect from '../../components/client/ClientSelect.vue'
-import SubscriptionExpansionItem from '../../components/subscription/SubscriptionExpansionItem.vue'
+import CompanySelect from '../../../components/company/CompanySelect.vue'
+import ClientSelect from '../../../components/client/ClientSelect.vue'
+import SubscriptionExpansionItem from '../../../components/subscription/SubscriptionExpansionItem.vue'
+
+import { EventBus } from 'quasar'
+
+const bus = inject<EventBus>('bus')!
+bus.on('administrator-open-subscriptions-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
 
 const { useQuery, useMutation } = await createUseTrpc()
 

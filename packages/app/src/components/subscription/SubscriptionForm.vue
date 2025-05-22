@@ -1,9 +1,9 @@
 <template>
   <q-form ref="formRef">
-    <div class="row">
+    <div class="grid grid-cols-12 gap-3">
       <company-select
         v-model="modelValue.companyId"
-        class="col-md-6 col-12"
+        class="md:col-span-6 col-span-12"
         :filtered-options="filteredCompanies"
         required
         @filter="filterCompanies"
@@ -11,7 +11,7 @@
 
       <client-select
         v-model="modelValue.clientId"
-        class="col-md-6 col-12"
+        class="md:col-span-6 col-span-12"
         :filtered-options="filteredClients"
         required
         @filter="filterClients"
@@ -23,10 +23,10 @@
         !Number.isNaN(modelValue.clientId)
       "
     >
-      <div class="row">
+      <div class="grid grid-cols-12 gap-3">
         <q-select
           v-model="modelValue.type"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :options="typeOptions"
           :label="lang.subscription.fields.type"
           map-options
@@ -35,7 +35,7 @@
         <number-prefix-select
           v-model="modelValue.numberPrefixTemplate"
           :disable="!modelValue.companyId"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :filtered-options="filteredNumberPrefixes"
           bottom-slots
           lazy-rules
@@ -45,7 +45,7 @@
         <currency-select
           v-model="modelValue.currency"
           required
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           bottom-slots
           lazy-rules
           name="currency"
@@ -55,14 +55,14 @@
           :locales="languageLocales"
           required
           filled
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           bottom-slots
           lazy-rules
           name="locale"
         />
         <q-input
           v-model.number="modelValue.paymentTermDays"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :label="`${lang.invoice.fields.paymentTermDays}*`"
           bottom-slots
           lazy-rules
@@ -70,15 +70,13 @@
           name="paymentTermDays"
           :rules="[(val) => !!val]"
         />
-      </div>
-      <div class="row">
         <date-input
           v-model="modelValue.startDate"
           :label="lang.subscription.fields.startDate"
           format="DD-MM-YYYY"
           clearable
           required
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :date="{
             noUnset: true,
             defaultView: 'Years',
@@ -95,7 +93,7 @@
           :label="lang.subscription.fields.endDate"
           format="DD-MM-YYYY"
           clearable
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :date="{
             noUnset: true,
             defaultView: 'Years',
@@ -109,18 +107,15 @@
         />
         <cron-schedule-input
           v-model="modelValue.cronSchedule"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           show-minute
           show-hour
           show-day-of-week
         />
       </div>
-      <div class="row items-center">
-        {{ lang.invoice.lines }}
-        <q-btn flat round icon="i-mdi-add" @click="addLine" />
-      </div>
 
-      <q-list separator>
+      <q-list bordered>
+        <q-item-label header> {{ lang.invoice.lines }} </q-item-label>
         <invoice-line-item
           v-for="(line, index) in modelValue.lines"
           :key="index"
@@ -131,13 +126,22 @@
           editable
           @click="openInvoiceLineDialog(modelValue.lines, index)"
         ></invoice-line-item>
+        <q-item clickable @click="addLine">
+          <q-item-section avatar>
+            <q-icon name="i-mdi-add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.add }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
 
-      <div class="row items-center">
-        {{ lang.invoice.discounts }}
-        <q-btn flat round icon="i-mdi-add" @click="addDiscount" />
-      </div>
-      <q-list separator>
+      <q-list bordered>
+        <q-item-label header>
+          {{ lang.invoice.discounts }}
+        </q-item-label>
         <invoice-line-item
           v-for="(discount, index) in modelValue.discounts"
           :key="index"
@@ -148,13 +152,23 @@
           editable
           @click="openInvoiceLineDialog(modelValue.discounts, index)"
         ></invoice-line-item>
+
+        <q-item clickable @click="addDiscount">
+          <q-item-section avatar>
+            <q-icon name="i-mdi-add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.add }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
 
-      <div class="row items-center">
-        {{ lang.invoice.surcharges }}
-        <q-btn flat round icon="i-mdi-add" @click="addSurcharge" />
-      </div>
-      <q-list separator>
+      <q-list bordered>
+        <q-item-label header>
+          {{ lang.invoice.surcharges }}
+        </q-item-label>
         <invoice-line-item
           v-for="(surcharge, index) in modelValue.surcharges"
           :key="index"
@@ -165,6 +179,17 @@
           editable
           @click="openInvoiceLineDialog(modelValue.surcharges, index)"
         ></invoice-line-item>
+
+        <q-item clickable @click="addSurcharge">
+          <q-item-section avatar>
+            <q-icon name="i-mdi-add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.add }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </div>
   </q-form>

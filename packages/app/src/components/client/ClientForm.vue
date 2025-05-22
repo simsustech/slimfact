@@ -1,11 +1,11 @@
 <template>
   <q-form ref="formRef">
-    <div class="row">
+    <div class="grid grid-cols-12 gap-3">
       <form-input
         v-bind="input"
         v-model="modelValue.companyName"
         :label="lang.client.fields.companyName"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="name"
@@ -14,7 +14,7 @@
         v-bind="input"
         v-model="modelValue.contactPersonName"
         :label="lang.client.fields.contactPersonName"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="contactPersonName"
@@ -22,7 +22,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.address"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="address"
         bottom-slots
@@ -32,7 +32,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.postalCode"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="postalCode"
         bottom-slots
@@ -43,7 +43,7 @@
       <form-input
         v-bind="input"
         v-model="modelValue.city"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         field="city"
         bottom-slots
@@ -54,7 +54,7 @@
         v-bind="input"
         v-model="modelValue.country"
         :label="lang.client.fields.country"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="country"
@@ -63,7 +63,7 @@
         v-bind="input"
         v-model="modelValue.vatIdNumber"
         :label="lang.client.fields.vatIdNumber"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="vatIdNumber"
@@ -72,7 +72,7 @@
         v-bind="input"
         v-model="modelValue.cocNumber"
         :label="lang.client.fields.cocNumber"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
         name="cocNumber"
@@ -81,7 +81,7 @@
         v-bind="input"
         v-model="modelValue.email"
         :label="lang.client.fields.email"
-        class="col-md-3 col-12"
+        class="md:col-span-3 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -91,7 +91,7 @@
       <account-select
         v-if="filteredAccounts"
         v-model="modelValue.accountId"
-        class="col-12 col-md-3"
+        class="col-span-12 md:col-span-3"
         :filtered-options="filteredAccounts"
         :hint="lang.client.messages.linkAccount"
         @filter="($event) => emit('filter:accounts', $event)"

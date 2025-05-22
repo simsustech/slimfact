@@ -1,20 +1,13 @@
 <template>
-  <resource-page
-    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
-    type="create"
-    @create="openCreateDialog"
-    @update="openUpdateDialog"
-  >
-    <template #header>
-      {{ lang.client.title }}
-    </template>
-    <template #header-side>
+  <q-page padding>
+    <q-toolbar>
+      <q-space />
       <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <q-input v-model="name" :label="lang.name" :debounce="300" />
         </q-menu>
       </q-btn>
-    </template>
+    </q-toolbar>
     <q-list v-if="ready">
       <client-item
         v-for="client in data"
@@ -39,36 +32,36 @@
         @update="openUpdateDialog"
       />
     </div> -->
+  </q-page>
 
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="updateDialogRef"
-      persistent
-      @submit="update"
-    >
-      <client-form
-        ref="updateClientFormRef"
-        :filtered-accounts="filteredAccounts"
-        @submit="updateClient"
-        @filter:accounts="onFilterAccounts"
-      ></client-form>
-    </responsive-dialog>
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="createDialogRef"
-      persistent
-      @submit="create"
-    >
-      <client-form
-        ref="createClientFormRef"
-        :filtered-accounts="filteredAccounts"
-        @submit="createClient"
-        @filter:accounts="onFilterAccounts"
-      ></client-form>
-    </responsive-dialog>
-  </resource-page>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="updateDialogRef"
+    persistent
+    @submit="update"
+  >
+    <client-form
+      ref="updateClientFormRef"
+      :filtered-accounts="filteredAccounts"
+      @submit="updateClient"
+      @filter:accounts="onFilterAccounts"
+    ></client-form>
+  </responsive-dialog>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="createDialogRef"
+    persistent
+    @submit="create"
+  >
+    <client-form
+      ref="createClientFormRef"
+      :filtered-accounts="filteredAccounts"
+      @submit="createClient"
+      @filter:accounts="onFilterAccounts"
+    ></client-form>
+  </responsive-dialog>
 </template>
 
 <script lang="ts">
@@ -78,14 +71,25 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive, computed } from 'vue'
-import { createUseTrpc } from '../../trpc.js'
+import { ref, nextTick, onMounted, reactive, computed, inject } from 'vue'
+import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import ClientForm from '../../components/client/ClientForm.vue'
-import ClientItem from '../../components/client/ClientItem.vue'
-import { useLang } from '../../lang/index.js'
+import ClientForm from '../../../components/client/ClientForm.vue'
+import ClientItem from '../../../components/client/ClientItem.vue'
+import { useLang } from '../../../lang/index.js'
 import { Account } from '@slimfact/api/zod'
-import AccountSelect from '../../components/admin/AccountSelect.vue'
+import AccountSelect from '../../../components/admin/AccountSelect.vue'
+
+import { EventBus } from 'quasar'
+
+const bus = inject<EventBus>('bus')!
+bus.on('administrator-open-clients-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
+
 const { useQuery, useMutation } = await createUseTrpc()
 
 const lang = useLang()
