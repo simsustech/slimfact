@@ -22,12 +22,14 @@ test.beforeAll(async ({ browser }) => {
   await page.locator('text="Email"').fill(email)
   await page.locator('text="Password"').fill(password)
 
-  await page.locator('button').getByText('Login', { exact: true }).click()
+  await page.locator('button >> text=Login').click()
 
   await page.waitForURL(/.*user/)
-  // await expect(
-  //   page.getByText('Administrator').locator(':scope.q-item__label')
-  // ).toBeVisible()
+  await expect(
+    page
+      .getByRole('tab', { name: 'Administrator' })
+      .or(page.getByText('Administrator').locator(':scope.q-item__label'))
+  ).toBeVisible()
 })
 
 test.describe('Administrator', async () => {
