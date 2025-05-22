@@ -223,9 +223,6 @@ importers:
       '@fastify/static':
         specifier: 8.1.1
         version: 8.1.1
-      '@orpc/client':
-        specifier: ^1.2.0
-        version: 1.2.0
       '@slimfact/tools':
         specifier: workspace:*
         version: link:../tools
