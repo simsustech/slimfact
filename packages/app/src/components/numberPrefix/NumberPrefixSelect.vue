@@ -21,9 +21,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { QSelect, useQuasar } from 'quasar'
-import { computed, ref, toRefs, useAttrs, watch } from 'vue'
-import { loadLang, useLang } from '../../lang/index.js'
+import { QSelect } from 'quasar'
+import { computed, ref, toRefs, useAttrs } from 'vue'
+import { useLang } from '../../lang/index.js'
 import { NumberPrefix } from '@slimfact/api/zod'
 
 export interface Props {
@@ -55,10 +55,4 @@ const requiredValidation = ref(
     (Array.isArray(val) ? !!val.length : !!val) ||
     lang.value.company.validations.fieldRequired
 )
-
-const $q = useQuasar()
-if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
-watch($q.lang, (val) => {
-  loadLang($q.lang.isoName)
-})
 </script>

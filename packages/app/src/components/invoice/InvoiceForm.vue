@@ -1,9 +1,9 @@
 <template>
   <q-form ref="formRef">
-    <div class="row">
+    <div class="grid grid-cols-12 gap-3">
       <company-select
         v-model="modelValue.companyId"
-        class="col-md-6 col-12"
+        class="md:col-span-6 col-span-12"
         :filtered-options="filteredCompanies"
         required
         @filter="filterCompanies"
@@ -12,7 +12,7 @@
       <client-select
         v-model="modelValue.clientId"
         required
-        class="col-md-6 col-12"
+        class="md:col-span-6 col-span-12"
         :filtered-options="filteredClients"
         :rules="[
           (val) =>
@@ -38,11 +38,11 @@
         !Number.isNaN(modelValue.clientId)
       "
     >
-      <div class="row">
+      <div class="grid grid-cols-12 gap-3">
         <number-prefix-select
           v-model="modelValue.numberPrefixTemplate"
           :disable="!modelValue.companyId"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :filtered-options="filteredNumberPrefixes"
           bottom-slots
           lazy-rules
@@ -53,7 +53,7 @@
           v-model="modelValue.currency"
           :disable="!modelValue.companyId"
           required
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           bottom-slots
           lazy-rules
           name="currency"
@@ -65,7 +65,7 @@
           filled
           :borderless="false"
           required
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           bottom-slots
           lazy-rules
           name="locale"
@@ -73,7 +73,7 @@
         <q-input
           v-model.number="modelValue.paymentTermDays"
           :disable="!modelValue.companyId"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :label="`${lang.invoice.fields.paymentTermDays}*`"
           bottom-slots
           lazy-rules
@@ -84,25 +84,16 @@
         <q-input
           v-model="modelValue.projectId"
           :disable="!modelValue.companyId"
-          class="col-md-4 col-12"
+          class="md:col-span-4 col-span-12"
           :label="lang.invoice.fields.projectId"
           bottom-slots
         />
-      </div>
-      <div class="row">
-        <!-- <form-input
-        v-model="modelValue.numberPrefix"
-        class="col-md-4 col-12"
-        :label="lang.invoice.fields.numberPrefix"
-        bottom-slots
-        lazy-rules
-        name="numberPrefix"
-      /> -->
+
         <q-input
           :model-value="(modelValue.requiredDownPaymentAmount || 0) / 100"
           :label="lang.invoice.fields.requiredDownPaymentAmount"
           :disable="!modelValue.companyId"
-          class="col-12 col-md-4"
+          class="col-span-12 md:col-span-4"
           :prefix="currencySymbols[modelValue.currency]"
           :lang="$q.lang.isoName"
           type="number"
@@ -114,12 +105,21 @@
           "
         />
       </div>
-      <div class="row items-center">
+      <!-- <form-input
+        v-model="modelValue.numberPrefix"
+        class="md:col-span-4 col-span-12"
+        :label="lang.invoice.fields.numberPrefix"
+        bottom-slots
+        lazy-rules
+        name="numberPrefix"
+      /> -->
+      <!-- <div class="row items-center">
         {{ lang.invoice.lines }}
         <q-btn flat round icon="i-mdi-add" @click="addLine" />
-      </div>
+      </div> -->
 
-      <q-list separator>
+      <q-list bordered>
+        <q-item-label header> {{ lang.invoice.lines }} </q-item-label>
         <invoice-line-item
           v-for="(line, index) in modelValue.lines"
           :key="index"
@@ -130,13 +130,22 @@
           editable
           @click="openInvoiceLineDialog(modelValue.lines, index)"
         ></invoice-line-item>
+        <q-item clickable @click="addLine">
+          <q-item-section avatar>
+            <q-icon name="i-mdi-add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.add }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
 
-      <div class="row items-center">
-        {{ lang.invoice.discounts }}
-        <q-btn flat round icon="i-mdi-add" @click="addDiscount" />
-      </div>
-      <q-list separator>
+      <q-list bordered>
+        <q-item-label header>
+          {{ lang.invoice.discounts }}
+        </q-item-label>
         <invoice-line-item
           v-for="(discount, index) in modelValue.discounts"
           :key="index"
@@ -147,13 +156,23 @@
           editable
           @click="openInvoiceLineDialog(modelValue.discounts, index)"
         ></invoice-line-item>
+
+        <q-item clickable @click="addDiscount">
+          <q-item-section avatar>
+            <q-icon name="i-mdi-add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.add }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
 
-      <div class="row items-center">
-        {{ lang.invoice.surcharges }}
-        <q-btn flat round icon="i-mdi-add" @click="addSurcharge" />
-      </div>
-      <q-list separator>
+      <q-list bordered>
+        <q-item-label header>
+          {{ lang.invoice.surcharges }}
+        </q-item-label>
         <invoice-line-item
           v-for="(surcharge, index) in modelValue.surcharges"
           :key="index"
@@ -164,13 +183,27 @@
           editable
           @click="openInvoiceLineDialog(modelValue.surcharges, index)"
         ></invoice-line-item>
+
+        <q-item clickable @click="addSurcharge">
+          <q-item-section avatar>
+            <q-icon name="i-mdi-add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ lang.add }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
 
-      <q-input
-        v-model="modelValue.notes"
-        :label="lang.invoice.fields.notes"
-        type="textarea"
-      />
+      <div class="q-pt-md grid grid-cols-12 gap-3">
+        <q-input
+          v-model="modelValue.notes"
+          :label="lang.invoice.fields.notes"
+          class="col-span-12"
+          type="textarea"
+        />
+      </div>
     </div>
   </q-form>
 

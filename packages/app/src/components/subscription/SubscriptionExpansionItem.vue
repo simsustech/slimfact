@@ -2,7 +2,7 @@
   <q-expansion-item class="full-width" :content-inset-level="1">
     <template #header>
       <q-item-section avatar>
-        <q-icon :name="modelValue.active ? 'i-mdi-play-arrow' : 'i-mdi-stop'" />
+        <q-icon :name="modelValue.active ? 'i-mdi-play' : 'i-mdi-stop'" />
       </q-item-section>
 
       <q-item-section>
@@ -45,7 +45,7 @@
                 @click="start(modelValue)"
               >
                 <q-item-section avatar>
-                  <q-icon name="play_arrow" />
+                  <q-icon name="i-mdi-play" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>

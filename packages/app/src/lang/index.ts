@@ -17,12 +17,13 @@ export interface Language {
   goHome: string
   updateAvailable: string
   refresh: string
-  settings: string
   name: string
   overview: string
   noResultsAvailable: string
+  add: string
   account: {
     title: string
+    accounts: string
     name: string
     fields: {
       email: string
@@ -292,6 +293,9 @@ export interface Language {
         invoices: string
       }
     }
+  }
+  settings: {
+    title: string
   }
 }
 

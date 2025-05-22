@@ -145,6 +145,8 @@
           />
           <q-btn v-else color="primary" icon="i-mdi-home" to="/" />
         </div>
+      </q-toolbar>
+      <q-toolbar inset>
         <div
           v-if="
             invoice?.amountPaid &&

@@ -1,49 +1,42 @@
 <template>
-  <resource-page
-    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
-    type="create"
-    @create="openCreateDialog"
-    @update="openUpdateDialog"
-  >
-    <template #header>
-      {{ lang.company.title }}
-    </template>
-    <div v-if="ready" class="row">
+  <q-page padding>
+    <div v-if="ready" class="grid grid-cols-12 gap-3">
       <company-card
         v-for="company in data"
+        class="col-span-12 md:col-span-3"
         :key="company.id"
         :model-value="company"
         @update="openUpdateDialog"
       />
     </div>
+  </q-page>
 
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="updateDialogRef"
-      persistent
-      @submit="update"
-    >
-      <company-form
-        ref="updateCompanyFormRef"
-        :filtered-number-prefixes="numberPrefixes"
-        @submit="updateCompany"
-      ></company-form>
-    </responsive-dialog>
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="createDialogRef"
-      persistent
-      @submit="create"
-    >
-      <company-form
-        ref="createCompanyFormRef"
-        :filtered-number-prefixes="numberPrefixes"
-        @submit="createCompany"
-      ></company-form>
-    </responsive-dialog>
-  </resource-page>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="updateDialogRef"
+    persistent
+    @submit="update"
+  >
+    <company-form
+      ref="updateCompanyFormRef"
+      :filtered-number-prefixes="numberPrefixes"
+      @submit="updateCompany"
+    ></company-form>
+  </responsive-dialog>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="createDialogRef"
+    persistent
+    @submit="create"
+  >
+    <company-form
+      ref="createCompanyFormRef"
+      :filtered-number-prefixes="numberPrefixes"
+      @submit="createCompany"
+    ></company-form>
+  </responsive-dialog>
 </template>
 
 <script lang="ts">
@@ -53,15 +46,23 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
-import { createUseTrpc } from '../../trpc.js'
+import { ref, nextTick, onMounted, inject } from 'vue'
+import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import CompanyForm from '../../components/company/CompanyForm.vue'
-import CompanyCard from '../../components/company/CompanyCard.vue'
-import { useLang } from '../../lang/index.js'
-const { useQuery, useMutation } = await createUseTrpc()
+import CompanyForm from '../../../components/company/CompanyForm.vue'
+import CompanyCard from '../../../components/company/CompanyCard.vue'
 
-const lang = useLang()
+import { EventBus } from 'quasar'
+
+const bus = inject<EventBus>('bus')!
+bus.on('administrator-open-clients-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
+
+const { useQuery, useMutation } = await createUseTrpc()
 
 const { data, execute } = useQuery('admin.getCompanies', {
   // immediate: true

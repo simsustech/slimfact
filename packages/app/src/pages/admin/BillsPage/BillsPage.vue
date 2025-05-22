@@ -1,15 +1,7 @@
 <template>
-  <resource-page
-    :icons="{ add: 'i-mdi-add', edit: 'i-mdi-edit' }"
-    style="min-height: inherit"
-    type="create"
-    @create="openCreateDialog"
-    @update="openUpdateDialog"
-  >
-    <template #header>
-      {{ lang.bill.title }}
-    </template>
-    <template #header-side>
+  <q-page padding>
+    <q-toolbar>
+      <q-space />
       <q-btn icon="i-mdi-search">
         <q-menu class="q-pa-sm">
           <company-select
@@ -30,7 +22,7 @@
           <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
-    </template>
+    </q-toolbar>
     <div v-if="ready" class="row">
       <q-list class="full-width" dense>
         <invoice-expansion-item
@@ -48,55 +40,54 @@
         :max-pages="5"
       />
     </div>
-
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="updateDialogRef"
-      persistent
-      @submit="update"
-    >
-      <invoice-form
-        ref="updateInvoiceFormRef"
-        :filtered-companies="filteredCompanies"
-        :filtered-clients="filteredClients"
-        :filtered-number-prefixes="numberPrefixes || []"
-        @submit="updateInvoice"
-        @filter:companies="onFilterCompanies"
-        @filter:clients="onFilterClients"
-      ></invoice-form>
-    </responsive-dialog>
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="createDialogRef"
-      persistent
-      @submit="create"
-    >
-      <invoice-form
-        ref="createInvoiceFormRef"
-        :filtered-companies="filteredCompanies"
-        :filtered-clients="filteredClients"
-        :filtered-number-prefixes="numberPrefixes || []"
-        @submit="createInvoice"
-        @filter:companies="onFilterCompanies"
-        @filter:clients="onFilterClients"
-      ></invoice-form>
-    </responsive-dialog>
-    <responsive-dialog
-      :icons="{ close: 'i-mdi-close' }"
-      padding
-      ref="sendBillDialogRef"
-      button-type="send"
-      persistent
-      @submit="sendBill"
-    >
-      <email-input
-        v-model:subject="sendBillEmailSubject"
-        v-model:body="sendBillEmailBody"
-      />
-    </responsive-dialog>
-  </resource-page>
+  </q-page>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="updateDialogRef"
+    persistent
+    @submit="update"
+  >
+    <invoice-form
+      ref="updateInvoiceFormRef"
+      :filtered-companies="filteredCompanies"
+      :filtered-clients="filteredClients"
+      :filtered-number-prefixes="numberPrefixes || []"
+      @submit="updateInvoice"
+      @filter:companies="onFilterCompanies"
+      @filter:clients="onFilterClients"
+    ></invoice-form>
+  </responsive-dialog>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="createDialogRef"
+    persistent
+    @submit="create"
+  >
+    <invoice-form
+      ref="createInvoiceFormRef"
+      :filtered-companies="filteredCompanies"
+      :filtered-clients="filteredClients"
+      :filtered-number-prefixes="numberPrefixes || []"
+      @submit="createInvoice"
+      @filter:companies="onFilterCompanies"
+      @filter:clients="onFilterClients"
+    ></invoice-form>
+  </responsive-dialog>
+  <responsive-dialog
+    :icons="{ close: 'i-mdi-close' }"
+    padding
+    ref="sendBillDialogRef"
+    button-type="send"
+    persistent
+    @submit="sendBill"
+  >
+    <email-input
+      v-model:subject="sendBillEmailSubject"
+      v-model:body="sendBillEmailBody"
+    />
+  </responsive-dialog>
 </template>
 
 <script lang="ts">
@@ -106,13 +97,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed, watch } from 'vue'
-import { createUseTrpc } from '../../trpc.js'
+import { ref, nextTick, onMounted, computed, watch, inject } from 'vue'
+import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput, BooleanSelect } from '@simsustech/quasar-components/form'
-import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
-import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
-import { useLang } from '../../lang/index.js'
+import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
+import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
+import { useLang } from '../../../lang/index.js'
 import {
   type CompanyDetails,
   type ClientDetails
@@ -121,11 +112,20 @@ import { PaymentMethod } from '@modular-api/fastify-checkout/types'
 import { InvoiceStatus } from '@slimfact/api/zod'
 
 import { useQuasar, QSelect } from 'quasar'
-import CompanySelect from '../../components/company/CompanySelect.vue'
-import ClientSelect from '../../components/client/ClientSelect.vue'
-import AddPaymentDialog from '../../components/AddPaymentDialog.vue'
+import CompanySelect from '../../../components/company/CompanySelect.vue'
+import ClientSelect from '../../../components/client/ClientSelect.vue'
+import AddPaymentDialog from '../../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
-import { useConfiguration } from '../../configuration.js'
+import { useConfiguration } from '../../../configuration.js'
+import { EventBus } from 'quasar'
+
+const bus = inject<EventBus>('bus')!
+bus.on('administrator-open-bills-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
 
 const { useQuery, useMutation } = await createUseTrpc()
 const configuration = useConfiguration()
