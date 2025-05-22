@@ -56,11 +56,13 @@ test.beforeAll(async ({ browser }) => {
   await page.locator('text="Email"').fill(email)
   await page.locator('text="Password"').fill(password)
 
-  await page.locator('button').getByText('Login', { exact: true }).click()
+  await page.locator('button >> text=Login').click()
 
   await page.waitForURL(/.*user/)
   await expect(
-    page.getByText('Account').locator(':scope.q-item__label')
+    page
+      .getByRole('tab', { name: 'Account' })
+      .or(page.getByText('Account').locator(':scope.q-item__label'))
   ).toBeVisible()
 })
 test.describe('Account', async () => {
