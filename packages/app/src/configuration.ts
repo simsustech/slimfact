@@ -79,6 +79,7 @@ export const loadConfiguration = async (language: Ref<string>) => {
 
 export const COMPANY_ICON = 'i-mdi-company'
 export const NUMBER_PREFIX_ICON = 'i-mdi-numbers'
+export const INITIAL_NUMBER_FOR_PREFIX_ICON = 'i-mdi-format-list-numbered'
 export const ACCOUNTS_ICON = 'i-mdi-people'
 export const BILL_ICON = 'i-mdi-receipt-outline'
 export const RECEIPT_ICON = 'i-mdi-receipt'

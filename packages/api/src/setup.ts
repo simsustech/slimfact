@@ -5,8 +5,11 @@ import { createRouter, createContext } from './trpc/index.js'
 import env from '@vitrify/tools/env'
 // @ts-expect-error no types
 import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plugin'
-// @ts-expect-error no types
-import { onRendered as appOnRendered } from '@slimfact/app/hooks'
+import {
+  onRendered as appOnRendered,
+  onTemplateRendered as appOnTemplateRendered
+  // @ts-expect-error no types
+} from '@slimfact/app/hooks'
 import { db as kysely } from '../src/kysely/index.js'
 
 import {
@@ -23,9 +26,9 @@ import { initialize } from './pgboss.js'
 import type { ClientMetadata } from 'oidc-provider'
 import { generateTheme } from 'unocss-preset-quasar/theme'
 
-const getString = (str: string) => str
-// @ts-expect-error vitrify variable
-const host = getString(__HOST__)
+// const getString = (str: string) => str
+// // @ts-expect-error vitrify variable
+// const host = getString(__HOST__)
 
 const theme = generateTheme(
   env.read('SOURCE_COLOR') || env.read('VITE_SOURCE_COLOR') || '#00a4e6'
@@ -54,12 +57,12 @@ const sassVariables = {
  * Only used in SSR/SSG
  */
 export default async function (fastify: FastifyInstance) {
-  const hostname = env.read('API_HOSTNAME') || env.read('VITE_API_HOSTNAME')
-  const corsOrigin = [`https://${hostname}`]
+  const host = env.read('API_HOST') || env.read('VITE_API_HOST')
+  const corsOrigin = [`https://${host}`]
 
-  if (!hostname)
+  if (!host)
     throw new Error(
-      'Please define a API_HOSTNAME or VITE_API_HOSTNAME environment variable'
+      'Please define a API_HOST or VITE_API_HOST environment variable'
     )
 
   console.log('Running setup function....')
@@ -116,14 +119,6 @@ export default async function (fastify: FastifyInstance) {
         envVar.includes('MOLLIE_API_KEY_') ||
         envVar.includes('VITE_MOLLIE_API_KEY_')
     )
-    // molliePaymentHandler = createMolliePaymentHandler({
-    //   fastify,
-    //   kysely,
-    //   options: {
-    //     apiKey: env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY'),
-    //     hostname
-    //   }
-    // })
 
     const profiles = {
       default: createMolliePaymentHandler({
@@ -131,7 +126,7 @@ export default async function (fastify: FastifyInstance) {
         kysely,
         options: {
           apiKey: env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY'),
-          hostname
+          host
         }
       }),
       ...mollieProfiles.reduce(
@@ -142,7 +137,7 @@ export default async function (fastify: FastifyInstance) {
               kysely,
               options: {
                 apiKey: env.read(cur),
-                hostname
+                host
               }
             })
           return acc
@@ -166,7 +161,7 @@ export default async function (fastify: FastifyInstance) {
       fastify,
       kysely,
       options: {
-        hostname
+        host
       }
     })
   }
@@ -194,19 +189,19 @@ export default async function (fastify: FastifyInstance) {
       grant_types: ['authorization_code', 'refresh_token'],
       scope: 'openid offline_access profile email api',
       client_secret: 'secret',
-      redirect_uris: [`https://${hostname}/redirect`],
+      redirect_uris: [`https://${host}/redirect`],
       token_endpoint_auth_method: 'none',
-      'urn:custom:client:allowed-cors-origins': [`https://${hostname}`]
+      'urn:custom:client:allowed-cors-origins': [`https://${host}`]
     }
   ]
 
   if (
-    env.read('VITE_PETBOARDING_CLIENT_HOSTNAME') ||
-    env.read('PETBOARDING_CLIENT_HOSTNAME')
+    env.read('VITE_PETBOARDING_CLIENT_HOST') ||
+    env.read('PETBOARDING_CLIENT_HOST')
   ) {
-    const petboardingClientHostname =
-      env.read('VITE_PETBOARDING_CLIENT_HOSTNAME') ||
-      env.read('PETBOARDING_CLIENT_HOSTNAME')
+    const petboardingClientHost =
+      env.read('VITE_PETBOARDING_CLIENT_HOST') ||
+      env.read('PETBOARDING_CLIENT_HOST')
     clients.push({
       client_id: 'petboarding',
       client_name: 'Petboarding',
@@ -214,9 +209,9 @@ export default async function (fastify: FastifyInstance) {
       grant_types: ['authorization_code', 'refresh_token'],
       scope: 'openid offline_access profile email api',
       client_secret: 'secret',
-      redirect_uris: [`https://${petboardingClientHostname}/callback/slimfact`],
+      redirect_uris: [`https://${petboardingClientHost}/callback/slimfact`],
       token_endpoint_auth_method: 'none',
-      'urn:custom:client:allowed-cors-origins': [`https://${hostname}`]
+      'urn:custom:client:allowed-cors-origins': [`https://${host}`]
     })
   }
 
@@ -235,7 +230,7 @@ export default async function (fastify: FastifyInstance) {
       locale: env.read('VITE_LANG') || 'en-US',
       themeColors: theme['colors'],
       sassVariables,
-      issuer: `https://${hostname}`,
+      issuer: `https://${host}`,
       accountMethods,
       firstPartyClients: ['slimfact'],
       jwksURL: new URL('jwks/jwks.json', import.meta.url),
@@ -315,7 +310,8 @@ export default async function (fastify: FastifyInstance) {
 
   await fastify.register(appSsrPlugin, {
     host,
-    onRendered: appOnRendered
+    onRendered: appOnRendered,
+    onTemplateRendered: appOnTemplateRendered
   })
 
   const boss = await initialize({ fastify })

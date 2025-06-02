@@ -10,7 +10,7 @@
     </q-toolbar>
     <q-list v-if="ready">
       <client-item
-        v-for="client in data"
+        v-for="client in clients"
         :key="client.id"
         :model-value="client"
         show-update-button
@@ -20,8 +20,10 @@
     <div class="row justify-center items-center">
       <q-pagination
         v-model="page"
+        :disable="!(total && page && rowsPerPage)"
         :max="Math.ceil(total / rowsPerPage)"
         :max-pages="5"
+        direction-links
       />
     </div>
     <!-- <div class="row" v-if="ready">
@@ -71,16 +73,20 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive, computed, inject } from 'vue'
-import { createUseTrpc } from '../../../trpc.js'
+import { ref, nextTick, onMounted, computed, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import ClientForm from '../../../components/client/ClientForm.vue'
 import ClientItem from '../../../components/client/ClientItem.vue'
 import { useLang } from '../../../lang/index.js'
-import { Account } from '@slimfact/api/zod'
 import AccountSelect from '../../../components/admin/AccountSelect.vue'
 
 import { EventBus } from 'quasar'
+import {
+  useAdminCreateClientMutation,
+  useAdminSearchClientsQuery,
+  useAdminUpdateClientMutation
+} from 'src/queries/admin/clients.js'
+import { useAdminSearchAccountsQuery } from 'src/queries/admin/accounts.js'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-clients-create-dialog', () => {
@@ -90,34 +96,24 @@ bus.on('administrator-open-clients-create-dialog', () => {
     })
 })
 
-const { useQuery, useMutation } = await createUseTrpc()
-
 const lang = useLang()
 
-const name = ref<string>('')
+const {
+  clients,
+  refetch: execute,
+  name,
+  page,
+  rowsPerPage
+} = useAdminSearchClientsQuery()
+const total = computed(() => clients.value?.at(0)?.total || 0)
 
-const page = ref(1)
-const rowsPerPage = ref(5)
-const total = computed(() => data.value?.at(0)?.total || 0)
-const pagination = computed<{
-  limit: number
-  offset: number
-  sortBy: 'id'
-  descending: boolean
-}>(() => ({
-  limit: rowsPerPage.value,
-  offset: (page.value - 1) * rowsPerPage.value,
-  sortBy: 'id',
-  descending: true
-}))
-
-const { data, execute } = useQuery('admin.searchClients', {
-  args: reactive({
-    name,
-    pagination
-  })
-  // immediate: true
-})
+// const { data, execute } = useQuery('admin.searchClients', {
+//   args: reactive({
+//     name,
+//     pagination
+//   })
+//   // immediate: true
+// })
 
 const updateClientFormRef = ref<typeof ClientForm>()
 const createClientFormRef = ref<typeof ClientForm>()
@@ -159,47 +155,44 @@ const create: InstanceType<
   createClientFormRef.value?.functions.submit({ done: afterCreate })
 }
 
+const { mutateAsync: createClientMutation } = useAdminCreateClientMutation()
+const { mutateAsync: updateClientMutation } = useAdminUpdateClientMutation()
+
 const updateClient: InstanceType<
   typeof ClientForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.updateClient', {
-    args: data,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  done(!result.error.value)
+  try {
+    await updateClientMutation(data)
+    done()
+  } catch (e) {}
 }
 
 const createClient: InstanceType<
   typeof ClientForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.createClient', {
-    args: data,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  done(!result.error.value)
+  try {
+    await createClientMutation(data)
+    done()
+  } catch (e) {}
 }
 
-const filteredAccounts = ref<Account[]>([])
+const {
+  accounts: filteredAccounts,
+  email,
+  ids: accountIds,
+  refetch: refetchAccounts
+} = useAdminSearchAccountsQuery()
 
 const onFilterAccounts: InstanceType<
   typeof AccountSelect
 >['$props']['onFilter'] = async ({ ids, searchPhrase, done }) => {
-  const result = useQuery('admin.findAccounts', {
-    args: { email: searchPhrase, ids },
-    immediate: true
-  })
+  try {
+    email.value = searchPhrase
+    accountIds.value = ids
+    await refetchAccounts()
 
-  await result.immediatePromise
-
-  if (result.data.value) filteredAccounts.value = result.data.value
-
-  if (done) done()
+    done()
+  } catch (e) {}
 }
 
 const ready = ref<boolean>(false)

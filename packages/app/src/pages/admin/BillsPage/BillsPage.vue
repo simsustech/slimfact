@@ -33,11 +33,13 @@
         />
       </q-list>
     </div>
-    <div class="row justify-center items-center">
+    <div class="flex flex-center">
       <q-pagination
         v-model="page"
+        :disable="!(total && page && rowsPerPage)"
         :max="Math.ceil(total / rowsPerPage)"
         :max-pages="5"
+        direction-links
       />
     </div>
   </q-page>
@@ -78,14 +80,14 @@
   <responsive-dialog
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="sendBillDialogRef"
+    ref="sendEmailDialogRef"
     button-type="send"
     persistent
     @submit="sendBill"
   >
     <email-input
-      v-model:subject="sendBillEmailSubject"
-      v-model:body="sendBillEmailBody"
+      v-model:subject="sendEmailSubject"
+      v-model:body="sendEmailBody"
     />
   </responsive-dialog>
 </template>
@@ -98,18 +100,16 @@ export default {
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted, computed, watch, inject } from 'vue'
-import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput, BooleanSelect } from '@simsustech/quasar-components/form'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
+
 import {
-  type CompanyDetails,
-  type ClientDetails
-} from '@modular-api/fastify-checkout'
-import { PaymentMethod } from '@modular-api/fastify-checkout/types'
-import { InvoiceStatus } from '@slimfact/api/zod'
+  InvoiceStatus,
+  PaymentMethod
+} from '@modular-api/fastify-checkout/types'
 
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../../components/company/CompanySelect.vue'
@@ -118,6 +118,21 @@ import AddPaymentDialog from '../../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useConfiguration } from '../../../configuration.js'
 import { EventBus } from 'quasar'
+import { useAdminGetBillsQuery } from '../../../queries/admin/bills.js'
+import { useAdminGetNumberPrefixesQuery } from '../../../queries/admin/numberPrefixes.js'
+import {
+  useAdminGetInvoiceEmailQuery,
+  useAdminSendBillMutation,
+  useAdminSendReceiptMutation
+} from '../../../queries/admin/email.js'
+import {
+  useAdminAddPaymentToInvoiceMutation,
+  useAdminCancelInvoiceMutation,
+  useAdminCreateInvoiceMutation,
+  useAdminUpdateInvoiceMutation
+} from '../../../queries/admin/invoices.js'
+import { useAdminSearchCompaniesQuery } from '../../../queries/admin/companies.js'
+import { useAdminSearchClientsQuery } from '../../../queries/admin/clients.js'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-bills-create-dialog', () => {
@@ -127,7 +142,6 @@ bus.on('administrator-open-bills-create-dialog', () => {
     })
 })
 
-const { useQuery, useMutation } = await createUseTrpc()
 const configuration = useConfiguration()
 
 const $q = useQuasar()
@@ -144,48 +158,24 @@ onBeforeRouteUpdate((to) => {
   }
 })
 
-const companyId = ref(NaN)
-const clientId = ref(NaN)
-const status = ref<InvoiceStatus | null>(InvoiceStatus.BILL)
-const clientDetails = ref({
-  name: null as string | null
-})
-const page = ref(1)
-const rowsPerPage = ref(5)
+const {
+  bills: invoices,
+  companyId,
+  clientId,
+  clientDetails,
+  page,
+  rowsPerPage,
+  paid,
+  refetch: execute
+} = useAdminGetBillsQuery()
 const total = computed(() => invoices.value?.at(0)?.total || 0)
-const pagination = computed<{
-  limit: number
-  offset: number
-  sortBy: 'id' | 'companyId' | 'clientId' | 'totalIncludingTax'
-  descending: boolean
-}>(() => ({
-  limit: rowsPerPage.value,
-  offset: (page.value - 1) * rowsPerPage.value,
-  sortBy: 'id',
-  descending: true
-}))
-const paid = ref()
 
-const { data: invoices, execute } = useQuery('admin.getInvoices', {
-  args: () => ({
-    companyId: companyId.value,
-    clientId: clientId.value,
-    clientDetails: clientDetails.value,
-    status: status.value,
-    pagination: pagination.value,
-    paid: paid.value,
-    uuids:
-      companyId.value || clientId.value || clientDetails.value.name
-        ? undefined
-        : uuids.value
-  }),
-  reactive: true
-  // immediate: true
-})
+const { numberPrefixes, refetch: refetchNumberPrefixes } =
+  useAdminGetNumberPrefixesQuery()
+await refetchNumberPrefixes()
 
-const { data: numberPrefixes } = useQuery('admin.getNumberPrefixes', {
-  immediate: true
-})
+const { mutateAsync: updateInvoiceMutation } = useAdminUpdateInvoiceMutation()
+const { mutateAsync: createInvoiceMutation } = useAdminCreateInvoiceMutation()
 
 const updateInvoiceFormRef = ref<typeof InvoiceForm>()
 const createInvoiceFormRef = ref<typeof InvoiceForm>()
@@ -230,60 +220,58 @@ const create: InstanceType<
 const updateInvoice: InstanceType<
   typeof InvoiceForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.updateInvoice', {
-    args: data,
-    immediate: true
-  })
+  try {
+    await updateInvoiceMutation(data)
 
-  await result.immediatePromise
-
-  done(!result.error.value)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
 const createInvoice: InstanceType<
   typeof InvoiceForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.createInvoice', {
-    args: { ...data, status: InvoiceStatus.BILL },
-    immediate: true
-  })
+  try {
+    await createInvoiceMutation({ ...data, status: InvoiceStatus.BILL })
 
-  await result.immediatePromise
-
-  done(!result.error.value)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
-const filteredCompanies = ref<CompanyDetails[]>([])
+const {
+  companies: filteredCompanies,
+  searchPhrase: companiesSearchPhrase,
+  refetch: refetchFilteredCompanies
+} = useAdminSearchCompaniesQuery()
+
+// const filteredCompanies = ref<CompanyDetails[]>([])
 const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchCompanies', {
-    args: searchPhrase,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredCompanies.value = result.data.value
+  companiesSearchPhrase.value = searchPhrase
+  await refetchFilteredCompanies()
 
   if (done) done()
 }
 
-const filteredClients = ref<ClientDetails>([])
+const {
+  clients: filteredClients,
+  name: clientName,
+  refetch: refetchFilteredClients
+} = useAdminSearchClientsQuery()
+// const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchClients', {
-    args: { name: searchPhrase },
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredClients.value = result.data.value
+  clientName.value = searchPhrase
+  await refetchFilteredClients()
 
   if (done) done()
 }
+
+const { mutateAsync: addPaymentToInvoiceMutation } =
+  useAdminAddPaymentToInvoiceMutation()
 
 const openAddCashPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
@@ -307,8 +295,8 @@ const openAddCashPaymentDialog: InstanceType<
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
+      try {
+        await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
@@ -316,13 +304,9 @@ const openAddCashPaymentDialog: InstanceType<
             description: new Date().toISOString().slice(0, 10),
             method: PaymentMethod.cash
           }
-        },
-        immediate: true
-      })
-
-      await result.immediatePromise
-
-      if (!result.error.value) execute()
+        })
+        await execute()
+      } catch (e) {}
     })
 }
 
@@ -348,8 +332,8 @@ const openAddBankTransferPaymentDialog: InstanceType<
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
+      try {
+        await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
@@ -358,14 +342,9 @@ const openAddBankTransferPaymentDialog: InstanceType<
             transactionReference,
             method: PaymentMethod.banktransfer
           }
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
 
@@ -391,8 +370,8 @@ const openAddPinPaymentDialog: InstanceType<
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
+      try {
+        await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
@@ -401,16 +380,13 @@ const openAddPinPaymentDialog: InstanceType<
             transactionReference,
             method: PaymentMethod.pin
           }
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
+
+const { mutateAsync: cancelInvoiceMutation } = useAdminCancelInvoiceMutation()
 
 const openCancelDialog: InstanceType<
   typeof InvoiceExpansionItem
@@ -430,85 +406,77 @@ const openCancelDialog: InstanceType<
       })
     })
     .onOk(async () => {
-      const result = useMutation('admin.cancelInvoice', {
-        args: {
+      try {
+        await cancelInvoiceMutation({
           id: data.id
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
 
-const openSendBillDialog = (
+const openSendEmailDialog = (
   type: 'bill' | 'receipt'
 ): InstanceType<typeof InvoiceExpansionItem>['$props']['onSend'] => {
   return async ({ data, done }) => {
-    const result = useQuery('admin.getInvoiceEmail', {
-      args: {
-        id: data.id,
-        type,
-        action: 'send'
-      },
-      immediate: true
-    })
+    sendEmailId.value = data.id
+    sendEmailType.value = type
+    sendEmailAction.value = 'send'
 
-    await result.immediatePromise
+    await refetchEmail()
 
-    if (
-      sendBillDialogRef?.value &&
-      result.data.value?.subject &&
-      result.data.value?.body
-    ) {
-      sendBillEmailType.value = type === 'bill' ? 'sendBill' : 'sendReceipt'
-      sendBillEmailId.value = data.id
-      sendBillEmailSubject.value = result.data.value.subject
-      sendBillEmailBody.value = result.data.value.body
-      sendBillDialogRef.value.functions.open()
+    if (email.value && sendEmailDialogRef?.value) {
+      sendEmailBody.value = email.value.body
+      sendEmailSubject.value = email.value?.subject
+
+      sendEmailDialogRef.value.functions.open()
+
+      done()
     }
-
-    done(!result.error.value)
   }
 }
 
-const sendBillEmailType = ref<'sendBill' | 'sendReceipt'>('sendBill')
-const sendBillEmailId = ref(NaN)
-const sendBillEmailSubject = ref('')
-const sendBillEmailBody = ref('')
+const {
+  email,
+  id: sendEmailId,
+  type: sendEmailType,
+  action: sendEmailAction,
+  refetch: refetchEmail
+} = useAdminGetInvoiceEmailQuery()
+const sendEmailSubject = ref('')
+const sendEmailBody = ref('')
 
-const sendBillDialogRef = ref<typeof ResponsiveDialog>()
+// const sendBillEmailType = ref<'sendBill' | 'sendReceipt'>('sendBill')
+// const sendBillEmailId = ref(NaN)
+
+const sendEmailDialogRef = ref<typeof ResponsiveDialog>()
+
+const { mutateAsync: sendBillMutation } = useAdminSendBillMutation()
+const { mutateAsync: sendReceiptMutation } = useAdminSendReceiptMutation()
 
 const sendMutations = {
-  sendBill: 'admin.sendBill',
-  sendReceipt: 'admin.sendReceipt'
+  bill: sendBillMutation,
+  receipt: sendReceiptMutation,
+  invoice: () => {}
 } as const
 
 const sendBill: InstanceType<
   typeof ResponsiveDialog
 >['$props']['onSubmit'] = async ({ done }) => {
-  const result = useMutation(sendMutations[sendBillEmailType.value], {
-    args: {
-      id: sendBillEmailId.value,
-      emailSubject: sendBillEmailSubject.value,
-      emailBody: sendBillEmailBody.value
-    },
-    immediate: true
-  })
+  try {
+    await sendMutations[sendEmailType.value]({
+      id: sendEmailId.value,
+      emailSubject: sendEmailSubject.value,
+      emailBody: sendEmailBody.value
+    })
 
-  await result.immediatePromise
-
-  done(!result.error.value)
-  if (!result.error.value) {
-    sendBillEmailType.value = 'sendBill'
-    sendBillEmailId.value = NaN
-    sendBillEmailSubject.value = ''
-    sendBillEmailBody.value = ''
+    done()
+    // sendBillEmailType.value = 'sendBill'
+    sendEmailId.value = NaN
+    sendEmailSubject.value = ''
+    sendEmailBody.value = ''
     execute()
-  }
+  } catch (e) {}
 }
 
 const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
@@ -521,9 +489,9 @@ watch(clientId, (newVal) => {
 })
 
 const invoiceExpansionItemHandlers = computed(() => ({
-  send: openSendBillDialog('bill'),
+  send: openSendEmailDialog('bill'),
   update: openUpdateDialog,
-  sendReceipt: openSendBillDialog('receipt'),
+  sendReceipt: openSendEmailDialog('receipt'),
   addPaymentPin: configuration.value.PAYMENT_HANDLERS.pin
     ? openAddPinPaymentDialog
     : undefined,

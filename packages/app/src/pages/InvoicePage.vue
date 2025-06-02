@@ -54,22 +54,6 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-item
-                v-if="
-                  configuration.PAYMENT_HANDLERS.smartpin &&
-                  isMobile &&
-                  user?.roles?.includes('pointofsale')
-                "
-                clickable
-                @click="payWithSmartpin"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-credit-card" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> SmartPin </q-item-label>
-                </q-item-section>
-              </q-item>
             </q-list>
           </q-btn-dropdown>
 
@@ -120,7 +104,7 @@
             icon="i-mdi-download"
             color="primary"
             download="proposed_file_name"
-            :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${hostname}`"
+            :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${host}`"
           >
             <q-tooltip class="no-print">
               {{ lang.invoice.labels.download }}
@@ -251,8 +235,7 @@
 
 <script setup lang="ts">
 import { InvoicePage } from '@modular-api/quasar-components/checkout'
-import { createUseTrpc } from '../trpc.js'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
 import { useMeta, useQuasar } from 'quasar'
@@ -263,28 +246,45 @@ import { ResponsiveDialog } from '@simsustech/quasar-components'
 import Price from '../components/Price.vue'
 import { loadConfiguration, useConfiguration } from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
+import { useQuery } from '@pinia/colada'
+import { trpc } from '../trpc.js'
+import {
+  usePublicPayDownPaymentWithIdealMutation,
+  usePublicPayWithIdealMutation
+} from 'src/queries/public/invoices.js'
+import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
 
-const { useQuery, useMutation } = await createUseTrpc()
 const lang = useLang()
 const $q = useQuasar()
 const configuration = useConfiguration()
 const route = useRoute()
-const hostname = ref(import.meta.env.SSR ? '' : window.location.host)
+const host = ref(import.meta.env.SSR ? '' : window.location.host)
 const slimfactDownloaderUrl = ref(
-  import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOSTNAME
-    ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOSTNAME}`
+  import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST
+    ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST}`
     : 'https://download.slimfact.app'
 )
 
 const uuid = ref(
   Array.isArray(route.params.uuid) ? route.params.uuid[0] : route.params.uuid
 )
-const { data: invoice } = useQuery('public.getInvoice', {
-  args: reactive({
-    uuid
-  }),
-  immediate: true
+
+const { data: invoice, refetch } = useQuery({
+  enabled: !import.meta.env.SSR,
+  key: ['publicGetInvoice', uuid.value],
+  query: () =>
+    trpc.public.getInvoice.query({
+      uuid: uuid.value
+    })
 })
+await refetch()
+
+// const { data: invoice } = useQuery('public.getInvoice', {
+//   args: reactive({
+//     uuid
+//   }),
+//   immediate: true
+// })
 
 watch(invoice, (newVal) => {
   if (newVal?.locale) {
@@ -344,43 +344,25 @@ const qrSvg = computed(() => {
 
 const invoiceRef = ref()
 
+const { mutateAsync: payWithIdealMutation } = usePublicPayWithIdealMutation()
+const { mutateAsync: payDownPaymentWithIdealMutation } =
+  usePublicPayDownPaymentWithIdealMutation()
+const { mutateAsync: refundInvoiceMutation } = useAdminRefundInvoiceMutation()
+
 const payWithIdeal = async () => {
-  const result = useMutation('public.payWithIdeal', {
-    args: {
-      uuid: uuid.value
-    },
-    immediate: true
-  })
+  try {
+    const result = await payWithIdealMutation(uuid.value)
 
-  await result.immediatePromise
-
-  if (result.data.value) window.location.href = result.data.value
+    if (result) window.location.href = result
+  } catch (e) {}
 }
 
 const payDownPaymentWithIdeal = async () => {
-  const result = useMutation('public.payDownPaymentWithIdeal', {
-    args: {
-      uuid: uuid.value
-    },
-    immediate: true
-  })
+  try {
+    const result = await payDownPaymentWithIdealMutation(uuid.value)
 
-  await result.immediatePromise
-
-  if (result.data.value) window.location.href = result.data.value
-}
-
-const payWithSmartpin = async () => {
-  const result = useMutation('public.payWithSmartpin', {
-    args: {
-      uuid: uuid.value
-    },
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) window.location.href = result.data.value
+    if (result) window.location.href = result
+  } catch (e) {}
 }
 
 const refund = async () => {
@@ -392,16 +374,10 @@ const refund = async () => {
       cancel: true
     }).onOk(async () => {
       if (invoice.value?.id) {
-        const result = useMutation('admin.refundInvoice', {
-          args: {
-            id: invoice.value.id
-          },
-          immediate: true
-        })
-
-        await result.immediatePromise
-
-        if (!result.error.value) window.location.reload()
+        try {
+          refundInvoiceMutation(invoice.value.id)
+          window.location.reload()
+        } catch (e) {}
       }
     })
   }
@@ -417,11 +393,6 @@ const print = () => {
     window.print()
   }
 }
-
-const isMobile = computed(() => {
-  if (import.meta.env.SSR) return false
-  return /Android|iPhone|iPad/i.test(window.navigator.userAgent)
-})
 
 const format = (value: number) =>
   Intl.NumberFormat(invoice.value?.locale || $q.lang.isoName, {

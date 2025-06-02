@@ -5,8 +5,8 @@ import type { FastifyInstance } from 'fastify'
 import { InvoiceStatus, PaymentMethod } from '@modular-api/fastify-checkout'
 import env from '@vitrify/tools/env'
 
-const hostname = env.read('API_HOSTNAME') || env.read('VITE_API_HOSTNAME')
-const redirectUrl = `https://${hostname}/checkout/success`
+const host = env.read('API_HOST') || env.read('VITE_API_HOST')
+const redirectUrl = `https://${host}/checkout/success`
 
 export const publicInvoiceRoutes = ({
   fastify,

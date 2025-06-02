@@ -40,8 +40,10 @@
     <div class="row justify-center items-center">
       <q-pagination
         v-model="page"
+        :disable="!(total && page && rowsPerPage)"
         :max="Math.ceil(total / rowsPerPage)"
         :max-pages="5"
+        direction-links
       />
     </div>
   </q-page>
@@ -89,21 +91,27 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, reactive, computed, inject } from 'vue'
-import { createUseTrpc } from '../../../trpc.js'
+import { ref, nextTick, onMounted, computed, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import SubscriptionForm from '../../../components/subscription/SubscriptionForm.vue'
 import { useLang } from '../../../lang/index.js'
-import {
-  type CompanyDetails,
-  type ClientDetails
-} from '@modular-api/fastify-checkout'
+
 // import { useQuasar } from 'quasar'
 import CompanySelect from '../../../components/company/CompanySelect.vue'
 import ClientSelect from '../../../components/client/ClientSelect.vue'
 import SubscriptionExpansionItem from '../../../components/subscription/SubscriptionExpansionItem.vue'
 
 import { EventBus } from 'quasar'
+import {
+  useAdminCreateSubscriptionMutation,
+  useAdminGetSubscriptionsQuery,
+  useAdminStartSubscriptionMutation,
+  useAdminStopSubscriptionMutation,
+  useAdminUpdateSubscriptionMutation
+} from 'src/queries/admin/subscriptions.js'
+import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
+import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
+import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-subscriptions-create-dialog', () => {
@@ -113,44 +121,23 @@ bus.on('administrator-open-subscriptions-create-dialog', () => {
     })
 })
 
-const { useQuery, useMutation } = await createUseTrpc()
-
 // const $q = useQuasar()
 const lang = useLang()
 
-const companyId = ref(NaN)
-const clientId = ref(NaN)
-const active = ref<boolean>()
-
-const page = ref(1)
-const rowsPerPage = ref(5)
+const {
+  subscriptions,
+  companyId,
+  clientId,
+  active,
+  page,
+  rowsPerPage,
+  refetch: execute
+} = useAdminGetSubscriptionsQuery()
 const total = computed(() => subscriptions.value?.at(0)?.total || 0)
-const pagination = computed<{
-  limit: number
-  offset: number
-  sortBy: 'id'
-  descending: boolean
-}>(() => ({
-  limit: rowsPerPage.value,
-  offset: (page.value - 1) * rowsPerPage.value,
-  sortBy: 'id',
-  descending: true
-}))
 
-const { data: subscriptions, execute } = useQuery('admin.getSubscriptions', {
-  args: reactive({
-    companyId,
-    clientId,
-    active,
-    pagination
-  }),
-  reactive: true
-  // immediate: true
-})
-
-const { data: numberPrefixes } = useQuery('admin.getNumberPrefixes', {
-  immediate: true
-})
+const { numberPrefixes, refetch: refetchNumberPrefixes } =
+  useAdminGetNumberPrefixesQuery()
+await refetchNumberPrefixes()
 
 const updateSubscriptionFormRef = ref<typeof SubscriptionForm>()
 const createSubscriptionFormRef = ref<typeof SubscriptionForm>()
@@ -192,100 +179,92 @@ const create: InstanceType<
   createSubscriptionFormRef.value?.functions.submit({ done: afterCreate })
 }
 
+const { mutateAsync: createSubscriptionMutation } =
+  useAdminCreateSubscriptionMutation()
+const { mutateAsync: updateSubscriptionMutation } =
+  useAdminUpdateSubscriptionMutation()
+
 const updateSubscription: InstanceType<
   typeof SubscriptionForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  delete data.client
-  delete data.company
-  const result = useMutation('admin.updateSubscription', {
-    args: data,
-    immediate: true
-  })
+  try {
+    delete data.client
+    delete data.company
+    await updateSubscriptionMutation(data)
 
-  await result.immediatePromise
-
-  if (!result.error.value) await execute()
-
-  done(!result.error.value)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
 const createSubscription: InstanceType<
   typeof SubscriptionForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.createSubscription', {
-    args: data,
-    immediate: true
-  })
+  try {
+    await createSubscriptionMutation(data)
 
-  await result.immediatePromise
-  if (!result.error.value) {
     await execute()
-  }
-  done(!result.error.value)
+    done()
+  } catch (e) {}
 }
 
-const filteredCompanies = ref<CompanyDetails[]>([])
+const {
+  companies: filteredCompanies,
+  searchPhrase: companiesSearchPhrase,
+  refetch: refetchFilteredCompanies
+} = useAdminSearchCompaniesQuery()
+
+// const filteredCompanies = ref<CompanyDetails[]>([])
 const onFilterCompanies: InstanceType<
-  typeof SubscriptionForm
+  typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchCompanies', {
-    args: searchPhrase,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredCompanies.value = result.data.value
+  companiesSearchPhrase.value = searchPhrase
+  await refetchFilteredCompanies()
 
   if (done) done()
 }
 
-const filteredClients = ref<ClientDetails>([])
+const {
+  clients: filteredClients,
+  name: clientName,
+  refetch: refetchFilteredClients
+} = useAdminSearchClientsQuery()
+// const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
-  typeof SubscriptionForm
+  typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchClients', {
-    args: { name: searchPhrase },
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredClients.value = result.data.value
+  clientName.value = searchPhrase
+  await refetchFilteredClients()
 
   if (done) done()
 }
 
+const { mutateAsync: startSubscriptionMutation } =
+  useAdminStartSubscriptionMutation()
 const onStartSubscription: InstanceType<
   typeof SubscriptionExpansionItem
 >['$props']['onStart'] = async ({ data, done }) => {
-  if (data.id) {
-    const result = useMutation('admin.startSubscription', {
-      args: { id: data.id },
-      immediate: true
-    })
-
-    await result.immediatePromise
-
-    if (!result.error.value) await execute()
-    if (done) done()
-  }
+  try {
+    if (data.id) {
+      await startSubscriptionMutation({ id: data.id })
+      done()
+      await execute()
+    }
+  } catch (e) {}
 }
 
+const { mutateAsync: stopSubscriptionMutation } =
+  useAdminStopSubscriptionMutation()
 const onStopSubscription: InstanceType<
   typeof SubscriptionExpansionItem
 >['$props']['onStart'] = async ({ data, done }) => {
-  if (data.id) {
-    const result = useMutation('admin.stopSubscription', {
-      args: { id: data.id },
-      immediate: true
-    })
-
-    await result.immediatePromise
-
-    if (!result.error.value) await execute()
-    if (done) done()
-  }
+  try {
+    if (data.id) {
+      await stopSubscriptionMutation({ id: data.id })
+      done()
+      await execute()
+    }
+  } catch (e) {}
 }
 
 const ready = ref<boolean>(false)

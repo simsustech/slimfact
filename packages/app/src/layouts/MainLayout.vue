@@ -187,7 +187,7 @@
                   </q-item-section>
                 </q-item>
                 <q-expansion-item
-                  to="/settings/numberprefixes"
+                  to="/admin/settings/numberprefixes"
                   :content-inset-level="1"
                 >
                   <template #header>
@@ -197,7 +197,7 @@
                       </q-item-label>
                     </q-item-section>
                   </template>
-                  <q-item to="/settings/initialnumberforprefixes">
+                  <q-item to="/admin/settings/initialnumberforprefixes">
                     <q-item-section>
                       <q-item-label>{{
                         lang.initialNumberForPrefix.title
@@ -205,12 +205,12 @@
                     </q-item-section>
                   </q-item>
                 </q-expansion-item>
-                <q-item to="/settings/accounts">
+                <q-item to="/admin/settings/accounts">
                   <q-item-section>
                     <q-item-label> {{ lang.account.accounts }} </q-item-label>
                   </q-item-section>
                 </q-item>
-                <q-item to="/settings/exports">
+                <q-item to="/admin/settings/exports">
                   <q-item-section>
                     <q-item-label> {{ lang.exports.title }} </q-item-label>
                   </q-item-section>
@@ -348,6 +348,7 @@ onMounted(async () => {
   await loadConfiguration(language)
   await useOAuthClient()
   await oAuthClient.value?.getUserInfo()
+  // await initializeTRPCClient()
 
   if (oAuthClient.value?.getAccessToken()) {
     user.value = await oAuthClient.value?.getUser()

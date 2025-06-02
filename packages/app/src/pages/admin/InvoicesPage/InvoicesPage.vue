@@ -37,8 +37,10 @@
     <div class="row justify-center items-center">
       <q-pagination
         v-model="page"
+        :disable="!(total && page && rowsPerPage)"
         :max="Math.ceil(total / rowsPerPage)"
         :max-pages="5"
+        direction-links
       />
     </div>
   </q-page>
@@ -80,14 +82,14 @@
   <responsive-dialog
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="sendInvoiceDialogRef"
+    ref="sendEmailDialogRef"
     button-type="send"
     persistent
     @submit="sendInvoice"
   >
     <email-input
-      v-model:subject="sendInvoiceEmailSubject"
-      v-model:body="sendInvoiceEmailBody"
+      v-model:subject="sendEmailSubject"
+      v-model:body="sendEmailBody"
     />
   </responsive-dialog>
 </template>
@@ -100,16 +102,12 @@ export default {
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted, computed, watch, inject } from 'vue'
-import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
-import {
-  type CompanyDetails,
-  type ClientDetails
-} from '@modular-api/fastify-checkout'
+
 import { PaymentMethod } from '@modular-api/fastify-checkout/types'
 import { InvoiceStatus } from '@slimfact/api/zod'
 
@@ -122,6 +120,22 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useConfiguration } from '../../../configuration.js'
 
 import { EventBus } from 'quasar'
+import {
+  useAdminAddPaymentToInvoiceMutation,
+  useAdminCancelInvoiceMutation,
+  useAdminCreateInvoiceMutation,
+  useAdminGetInvoicesQuery,
+  useAdminUpdateInvoiceMutation
+} from 'src/queries/admin/invoices.js'
+import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
+import {
+  useAdminExhortInvoiceMutation,
+  useAdminGetInvoiceEmailQuery,
+  useAdminRemindInvoiceMutation,
+  useAdminSendInvoiceMutation
+} from 'src/queries/admin/email.js'
+import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
+import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-invoices-create-dialog', () => {
@@ -131,7 +145,6 @@ bus.on('administrator-open-invoices-create-dialog', () => {
     })
 })
 
-const { useQuery, useMutation } = await createUseTrpc()
 const configuration = useConfiguration()
 
 const $q = useQuasar()
@@ -148,47 +161,40 @@ onBeforeRouteUpdate((to) => {
   }
 })
 
-const companyId = ref(NaN)
-const clientId = ref(NaN)
-const clientDetails = ref({
-  name: null as string | null
-})
-const status = ref<InvoiceStatus | null>(null)
-
-const page = ref(1)
-const rowsPerPage = ref(5)
+const {
+  invoices,
+  companyId,
+  clientId,
+  clientDetails,
+  invoiceStatus: status,
+  page,
+  rowsPerPage,
+  refetch: execute
+} = useAdminGetInvoicesQuery()
 const total = computed(() => invoices.value?.at(0)?.total || 0)
-const pagination = computed<{
-  limit: number
-  offset: number
-  sortBy: 'id' | 'companyId' | 'clientId' | 'totalIncludingTax'
-  descending: boolean
-}>(() => ({
-  limit: rowsPerPage.value,
-  offset: (page.value - 1) * rowsPerPage.value,
-  sortBy: 'id',
-  descending: true
-}))
 
-const { data: invoices, execute } = useQuery('admin.getInvoices', {
-  args: () => ({
-    companyId: companyId.value,
-    clientId: clientId.value,
-    clientDetails: clientDetails.value,
-    status: status.value,
-    pagination: pagination.value,
-    uuids:
-      companyId.value || clientId.value || clientDetails.value.name
-        ? undefined
-        : uuids.value
-  }),
-  reactive: true
-  // immediate: true
-})
+// const { data: invoices, execute } = useQuery('admin.getInvoices', {
+//   args: () => ({
+//     companyId: companyId.value,
+//     clientId: clientId.value,
+//     clientDetails: clientDetails.value,
+//     status: status.value,
+//     pagination: pagination.value,
+//     uuids:
+//       companyId.value || clientId.value || clientDetails.value.name
+//         ? undefined
+//         : uuids.value
+//   }),
+//   reactive: true
+//   // immediate: true
+// })
 
-const { data: numberPrefixes } = useQuery('admin.getNumberPrefixes', {
-  immediate: true
-})
+const { numberPrefixes, refetch: refetchNumberPrefixes } =
+  useAdminGetNumberPrefixesQuery()
+await refetchNumberPrefixes()
+
+const { mutateAsync: updateInvoiceMutation } = useAdminUpdateInvoiceMutation()
+const { mutateAsync: createInvoiceMutation } = useAdminCreateInvoiceMutation()
 
 const updateInvoiceFormRef = ref<typeof InvoiceForm>()
 const createInvoiceFormRef = ref<typeof InvoiceForm>()
@@ -233,142 +239,128 @@ const create: InstanceType<
 const updateInvoice: InstanceType<
   typeof InvoiceForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.updateInvoice', {
-    args: data,
-    immediate: true
-  })
+  try {
+    await updateInvoiceMutation(data)
 
-  await result.immediatePromise
-
-  done(!result.error.value)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
 const createInvoice: InstanceType<
   typeof InvoiceForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.createInvoice', {
-    args: data,
-    immediate: true
-  })
+  try {
+    await createInvoiceMutation({ ...data, status: InvoiceStatus.BILL })
 
-  await result.immediatePromise
-
-  done(!result.error.value)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
-const filteredCompanies = ref<CompanyDetails[]>([])
+const {
+  companies: filteredCompanies,
+  searchPhrase: companiesSearchPhrase,
+  refetch: refetchFilteredCompanies
+} = useAdminSearchCompaniesQuery()
+
+// const filteredCompanies = ref<CompanyDetails[]>([])
 const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchCompanies', {
-    args: searchPhrase,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredCompanies.value = result.data.value
+  companiesSearchPhrase.value = searchPhrase
+  await refetchFilteredCompanies()
 
   if (done) done()
 }
 
-const filteredClients = ref<ClientDetails>([])
+const {
+  clients: filteredClients,
+  name: clientName,
+  refetch: refetchFilteredClients
+} = useAdminSearchClientsQuery()
+// const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchClients', {
-    args: { name: searchPhrase },
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredClients.value = result.data.value
+  clientName.value = searchPhrase
+  await refetchFilteredClients()
 
   if (done) done()
 }
 
-const openSendInvoiceDialog = (
+const openSendEmailDialog = (
   action: 'send' | 'remind' | 'exhort'
 ): InstanceType<typeof InvoiceExpansionItem>['$props']['onSend'] => {
   return async ({ data, done }) => {
-    const result = useQuery('admin.getInvoiceEmail', {
-      args: {
-        id: data.id,
-        type: 'invoice',
-        action
-      },
-      immediate: true
-    })
+    sendEmailId.value = data.id
+    sendEmailType.value = 'invoice'
+    sendEmailAction.value = action
 
-    await result.immediatePromise
+    await refetchEmail()
 
-    function getType(action: 'send' | 'remind' | 'exhort') {
-      if (action === 'remind') return 'remindInvoice'
-      if (action === 'exhort') return 'exhortInvoice'
-      return 'sendInvoice'
+    if (email.value && sendEmailDialogRef?.value) {
+      sendEmailBody.value = email.value.body
+      sendEmailSubject.value = email.value?.subject
+
+      sendEmailDialogRef.value.functions.open()
+
+      done()
     }
-
-    if (
-      sendInvoiceDialogRef?.value &&
-      result.data.value?.subject &&
-      result.data.value?.body
-    ) {
-      sendInvoiceEmailType.value = getType(action)
-      sendInvoiceEmailId.value = data.id
-      sendInvoiceEmailSubject.value = result.data.value.subject
-      sendInvoiceEmailBody.value = result.data.value.body
-      sendInvoiceDialogRef.value.functions.open()
-    }
-
-    done(!result.error.value)
   }
 }
 
-const sendInvoiceEmailType = ref<
-  'sendInvoice' | 'remindInvoice' | 'exhortInvoice'
->('sendInvoice')
-const sendInvoiceEmailId = ref(NaN)
-const sendInvoiceEmailSubject = ref('')
-const sendInvoiceEmailBody = ref('')
+const {
+  email,
+  id: sendEmailId,
+  type: sendEmailType,
+  action: sendEmailAction,
+  refetch: refetchEmail
+} = useAdminGetInvoiceEmailQuery()
+const sendEmailSubject = ref('')
+const sendEmailBody = ref('')
 
-const sendInvoiceDialogRef = ref<typeof ResponsiveDialog>()
+// const sendBillEmailType = ref<'sendBill' | 'sendReceipt'>('sendBill')
+// const sendBillEmailId = ref(NaN)
 
+const sendEmailDialogRef = ref<typeof ResponsiveDialog>()
+
+const { mutateAsync: sendInvoiceMutation } = useAdminSendInvoiceMutation()
+const { mutateAsync: remindInvoiceMutation } = useAdminRemindInvoiceMutation()
+const { mutateAsync: exhortInvoiceMutation } = useAdminExhortInvoiceMutation()
 const sendMutations = {
-  sendInvoice: 'admin.sendInvoice',
-  remindInvoice: 'admin.remindInvoice',
-  exhortInvoice: 'admin.exhortInvoice'
+  send: sendInvoiceMutation,
+  remind: remindInvoiceMutation,
+  exhort: exhortInvoiceMutation
 } as const
 
 const sendInvoice: InstanceType<
   typeof ResponsiveDialog
 >['$props']['onSubmit'] = async ({ done }) => {
-  const result = useMutation(sendMutations[sendInvoiceEmailType.value], {
-    args: {
-      id: sendInvoiceEmailId.value,
-      emailSubject: sendInvoiceEmailSubject.value,
-      emailBody: sendInvoiceEmailBody.value
-    },
-    immediate: true
-  })
+  try {
+    await sendMutations[sendEmailAction.value]({
+      id: sendEmailId.value,
+      emailSubject: sendEmailSubject.value,
+      emailBody: sendEmailBody.value
+    })
 
-  await result.immediatePromise
-
-  done(!result.error.value)
-  if (!result.error.value) {
-    sendInvoiceEmailType.value = 'sendInvoice'
-    sendInvoiceEmailId.value = NaN
-    sendInvoiceEmailSubject.value = ''
-    sendInvoiceEmailBody.value = ''
+    done()
+    // sendBillEmailType.value = 'sendBill'
+    sendEmailId.value = NaN
+    sendEmailSubject.value = ''
+    sendEmailBody.value = ''
     execute()
-  }
+  } catch (e) {}
 }
+
+const { mutateAsync: addPaymentToInvoiceMutation } =
+  useAdminAddPaymentToInvoiceMutation()
 
 const openAddCashPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
 >['$props']['onMarkPaid'] = async ({ data, done }) => {
   const format = (value: number) =>
-    Intl.NumberFormat($q.lang.isoName, {
+    Intl.NumberFormat(data.locale, {
       maximumFractionDigits: 2,
       style: 'currency',
       currency: data.currency
@@ -386,8 +378,8 @@ const openAddCashPaymentDialog: InstanceType<
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
+      try {
+        await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
@@ -395,14 +387,9 @@ const openAddCashPaymentDialog: InstanceType<
             description: new Date().toISOString().slice(0, 10),
             method: PaymentMethod.cash
           }
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
 
@@ -428,8 +415,8 @@ const openAddBankTransferPaymentDialog: InstanceType<
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
+      try {
+        await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
@@ -438,14 +425,9 @@ const openAddBankTransferPaymentDialog: InstanceType<
             transactionReference,
             method: PaymentMethod.banktransfer
           }
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
 
@@ -462,7 +444,7 @@ const openAddPinPaymentDialog: InstanceType<
     .dialog({
       component: AddPaymentDialog,
       componentProps: {
-        message: lang.value.invoice.messages.addBankTransferPayment({
+        message: lang.value.invoice.messages.addPinPayment({
           clientDetails: data.clientDetails,
           totalIncludingTax: format(data.totalIncludingTax)
         }),
@@ -471,8 +453,8 @@ const openAddPinPaymentDialog: InstanceType<
       }
     })
     .onOk(async ({ amount, transactionReference }) => {
-      const result = useMutation('admin.addPaymentToInvoice', {
-        args: {
+      try {
+        await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
@@ -481,44 +463,13 @@ const openAddPinPaymentDialog: InstanceType<
             transactionReference,
             method: PaymentMethod.pin
           }
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
-// const openMarkPaidDialog: InstanceType<
-//   typeof InvoiceExpansionItem
-// >['$props']['onMarkPaid'] = async ({ data, done }) => {
-//   const format = (value: number) =>
-//     Intl.NumberFormat(data.locale, {
-//       maximumFractionDigits: 2,
-//       style: 'currency',
-//       currency: data.currency
-//     }).format(value / 100)
-//   return $q
-//     .dialog({
-//       cancel: true,
-//       message: lang.value.invoice.messages.markPaid({
-//         clientDetails: data.clientDetails,
-//         totalIncludingTax: format(data.totalIncludingTax)
-//       })
-//     })
-//     .onOk(async () => {
-//       const result = useMutation('admin.setInvoiceStatus', {
-//         args: {
-//           id: data.id,
-//           status: InvoiceStatus.PAID
-//         },
-//         immediate: true
-//       })
-//       await result.immediatePromise
-//     })
-// }
+
+const { mutateAsync: cancelInvoiceMutation } = useAdminCancelInvoiceMutation()
 
 const openCancelDialog: InstanceType<
   typeof InvoiceExpansionItem
@@ -538,17 +489,12 @@ const openCancelDialog: InstanceType<
       })
     })
     .onOk(async () => {
-      const result = useMutation('admin.cancelInvoice', {
-        args: {
+      try {
+        await cancelInvoiceMutation({
           id: data.id
-        },
-        immediate: true
-      })
-      await result.immediatePromise
-
-      if (!result.error.value) {
+        })
         await execute()
-      }
+      } catch (e) {}
     })
 }
 
@@ -563,9 +509,9 @@ watch(clientId, (newVal) => {
 
 const invoiceExpansionItemHandlers = computed(() => ({
   update: openUpdateDialog,
-  send: openSendInvoiceDialog('send'),
-  sendReminder: openSendInvoiceDialog('remind'),
-  sendExhortation: openSendInvoiceDialog('exhort'),
+  send: openSendEmailDialog('send'),
+  sendReminder: openSendEmailDialog('remind'),
+  sendExhortation: openSendEmailDialog('exhort'),
   addPaymentPin: configuration.value.PAYMENT_HANDLERS.pin
     ? openAddPinPaymentDialog
     : undefined,

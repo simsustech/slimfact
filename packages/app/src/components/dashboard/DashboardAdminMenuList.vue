@@ -42,7 +42,7 @@
         <q-item-label> {{ lang.subscription.title }} </q-item-label>
       </q-item-section>
     </q-item>
-    <q-item to="/settings">
+    <q-item to="/admin/settings">
       <q-item-section avatar>
         <q-icon :name="SETTINGS_ICON" />
       </q-item-section>

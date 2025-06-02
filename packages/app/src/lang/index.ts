@@ -133,6 +133,7 @@ export interface Language {
       update: string
       send: string
       sendInvoice: string
+      sendReceipt: string
       sendReminder: string
       sendExhortation: string
       markPaid: string

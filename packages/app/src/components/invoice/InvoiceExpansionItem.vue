@@ -278,7 +278,7 @@
                       @click="addPaymentBankTransfer(modelValue)"
                     >
                       <q-item-section avatar>
-                        <q-icon name="i-mdi-acccount-balance"></q-icon>
+                        <q-icon name="i-mdi-account-payment"></q-icon>
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>

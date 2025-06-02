@@ -69,6 +69,5 @@ const title = computed(() => configuration.value.TITLE)
 const login = () => {
   if (oAuthClient.value) oAuthClient.value.signIn({})
 }
-
 onMounted(async () => {})
 </script>
