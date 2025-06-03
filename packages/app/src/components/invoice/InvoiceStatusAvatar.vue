@@ -9,7 +9,7 @@
     rounded
     size="xs"
     padding="xs"
-    style="position: relative; right: 16px; bottom: -15px"
+    style="position: relative; right: 16px; bottom: -15px; margin-right: -17px"
     ><q-tooltip>
       {{ lang.invoice.status.paid }}
     </q-tooltip>
