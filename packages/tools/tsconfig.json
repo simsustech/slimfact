@@ -5,7 +5,7 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "baseUrl": "./",
-    "types": ["node", "vite/client"],
+    "types": ["node"],
     "declaration": true,
     "outDir": "./dist",
     "declarationDir": "./dist/types",
