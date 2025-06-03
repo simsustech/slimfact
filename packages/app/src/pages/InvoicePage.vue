@@ -247,16 +247,21 @@ import Price from '../components/Price.vue'
 import { loadConfiguration, useConfiguration } from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
 import { useQuery } from '@pinia/colada'
-import { trpc } from '../trpc.js'
+import { initializeTRPCClient, trpc } from '../trpc.js'
 import {
   usePublicPayDownPaymentWithIdealMutation,
   usePublicPayWithIdealMutation
 } from 'src/queries/public/invoices.js'
 import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
 
-const lang = useLang()
 const $q = useQuasar()
+const language = ref($q.lang.isoName)
+const lang = useLang()
+
+await loadConfiguration(language)
 const configuration = useConfiguration()
+await initializeTRPCClient(configuration.value.API_HOST)
+
 const route = useRoute()
 const host = ref(import.meta.env.SSR ? '' : window.location.host)
 const slimfactDownloaderUrl = ref(
@@ -401,8 +406,6 @@ const format = (value: number) =>
     currency: invoice.value?.currency
   }).format(value / 100)
 
-const language = ref($q.lang.isoName)
-
 const getAdminUrl = () => {
   if (invoice.value) {
     const statusRouteMap = {
@@ -422,8 +425,6 @@ onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
   }
-
-  await loadConfiguration(language)
 
   await useOAuthClient()
 
