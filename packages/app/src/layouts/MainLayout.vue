@@ -322,10 +322,10 @@ const languageImports = ref({
   'en-US': () => import(`../../node_modules/quasar/lang/en-US.js`)
 })
 
-watch($q.lang, () => {
-  loadLang($q.lang.isoName)
-  loadFormLang($q.lang.isoName)
-  loadCheckoutLang($q.lang.isoName)
+watch(language, (newVal) => {
+  loadLang(newVal)
+  loadFormLang(newVal)
+  loadCheckoutLang(newVal)
 })
 
 const accountExpansionItemRef = ref()
@@ -344,7 +344,6 @@ onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
   }
-  if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
   await loadConfiguration(language)
   await useOAuthClient()
   await oAuthClient.value?.getUserInfo()
