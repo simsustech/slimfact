@@ -275,34 +275,9 @@ import { useLang, loadLang } from '../lang/index.js'
 import { useConfiguration, loadConfiguration } from '../configuration'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
 import NavigationTabs from './NavigationTabs.vue'
-
-const configuration = useConfiguration()
-
-const router = useRouter()
-const route = useRoute()
-const lang = useLang()
+import { initializeTRPCClient } from 'src/trpc.js'
 
 const $q = useQuasar()
-
-const login = () => {
-  if (oAuthClient.value) oAuthClient.value.signIn({})
-}
-
-const logout = () => {
-  if (oAuthClient.value) oAuthClient.value.signOut({})
-}
-
-const userRoute = {
-  name: userRouteKey
-}
-
-const title = computed(() => {
-  let title = configuration.value.TITLE
-  // @ts-expect-error key might not exist
-  if (lang.value[route.meta?.lang]) title = lang.value[route.meta.lang].title
-  return title
-})
-
 const language = ref($q.lang.isoName)
 
 const languageLocales = ref([
@@ -328,6 +303,33 @@ watch(language, (newVal) => {
   loadCheckoutLang(newVal)
 })
 
+await loadConfiguration(language)
+const configuration = useConfiguration()
+await initializeTRPCClient(configuration.value.API_HOST)
+
+const router = useRouter()
+const route = useRoute()
+const lang = useLang()
+
+const login = () => {
+  if (oAuthClient.value) oAuthClient.value.signIn({})
+}
+
+const logout = () => {
+  if (oAuthClient.value) oAuthClient.value.signOut({})
+}
+
+const userRoute = {
+  name: userRouteKey
+}
+
+const title = computed(() => {
+  let title = configuration.value.TITLE
+  // @ts-expect-error key might not exist
+  if (lang.value[route.meta?.lang]) title = lang.value[route.meta.lang].title
+  return title
+})
+
 const accountExpansionItemRef = ref()
 const settingsExpansionItemRef = ref()
 // const adminExpansionItemRef = ref()
@@ -340,14 +342,13 @@ const isAuthenticatedRoute = (route: string) => {
 }
 
 const ready = ref(false)
+
 onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
   }
-  await loadConfiguration(language)
   await useOAuthClient()
   await oAuthClient.value?.getUserInfo()
-  // await initializeTRPCClient()
 
   if (oAuthClient.value?.getAccessToken()) {
     user.value = await oAuthClient.value?.getUser()

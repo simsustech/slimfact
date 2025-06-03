@@ -285,6 +285,7 @@ export default async function (fastify: FastifyInstance) {
       }
     },
     configuration: () => ({
+      API_HOST: host,
       LANG: env.read('VITE_LANG') || 'en-US',
       COUNTRY: env.read('VITE_COUNTRY') || 'NL',
       TITLE: env.read('VITE_TITLE') || 'SlimFact',

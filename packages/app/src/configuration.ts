@@ -5,6 +5,7 @@ import { useLang } from './lang/index.js'
 const lang = useLang()
 
 export interface MODULARAPI_CLIENT_CONFIGURATION {
+  API_HOST: string
   LICENSE_KEY?: string
   LANG: string
   COUNTRY: string

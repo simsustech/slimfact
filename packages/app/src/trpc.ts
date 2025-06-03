@@ -8,10 +8,9 @@ import {
 import { useOAuthClient } from './oauth.js'
 import { Notify } from 'quasar'
 import { useLang } from './lang/index.js'
-
 import type { AppRouter } from '@slimfact/api/trpc'
 
-export const initializeTRPCClient = async () => {
+export const initializeTRPCClient = async (apiHost: string) => {
   const oAuthClient = await useOAuthClient()
   const user = await oAuthClient.value?.getUser()
   const headers = () =>
@@ -56,12 +55,12 @@ export const initializeTRPCClient = async () => {
     })
   }
 
-  const host = `https://${import.meta.env.VITE_API_HOST ?? 'localhost:' + import.meta.env.VITE_PORT}`
+  const host = `https://${apiHost}`
 
-  return createTRPCClient<AppRouter>({
+  trpc = createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
-        url: `${host}/trpc`,
+        url: new URL('/trpc', host),
         fetch: handleErrorFetch,
         headers
       })
@@ -69,7 +68,7 @@ export const initializeTRPCClient = async () => {
   })
 }
 
-export const trpc: TRPCClient<AppRouter> = await initializeTRPCClient()
+export let trpc: TRPCClient<AppRouter>
 
 export function isTRPCClientError(
   cause: unknown
