@@ -253,10 +253,18 @@ import {
   usePublicPayWithIdealMutation
 } from 'src/queries/public/invoices.js'
 import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
+import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
+import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 
 const $q = useQuasar()
 const language = ref($q.lang.isoName)
 const lang = useLang()
+
+watch(language, (newVal) => {
+  loadLang(newVal)
+  loadFormLang(newVal)
+  loadCheckoutLang(newVal)
+})
 
 await loadConfiguration(language)
 const configuration = useConfiguration()
