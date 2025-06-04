@@ -2,7 +2,15 @@
   <q-page padding>
     <q-toolbar>
       <q-space />
-      <q-btn icon="i-mdi-search">
+      <q-btn>
+        <q-icon name="i-mdi-search" />
+        <q-icon
+          v-if="activeSearch"
+          name="i-mdi-remove"
+          size="xs"
+          class="q-mr-none"
+          @click="clearSearchResults"
+        />
         <q-menu class="q-pa-sm">
           <q-input v-model="name" :label="lang.name" :debounce="300" />
         </q-menu>
@@ -193,6 +201,11 @@ const onFilterAccounts: InstanceType<
 
     done()
   } catch (e) {}
+}
+
+const activeSearch = computed(() => !!name.value)
+const clearSearchResults = () => {
+  name.value = ''
 }
 
 const ready = ref<boolean>(false)

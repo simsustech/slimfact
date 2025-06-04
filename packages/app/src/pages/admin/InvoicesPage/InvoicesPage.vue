@@ -2,7 +2,15 @@
   <q-page padding>
     <q-toolbar>
       <q-space />
-      <q-btn icon="i-mdi-search">
+      <q-btn>
+        <q-icon name="i-mdi-search" />
+        <q-icon
+          v-if="activeSearch"
+          name="i-mdi-remove"
+          size="xs"
+          class="q-mr-none"
+          @click="clearSearchResults"
+        />
         <q-menu class="q-pa-sm">
           <invoice-status-select v-model="status" />
 
@@ -523,6 +531,18 @@ const invoiceExpansionItemHandlers = computed(() => ({
     : undefined,
   cancel: openCancelDialog
 }))
+
+const activeSearch = computed(
+  () =>
+    !Number.isNaN(companyId.value) ||
+    !Number.isNaN(clientId.value) ||
+    status.value !== null
+)
+const clearSearchResults = () => {
+  companyId.value = NaN
+  clientId.value = NaN
+  status.value = null
+}
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

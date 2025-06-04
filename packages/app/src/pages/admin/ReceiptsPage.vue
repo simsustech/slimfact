@@ -2,7 +2,15 @@
   <q-page padding>
     <q-toolbar>
       <q-space />
-      <q-btn icon="i-mdi-search">
+      <q-btn>
+        <q-icon name="i-mdi-search" />
+        <q-icon
+          v-if="activeSearch"
+          name="i-mdi-remove"
+          size="xs"
+          class="q-mr-none"
+          @click="clearSearchResults"
+        />
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
@@ -212,6 +220,14 @@ const invoiceExpansionItemHandlers = computed(() => ({
   // send: openSendEmailDialog('receipt'),
   sendInvoice: openSendEmailDialog('invoice')
 }))
+
+const activeSearch = computed(
+  () => !Number.isNaN(companyId.value) || !Number.isNaN(clientId.value)
+)
+const clearSearchResults = () => {
+  companyId.value = NaN
+  clientId.value = NaN
+}
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

@@ -7,7 +7,15 @@
         :label="lang.subscription.fields.active"
         left-label
       />
-      <q-btn icon="i-mdi-search">
+      <q-btn>
+        <q-icon name="i-mdi-search" />
+        <q-icon
+          v-if="activeSearch"
+          name="i-mdi-remove"
+          size="xs"
+          class="q-mr-none"
+          @click="clearSearchResults"
+        />
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
@@ -265,6 +273,14 @@ const onStopSubscription: InstanceType<
       await execute()
     }
   } catch (e) {}
+}
+
+const activeSearch = computed(
+  () => !Number.isNaN(companyId.value) || !Number.isNaN(clientId.value)
+)
+const clearSearchResults = () => {
+  companyId.value = NaN
+  clientId.value = NaN
 }
 
 const ready = ref<boolean>(false)
