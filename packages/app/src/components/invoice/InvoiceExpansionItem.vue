@@ -2,36 +2,22 @@
   <q-expansion-item class="full-width" :content-inset-level="1">
     <template #header>
       <q-item-section avatar>
-        <div class="row self-center items-center">
-          <invoice-status-avatar
-            :model-value="modelValue.status"
-            :paid="
-              !!modelValue.amountPaid &&
-              modelValue.amountPaid >= modelValue.totalIncludingTax
-            "
-            :down-payment-received="
-              !!modelValue.amountPaid &&
-              !!modelValue.requiredDownPaymentAmount &&
-              modelValue.amountPaid >= modelValue.requiredDownPaymentAmount
-            "
-          />
-          <price
-            :model-value="modelValue.totalIncludingTax"
-            :currency="modelValue.currency"
-          />
-          <!-- <q-icon
-            v-if="
-              modelValue.amountPaid &&
-              modelValue.amountPaid >= modelValue.totalIncludingTax
-            "
-            name="check"
-            color="green"
-          >
-            <q-tooltip>
-              {{ lang.invoice.status.paid }}
-            </q-tooltip>
-          </q-icon> -->
-        </div>
+        <invoice-status-avatar
+          :model-value="modelValue.status"
+          :paid="
+            !!modelValue.amountPaid &&
+            modelValue.amountPaid >= modelValue.totalIncludingTax
+          "
+          :down-payment-received="
+            !!modelValue.amountPaid &&
+            !!modelValue.requiredDownPaymentAmount &&
+            modelValue.amountPaid >= modelValue.requiredDownPaymentAmount
+          "
+        />
+        <price
+          :model-value="modelValue.totalIncludingTax"
+          :currency="modelValue.currency"
+        />
       </q-item-section>
       <q-item-section>
         <q-item-label overline>
