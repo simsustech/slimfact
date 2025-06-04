@@ -17,7 +17,7 @@
         @update="openUpdateDialog"
     /></q-list>
 
-    <div class="row justify-center items-center">
+    <div class="flex flex-center q-mt-md">
       <q-pagination
         v-model="page"
         :disable="!(total && page && rowsPerPage)"
