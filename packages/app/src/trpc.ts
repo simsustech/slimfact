@@ -5,14 +5,13 @@ import {
   type TRPCClient,
   TRPCClientError
 } from '@trpc/client'
-import { useOAuthClient } from './oauth.js'
+import { useOAuthClient, user } from './oauth.js'
 import { Notify } from 'quasar'
 import { useLang } from './lang/index.js'
 import type { AppRouter } from '@slimfact/api/trpc'
 
 export const initializeTRPCClient = async (apiHost: string) => {
   const oAuthClient = await useOAuthClient()
-  const user = await oAuthClient.value?.getUser()
   const headers = () =>
     user
       ? {
