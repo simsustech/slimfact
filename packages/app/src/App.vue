@@ -43,6 +43,8 @@ const bus = new EventBus<{
   'administrator-open-bills-create-dialog': () => void
   'administrator-open-invoices-create-dialog': () => void
   'administrator-open-subscriptions-create-dialog': () => void
+  'administrator-settings-open-number-prefixes-create-dialog': () => void
+  'administrator-settings-open-initial-number-for-prefixes-create-dialog': () => void
 }>()
 provide<EventBus>('bus', bus)
 

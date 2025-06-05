@@ -62,7 +62,7 @@ services:
       - ./jwks/:/app/dist/server/jwks/
     environment:
       # API env variables
-      VITE_API_HOSTNAME: localhost:3000
+      VITE_API_HOST: localhost:3000
       VITE_LICENSE_KEY: undefined
       VITE_TITLE: SlimFact staging
       POSTGRES_HOST: database

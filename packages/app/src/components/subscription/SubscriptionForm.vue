@@ -108,9 +108,6 @@
         <cron-schedule-input
           v-model="modelValue.cronSchedule"
           class="md:col-span-4 col-span-12"
-          show-minute
-          show-hour
-          show-day-of-week
         />
       </div>
 

@@ -22,7 +22,6 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/pages/admin/InvoicesPage.vue.bak"
+    "src/**/*.vue"
   ]
 }

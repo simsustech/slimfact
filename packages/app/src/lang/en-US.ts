@@ -134,6 +134,7 @@ const lang: Language = {
       update: 'Update',
       send: 'Send',
       sendInvoice: 'Send invoice',
+      sendReceipt: 'Send receipt',
       sendReminder: 'Send reminder',
       sendExhortation: 'Send exhortation',
       markPaid: 'Mark paid',

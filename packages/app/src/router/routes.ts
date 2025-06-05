@@ -24,19 +24,6 @@ const routes: RouteRecordRaw[] = [
             component: () => import('../pages/AdminPage.vue')
           },
           {
-            path: 'accounts',
-            component: () => import('../pages/admin/AccountsPage.vue')
-          },
-          {
-            path: 'companies',
-            components: {
-              default: () =>
-                import('../pages/admin/CompaniesPage/CompaniesPage.vue'),
-              fabs: () =>
-                import('../pages/admin/CompaniesPage/CompaniesPageFabs.vue')
-            }
-          },
-          {
             path: 'clients',
             components: {
               default: () =>
@@ -77,32 +64,63 @@ const routes: RouteRecordRaw[] = [
               default: () => import('../pages/admin/BillsPage/BillsPage.vue'),
               fabs: () => import('../pages/admin/BillsPage/BillsPageFabs.vue')
             }
-          }
-        ]
-      },
-      {
-        path: 'settings',
-        children: [
-          {
-            path: '',
-            component: () => import('../pages/SettingsPage.vue')
           },
           {
-            path: 'accounts',
-            component: () => import('../pages/settings/AccountsPage.vue')
-          },
-          {
-            path: 'numberprefixes',
-            component: () => import('../pages/settings/NumberPrefixesPage.vue')
-          },
-          {
-            path: 'initialnumberforprefixes',
-            component: () =>
-              import('../pages/settings/InitialNumberForPrefixesPage.vue')
-          },
-          {
-            path: 'exports',
-            component: () => import('../pages/admin/ExportsPage.vue')
+            path: 'settings',
+            children: [
+              {
+                path: '',
+                component: () => import('../pages/admin/SettingsPage.vue')
+              },
+              {
+                path: 'companies',
+                components: {
+                  default: () =>
+                    import(
+                      '../pages/admin/settings/CompaniesPage/CompaniesPage.vue'
+                    ),
+                  fabs: () =>
+                    import(
+                      '../pages/admin/settings/CompaniesPage/CompaniesPageFabs.vue'
+                    )
+                }
+              },
+              {
+                path: 'accounts',
+                component: () =>
+                  import('../pages/admin/settings/AccountsPage.vue')
+              },
+              {
+                path: 'numberprefixes',
+                components: {
+                  default: () =>
+                    import(
+                      '../pages/admin/settings/NumberPrefixesPage/NumberPrefixesPage.vue'
+                    ),
+                  fabs: () =>
+                    import(
+                      '../pages/admin/settings/NumberPrefixesPage/NumberPrefixesPageFabs.vue'
+                    )
+                }
+              },
+              {
+                path: 'initialnumberforprefixes',
+                components: {
+                  default: () =>
+                    import(
+                      '../pages/admin/settings/InitialNumberForPrefixesPage/InitialNumberForPrefixesPage.vue'
+                    ),
+                  fabs: () =>
+                    import(
+                      '../pages/admin/settings/InitialNumberForPrefixesPage/InitialNumberForPrefixesPageFabs.vue'
+                    )
+                }
+              },
+              {
+                path: 'exports',
+                component: () => import('../pages/admin/ExportsPage.vue')
+              }
+            ]
           }
         ]
       },

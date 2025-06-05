@@ -1,11 +1,11 @@
 <template>
   <q-form ref="formRef">
-    <div class="row">
+    <div class="grid grid-cols-12 gap-3">
       <form-input
         v-bind="input"
         v-model="modelValue.numberPrefix"
         :label="lang.numberPrefix.numberPrefix"
-        class="col-md-3 col-12"
+        class="md:col-span-4 col-span-12"
         required
         bottom-slots
         lazy-rules
@@ -14,7 +14,7 @@
       />
       <company-select
         v-model="modelValue.companyId"
-        class="col-md-6 col-12"
+        class="md:col-span-4 col-span-12"
         :filtered-options="filteredCompanies"
         required
         @filter="filterCompanies"
@@ -22,6 +22,7 @@
 
       <q-input
         v-model.number="modelValue.initialNumber"
+        class="md:col-span-4 col-span-12"
         type="number"
         :label="lang.initialNumberForPrefix.fields.initialNumber"
       />

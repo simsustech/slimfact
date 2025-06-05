@@ -187,7 +187,7 @@
                   </q-item-section>
                 </q-item>
                 <q-expansion-item
-                  to="/settings/numberprefixes"
+                  to="/admin/settings/numberprefixes"
                   :content-inset-level="1"
                 >
                   <template #header>
@@ -197,7 +197,7 @@
                       </q-item-label>
                     </q-item-section>
                   </template>
-                  <q-item to="/settings/initialnumberforprefixes">
+                  <q-item to="/admin/settings/initialnumberforprefixes">
                     <q-item-section>
                       <q-item-label>{{
                         lang.initialNumberForPrefix.title
@@ -205,12 +205,12 @@
                     </q-item-section>
                   </q-item>
                 </q-expansion-item>
-                <q-item to="/settings/accounts">
+                <q-item to="/admin/settings/accounts">
                   <q-item-section>
                     <q-item-label> {{ lang.account.accounts }} </q-item-label>
                   </q-item-section>
                 </q-item>
-                <q-item to="/settings/exports">
+                <q-item to="/admin/settings/exports">
                   <q-item-section>
                     <q-item-label> {{ lang.exports.title }} </q-item-label>
                   </q-item-section>
@@ -275,14 +275,41 @@ import { useLang, loadLang } from '../lang/index.js'
 import { useConfiguration, loadConfiguration } from '../configuration'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
 import NavigationTabs from './NavigationTabs.vue'
+import { initializeTRPCClient } from 'src/trpc.js'
 
+const $q = useQuasar()
+const language = ref($q.lang.isoName)
+
+const languageLocales = ref([
+  {
+    icon: 'i-flagpack-nl',
+    isoName: 'nl'
+  },
+  {
+    icon: 'i-flagpack-us',
+    isoName: 'en-US'
+  }
+])
+
+// prettier-ignore
+const languageImports = ref({
+  nl: () => import(`../../node_modules/quasar/lang/nl.js`),
+  'en-US': () => import(`../../node_modules/quasar/lang/en-US.js`)
+})
+
+watch(language, (newVal) => {
+  loadLang(newVal)
+  loadFormLang(newVal)
+  loadCheckoutLang(newVal)
+})
+
+await loadConfiguration(language)
 const configuration = useConfiguration()
+await initializeTRPCClient(configuration.value.API_HOST)
 
 const router = useRouter()
 const route = useRoute()
 const lang = useLang()
-
-const $q = useQuasar()
 
 const login = () => {
   if (oAuthClient.value) oAuthClient.value.signIn({})
@@ -303,31 +330,6 @@ const title = computed(() => {
   return title
 })
 
-const language = ref($q.lang.isoName)
-
-const languageLocales = ref([
-  {
-    icon: 'i-flagpack-nl',
-    isoName: 'nl'
-  },
-  {
-    icon: 'i-flagpack-us',
-    isoName: 'en-US'
-  }
-])
-
-// prettier-ignore
-const languageImports = ref({
-  nl: () => import(`../../node_modules/quasar/lang/nl.js`),
-  'en-US': () => import(`../../node_modules/quasar/lang/en-US.js`)
-})
-
-watch($q.lang, () => {
-  loadLang($q.lang.isoName)
-  loadFormLang($q.lang.isoName)
-  loadCheckoutLang($q.lang.isoName)
-})
-
 const accountExpansionItemRef = ref()
 const settingsExpansionItemRef = ref()
 // const adminExpansionItemRef = ref()
@@ -340,12 +342,11 @@ const isAuthenticatedRoute = (route: string) => {
 }
 
 const ready = ref(false)
+
 onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
   }
-  if (lang.value.isoName !== $q.lang.isoName) loadLang($q.lang.isoName)
-  await loadConfiguration(language)
   await useOAuthClient()
   await oAuthClient.value?.getUserInfo()
 

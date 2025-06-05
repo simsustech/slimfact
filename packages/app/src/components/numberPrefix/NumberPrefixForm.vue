@@ -1,10 +1,10 @@
 <template>
   <q-form ref="formRef">
-    <div class="row">
+    <div class="grid grid-cols-12 gap-3">
       <form-input
         v-bind="input"
         v-model="modelValue.name"
-        class="col-md-3 col-12"
+        class="md:col-span-4 col-span-12"
         required
         field="name"
         bottom-slots
@@ -15,7 +15,7 @@
         v-bind="input"
         v-model="modelValue.template"
         :label="lang.numberPrefix.fields.template"
-        class="col-md-3 col-12"
+        class="md:col-span-4 col-span-12"
         required
         bottom-slots
         lazy-rules

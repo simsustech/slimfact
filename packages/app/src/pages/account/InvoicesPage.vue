@@ -20,19 +20,15 @@ export default {
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { createUseTrpc } from '../../trpc.js'
 // import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
 import InvoiceItem from '../../components/invoice/InvoiceItem.vue'
+import { useAccountGetInvoicesQuery } from 'src/queries/account/invoices.js'
 
-const { useQuery } = await createUseTrpc()
-
-const { data: invoices, execute } = useQuery('user.getInvoices', {
-  // immediate: true
-})
+const { invoices, refetch } = useAccountGetInvoicesQuery()
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await execute()
+  await refetch()
   ready.value = true
 })
 </script>

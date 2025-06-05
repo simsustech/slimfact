@@ -55,14 +55,13 @@
 
 <script setup lang="ts">
 import { date as dateUtil, exportFile } from 'quasar'
-import { createUseTrpc } from 'src/trpc'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import InvoiceForm from 'src/components/invoice/InvoiceForm.vue'
-import { type CompanyDetails } from '@modular-api/fastify-checkout'
 import { DateInput } from '@simsustech/quasar-components/form'
-
-const { useQuery } = await createUseTrpc()
+import { useQuery } from '@pinia/colada'
+import { trpc } from '../../trpc.js'
+import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies'
 
 const companyId = ref<number>()
 const endDate = ref(new Date().toISOString().slice(0, 10))
@@ -75,35 +74,54 @@ const startDate = ref(
     .slice(0, 10)
 )
 
-const { data: digibooxCsv, execute: executeDigibooxInvoices } = useQuery(
-  'admin.exportDigibooxInvoices',
-  {
-    args: reactive({
-      companyId,
-      startDate,
-      endDate
-    }),
-    reactive: false
-  }
-)
+const { data: digibooxCsv, refetch: executeDigibooxInvoices } = useQuery({
+  enabled:
+    !import.meta.env.SSR &&
+    !!companyId.value &&
+    !!startDate.value &&
+    !!endDate.value,
+  key: () => [
+    'adminExportDigibooxInvoices',
+    companyId.value!,
+    startDate.value,
+    endDate.value
+  ],
+  query: () =>
+    trpc.admin.exportDigibooxInvoices.query({
+      companyId: companyId.value!,
+      startDate: startDate.value,
+      endDate: endDate.value
+    })
+})
+
+// const { data: digibooxCsv, execute: executeDigibooxInvoices } = useQuery(
+//   'admin.exportDigibooxInvoices',
+//   {
+//     args: reactive({
+//       companyId,
+//       startDate,
+//       endDate
+//     }),
+//     reactive: false
+//   }
+// )
 
 const downloadDigibooxInvoices = async () => {
   await executeDigibooxInvoices()
   if (digibooxCsv.value) exportFile('digiboox.csv', digibooxCsv.value)
 }
 
-const filteredCompanies = ref<CompanyDetails[]>([])
+const {
+  companies: filteredCompanies,
+  searchPhrase: companiesSearchPhrase,
+  refetch: refetchFilteredCompanies
+} = useAdminSearchCompaniesQuery()
+
 const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
-  const result = useQuery('admin.searchCompanies', {
-    args: searchPhrase,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  if (result.data.value) filteredCompanies.value = result.data.value
+  companiesSearchPhrase.value = searchPhrase
+  await refetchFilteredCompanies()
 
   if (done) done()
 }

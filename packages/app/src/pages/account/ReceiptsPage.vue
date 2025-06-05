@@ -3,7 +3,7 @@
     <div v-if="ready" class="row">
       <q-list class="full-width" dense>
         <invoice-item
-          v-for="invoice in invoices"
+          v-for="invoice in receipts"
           :key="invoice.id"
           :model-value="invoice"
         />
@@ -20,19 +20,15 @@ export default {
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { createUseTrpc } from '../../trpc.js'
 // import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
 import InvoiceItem from '../../components/invoice/InvoiceItem.vue'
+import { useAccountGetReceiptsQuery } from 'src/queries/account/receipts.js'
 
-const { useQuery } = await createUseTrpc()
-
-const { data: invoices, execute } = useQuery('user.getReceipts', {
-  // immediate: true
-})
+const { receipts, refetch } = useAccountGetReceiptsQuery()
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await execute()
+  await refetch()
   ready.value = true
 })
 </script>

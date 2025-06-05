@@ -2,7 +2,7 @@
   <q-page padding>
     <div v-if="ready" class="grid grid-cols-12 gap-3">
       <company-card
-        v-for="company in data"
+        v-for="company in companies"
         class="col-span-12 md:col-span-3"
         :key="company.id"
         :model-value="company"
@@ -47,30 +47,31 @@ export default {
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted, inject } from 'vue'
-import { createUseTrpc } from '../../../trpc.js'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import CompanyForm from '../../../components/company/CompanyForm.vue'
-import CompanyCard from '../../../components/company/CompanyCard.vue'
+import CompanyForm from '../../../../components/company/CompanyForm.vue'
+import CompanyCard from '../../../../components/company/CompanyCard.vue'
 
 import { EventBus } from 'quasar'
+import {
+  useAdminCreateCompanyMutation,
+  useAdminGetCompaniesQuery,
+  useAdminUpdateCompanyMutation
+} from 'src/queries/admin/companies.js'
+import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
 
 const bus = inject<EventBus>('bus')!
-bus.on('administrator-open-clients-create-dialog', () => {
+bus.on('administrator-open-companies-create-dialog', () => {
   if (openCreateDialog)
     openCreateDialog({
       done: () => {}
     })
 })
 
-const { useQuery, useMutation } = await createUseTrpc()
+const { companies, refetch: execute } = useAdminGetCompaniesQuery()
 
-const { data, execute } = useQuery('admin.getCompanies', {
-  // immediate: true
-})
-
-const { data: numberPrefixes } = useQuery('admin.getNumberPrefixes', {
-  immediate: true
-})
+const { numberPrefixes, refetch: refetchNumberPrefixes } =
+  useAdminGetNumberPrefixesQuery()
+await refetchNumberPrefixes()
 
 const updateCompanyFormRef = ref<typeof CompanyForm>()
 const createCompanyFormRef = ref<typeof CompanyForm>()
@@ -112,30 +113,27 @@ const create: InstanceType<
   createCompanyFormRef.value?.functions.submit({ done: afterCreate })
 }
 
+const { mutateAsync: createCompanyMutation } = useAdminCreateCompanyMutation()
+const { mutateAsync: updateCompanyMutation } = useAdminUpdateCompanyMutation()
+
 const updateCompany: InstanceType<
   typeof CompanyForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.updateCompany', {
-    args: data,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  done(!result.error.value)
+  try {
+    await updateCompanyMutation(data)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
 const createCompany: InstanceType<
   typeof CompanyForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
-  const result = useMutation('admin.createCompany', {
-    args: data,
-    immediate: true
-  })
-
-  await result.immediatePromise
-
-  done(!result.error.value)
+  try {
+    await createCompanyMutation(data)
+    done()
+    await execute()
+  } catch (e) {}
 }
 
 const ready = ref<boolean>(false)

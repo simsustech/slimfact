@@ -1,5 +1,10 @@
 import type { VitrifyConfig } from 'vitrify'
-import { QuasarPlugin, type QuasarPluginOptions } from 'vitrify/plugins'
+import {
+  QuasarPlugin,
+  type QuasarPluginOptions,
+  PiniaPlugin,
+  PiniaPluginOptions
+} from 'vitrify/plugins'
 import { QuasarPreset } from 'unocss-preset-quasar'
 import { MaterialDesign3 } from 'unocss-preset-quasar/styles'
 import { certificateFor } from 'devcert'
@@ -169,13 +174,18 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
       plugins: [
         {
           plugin: QuasarPlugin,
-          options: quasarConf
+          options: quasarConf as QuasarPluginOptions
+        },
+        {
+          plugin: PiniaPlugin,
+          options: { colada: true } as PiniaPluginOptions
         }
       ],
       lang: env.VITE_LANG,
       productName: 'SlimFact',
       hooks: {
-        onSetup: [new URL('src/setup.ts', import.meta.url)]
+        onSetup: [new URL('src/setup.ts', import.meta.url)],
+        onBoot: []
       },
       ssr: {
         serverModules: []
@@ -185,7 +195,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
         presets: [
           QuasarPreset({
             style: MaterialDesign3,
-            sourceColor: env.VITE_SOURCE_COLOR || '#00a4e6',
+            sourceColor: env.SOURCE_COLOR || env.VITE_SOURCE_COLOR || '#00a4e6',
             plugins: quasarConf['framework']['plugins'],
             iconSet: quasarConf['framework']['iconSet']
           })
@@ -219,16 +229,6 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
         }
       }
       // pwa: true
-    },
-    quasar: {
-      extras: ['material-icons', 'fontawesome-v6'],
-      framework: {
-        components: [
-          // Deprecated
-        ],
-        iconSet: 'svg-material-icons',
-        plugins: ['Dialog', 'Notify', 'Loading', 'Meta']
-      }
     }
   }
   if (mode === 'development') {
