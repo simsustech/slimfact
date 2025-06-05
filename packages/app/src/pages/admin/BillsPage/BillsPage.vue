@@ -158,9 +158,8 @@ const lang = useLang()
 
 const route = useRoute()
 
-const uuids = ref<string[]>((route.params.uuids as string[]) || undefined)
 onBeforeRouteUpdate((to) => {
-  if (to.params.uuids && Array.isArray(to.params.ids)) {
+  if (to.params.uuids && Array.isArray(to.params.uuids)) {
     uuids.value = to.params.uuids as string[]
   } else {
     uuids.value = undefined
@@ -172,11 +171,17 @@ const {
   companyId,
   clientId,
   clientDetails,
+  uuids,
   page,
   rowsPerPage,
   paid,
   refetch: execute
 } = useAdminGetBillsQuery()
+
+if (route.params.uuids && Array.isArray(route.params.uuids)) {
+  uuids.value = route.params.uuids as string[]
+}
+
 const total = computed(() => invoices.value?.at(0)?.total || 0)
 
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
