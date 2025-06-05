@@ -34,7 +34,7 @@ services:
       dockerfile: Dockerfile
       target: api
     labels:
-      caddy: ${HOSTNAME}.local
+      caddy: ${HOST}.local
       caddy.reverse_proxy: "{{upstreams 80}}"
     volumes:
       - ./packages/app/dist:/packages/app/dist
@@ -44,7 +44,7 @@ services:
       POSTGRES_PASSWORD: ufgouifdgjdfg
     environment:
       # API env variables
-      VITE_API_HOSTNAME: ${HOSTNAME}.local
+      VITE_API_HOST: ${HOST}.local
       VITE_LICENSE_KEY: undefined
       VITE_TITLE: SlimFact dev
       POSTGRES_HOST: database

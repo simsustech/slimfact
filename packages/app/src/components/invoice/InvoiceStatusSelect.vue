@@ -5,6 +5,7 @@
     :label="lang.invoice.fields.status"
     map-options
     emit-value
+    clearable
     @update:model-value="($event) => emit('update:modelValue', $event)"
   >
   </q-select>

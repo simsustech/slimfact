@@ -12,10 +12,10 @@ import { addDays } from 'date-fns'
 import { PaymentMethod, InvoiceStatus } from '@modular-api/fastify-checkout'
 import { emailTemplates } from '../../templates/email/index.js'
 
-const hostname = env.read('API_HOSTNAME') || env.read('VITE_API_HOSTNAME')
-const slimfactDownloaderHostname =
-  env.read('SLIMFACT_DOWNLOADER_HOSTNAME') ||
-  env.read('VITE_SLIMFACT_DOWNLOADER_HOSTNAME') ||
+const host = env.read('API_HOST') || env.read('VITE_API_HOST')
+const slimfactDownloaderHost =
+  env.read('SLIMFACT_DOWNLOADER_HOST') ||
+  env.read('VITE_SLIMFACT_DOWNLOADER_HOST') ||
   'download.slimfact.app'
 const formatDateShort = ({
   dateString,
@@ -69,7 +69,7 @@ const composeEmail = ({
       dateString: invoice.dueDate!,
       locale: invoice.locale
     }),
-    invoiceUrl: `https://${hostname}/invoice/${invoice.uuid}`
+    invoiceUrl: `https://${host}/invoice/${invoice.uuid}`
   })
 
   return { subject, body }
@@ -81,7 +81,7 @@ export const downloadPdf = async (invoice: Invoice) => {
   try {
     const protocol = 'https' // Dev server does not use https
     const pdfResponse = await fetch(
-      `${protocol}://${slimfactDownloaderHostname}/?uuid=${invoice.uuid}&host=${hostname}`
+      `${protocol}://${slimfactDownloaderHost}/?uuid=${invoice.uuid}&host=${host}`
     )
 
     const header = pdfResponse.headers.get('Content-Disposition')
@@ -775,12 +775,12 @@ export const adminInvoiceRoutes = ({
       z.object({
         id: z.number(),
         payment: z.object({
-          description: z.string().optional(),
+          description: z.string().nullable().optional(),
           amount: z.number(),
           currency: z.union([z.literal('EUR'), z.literal('USD')]),
           method: z.nativeEnum(PaymentMethod),
-          redirectUrl: z.string().url().optional(),
-          transactionReference: z.string().optional()
+          redirectUrl: z.string().url().nullable().optional(),
+          transactionReference: z.string().nullable().optional()
         })
       })
     )
@@ -803,7 +803,7 @@ export const adminInvoiceRoutes = ({
                 description: payment.description || `${invoice.uuid}`,
                 method: payment.method,
                 redirectUrl:
-                  payment.redirectUrl || `https://${hostname}/checkout/success`,
+                  payment.redirectUrl || `https://${host}/checkout/success`,
                 webhookUrl,
                 transactionReference: payment.transactionReference
               }

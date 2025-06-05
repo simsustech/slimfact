@@ -135,6 +135,7 @@ const lang: Language = {
       update: 'Update',
       send: 'Versturen',
       sendInvoice: 'Verstuur factuur',
+      sendReceipt: 'Verstuur kwitantie',
       sendReminder: 'Verstuur herinnering',
       sendExhortation: 'Verstuur aanmaning',
       markPaid: 'Markeer betaald',

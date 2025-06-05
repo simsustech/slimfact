@@ -1,34 +1,37 @@
 <template>
   <q-avatar>
     <invoice-status-icon :model-value="modelValue" size="md" />
+
+    <q-icon
+      v-if="
+        [InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) && paid
+      "
+      name="i-mdi-check"
+      color="green"
+      rounded
+      size="xs"
+      padding="xs"
+      style="position: relative; left: 12px; bottom: 10px"
+      ><q-tooltip>
+        {{ lang.invoice.status.paid }}
+      </q-tooltip>
+    </q-icon>
+    <q-icon
+      v-else-if="
+        [InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) &&
+        downPaymentReceived
+      "
+      name="i-mdi-check"
+      color="orange"
+      rounded
+      size="xs"
+      padding="xs"
+      style="position: relative; left: 12px; bottom: 10px"
+      ><q-tooltip>
+        {{ lang.invoice.messages.downPaymentReceived }}
+      </q-tooltip>
+    </q-icon>
   </q-avatar>
-  <q-icon
-    v-if="[InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) && paid"
-    name="i-mdi-check"
-    color="green"
-    rounded
-    size="xs"
-    padding="xs"
-    style="position: relative; right: 16px; bottom: -15px"
-    ><q-tooltip>
-      {{ lang.invoice.status.paid }}
-    </q-tooltip>
-  </q-icon>
-  <q-icon
-    v-else-if="
-      [InvoiceStatus.BILL, InvoiceStatus.OPEN].includes(modelValue) &&
-      downPaymentReceived
-    "
-    name="i-mdi-check"
-    color="orange"
-    rounded
-    size="xs"
-    padding="xs"
-    style="position: relative; right: 16px; bottom: -15px"
-    ><q-tooltip>
-      {{ lang.invoice.messages.downPaymentReceived }}
-    </q-tooltip>
-  </q-icon>
 </template>
 
 <script setup lang="ts">

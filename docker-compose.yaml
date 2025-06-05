@@ -2,13 +2,13 @@ services:
   api:
     image: "ghcr.io/simsustech/slimfact:latest"
     labels:
-      caddy: ${HOSTNAME}
+      caddy: ${HOST}
       caddy.reverse_proxy: "{{upstreams 80}}"
     volumes:
       - ./jwks/:/app/dist/server/jwks/
     environment:
       # Modular API
-      VITE_API_HOSTNAME: ${HOSTNAME}
+      VITE_API_HOST: ${HOST}
       OIDC_ISSUER_NAME: ${OIDC_ISSUER_NAME}
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_DB: ${POSTGRES_DB}
