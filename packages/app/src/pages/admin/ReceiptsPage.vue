@@ -236,6 +236,8 @@ const clearSearchResults = () => {
 const ready = ref<boolean>(false)
 onMounted(async () => {
   await execute()
+  await refetchFilteredClients()
+  await refetchFilteredCompanies()
   ready.value = true
 })
 </script>
