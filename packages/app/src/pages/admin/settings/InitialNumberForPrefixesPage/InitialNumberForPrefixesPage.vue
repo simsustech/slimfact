@@ -169,6 +169,7 @@ const onFilterCompanies: InstanceType<
 const ready = ref<boolean>(false)
 onMounted(async () => {
   await execute()
+  await refetchFilteredCompanies()
   ready.value = true
 })
 </script>

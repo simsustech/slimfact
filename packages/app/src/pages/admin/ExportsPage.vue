@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { date as dateUtil, exportFile } from 'quasar'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import InvoiceForm from 'src/components/invoice/InvoiceForm.vue'
 import { DateInput } from '@simsustech/quasar-components/form'
@@ -125,4 +125,8 @@ const onFilterCompanies: InstanceType<
 
   if (done) done()
 }
+
+onMounted(async () => {
+  await refetchFilteredCompanies()
+})
 </script>

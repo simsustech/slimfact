@@ -23,8 +23,7 @@ export const useAdminSearchCompaniesQuery = defineQuery(() => {
     enabled: () => !import.meta.env.SSR && !!searchPhrase.value,
     key: () => ['adminSearchCompanies', searchPhrase.value],
     query: () => trpc.admin.searchCompanies.query(searchPhrase.value),
-    // placeholderData: () => []
-    initialData: () => []
+    placeholderData: () => []
   })
 
   return {

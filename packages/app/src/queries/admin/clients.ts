@@ -27,7 +27,7 @@ export const useAdminSearchClientsQuery = defineQuery(() => {
         name: name.value,
         pagination: pagination.value
       }),
-    initialData: () => []
+    placeholderData: () => []
   })
 
   return {
