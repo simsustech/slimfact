@@ -117,7 +117,6 @@ import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionIt
 import { useLang } from '../../../lang/index.js'
 
 import { PaymentMethod } from '@modular-api/fastify-checkout/types'
-import { InvoiceStatus } from '@slimfact/api/zod'
 
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../../components/company/CompanySelect.vue'
@@ -264,7 +263,7 @@ const createInvoice: InstanceType<
   typeof InvoiceForm
 >['$props']['onSubmit'] = async ({ data, done }) => {
   try {
-    await createInvoiceMutation({ ...data, status: InvoiceStatus.BILL })
+    await createInvoiceMutation({ ...data })
 
     done()
     await execute()
