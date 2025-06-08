@@ -214,9 +214,9 @@ const openCreateDialog: InstanceType<
 const update: InstanceType<
   typeof ResponsiveDialog
 >['$props']['onSubmit'] = async ({ done }) => {
-  const afterUpdate = (success?: boolean) => {
+  const afterUpdate = async (success?: boolean) => {
     done(success)
-    execute()
+    await execute()
   }
   updateInvoiceFormRef.value?.functions.submit({ done: afterUpdate })
 }
@@ -224,9 +224,9 @@ const update: InstanceType<
 const create: InstanceType<
   typeof ResponsiveDialog
 >['$props']['onSubmit'] = async ({ done }) => {
-  const afterCreate = (success?: boolean) => {
+  const afterCreate = async (success?: boolean) => {
     done(success)
-    if (success) execute()
+    if (success) await execute()
   }
   createInvoiceFormRef.value?.functions.submit({ done: afterCreate })
 }
