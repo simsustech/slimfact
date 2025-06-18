@@ -6,7 +6,7 @@ import env from '@vitrify/tools/env'
 // @ts-expect-error no types
 import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plugin'
 import {
-  onRendered as appOnRendered,
+  onAppRendered as appOnAppRendered,
   onTemplateRendered as appOnTemplateRendered
   // @ts-expect-error no types
 } from '@slimfact/app/hooks'
@@ -311,7 +311,7 @@ export default async function (fastify: FastifyInstance) {
 
   await fastify.register(appSsrPlugin, {
     host,
-    onRendered: appOnRendered,
+    onAppRendered: appOnAppRendered,
     onTemplateRendered: appOnTemplateRendered
   })
 
