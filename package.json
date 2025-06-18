@@ -50,6 +50,7 @@
     "commit-msg": "pnpm exec commitlint --edit $1"
   },
   "dependencies": {
+    "@modular-api/quasar-components": "link:../modular-api/packages/components",
     "unocss-preset-quasar": "link:../unocss-preset-quasar/packages/preset"
   }
 }
