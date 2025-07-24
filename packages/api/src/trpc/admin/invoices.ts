@@ -69,7 +69,7 @@ const composeEmail = ({
       dateString: invoice.dueDate!,
       locale: invoice.locale
     }),
-    invoiceUrl: `https://${host}/invoice/${invoice.uuid}`
+    invoiceUrl: `https://${host}/invoice/${invoice.uuid}?eventType=emailOpened`
   })
 
   return { subject, body }

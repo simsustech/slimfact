@@ -12,6 +12,10 @@ import type {
 } from '@modular-api/fastify-checkout'
 import type { Generated, JSONColumnType } from 'kysely'
 
+export enum INVOICE_EVENT_TYPE {
+  EMAIL_OPENED = 'emailOpened'
+}
+
 export interface Clients {
   address: string
   city: string
@@ -95,6 +99,13 @@ export interface Subscriptions {
   createdAt: Generated<string>
 }
 
+export interface InvoiceEvents {
+  id: Generated<number>
+  invoiceId: number
+  type: INVOICE_EVENT_TYPE
+  timestamp: Generated<string>
+}
+
 export interface DB extends CartDatabase, CheckoutDatabase {
   accounts: AccountsTable
   authenticationMethods: AuthenticationMethodsTable
@@ -105,4 +116,5 @@ export interface DB extends CartDatabase, CheckoutDatabase {
   initialNumberForPrefixes: InitialNumberForPrefixes
   emailTemplates: EmailTemplates
   subscriptions: Subscriptions
+  invoiceEvents: InvoiceEvents
 }

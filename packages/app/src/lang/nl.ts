@@ -278,6 +278,12 @@ const lang: Language = {
   },
   settings: {
     title: 'Instellingen'
+  },
+  invoiceEvents: {
+    events: 'Gebeurtenissen',
+    types: {
+      emailOpened: 'Factuur geopend vanuit email.'
+    }
   }
 }
 

@@ -38,6 +38,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
+          :invoice-events="invoiceEvents[invoice.id]"
           v-on="invoiceExpansionItemHandlers"
         />
       </q-list>
@@ -143,6 +144,7 @@ import {
 } from 'src/queries/admin/email.js'
 import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
 import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
+import { useAdminGetInvoiceEventsByInvoiceIdsQuery } from 'src/queries/admin/invoiceEvents'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-invoices-create-dialog', () => {
@@ -178,6 +180,13 @@ const {
   uuids,
   refetch: execute
 } = useAdminGetInvoicesQuery()
+
+const { invoiceIds, invoiceEvents } =
+  useAdminGetInvoiceEventsByInvoiceIdsQuery()
+
+watch(invoices, (newVal) => {
+  if (newVal) invoiceIds.value = newVal.map((invoice) => invoice.id)
+})
 
 if (route.params.uuids && Array.isArray(route.params.uuids)) {
   uuids.value = route.params.uuids as string[]

@@ -274,7 +274,13 @@ const lang: Language = {
       }
     }
   },
-  settings: { title: 'Settings' }
+  settings: { title: 'Settings' },
+  invoiceEvents: {
+    events: 'Events',
+    types: {
+      emailOpened: 'Invoice opened from email.'
+    }
+  }
 }
 
 export default lang

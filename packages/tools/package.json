@@ -34,14 +34,14 @@
   },
   "devDependencies": {
     "@types/iban": "^0.0.35",
-    "@types/node": "^24.0.12",
-    "csv-parse": "^5.6.0",
-    "eslint": "9.30.1",
-    "eslint-config-prettier": "10.1.5",
-    "eslint-plugin-prettier": "^5.5.1",
+    "@types/node": "^24.1.0",
+    "csv-parse": "^6.1.0",
+    "eslint": "9.31.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-vue": "10.3.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.36.0",
+    "typescript-eslint": "^8.38.0",
     "vue-eslint-parser": "^10.2.0"
   },
   "dependencies": {

@@ -255,6 +255,7 @@ import {
 import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
 import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
+import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
 
 const $q = useQuasar()
 const language = ref($q.lang.isoName)
@@ -429,6 +430,9 @@ const getAdminUrl = () => {
   return
 }
 
+const { mutateAsync: invoiceEventEmailOpenedMutation } =
+  useAccountInvoiceEventEmailOpenedMutation()
+
 onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
@@ -446,6 +450,10 @@ onMounted(async () => {
 
   if (oAuthClient.value?.getAccessToken()) {
     user.value = await oAuthClient.value?.getUser()
+  }
+
+  if (route.query?.eventType === 'emailOpened' && invoice.value) {
+    invoiceEventEmailOpenedMutation({ invoiceId: invoice.value.id })
   }
 })
 </script>

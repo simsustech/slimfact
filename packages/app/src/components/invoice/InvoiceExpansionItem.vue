@@ -372,6 +372,11 @@
         name="refunds"
         :label="lang.refund.refunds"
       />
+      <q-tab
+        v-if="invoiceEvents?.length"
+        name="events"
+        :label="lang.invoiceEvents.events"
+      />
     </q-tabs>
 
     <q-separator />
@@ -433,6 +438,21 @@
           />
         </q-list>
       </q-tab-panel>
+
+      <q-tab-panel v-if="invoiceEvents?.length" name="events">
+        <q-list>
+          <q-item v-for="event in invoiceEvents" :key="event.id">
+            <q-item-section>
+              <q-item-label overline>
+                {{ formatTimestamp(event.timestamp) }}
+              </q-item-label>
+              <q-item-label>
+                {{ lang.invoiceEvents.types[event.type] }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-tab-panel>
     </q-tab-panels>
 
     <!-- <q-scroll-area :style="scrollAreaSize">
@@ -462,7 +482,7 @@ import { useLang } from '../../lang/index.js'
 // import InvoiceStatusIcon from './InvoiceStatusIcon.vue'
 import InvoiceStatusAvatar from './InvoiceStatusAvatar.vue'
 import { date as dateUtil } from 'quasar'
-import { InvoiceStatus } from '@slimfact/api/zod'
+import { type InvoiceEvent, InvoiceStatus } from '@slimfact/api/zod'
 
 export interface Props {
   modelValue: Invoice
@@ -471,6 +491,7 @@ export interface Props {
   onAddPaymentBankTransfer?: unknown
   onAddPaymentIdeal?: unknown
   onSend?: unknown
+  invoiceEvents?: InvoiceEvent[]
 }
 const props = defineProps<Props>()
 
@@ -679,6 +700,16 @@ const dateFormatter = (date: Date, locale: string) =>
   }).format(date)
 const formatDate = (date: string | null) => {
   if (date) return dateFormatter(new Date(date), $q.lang.isoName)
+  return '-'
+}
+
+const timestampFormatter = (date: Date, locale: string) =>
+  new Intl.DateTimeFormat(locale, {
+    dateStyle: 'long',
+    timeStyle: 'long'
+  }).format(date)
+const formatTimestamp = (date: string | null) => {
+  if (date) return timestampFormatter(new Date(date), $q.lang.isoName)
   return '-'
 }
 
