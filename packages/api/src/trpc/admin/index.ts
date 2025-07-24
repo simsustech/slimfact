@@ -5,6 +5,7 @@ import { adminClientRoutes } from './clients.js'
 import { adminNumberPrefixRoutes } from './numberPrefixes.js'
 import { adminInitialNumberForPrefixRoutes } from './initialNumberForPrefixes.js'
 import { adminSubscriptionRoutes } from './subscriptions.js'
+import { adminInvoiceEventsRoutes } from './invoiceEvents.js'
 import { t } from '../../trpc/index.js'
 import type { FastifyInstance } from 'fastify'
 import { adminHealthRoutes } from './health.js'
@@ -25,5 +26,6 @@ export const adminRoutes = ({
   ...adminInitialNumberForPrefixRoutes({ fastify, procedure }),
   ...adminSubscriptionRoutes({ fastify, procedure }),
   ...adminHealthRoutes({ fastify, procedure }),
-  ...adminExportRoutes({ fastify, procedure })
+  ...adminExportRoutes({ fastify, procedure }),
+  ...adminInvoiceEventsRoutes({ fastify, procedure })
 })

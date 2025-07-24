@@ -298,6 +298,12 @@ export interface Language {
   settings: {
     title: string
   }
+  invoiceEvents: {
+    events: string
+    types: {
+      emailOpened: string
+    }
+  }
 }
 
 import type { Ref } from 'vue'

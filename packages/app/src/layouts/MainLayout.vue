@@ -278,7 +278,7 @@ import NavigationTabs from './NavigationTabs.vue'
 import { initializeTRPCClient } from 'src/trpc.js'
 
 const $q = useQuasar()
-const language = ref($q.lang.isoName)
+const language = ref('en-US')
 
 const languageLocales = ref([
   {
@@ -293,8 +293,8 @@ const languageLocales = ref([
 
 // prettier-ignore
 const languageImports = ref({
-  nl: () => import(`../../node_modules/quasar/lang/nl.js`),
-  'en-US': () => import(`../../node_modules/quasar/lang/en-US.js`)
+  nl: () => import(`quasar/lang/nl.js`),
+  'en-US': () => import(`quasar/lang/en-US.js`)
 })
 
 watch(language, (newVal) => {
@@ -302,6 +302,7 @@ watch(language, (newVal) => {
   loadFormLang(newVal)
   loadCheckoutLang(newVal)
 })
+language.value = $q.lang.isoName
 
 await loadConfiguration(language)
 const configuration = useConfiguration()
