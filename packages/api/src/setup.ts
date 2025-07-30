@@ -26,9 +26,7 @@ import { initialize } from './pgboss.js'
 import type { ClientMetadata } from 'oidc-provider'
 import { generateTheme } from 'unocss-preset-quasar/theme'
 
-// const getString = (str: string) => str
-// // @ts-expect-error vitrify variable
-// const host = getString(__HOST__)
+const OIDC_API_CLIENT_IDS = ['petboarding']
 
 const theme = generateTheme(
   env.read('SOURCE_COLOR') || env.read('VITE_SOURCE_COLOR') || '#00a4e6'
@@ -260,8 +258,17 @@ export default async function (fastify: FastifyInstance) {
         issueRefreshToken: async function (ctx, client) {
           return (
             client.grantTypeAllowed('refresh_token') &&
-            client.clientId === 'petboarding'
+            OIDC_API_CLIENT_IDS.includes(client.clientId)
           )
+        },
+        ttl: {
+          RefreshToken: (ctx, token, client) => {
+            if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
+              return 2 * 365 * 24 * 60 * 60 // 2 years in seconds
+            }
+
+            return 14 * 24 * 60 * 60 // 14 days in seconds
+          }
         }
       }
     },
