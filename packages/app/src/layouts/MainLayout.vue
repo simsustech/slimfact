@@ -267,6 +267,7 @@ import {
 } from '@simsustech/quasar-components/authentication'
 import { QLanguageSelect } from '@simsustech/quasar-components'
 import { Md3Layout } from '@simsustech/quasar-components/md3'
+import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { useOAuthClient, userRouteKey, user, oAuthClient } from '../oauth.js'
@@ -301,6 +302,12 @@ watch(language, (newVal) => {
   loadLang(newVal)
   loadFormLang(newVal)
   loadCheckoutLang(newVal)
+  loadGeneralLang(newVal)
+
+  // @ts-expect-error string
+  languageImports.value[newVal]().then((lang) => {
+    $q.lang.set(lang.default)
+  })
 })
 language.value = $q.lang.isoName
 
