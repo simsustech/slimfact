@@ -255,6 +255,7 @@ import {
 import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
 import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
+import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
 
 const $q = useQuasar()
@@ -265,6 +266,12 @@ watch(language, (newVal) => {
   loadLang(newVal)
   loadFormLang(newVal)
   loadCheckoutLang(newVal)
+  loadGeneralLang(newVal)
+
+  // @ts-expect-error string
+  languageImports.value[newVal]().then((lang) => {
+    $q.lang.set(lang.default)
+  })
 })
 
 await loadConfiguration(language)
