@@ -396,7 +396,7 @@ const refund = async () => {
     }).onOk(async () => {
       if (invoice.value?.id) {
         try {
-          refundInvoiceMutation(invoice.value.id)
+          await refundInvoiceMutation(invoice.value.id)
           window.location.reload()
         } catch (e) {}
       }
