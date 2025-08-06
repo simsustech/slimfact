@@ -19,8 +19,7 @@ export const useAdminGetInvoicesQuery = defineQuery(() => {
     | InvoiceStatus.PAID
     | InvoiceStatus.CONCEPT
     | InvoiceStatus.CANCELED
-    | null
-  >(null)
+  >()
   const pagination = computed<{
     limit: number
     offset: number

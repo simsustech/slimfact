@@ -251,7 +251,8 @@ export const adminInvoiceRoutes = ({
             })
             .nullable()
             .optional(),
-          status: z.nativeEnum(InvoiceStatus).nullable(),
+          status: z.enum(InvoiceStatus).optional(),
+          statuses: z.enum(InvoiceStatus).array().optional(),
           pagination: z
             .object({
               limit: z.number(),
@@ -276,6 +277,7 @@ export const adminInvoiceRoutes = ({
         clientId,
         clientDetails,
         status,
+        statuses,
         pagination,
         paid
       } = input || {}
@@ -286,6 +288,7 @@ export const adminInvoiceRoutes = ({
           clientId,
           clientDetails,
           status,
+          statuses,
           options: {
             withPayments: true,
             withAmountPaid: true,
