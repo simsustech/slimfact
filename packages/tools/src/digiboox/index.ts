@@ -35,7 +35,7 @@ const formatPrice = ({ value, locale }: { value: number; locale: string }) =>
     currencyDisplay: 'code'
   })
     .format(value / 100)
-    .replace('EUR', '')
+    .replace('EUR ', '')
 
 export const exportDigibooxInvoices = (invoices: Invoice[]) => {
   const csvConfig = mkConfig({ useKeysAsHeaders: true })
@@ -64,7 +64,7 @@ export const exportDigibooxInvoices = (invoices: Invoice[]) => {
             : invoiceLine.quantity,
           'Bedrag excl. btw': formatPrice({
             value: invoiceLine.discountedLinePriceExcludingTax,
-            locale: 'en-US'
+            locale: 'nl'
           })
         })
       })
