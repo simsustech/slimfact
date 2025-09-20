@@ -24,7 +24,6 @@ ARG SASS_VARIABLE_PRIMARY
 RUN pnpm run build
 
 FROM build-stage AS api-deploy
-RUN pnpm prune --prod
 RUN pnpm --filter @slimfact/api deploy api --prod
 RUN pnpm --filter @slimfact/app deploy app --prod --no-optional
 RUN pnpm --filter @slimfact/downloader deploy downloader --prod --no-optional
