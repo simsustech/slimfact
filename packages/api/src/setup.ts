@@ -262,6 +262,12 @@ export default async function (fastify: FastifyInstance) {
           )
         },
         ttl: {
+          AccessToken: (ctx, token, client) => {
+            if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
+              return 1 * 365 * 24 * 60 * 60 // 1 year in seconds
+            }
+            return token.resourceServer?.accessTokenTTL || 60 * 60 // 1 hour in seconds
+          },
           RefreshToken: (ctx, token, client) => {
             if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
               return 2 * 365 * 24 * 60 * 60 // 2 years in seconds
