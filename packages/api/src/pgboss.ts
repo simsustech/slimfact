@@ -60,7 +60,11 @@ const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
   }
 
 export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
-  boss = new PgBoss(postgresConnectionString)
+  // https://github.com/timgit/pg-boss/issues/590
+  boss = new PgBoss({
+    connectionString: postgresConnectionString,
+    schema: 'pgboss_v11'
+  })
 
   await boss.start()
 
