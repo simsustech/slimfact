@@ -262,6 +262,11 @@ const $q = useQuasar()
 const language = ref($q.lang.isoName)
 const lang = useLang()
 
+const languageImports = ref({
+  nl: () => import(`quasar/lang/nl.js`),
+  'en-US': () => import(`quasar/lang/en-US.js`)
+})
+
 watch(language, (newVal) => {
   loadLang(newVal)
   loadFormLang(newVal)
@@ -291,14 +296,13 @@ const uuid = ref(
 )
 
 const { data: invoice, refetch } = useQuery({
-  enabled: !import.meta.env.SSR,
+  enabled: false,
   key: ['publicGetInvoice', uuid.value],
   query: () =>
     trpc.public.getInvoice.query({
       uuid: uuid.value
     })
 })
-await refetch()
 
 // const { data: invoice } = useQuery('public.getInvoice', {
 //   args: reactive({
@@ -445,22 +449,26 @@ onMounted(async () => {
     await import('../pwa.js')
   }
 
-  await useOAuthClient()
+  if (!import.meta.env.ssr) {
+    await useOAuthClient()
 
-  try {
-    await oAuthClient.value?.signInSilently({})
-  } catch (e) {
-    console.error('Failed to sign in silently')
-  }
+    try {
+      await oAuthClient.value?.signInSilently({})
+    } catch (e) {
+      console.error('Failed to sign in silently')
+    }
 
-  await oAuthClient.value?.getUserInfo()
+    await oAuthClient.value?.getUserInfo()
 
-  if (oAuthClient.value?.getAccessToken()) {
-    user.value = await oAuthClient.value?.getUser()
-  }
+    if (oAuthClient.value?.getAccessToken()) {
+      user.value = await oAuthClient.value?.getUser()
+    }
 
-  if (route.query?.eventType === 'emailOpened' && invoice.value) {
-    invoiceEventEmailOpenedMutation({ invoiceId: invoice.value.id })
+    if (route.query?.eventType === 'emailOpened' && invoice.value) {
+      invoiceEventEmailOpenedMutation({ invoiceId: invoice.value.id })
+    }
+
+    await refetch()
   }
 })
 </script>

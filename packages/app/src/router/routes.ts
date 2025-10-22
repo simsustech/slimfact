@@ -2,6 +2,10 @@ import { RouteRecordRaw } from 'vue-router'
 import { userRouteKey, redirectRouteKey } from '../oauth.js'
 const routes: RouteRecordRaw[] = [
   {
+    path: '/invoice/:uuid',
+    component: () => import('../pages/InvoicePage.vue')
+  },
+  {
     path: '/',
     component: () => import('../layouts/MainLayout.vue'),
     children: [
@@ -169,10 +173,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/pages/Error404Page.vue')
       }
     ]
-  },
-  {
-    path: '/invoice/:uuid',
-    component: () => import('../pages/InvoicePage.vue')
   }
 
   // Always leave this as last one,
