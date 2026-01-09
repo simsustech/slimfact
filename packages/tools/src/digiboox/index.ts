@@ -63,7 +63,9 @@ export const exportDigibooxInvoices = (invoices: Invoice[]) => {
             ? invoiceLine.quantity / 1000
             : invoiceLine.quantity,
           'Bedrag excl. btw': formatPrice({
-            value: invoiceLine.discountedLinePriceExcludingTax,
+            value:
+              invoiceLine.discountedLinePriceExcludingTax /
+              invoiceLine.quantity,
             locale: 'nl'
           })
         })
