@@ -50,7 +50,7 @@ importers:
         version: 8.3.0
       '@modular-api/api':
         specifier: ^0.6.11
-        version: 0.6.11(bcryptjs@3.0.2)(fastify@5.6.1)(handlebars@4.7.8)(kysely@0.28.8)(openid-client@6.8.0)(otplib@12.0.1)(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
+        version: 0.6.11(bcryptjs@3.0.2)(fastify@5.6.1)(handlebars@4.7.8)(kysely@0.28.8)(openid-client@6.8.1)(otplib@12.0.1)(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
       '@modular-api/fastify-cart':
         specifier: ^0.3.10
         version: 0.3.10(kysely@0.28.8)
@@ -4195,6 +4195,10 @@ packages:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
     engines: {node: '>= 0.8'}
 
+  http-errors@2.0.1:
+    resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
+    engines: {node: '>= 0.8'}
+
   http-signature@1.2.0:
     resolution: {integrity: sha512-CAbnr6Rz4CYQkLYUtSNXxQPUH2gK8f3iWexVlsnMeD+GjlsQ0Xsy1cOX+mN3dtxYomRy21CiOzU8Uhw6OwncEQ==}
     engines: {node: '>=0.8', npm: '>=1.3.7'}
@@ -4860,6 +4864,10 @@ packages:
     resolution: {integrity: sha512-xRc4oEhT6eaBpU1XF7AjpOFD+xQmXNB5OVKwp4tqCuBpHLS/ZbBDrc07mYTDqVMg6PfxUjjNp85O6Cd2Z/5HWA==}
     engines: {node: '>= 0.6'}
 
+  mime-types@3.0.2:
+    resolution: {integrity: sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A==}
+    engines: {node: '>=18'}
+
   mime@3.0.0:
     resolution: {integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==}
     engines: {node: '>=10.0.0'}
@@ -4984,8 +4992,8 @@ packages:
   node-releases@2.0.21:
     resolution: {integrity: sha512-5b0pgg78U3hwXkCM8Z9b2FJdPZlr9Psr9V2gQPESdGHqbntyFJKFW4r5TeWGFzafGY3hzs1JC62VEQMbl1JFkw==}
 
-  nodemailer@7.0.6:
-    resolution: {integrity: sha512-F44uVzgwo49xboqbFgBGkRaiMgtoBrBEWCVincJPK9+S9Adkzt/wXCLKbf7dxucmxfTI5gHGB+bEmdyzN6QKjw==}
+  nodemailer@7.0.12:
+    resolution: {integrity: sha512-H+rnK5bX2Pi/6ms3sN4/jRQvYSMltV6vqup/0SFOrxYYY/qoNvhXPlYq3e+Pm9RFJRwrMGbMIwi81M4dxpomhA==}
     engines: {node: '>=6.0.0'}
 
   nodeunit@0.11.3:
@@ -5019,8 +5027,8 @@ packages:
   oauth-sign@0.9.0:
     resolution: {integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==}
 
-  oauth4webapi@3.8.1:
-    resolution: {integrity: sha512-olkZDELNycOWQf9LrsELFq8n05LwJgV8UkrS0cburk6FOwf8GvLam+YB+Uj5Qvryee+vwWOfQVeI5Vm0MVg7SA==}
+  oauth4webapi@3.8.3:
+    resolution: {integrity: sha512-pQ5BsX3QRTgnt5HxgHwgunIRaDXBdkT23tf8dfzmtTIL2LTpdmxgbpbBm0VgFWAIDlezQvQCTgnVIUmHupXHxw==}
 
   object-inspect@1.13.4:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
@@ -5066,8 +5074,8 @@ packages:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
     hasBin: true
 
-  openid-client@6.8.0:
-    resolution: {integrity: sha512-oG1d1nAVhIIE+JSjLS+7E9wY1QOJpZltkzlJdbZ7kEn7Hp3hqur2TEeQ8gLOHoHkhbRAGZJKoOnEQcLOQJuIyg==}
+  openid-client@6.8.1:
+    resolution: {integrity: sha512-VoYT6enBo6Vj2j3Q5Ec0AezS+9YGzQo1f5Xc42lreMGlfP4ljiXPKVDvCADh+XHCV/bqPu/wWSiCVXbJKvrODw==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -5671,8 +5679,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  send@1.2.0:
-    resolution: {integrity: sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==}
+  send@1.2.1:
+    resolution: {integrity: sha512-1gnZf7DFcoIcajTjTwjwuDjzuz4PPcY2StKPlsGAQ1+YH20IRVrBaXSWmdjowTJ6u8Rc01PoYOGHXfP1mYcZNQ==}
     engines: {node: '>= 18'}
 
   serialize-error@8.1.0:
@@ -5682,8 +5690,8 @@ packages:
   serialize-javascript@6.0.2:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
 
-  serve-static@2.2.0:
-    resolution: {integrity: sha512-61g9pCh0Vnh7IutZjtLGGpTA355+OPn2TyDv/6ivP2h/AdAVX9azsoxmg2/M6nZeQZNYBEwIcsne1mJd9oQItQ==}
+  serve-static@2.2.1:
+    resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
 
   set-blocking@2.0.0:
@@ -8177,7 +8185,7 @@ snapshots:
 
   '@material/material-color-utilities@0.3.0': {}
 
-  '@modular-api/api@0.6.11(bcryptjs@3.0.2)(fastify@5.6.1)(handlebars@4.7.8)(kysely@0.28.8)(openid-client@6.8.0)(otplib@12.0.1)(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))':
+  '@modular-api/api@0.6.11(bcryptjs@3.0.2)(fastify@5.6.1)(handlebars@4.7.8)(kysely@0.28.8)(openid-client@6.8.1)(otplib@12.0.1)(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/cors': 11.1.0
@@ -8193,16 +8201,16 @@ snapshots:
       '@vue/server-renderer': 3.5.22(vue@3.5.22(typescript@5.9.3))
       compression: 1.8.1
       content-type: 1.0.5
-      fastify-mailer: 2.3.1(nodemailer@7.0.6)
+      fastify-mailer: 2.3.1(nodemailer@7.0.12)
       fastify-plugin: 5.0.1
       jose: 6.1.0
       json-stream-stringify: 3.1.6
       kysely: 0.28.8
-      nodemailer: 7.0.6
-      openid-client: 6.8.0
+      nodemailer: 7.0.12
+      openid-client: 6.8.1
       pg: 8.16.3
       raw-body: 3.0.1
-      serve-static: 2.2.0
+      serve-static: 2.2.1
     transitivePeerDependencies:
       - bcryptjs
       - encoding
@@ -8249,7 +8257,7 @@ snapshots:
       handlebars: 4.7.8
       kysely: 0.28.8
       oidc-provider: 9.5.1
-      openid-client: 6.8.0
+      openid-client: 6.8.1
       otplib: 12.0.1
       vue: 3.5.22(typescript@5.9.3)
     transitivePeerDependencies:
@@ -10481,10 +10489,10 @@ snapshots:
     dependencies:
       strnum: 2.1.1
 
-  fastify-mailer@2.3.1(nodemailer@7.0.6):
+  fastify-mailer@2.3.1(nodemailer@7.0.12):
     dependencies:
       fastify-plugin: 3.0.1
-      nodemailer: 7.0.6
+      nodemailer: 7.0.12
 
   fastify-plugin@3.0.1: {}
 
@@ -10877,6 +10885,14 @@ snapshots:
       inherits: 2.0.4
       setprototypeof: 1.2.0
       statuses: 2.0.1
+      toidentifier: 1.0.1
+
+  http-errors@2.0.1:
+    dependencies:
+      depd: 2.0.0
+      inherits: 2.0.4
+      setprototypeof: 1.2.0
+      statuses: 2.0.2
       toidentifier: 1.0.1
 
   http-signature@1.2.0:
@@ -11467,6 +11483,10 @@ snapshots:
     dependencies:
       mime-db: 1.54.0
 
+  mime-types@3.0.2:
+    dependencies:
+      mime-db: 1.54.0
+
   mime@3.0.0: {}
 
   minimatch@10.0.3:
@@ -11563,7 +11583,7 @@ snapshots:
 
   node-releases@2.0.21: {}
 
-  nodemailer@7.0.6: {}
+  nodemailer@7.0.12: {}
 
   nodeunit@0.11.3:
     dependencies:
@@ -11631,7 +11651,7 @@ snapshots:
 
   oauth-sign@0.9.0: {}
 
-  oauth4webapi@3.8.1: {}
+  oauth4webapi@3.8.3: {}
 
   object-inspect@1.13.4: {}
 
@@ -11689,10 +11709,10 @@ snapshots:
 
   opener@1.5.2: {}
 
-  openid-client@6.8.0:
+  openid-client@6.8.1:
     dependencies:
       jose: 6.1.0
-      oauth4webapi: 3.8.1
+      oauth4webapi: 3.8.3
 
   optionator@0.9.4:
     dependencies:
@@ -12313,15 +12333,15 @@ snapshots:
 
   semver@7.7.2: {}
 
-  send@1.2.0:
+  send@1.2.1:
     dependencies:
       debug: 4.4.3
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
       fresh: 2.0.0
-      http-errors: 2.0.0
-      mime-types: 3.0.1
+      http-errors: 2.0.1
+      mime-types: 3.0.2
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
@@ -12337,12 +12357,12 @@ snapshots:
     dependencies:
       randombytes: 2.1.0
 
-  serve-static@2.2.0:
+  serve-static@2.2.1:
     dependencies:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 1.2.0
+      send: 1.2.1
     transitivePeerDependencies:
       - supports-color
 
