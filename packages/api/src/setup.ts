@@ -255,22 +255,23 @@ export default async function (fastify: FastifyInstance) {
           email: ['email', 'email_verified'],
           api: ['roles']
         },
-        issueRefreshToken: async function (ctx, client) {
+        issueRefreshToken: async function (ctx, client, code) {
           return (
             client.grantTypeAllowed('refresh_token') &&
-            OIDC_API_CLIENT_IDS.includes(client.clientId)
+            (OIDC_API_CLIENT_IDS.includes(client.clientId) ||
+              code.scopes.has('offline_access'))
           )
         },
         ttl: {
-          AccessToken: (ctx, token, client) => {
-            if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
-              return 1 * 365 * 24 * 60 * 60 // 1 year in seconds
-            }
-            return token.resourceServer?.accessTokenTTL || 60 * 60 // 1 hour in seconds
-          },
+          // AccessToken: (ctx, token, client) => {
+          //   if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
+          //     return 1 * 365 * 24 * 60 * 60 // one in seconds
+          //   }
+          //   return token.resourceServer?.accessTokenTTL || 60 * 60 // 1 hour in seconds
+          // },
           RefreshToken: (ctx, token, client) => {
             if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
-              return 2 * 365 * 24 * 60 * 60 // 2 years in seconds
+              return 360 * 24 * 60 * 60 // 360 days in seconds
             }
 
             return 14 * 24 * 60 * 60 // 14 days in seconds
