@@ -184,8 +184,7 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
       lang: env.VITE_LANG,
       productName: 'SlimFact',
       hooks: {
-        onSetup: [new URL('src/setup.ts', import.meta.url)],
-        onBoot: []
+        onSetup: [new URL('src/setup.ts', import.meta.url)]
       },
       ssr: {
         serverModules: []
