@@ -4,9 +4,6 @@ packages:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-  - '@vitrify/*'
+  - "@vitrify/*"
   - vitrify
   - beasties
-
-overrides:
-  vitrify: link:../vitrify/packages/vitrify
