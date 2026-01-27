@@ -104,13 +104,13 @@
             icon="i-mdi-download"
             color="primary"
             download="proposed_file_name"
-            :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${host}`"
+            @click="downloadPdf"
           >
             <q-tooltip class="no-print">
               {{ lang.invoice.labels.download }}
             </q-tooltip>
           </q-btn>
-          <q-btn
+          <!-- <q-btn
             v-if="invoice"
             icon="i-mdi-printer"
             color="primary"
@@ -119,7 +119,7 @@
             <q-tooltip class="no-print">
               {{ lang.invoice.labels.print }}
             </q-tooltip>
-          </q-btn>
+          </q-btn> -->
 
           <q-btn
             v-if="user?.roles?.includes('administrator')"
@@ -175,7 +175,17 @@
     <q-page-container>
       <div class="row justify-center">
         <q-scroll-area class="no-print" style="height: 297mm; width: 212mm">
-          <invoice-page
+          <typst-invoice
+            v-if="invoice"
+            ref="typstInvoiceRef"
+            :model-value="invoice"
+            :include-tax="
+              [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+                invoice.status
+              )
+            "
+          />
+          <!-- <invoice-page
             v-if="invoice"
             id="invoice"
             ref="invoiceRef"
@@ -185,20 +195,10 @@
                 invoice.status
               )
             "
-          />
+          /> -->
         </q-scroll-area>
       </div>
 
-      <invoice-page
-        v-if="invoice"
-        id="invoice"
-        ref="invoiceRef"
-        class="invisible print:!visible"
-        :model-value="invoice"
-        :include-tax="
-          [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
-        "
-      />
       <responsive-dialog
         :icons="{ close: 'i-mdi-close' }"
         class="no-print"
@@ -234,7 +234,7 @@
 </template>
 
 <script setup lang="ts">
-import { InvoicePage } from '@modular-api/quasar-components/checkout'
+// import { InvoicePage } from '@modular-api/quasar-components/checkout'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
@@ -257,6 +257,7 @@ import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
+import TypstInvoice from '../components/TypstInvoice.vue'
 
 const $q = useQuasar()
 const language = ref($q.lang.isoName)
@@ -284,12 +285,12 @@ const configuration = useConfiguration()
 await initializeTRPCClient(configuration.value.API_HOST)
 
 const route = useRoute()
-const host = ref(import.meta.env.SSR ? '' : window.location.host)
-const slimfactDownloaderUrl = ref(
-  import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST
-    ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST}`
-    : 'https://download.slimfact.app'
-)
+// const host = ref(import.meta.env.SSR ? '' : window.location.host)
+// const slimfactDownloaderUrl = ref(
+//   import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST
+//     ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST}`
+//     : 'https://download.slimfact.app'
+// )
 
 const uuid = ref(
   Array.isArray(route.params.uuid) ? route.params.uuid[0] : route.params.uuid
@@ -367,7 +368,7 @@ const qrSvg = computed(() => {
   return null
 })
 
-const invoiceRef = ref()
+// const invoiceRef = ref()
 
 const { mutateAsync: payWithIdealMutation } = usePublicPayWithIdealMutation()
 const { mutateAsync: payDownPaymentWithIdealMutation } =
@@ -413,11 +414,11 @@ const openBankTransferDialog = () => {
   bankTransferDialogRef.value?.functions.open()
 }
 
-const print = () => {
-  if (!import.meta.env.SSR) {
-    window.print()
-  }
-}
+// const print = () => {
+//   if (!import.meta.env.SSR) {
+//     window.print()
+//   }
+// }
 
 const format = (value: number) =>
   Intl.NumberFormat(invoice.value?.locale || $q.lang.isoName, {
@@ -443,6 +444,15 @@ const getAdminUrl = () => {
 
 const { mutateAsync: invoiceEventEmailOpenedMutation } =
   useAccountInvoiceEventEmailOpenedMutation()
+
+const typstInvoiceRef = ref<InstanceType<typeof TypstInvoice>>()
+const downloadPdf = () => {
+  console.log(typstInvoiceRef.value)
+  if (typstInvoiceRef.value) {
+    console.log('lkjsdjklsdf')
+    typstInvoiceRef.value.downloadPdf()
+  }
+}
 
 onMounted(async () => {
   if (__IS_PWA__) {
