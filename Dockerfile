@@ -43,6 +43,7 @@ EXPOSE 80
 CMD ["npm", "start"]
 
 FROM node:20-slim AS downloader
+RUN apt-get update
 RUN npx -y playwright install --with-deps
 LABEL "io.slimfact.vendor"="simsustech"
 WORKDIR /app

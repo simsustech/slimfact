@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ufgouifdgjdfg
       POSTGRES_DB: slimfact
     volumes:
-      - ./devdatabase:/var/lib/postgresql/data
+      - slimfact-db-data:/var/lib/postgresql
     networks:
       dev:
         aliases:
@@ -39,9 +39,7 @@ services:
     volumes:
       - ./packages/app/dist:/packages/app/dist
       - ./packages/api/dist:/app/dist
-    environment:
-      POSTGRES_HOST: database
-      POSTGRES_PASSWORD: ufgouifdgjdfg
+      - slimfact-jwks:/app/dist/server/jwks
     environment:
       # API env variables
       VITE_API_HOST: ${HOST}.local
@@ -59,6 +57,11 @@ services:
       OTP_SECRET_FILE: nonsecure
       OTP_VALIDITY_SECONDS: 3600
       EMAIL_FOOTER: "SlimFact dev"
+    networks:
+      dev:
+        aliases:
+          - api
+      web:
 
   downloader:
     build:
@@ -88,3 +91,7 @@ networks:
   dev:
   web:
     external: true
+
+volumes:
+  slimfact-db-data:
+  slimfact-jwks:

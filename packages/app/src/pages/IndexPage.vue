@@ -59,11 +59,11 @@ import { QStyledCard } from '@simsustech/quasar-components'
 import { useConfiguration } from '../configuration.js'
 import { useLang } from '../lang/index.js'
 import { computed, onMounted, ref } from 'vue'
-import petboardingLogo from '../assets/logo.svg'
+import slimfactLogo from '../assets/logo.svg'
 
 const configuration = useConfiguration()
 const lang = useLang()
-const logo = ref(petboardingLogo)
+const logo = ref(slimfactLogo)
 
 const title = computed(() => configuration.value.TITLE)
 const login = () => {

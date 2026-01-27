@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=25.0.0"
   },
   "scripts": {
     "build": "run-s build:tools build:app build:api build:downloader",

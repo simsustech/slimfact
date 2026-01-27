@@ -1,4 +1,4 @@
-import PgBoss, { Job } from 'pg-boss'
+import { PgBoss, Job } from 'pg-boss'
 import { db, postgresConnectionString } from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
