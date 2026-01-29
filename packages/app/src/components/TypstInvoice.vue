@@ -7,14 +7,19 @@ import { onMounted, ref, toRefs, watch } from 'vue'
 import { type InvoicePayload } from '@modular-api/fastify-checkout'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 import { $typst } from '@myriaddreamin/typst.ts'
-import typstLang from '../assets/templates/invoice/lang.typ?raw'
-import typstInternal from '../assets/templates/invoice/internal.typ?raw'
+import typstLang from '@slimfact/tools/templates/invoice/lang.typ?raw'
+import typstInternal from '@slimfact/tools/templates/invoice/internal.typ?raw'
 import { useLang } from 'src/lang'
 import {
   SweetCompileOptions,
   SweetRenderOptions
 } from '@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs'
 import { exportFile } from 'quasar'
+import { renderTypstInvoice } from '@slimfact/tools/typst'
+
+const templates = {
+  default: import('@slimfact/tools/templates/invoice/default.typ?raw')
+}
 
 export interface Props {
   modelValue: InvoicePayload
@@ -29,81 +34,84 @@ const props = withDefaults(defineProps<Props>(), {
 const { modelValue, includeTax, pageSize, template } = toRefs(props)
 const lang = useLang()
 
-const mainContent = ref('')
 const svg = ref<string>()
 const typstTemplate = ref()
 
 const renderOptions = ref<SweetRenderOptions | SweetCompileOptions>({})
 
-const pageWidth = {
-  a4: 210,
-  'us-letter': 216
-}
-
 watch(
   () => typstTemplate.value,
   async (newVal, _) => {
-    mainContent.value = newVal
-      .replace(`#import "./lang.typ": translations`, typstLang)
-      .replace(
-        '#import "./internal.typ": formatPrice, formatQuantity, formatPrice, quantityUnits, currencySymbols, formatDate, ternary',
-        typstInternal
-      )
-    renderOptions.value = {
-      inputs: {
-        invoice: JSON.stringify(modelValue.value),
-        includeTax: JSON.stringify(includeTax.value),
-        pageSize: pageSize.value
-      },
-      mainContent: mainContent.value
-    }
-    svg.value = await $typst.svg({
-      ...renderOptions.value,
-      data_selection: {
-        body: true,
-        defs: true,
-        css: true,
-        js: false
+    const result = await renderTypstInvoice({
+      $typst,
+      invoice: modelValue.value,
+      typstTemplate: newVal,
+      typstLang,
+      typstInternal,
+      options: {
+        export: 'svg',
+        includeTax: includeTax.value,
+        pageSize: pageSize.value,
+        typstCompilerUrl: '/typst/typst_ts_web_compiler_bg.wasm',
+        typstRendererUrl: '/typst/typst_ts_renderer_bg.wasm'
       }
     })
-    // Remove width and height attributes
-    svg.value = svg.value.replace(
-      /width="(.*?)"/,
-      `width="${pageWidth[pageSize.value]}mm"`
-    )
-    svg.value = svg.value.replace(/height="(.*?)"/, '')
+    if (result.success) svg.value = result.svg
   }
 )
 
+let readyPromiseResolve: (value?: unknown) => void
+const ready = new Promise((resolve) => {
+  readyPromiseResolve = resolve
+})
+
 const downloadPdf = async () => {
-  const pdf = await $typst.pdf({
-    ...(renderOptions.value as SweetCompileOptions)
+  await ready
+  const result = await renderTypstInvoice({
+    $typst,
+    invoice: modelValue.value,
+    typstTemplate: typstTemplate.value,
+    typstLang,
+    typstInternal,
+    options: {
+      export: 'pdf',
+      includeTax: includeTax.value,
+      pageSize: pageSize.value,
+      typstCompilerUrl: '/typst/typst_ts_web_compiler_bg.wasm',
+      typstRendererUrl: '/typst/typst_ts_renderer_bg.wasm'
+    }
   })
-
-  let filename = 'invoice.pdf'
-  if (modelValue.value && modelValue.value?.status === InvoiceStatus.RECEIPT) {
-    filename = `${lang.value.receipt.receipt} ${modelValue.value.companyDetails.name || modelValue.value.companyDetails.contactPersonName}.pdf`
-  } else if (
-    modelValue.value &&
-    modelValue.value?.status === InvoiceStatus.BILL
-  ) {
-    filename = `${lang.value.bill.bill} ${modelValue.value.companyDetails.name || modelValue.value.companyDetails.contactPersonName}.pdf`
-  } else if (
-    modelValue.value &&
-    modelValue.value?.status === InvoiceStatus.CONCEPT
-  ) {
-    filename = `${modelValue.value.companyDetails.name}
-      ${lang.value.invoice.status.concept}
-      .pdf`
-  } else if (modelValue.value) {
-    filename = `${modelValue.value.date} ${modelValue.value.companyDetails.name}
-      ${lang.value.invoice.invoice}
-      ${modelValue.value.numberPrefix}${modelValue.value.number}.pdf`
+  if (result.success && result.pdf) {
+    exportFile(result.filename ?? 'invoice.pdf', result.pdf)
   }
+  // const pdf = await $typst.pdf({
+  //   ...(renderOptions.value as SweetCompileOptions)
+  // })
 
-  if (pdf) {
-    exportFile(filename, pdf)
-  }
+  // let filename = 'invoice.pdf'
+  // if (modelValue.value && modelValue.value?.status === InvoiceStatus.RECEIPT) {
+  //   filename = `${lang.value.receipt.receipt} ${modelValue.value.companyDetails.name || modelValue.value.companyDetails.contactPersonName}.pdf`
+  // } else if (
+  //   modelValue.value &&
+  //   modelValue.value?.status === InvoiceStatus.BILL
+  // ) {
+  //   filename = `${lang.value.bill.bill} ${modelValue.value.companyDetails.name || modelValue.value.companyDetails.contactPersonName}.pdf`
+  // } else if (
+  //   modelValue.value &&
+  //   modelValue.value?.status === InvoiceStatus.CONCEPT
+  // ) {
+  //   filename = `${modelValue.value.companyDetails.name}
+  //     ${lang.value.invoice.status.concept}
+  //     .pdf`
+  // } else if (modelValue.value) {
+  //   filename = `${modelValue.value.date} ${modelValue.value.companyDetails.name}
+  //     ${lang.value.invoice.invoice}
+  //     ${modelValue.value.numberPrefix}${modelValue.value.number}.pdf`
+  // }
+
+  // if (pdf) {
+  //   exportFile(filename, pdf)
+  // }
 }
 
 defineExpose({
@@ -111,9 +119,7 @@ defineExpose({
 })
 
 onMounted(async () => {
-  typstTemplate.value = (
-    await import(`../assets/templates/invoice/${template.value}.typ?raw`)
-  ).default
+  typstTemplate.value = await (await templates.default).default
   $typst.setCompilerInitOptions({
     beforeBuild: [],
     getModule: () => '/typst/typst_ts_web_compiler_bg.wasm'
@@ -125,5 +131,6 @@ onMounted(async () => {
     getModule: () => '/typst/typst_ts_renderer_bg.wasm'
     // 'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm'
   })
+  readyPromiseResolve()
 })
 </script>

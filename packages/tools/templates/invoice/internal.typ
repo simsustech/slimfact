@@ -16,7 +16,7 @@
 
 #let formatQuantity(quantity, quantityPerMille, unit) = {
   let text = ""
-  if (quantityPerMille != none) {
+  if (quantityPerMille == true) {
     text += num(quantity / 1000)
   } else {
     text += num(quantity)
@@ -37,8 +37,14 @@
 }
 
 #let formatDate(date, locale, pattern: "short") = {
-  // https://github.com/typst/typst/issues/4107
-  let dt = toml(bytes("date = " + date)).date
-  let text = custom-date-format(dt, lang: locale, pattern: pattern)
-  text
+  // Only YYYY-MM-DD
+  if date != none {
+    let dt = datetime(
+      year: int(date.slice(0, count: 4)),
+      month: int(date.slice(5, count: 2)),
+      day: int(date.slice(8, count: 2)),
+    )
+    let text = custom-date-format(dt, lang: locale.slice(0, count: 2), pattern: pattern)
+    text
+  }
 }

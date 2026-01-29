@@ -6,11 +6,22 @@ import { invoice as invoiceValidation } from '../../zod/invoice.js'
 import { db } from '../../kysely/index.js'
 import handlebars from 'handlebars'
 import env from '@vitrify/tools/env'
-import { Readable } from 'stream'
 import { Invoice } from '@modular-api/fastify-checkout'
 import { addDays } from 'date-fns'
 import { PaymentMethod, InvoiceStatus } from '@modular-api/fastify-checkout'
 import { emailTemplates } from '../../templates/email/index.js'
+import {
+  type TypstInvoiceTemplates,
+  renderTypstInvoice
+} from '@slimfact/tools/typst'
+import typstLang from '@slimfact/tools/templates/invoice/lang.typ?raw'
+import typstInternal from '@slimfact/tools/templates/invoice/internal.typ?raw'
+import { NodeCompiler } from '@myriaddreamin/typst-ts-node-compiler'
+// import { $typst } from '@myriaddreamin/typst.ts';
+const $typst = NodeCompiler.create({})
+const templates = {
+  default: import('@slimfact/tools/templates/invoice/default.typ?raw')
+}
 
 const host = env.read('API_HOST') || env.read('VITE_API_HOST')
 const slimfactDownloaderHost =
@@ -76,26 +87,46 @@ const composeEmail = ({
 }
 
 export const downloadPdf = async (invoice: Invoice) => {
-  let filename
-  let pdf
+  let typstTemplate
   try {
-    const protocol = 'https' // Dev server does not use https
-    const pdfResponse = await fetch(
-      `${protocol}://${slimfactDownloaderHost}/?uuid=${invoice.uuid}&host=${host}`
-    )
-
-    const header = pdfResponse.headers.get('Content-Disposition')
-    const parts = header!.split(';')
-    filename = parts[1].split('=')[1]
-    // @ts-expect-error body does not match type
-    if (pdfResponse.body) pdf = Readable.fromWeb(pdfResponse.body)
-    return { success: true as const, filename, pdf }
+    typstTemplate = (
+      await templates[(invoice.template as TypstInvoiceTemplates) ?? 'default']
+    ).default
   } catch (e) {
-    if (import.meta.env.DEBUG) console.error(e)
-    console.error('Failed to download PDF')
-    return { success: false as const }
+    console.log(e)
+    throw new Error(`No template named "${invoice.template}`)
+  }
+
+  const result = await renderTypstInvoice({
+    $typst,
+    invoice,
+    typstInternal,
+    typstLang,
+    typstTemplate,
+    options: {
+      export: 'pdf',
+      includeTax: [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+        invoice.status
+      ),
+      pageSize: 'a4'
+    }
+  })
+  $typst.evictCache(10)
+
+  if (result.success) {
+    return {
+      success: true,
+      pdf: result.pdf,
+      filename: result.filename
+    }
+  }
+
+  return {
+    success: false,
+    errorMessage: result.errorMessage
   }
 }
+
 export const adminInvoiceRoutes = ({
   fastify,
   procedure
@@ -353,7 +384,6 @@ export const adminInvoiceRoutes = ({
                 .executeTakeFirst()) || {}
 
             const currentDate = new Date()
-
             const numberPrefix = handlebars.compile(
               invoice.numberPrefixTemplate
             )({

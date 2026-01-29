@@ -63,6 +63,9 @@ importers:
       '@mollie/api-client':
         specifier: 4.4.0
         version: 4.4.0
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2
       '@slimfact/app':
         specifier: workspace:*
         version: link:../app
@@ -139,6 +142,9 @@ importers:
       '@iconify-json/mdi':
         specifier: 1.2.3
         version: 1.2.3
+      '@myriaddreamin/typst.ts':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2)
       '@playwright/test':
         specifier: 1.57.0
         version: 1.57.0
@@ -204,7 +210,7 @@ importers:
         version: 7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1)
       vitrify:
         specifier: 0.25.5
-        version: 0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
+        version: 0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@2.79.2)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
       vue:
         specifier: 3.5.27
         version: 3.5.27(typescript@5.9.3)
@@ -281,6 +287,9 @@ importers:
       '@slimfact/api':
         specifier: link:../api
         version: link:../api
+      '@slimfact/shared':
+        specifier: link:../shared
+        version: link:../shared
       '@trpc/client':
         specifier: 11.8.1
         version: 11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3)
@@ -388,7 +397,7 @@ importers:
         version: 1.2.0(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))(workbox-build@7.3.0)(workbox-window@7.4.0)
       vitrify:
         specifier: 0.25.5
-        version: 0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@2.79.2)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
+        version: 0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
       vue:
         specifier: 3.5.27
         version: 3.5.27(typescript@5.9.3)
@@ -500,7 +509,7 @@ importers:
         version: 7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1)
       vitrify:
         specifier: 0.25.4
-        version: 0.25.4(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
+        version: 0.25.4(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
       workbox-window:
         specifier: 7.4.0
         version: 7.4.0
@@ -553,6 +562,9 @@ importers:
       '@modular-api/fastify-checkout':
         specifier: ^0.5.4
         version: 0.5.4(kysely@0.28.10)
+      '@myriaddreamin/typst-ts-renderer':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2
       '@rgrove/parse-xml':
         specifier: ^4.2.0
         version: 4.2.0
@@ -569,6 +581,12 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1
     devDependencies:
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2
+      '@myriaddreamin/typst.ts':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2)
       '@types/iban':
         specifier: ^0.0.35
         version: 0.0.35
@@ -1942,6 +1960,80 @@ packages:
   '@mollie/api-client@4.4.0':
     resolution: {integrity: sha512-V2OKBGS4TUKpbARV4JSjjtXqfRqfTQ5KCKGudEFEOEh/yQxrM2zXhkoq2gIbA6nGIVPh5nVaAzqLhp4C+e4aMQ==}
     engines: {node: '>=8'}
+
+  '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.7.0-rc2':
+    resolution: {integrity: sha512-OnfUH3XbGel3+QUZc4G3+V1npXYGCDc3b7WhFw88ihCH/Xpw+NNjidLrFkY6kK2a5vVHnY2AEG0hJSwZzvOw0Q==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [android]
+
+  '@myriaddreamin/typst-ts-node-compiler-android-arm64@0.7.0-rc2':
+    resolution: {integrity: sha512-LR76t0jXcKp0F0vMViinS6+RBxyTFqBUFiUoZcGRPQD/DhLNBReTS7tJ14Jp5Mwuqe76RUshSeQSrKbJUoaQ3A==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-arm64@0.7.0-rc2':
+    resolution: {integrity: sha512-xJndoR6Kn6UUYQDui41R7tx/avpfyY6c8dV5udyHP5FkeUSVgRAoFcjOtlI9Lpc84alFusIPwp4QR6V+xjOAhA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-x64@0.7.0-rc2':
+    resolution: {integrity: sha512-kmh37eshR40LVAM6P59uLWEYt5ffyUhKWcBOzsd/1QYNtsH28kLRUOShugAdxQN164Re+47z2nkSgd7HejASFg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf@0.7.0-rc2':
+    resolution: {integrity: sha512-giroa96wdN0mxARN1NbRrKp9t+qqUNUSBzWBQp1RMPqGNPwtahEqJnpf5zmRSrEJYhEzVZbs9+CwxFjj5lw7VQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu@0.7.0-rc2':
+    resolution: {integrity: sha512-pDdc6hQrGdqr0BT+nNe0tJmdcmyp9yhn3WDeGlTi4YpYG2IybP7fBVIwDI3Mzr/IdCMtPbQxew4AfmAoJwIz6A==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl@0.7.0-rc2':
+    resolution: {integrity: sha512-wNEYhpjuwnhd7VrArL4EHd652z8YEGxG6C8haUjkVhGseFBetrL51yD1Ymg5fWEa+3+O4oZ1+IUN0Fu4/fKgHw==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu@0.7.0-rc2':
+    resolution: {integrity: sha512-Z4i78r5MtFDYGHqgYrWfAcvqb3xW49WlLI35l1G818lYmkmGZAjAkVKb946ChOx+bBQIuMWefykCABLOlBkgKA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl@0.7.0-rc2':
+    resolution: {integrity: sha512-PXteqxa3RITEh5v3lQ4c5VGn16KHvUKVXjSZ2BudCe6C0gEuOO16JS9JU8DZVwd0dbtH0Mky6Q5V7tf6erpXGA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc@0.7.0-rc2':
+    resolution: {integrity: sha512-wN1tjdRxabJzT8WuDVdOs2QKQuMzKht3QWPU/H7OjuDta1WcrYs/3IKnF67HNiphe/33MU8bKeih2GBVU+AuLg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc@0.7.0-rc2':
+    resolution: {integrity: sha512-6DUe2iepqptLkJsOdUC4yHWM3/USCW82YieA+lPAeky37XSJ5KuLuLL6zOQiQt3IWot7jB+m9oKIvBqJh7yriA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@myriaddreamin/typst-ts-node-compiler@0.7.0-rc2':
+    resolution: {integrity: sha512-a4Vicil6Tu0S87C3+J2EMtFDdQEmT18zYAW6Srmt32lgjrTq3HLy+WN0lA/bgaBgw2wNEkXdogz3yRg49vXs8w==}
+    engines: {node: '>= 10'}
 
   '@myriaddreamin/typst-ts-renderer@0.7.0-rc2':
     resolution: {integrity: sha512-god1tcb2YJDkQfA8gLGcAmykVGBpNKorqqDkXVy3InC18KRbsverJhlrHoONurNIU9JuIHoWjJ2D1ntpjPgzbA==}
@@ -8540,7 +8632,7 @@ snapshots:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.1.0
       '@fastify/static': 8.3.0
-      '@mollie/api-client': 4.3.3
+      '@mollie/api-client': 4.4.0
       '@vitrify/tools': 0.4.4
       fastify-plugin: 5.0.1
       kysely: 0.28.10
@@ -8617,6 +8709,53 @@ snapshots:
       ruply: 1.0.1
     transitivePeerDependencies:
       - encoding
+
+  '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-android-arm64@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-arm64@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-x64@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc@0.7.0-rc2':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler@0.7.0-rc2':
+    optionalDependencies:
+      '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-android-arm64': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-darwin-arm64': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-darwin-x64': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc': 0.7.0-rc2
 
   '@myriaddreamin/typst-ts-renderer@0.7.0-rc2': {}
 
@@ -9782,6 +9921,13 @@ snapshots:
       unocss: 66.5.4(postcss@8.5.6)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))
 
   animated-unocss@0.0.6(animate.css@4.1.1)(unocss@66.6.0(postcss@8.5.6)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))):
+    dependencies:
+      '@unocss/autocomplete': 0.51.13
+      '@unocss/preset-mini': 0.51.8
+      animate.css: 4.1.1
+      unocss: 66.6.0(postcss@8.5.6)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))
+
+  animated-unocss@0.0.6(animate.css@4.1.1)(unocss@66.6.0(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))):
     dependencies:
       '@unocss/autocomplete': 0.51.13
       '@unocss/preset-mini': 0.51.8
@@ -13795,7 +13941,7 @@ snapshots:
       - tsx
       - yaml
 
-  vitrify@0.25.4(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1):
+  vitrify@0.25.4(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1):
     dependencies:
       '@fastify/middie': 9.1.0
       '@fastify/one-line-logger': 2.1.0
@@ -13807,7 +13953,7 @@ snapshots:
       '@unocss/preset-wind': 66.6.0
       '@vitejs/plugin-vue': 6.0.3(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))(vue@3.5.27(typescript@5.9.3))
       ajv: 8.17.1
-      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.6.0(postcss@8.5.6)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1)))
+      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.6.0(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1)))
       cac: 6.7.14
       chalk: 5.6.2
       cross-env: 10.1.0

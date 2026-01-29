@@ -258,6 +258,7 @@ import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/che
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
 import TypstInvoice from '../components/TypstInvoice.vue'
+// import { InvoicePage } from '@modular-api/quasar-components/checkout'
 
 const $q = useQuasar()
 const language = ref($q.lang.isoName)
@@ -474,11 +475,18 @@ onMounted(async () => {
       user.value = await oAuthClient.value?.getUser()
     }
 
+    await refetch()
+
     if (route.query?.eventType === 'emailOpened' && invoice.value) {
       invoiceEventEmailOpenedMutation({ invoiceId: invoice.value.id })
     }
+    console.log(route.query.download)
+    console.log(invoice.value)
 
-    await refetch()
+    if (route.query?.download !== undefined && invoice.value) {
+      console.log('?')
+      await typstInvoiceRef.value?.downloadPdf()
+    }
   }
 })
 </script>
