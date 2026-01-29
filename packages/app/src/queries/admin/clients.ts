@@ -20,7 +20,8 @@ export const useAdminSearchClientsQuery = defineQuery(() => {
   }))
 
   const { data: clients, ...rest } = useQuery({
-    enabled: () => !import.meta.env.SSR,
+    enabled: () =>
+      !import.meta.env.SSR && name.value !== '' && name.value !== null,
     key: () => ['adminSearchClients', name.value, pagination.value],
     query: () =>
       trpc.admin.searchClients.query({

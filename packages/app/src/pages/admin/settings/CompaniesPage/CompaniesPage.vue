@@ -46,7 +46,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, inject } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import CompanyForm from '../../../../components/company/CompanyForm.vue'
 import CompanyCard from '../../../../components/company/CompanyCard.vue'
@@ -58,6 +58,7 @@ import {
   useAdminUpdateCompanyMutation
 } from 'src/queries/admin/companies.js'
 import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
+import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-companies-create-dialog', () => {
@@ -80,11 +81,11 @@ const createDialogRef = ref<typeof ResponsiveDialog>()
 
 const openUpdateDialog: InstanceType<
   typeof ResourcePage
->['$props']['onUpdate'] = ({ data }) => {
+>['$props']['onUpdate'] = async ({ data }) => {
   updateDialogRef.value?.functions.open()
-  nextTick(() => {
-    updateCompanyFormRef.value?.functions.setValue(data)
-  })
+  await until(updateDialogRef).toBeTruthy()
+
+  updateCompanyFormRef.value?.functions.setValue(data)
 }
 
 const openCreateDialog: InstanceType<

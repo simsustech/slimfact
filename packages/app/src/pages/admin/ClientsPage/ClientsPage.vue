@@ -81,7 +81,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import ClientForm from '../../../components/client/ClientForm.vue'
 import ClientItem from '../../../components/client/ClientItem.vue'
@@ -95,6 +95,7 @@ import {
   useAdminUpdateClientMutation
 } from 'src/queries/admin/clients.js'
 import { useAdminSearchAccountsQuery } from 'src/queries/admin/accounts.js'
+import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-clients-create-dialog', () => {
@@ -130,11 +131,11 @@ const createDialogRef = ref<typeof ResponsiveDialog>()
 
 const openUpdateDialog: InstanceType<
   typeof ResourcePage
->['$props']['onUpdate'] = ({ data }) => {
+>['$props']['onUpdate'] = async ({ data }) => {
   updateDialogRef.value?.functions.open()
-  nextTick(() => {
-    updateClientFormRef.value?.functions.setValue(data)
-  })
+  await until(updateDialogRef).toBeTruthy()
+
+  updateClientFormRef.value?.functions.setValue(data)
 }
 
 const openCreateDialog: InstanceType<
