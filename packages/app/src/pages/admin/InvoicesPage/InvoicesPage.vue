@@ -62,6 +62,12 @@
     @submit="update"
   >
     <invoice-form
+      v-if="
+        filteredCompanies &&
+        filteredClients &&
+        filteredCompaniesAsyncStatus === 'idle' &&
+        filteredClientsAsyncStatus === 'idle'
+      "
       ref="updateInvoiceFormRef"
       :filtered-companies="filteredCompanies"
       :filtered-clients="filteredClients"
@@ -79,6 +85,12 @@
     @submit="create"
   >
     <invoice-form
+      v-if="
+        filteredCompanies &&
+        filteredClients &&
+        filteredCompaniesAsyncStatus === 'idle' &&
+        filteredClientsAsyncStatus === 'idle'
+      "
       ref="createInvoiceFormRef"
       :filtered-companies="filteredCompanies"
       :filtered-clients="filteredClients"
@@ -110,7 +122,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed, watch, inject } from 'vue'
+import { ref, onMounted, computed, watch, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput } from '@simsustech/quasar-components/form'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
@@ -145,6 +157,7 @@ import {
 import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
 import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
 import { useAdminGetInvoiceEventsByInvoiceIdsQuery } from 'src/queries/admin/invoiceEvents'
+import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-invoices-create-dialog', () => {
@@ -224,11 +237,17 @@ const createDialogRef = ref<typeof ResponsiveDialog>()
 
 const openUpdateDialog: InstanceType<
   typeof ResourcePage
->['$props']['onUpdate'] = ({ data }) => {
+>['$props']['onUpdate'] = async ({ data }) => {
+  // @ts-expect-error untyped
+  companiesSearchPhrase.value = data?.companyDetails?.name
+  clientName.value =
+    // @ts-expect-error untyped
+    data?.clientDetails?.contactPersonName ?? data?.clientDetails?.companyName
+
   updateDialogRef.value?.functions.open()
-  nextTick(() => {
-    updateInvoiceFormRef.value?.functions.setValue(data)
-  })
+
+  await until(updateInvoiceFormRef).toBeTruthy()
+  updateInvoiceFormRef.value?.functions.setValue(data)
 }
 
 const openCreateDialog: InstanceType<
@@ -282,7 +301,8 @@ const createInvoice: InstanceType<
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies
+  refetch: refetchFilteredCompanies,
+  asyncStatus: filteredCompaniesAsyncStatus
 } = useAdminSearchCompaniesQuery()
 
 // const filteredCompanies = ref<CompanyDetails[]>([])
@@ -290,7 +310,6 @@ const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
   companiesSearchPhrase.value = searchPhrase
-  await refetchFilteredCompanies()
 
   if (done) done()
 }
@@ -298,14 +317,14 @@ const onFilterCompanies: InstanceType<
 const {
   clients: filteredClients,
   name: clientName,
-  refetch: refetchFilteredClients
+  refetch: refetchFilteredClients,
+  asyncStatus: filteredClientsAsyncStatus
 } = useAdminSearchClientsQuery()
 // const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
   clientName.value = searchPhrase
-  await refetchFilteredClients()
 
   if (done) done()
 }

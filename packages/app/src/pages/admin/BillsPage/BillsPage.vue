@@ -108,7 +108,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed, watch, inject } from 'vue'
+import { ref, onMounted, computed, watch, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import { EmailInput, BooleanSelect } from '@simsustech/quasar-components/form'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
@@ -142,6 +142,7 @@ import {
 } from '../../../queries/admin/invoices.js'
 import { useAdminSearchCompaniesQuery } from '../../../queries/admin/companies.js'
 import { useAdminSearchClientsQuery } from '../../../queries/admin/clients.js'
+import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-bills-create-dialog', () => {
@@ -198,11 +199,12 @@ const createDialogRef = ref<typeof ResponsiveDialog>()
 
 const openUpdateDialog: InstanceType<
   typeof ResourcePage
->['$props']['onUpdate'] = ({ data }) => {
+>['$props']['onUpdate'] = async ({ data }) => {
   updateDialogRef.value?.functions.open()
-  nextTick(() => {
-    updateInvoiceFormRef.value?.functions.setValue(data)
-  })
+
+  await until(updateDialogRef).toBeTruthy()
+
+  updateInvoiceFormRef.value?.functions.setValue(data)
 }
 
 const openCreateDialog: InstanceType<
@@ -477,6 +479,7 @@ const sendMutations = {
 const sendBill: InstanceType<
   typeof ResponsiveDialog
 >['$props']['onSubmit'] = async ({ done }) => {
+  console.log(sendEmailType.value)
   try {
     await sendMutations[sendEmailType.value]({
       id: sendEmailId.value,
@@ -490,7 +493,9 @@ const sendBill: InstanceType<
     sendEmailSubject.value = ''
     sendEmailBody.value = ''
     execute()
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {

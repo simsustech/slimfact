@@ -99,7 +99,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import SubscriptionForm from '../../../components/subscription/SubscriptionForm.vue'
 import { useLang } from '../../../lang/index.js'
@@ -120,6 +120,7 @@ import {
 import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
 import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
 import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
+import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-open-subscriptions-create-dialog', () => {
@@ -154,11 +155,12 @@ const createDialogRef = ref<typeof ResponsiveDialog>()
 
 const openUpdateDialog: InstanceType<
   typeof ResourcePage
->['$props']['onUpdate'] = ({ data }) => {
+>['$props']['onUpdate'] = async ({ data }) => {
   updateDialogRef.value?.functions.open()
-  nextTick(() => {
-    updateSubscriptionFormRef.value?.functions.setValue(data)
-  })
+
+  await until(updateDialogRef).toBeTruthy()
+
+  updateSubscriptionFormRef.value?.functions.setValue(data)
 }
 
 const openCreateDialog: InstanceType<
