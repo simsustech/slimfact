@@ -44,6 +44,10 @@
       month: int(date.slice(5, count: 2)),
       day: int(date.slice(8, count: 2)),
     )
+    // https://github.com/Jeomhps/datify-core/pull/13
+    if (locale == "en-US" and pattern == "short") {
+      pattern = "M/d/y"
+    }
     let text = custom-date-format(dt, lang: locale.slice(0, count: 2), pattern: pattern)
     text
   }
