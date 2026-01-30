@@ -21,18 +21,23 @@
     "dist/"
   ],
   "scripts": {
-    "build": "run-s build:csr build:ssr",
-    "build:csr": "vitrify build",
-    "build:ssg": "vitrify build -m ssg",
-    "build:ssr": "vitrify build -m ssr",
     "dev": "vitrify dev",
     "dev:ssr": "vitrify dev -m ssr",
-    "format:check": "prettier --check .",
-    "format:write": "prettier --write .",
+    "build": "run-s build:ssr minify:ssr:server minify:ssr:client",
+    "build:csr": "vitrify build",
+    "build:ssr": "vitrify build -m ssr",
+    "build:ssg": "vitrify build -m ssg",
+    "minify:csr": "vitrify minify ./dist/csr",
+    "minify:ssr:server": "vitrify minify ./dist/ssr/server",
+    "minify:ssr:client": "vitrify minify ./dist/ssr/client",
+    "minify:ssg": "vitrify minify ./dist/static",
+    "minify:fastify": "vitrify minify ./dist/server",
     "generate:types": "vue-tsc -p tsconfig.types.json",
+    "test": "vitrify test",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "test": "vitrify test"
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write ."
   },
   "dependencies": {
     "@fastify/middie": "9.1.0",
