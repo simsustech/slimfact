@@ -3,10 +3,6 @@
   "version": "0.1.0",
   "author": "Stefan van Herwijnen",
   "type": "module",
-  "files": [
-    "dist"
-  ],
-  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -25,24 +21,16 @@
       "import": "./dist/digiboox/index.js"
     }
   },
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
     "format:check": "prettier --check .",
-    "format:write": "prettier --write ."
-  },
-  "devDependencies": {
-    "@types/iban": "^0.0.35",
-    "@types/node": "^25.0.10",
-    "csv-parse": "^6.1.0",
-    "eslint": "9.39.2",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-vue": "10.7.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.1",
-    "vue-eslint-parser": "^10.2.0"
+    "format:write": "prettier --write .",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "dependencies": {
     "@modular-api/fastify-checkout": "^0.5.4",
@@ -51,5 +39,17 @@
     "fast-xml-parser": "^5.3.3",
     "handlebars": "^4.7.8",
     "ibantools": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/iban": "^0.0.35",
+    "@types/node": "^25.1.0",
+    "csv-parse": "^6.1.0",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-vue": "10.7.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "vue-eslint-parser": "^10.2.0"
   }
 }
