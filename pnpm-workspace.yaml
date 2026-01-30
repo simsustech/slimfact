@@ -7,3 +7,4 @@ minimumReleaseAgeExclude:
   - "@vitrify/*"
   - vitrify
   - "@simsustech/quasar-components"
+  - "vue-router"

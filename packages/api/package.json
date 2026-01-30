@@ -1,8 +1,7 @@
 {
-  "private": true,
   "name": "@slimfact/api",
-  "productName": "SlimFact API",
   "version": "0.1.0",
+  "private": true,
   "description": "SlimFact API",
   "author": "simsustech",
   "type": "module",
@@ -21,10 +20,15 @@
   ],
   "scripts": {
     "serve": "node ./dist/server/server.mjs",
-    "dev": "run-s docker-compose start:dev-server",
+    "dev": "run-s docker-compose start:dev-server ",
+    "build": "run-s build:api build:migrations seed:fake:generate minify:fastify",
     "build:migrations": "tsc -p tsconfig.migrations.json",
     "build:api": "vitrify build -m fastify",
-    "build": "run-s build:api build:migrations seed:fake:generate",
+    "minify:csr": "vitrify minify ./dist/csr",
+    "minify:ssr:server": "vitrify minify ./dist/ssr/server",
+    "minify:ssr:client": "vitrify minify ./dist/ssr/client",
+    "minify:ssg": "vitrify minify ./dist/static",
+    "minify:fastify": "vitrify minify ./dist/server",
     "test": "vitrify test",
     "test:e2e": "playwright test",
     "lint": "eslint src",
@@ -37,7 +41,7 @@
     "seed:test": "node ./dist/seeds/test.js",
     "seed:data": "node ./dist/seeds/data.js",
     "start": "run-s migrate:latest serve",
-    "start:dev-server": "vitrify dev -m fastify --port 3001",
+    "start:dev-server": "NODE_TLS_REJECT_UNAUTHORIZED=0 vitrify dev -m fastify --port 3001",
     "docker-compose": "node ./docker-compose.dev.mjs"
   },
   "dependencies": {
@@ -53,23 +57,23 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0-rc2",
     "@slimfact/app": "workspace:*",
     "@slimfact/tools": "workspace:*",
-    "@trpc/server": "11.8.1",
+    "@trpc/server": "11.9.0",
     "@vitrify/tools": "0.4.4",
-    "axios": "1.13.2",
+    "axios": "1.13.4",
     "bcryptjs": "3.0.3",
     "compress-tag": "3.0.0",
-    "docker-compose": "1.3.0",
-    "fastify": "5.7.1",
+    "docker-compose": "1.3.1",
+    "fastify": "5.7.2",
     "handlebars": "4.7.8",
     "json-2-csv": "5.5.10",
     "kysely": "0.28.10",
     "npm-run-all": "4.1.5",
-    "otplib": "12.0.1",
+    "otplib": "12.0.0",
     "pg": "8.17.2",
-    "pg-boss": "12.5.4",
+    "pg-boss": "12.7.2",
     "sharp": "0.34.5",
     "svgo": "4.0.0",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@faker-js/faker": "10.2.0",
@@ -78,14 +82,14 @@
     "@iconify-json/flagpack": "1.2.7",
     "@iconify-json/mdi": "1.2.3",
     "@myriaddreamin/typst.ts": "0.7.0-rc2",
-    "@playwright/test": "1.57.0",
+    "@playwright/test": "1.58.0",
     "@types/bcryptjs": "3.0.0",
     "@types/oidc-provider": "9.5.0",
     "@types/pg": "8.16.0",
+    "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitejs/plugin-vue": "6.0.3",
     "beasties": "0.4.1",
     "date-fns": "4.1.0",
-    "devcert": "1.2.2",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
@@ -95,18 +99,19 @@
     "oidc-provider": "9.6.0",
     "quasar": "2.18.6",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.53.1",
+    "typescript-eslint": "8.54.0",
     "unocss": "66.6.0",
     "unocss-preset-quasar": "0.2.12",
     "vite": "7.3.1",
-    "vitrify": "0.25.6",
+    "vitrify": "0.25.7",
     "vue": "3.5.27",
     "vue-eslint-parser": "10.2.0",
-    "vue-router": "4.6.4"
+    "vue-router": "5.0.1"
   },
   "dependenciesMeta": {
     "@modular-api/fastify-oidc": {
       "injected": true
     }
-  }
+  },
+  "productName": "SlimFact API"
 }

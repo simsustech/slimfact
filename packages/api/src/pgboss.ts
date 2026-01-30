@@ -1,4 +1,5 @@
 import { PgBoss, Job } from 'pg-boss'
+import { PgBoss, Job } from 'pg-boss'
 import { db, postgresConnectionString } from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
@@ -72,6 +73,23 @@ export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
 
   const schedules = await boss.getSchedules()
 
+  const refundWorker = createRefundWorker({ fastify })
+
+  if (!schedules.some((schedule) => schedule.name === 'checkRefunds')) {
+    const queueName = `checkRefunds`
+
+    if (!(await boss.getQueue(queueName))) {
+      await boss.createQueue(queueName)
+    }
+    await boss.schedule(queueName, '0 0 * * *', {}, {})
+  }
+
+  await boss.work(
+    'checkRefunds',
+    { batchSize: 1, includeMetadata: true },
+    refundWorker
+  )
+
   schedules
     .filter((schedule) => schedule.name.includes('subscription:'))
     .forEach(async (schedule) => {
@@ -90,7 +108,7 @@ export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
     }
     await boss.schedule(queueName, '0 0 * * *', {}, {})
   }
-  const refundWorker = createRefundWorker({ fastify })
+
   await boss.work(
     'checkRefunds',
     { batchSize: 1, includeMetadata: true },

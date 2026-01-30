@@ -1,4 +1,3 @@
-import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import pluginVue from 'eslint-plugin-vue'
 import typescriptEslint from 'typescript-eslint'
@@ -39,9 +38,18 @@ export default defineConfig([
       ]
     }
   },
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          caughtErrors: 'none'
+        }
+      ]
+    }
+  },
   /**
    * end
    */
-  eslintConfigPrettier,
   eslintPluginPrettierRecommended
 ])
