@@ -1,8 +1,8 @@
-import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import pluginVue from 'eslint-plugin-vue'
 import typescriptEslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
+import { defineConfig } from 'eslint/config'
 import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
@@ -42,6 +42,5 @@ export default defineConfig([
   /**
    * end
    */
-  eslintConfigPrettier,
   eslintPluginPrettierRecommended
 ])

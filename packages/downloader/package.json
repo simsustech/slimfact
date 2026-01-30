@@ -1,8 +1,7 @@
 {
-  "private": true,
   "name": "@slimfact/downloader",
-  "productName": "SlimFact downloader",
   "version": "0.1.0",
+  "private": true,
   "description": "SlimFact downloader",
   "author": "",
   "type": "module",
@@ -10,33 +9,34 @@
     "dist/"
   ],
   "scripts": {
-    "serve": "node ./dist/server.js",
     "build": "tsc",
-    "test": "vitrify test",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "seed:data": "node ./dist/seeds/data.js",
     "seed:fake": "node ./dist/seeds/fake.js",
     "seed:test": "node ./dist/seeds/test.js",
-    "seed:data": "node ./dist/seeds/data.js",
-    "start": "run-s serve"
+    "serve": "node ./dist/server.js",
+    "start": "run-s serve",
+    "test": "vitrify test"
   },
   "dependencies": {
     "@fastify/rate-limit": "^10.3.0",
-    "@playwright/browser-chromium": "1.57.0",
-    "fastify": "^5.7.1",
+    "@playwright/browser-chromium": "1.58.0",
+    "fastify": "^5.7.2",
     "npm-run-all": "^4.1.5",
-    "playwright": "1.57.0"
+    "playwright": "1.58.0"
   },
   "devDependencies": {
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.1.0",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-vue": "10.7.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "^8.53.1",
+    "typescript-eslint": "^8.54.0",
     "vue-eslint-parser": "^10.2.0"
-  }
+  },
+  "productName": "SlimFact downloader"
 }

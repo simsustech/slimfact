@@ -1,2 +1,10 @@
 packages:
   - packages/*
+
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude:
+  - "@vitrify/*"
+  - vitrify
+  - "@simsustech/quasar-components"
+  - "vue-router"

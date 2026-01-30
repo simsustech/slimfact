@@ -1,6 +1,5 @@
 {
   "name": "docs",
-  "productName": "SlimFact documentation",
   "version": "0.1.0",
   "description": "Streamlined invoicing made easy",
   "license": "UNLICENSED",
@@ -22,36 +21,37 @@
     "dist/"
   ],
   "scripts": {
-    "dev": "vitrify dev",
-    "dev:ssr": "vitrify dev -m ssr",
     "build": "run-s build:ssg generate:sitemap",
     "build:csr": "vitrify build",
-    "build:ssr": "vitrify build -m ssr",
     "build:ssg": "vitrify build -m ssg",
+    "build:ssr": "vitrify build -m ssr",
+    "convert:images": "sh mogrify -format webp -quality 80 ./public/**/*.(jpg|png)",
+    "dev": "vitrify dev",
+    "dev:ssr": "vitrify dev -m ssr",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
     "generate:sitemap": "node ./generateSitemap.mjs www.slimfact.app",
     "gzip": "gzip -k -r ./dist/static/*.mjs",
-    "convert:images": "sh mogrify -format webp -quality 80 ./public/**/*.(jpg|png)",
-    "test": "vitrify test",
     "lint": "eslint --ext .vue --ext .ts src",
     "lint:fix": "eslint --ext .vue --ext .ts src --fix",
-    "format:check": "prettier --check .",
-    "format:write": "prettier --write ."
+    "test": "vitrify test"
   },
   "dependencies": {
     "@fastify/middie": "9.1.0",
     "@fastify/static": "9.0.0",
     "@quasar/extras": "1.17.0",
-    "@simsustech/quasar-components": "0.11.23",
+    "@simsustech/quasar-components": "0.11.24",
     "@vitrify/tools": "0.4.4",
     "quasar": "2.18.6",
     "vite-plugin-pwa": "1.2.0",
     "vue": "3.5.27",
-    "vue-router": "4.6.4"
+    "vue-router": "5.0.1"
   },
   "devDependencies": {
-    "@types/node": "25.0.10",
-    "@typescript-eslint/eslint-plugin": "8.53.1",
-    "@typescript-eslint/parser": "8.53.1",
+    "@types/node": "25.1.0",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
+    "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitejs/plugin-vue": "6.0.3",
     "@vue/reactivity": "3.5.27",
     "@vue/runtime-core": "3.5.27",
@@ -64,12 +64,13 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier-vue": "5.0.0",
     "eslint-plugin-vue": "10.7.0",
-    "fastify": "5.7.1",
+    "fastify": "5.7.2",
     "npm-run-all": "4.1.5",
     "sitemap-ts": "1.10.1",
     "typescript": "5.9.3",
     "vite": "7.3.1",
-    "vitrify": "0.25.4",
+    "vitrify": "0.25.7",
     "workbox-window": "7.4.0"
-  }
+  },
+  "productName": "SlimFact documentation"
 }
