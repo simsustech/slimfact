@@ -100,6 +100,8 @@ export const renderTypstInvoice = async ({
       ${invoice.numberPrefix}${invoice.number}.pdf`
       }
 
+      if ('evictCache' in $typst) $typst.evictCache(10)
+
       return {
         success: true,
         pdf,
@@ -122,6 +124,8 @@ export const renderTypstInvoice = async ({
         `width="${pageWidth[options.pageSize]}mm"`
       )
       svg = svg.replace(/height="(.*?)"/, '')
+
+      if ('evictCache' in $typst) $typst.evictCache(10)
 
       return {
         success: true,
