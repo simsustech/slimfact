@@ -3,7 +3,6 @@ import pluginVue from 'eslint-plugin-vue'
 import typescriptEslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
 import { defineConfig } from 'eslint/config'
-import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
   ...typescriptEslint.configs.recommended,
