@@ -663,7 +663,7 @@ export const adminInvoiceRoutes = ({
       try {
         if (fastify.checkout?.invoiceHandler) {
           const { id, emailSubject, emailBody } = input
-          fastify.checkout.invoiceHandler.setInvoiceStatus({
+          await fastify.checkout.invoiceHandler.setInvoiceStatus({
             id,
             status: InvoiceStatus.RECEIPT
           })
