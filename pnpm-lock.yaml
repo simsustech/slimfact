@@ -209,8 +209,8 @@ importers:
         specifier: 7.3.1
         version: 7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1)
       vitrify:
-        specifier: 0.25.5
-        version: 0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@2.79.2)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
+        specifier: 0.25.6
+        version: 0.25.6(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
       vue:
         specifier: 3.5.27
         version: 3.5.27(typescript@5.9.3)
@@ -282,8 +282,8 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       '@simsustech/quasar-components':
-        specifier: 0.11.23
-        version: 0.11.23(quasar@2.18.6)(vue@3.5.27(typescript@5.9.3))
+        specifier: 0.11.24
+        version: 0.11.24(quasar@2.18.6)(vue@3.5.27(typescript@5.9.3))
       '@slimfact/api':
         specifier: link:../api
         version: link:../api
@@ -396,8 +396,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.0)(yaml@2.8.1))(workbox-build@7.3.0)(workbox-window@7.4.0)
       vitrify:
-        specifier: 0.25.5
-        version: 0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
+        specifier: 0.25.6
+        version: 0.25.6(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@2.79.2)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1)
       vue:
         specifier: 3.5.27
         version: 3.5.27(typescript@5.9.3)
@@ -2395,6 +2395,11 @@ packages:
     resolution: {integrity: sha512-Ns47zw/DyKwq91G0sMQHBJJw8TH2o4u4h2qDgig1GZm8b/DRuFHeLgRFvnrA9bUwQ1tenUs/RVA8tGnLBQashg==}
     peerDependencies:
       quasar: ^2.18.1
+
+  '@simsustech/quasar-components@0.11.24':
+    resolution: {integrity: sha512-saDwdGp55HzINTeDn7I8BUu9fVqOnCtKsbChIfKRgh5XAieJ6mPZaT5bbYiu5natZpsNB5GAxfbbvq+omru8HQ==}
+    peerDependencies:
+      quasar: ^2.18.6
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -6712,6 +6717,10 @@ packages:
     resolution: {integrity: sha512-BgWVbCI72aIQy937xbawcs+hrVaN/CZ2UwutgaJ36hGqRrLNM+f5LUT/YPRbo8IV/ASeFzXszezV+y2+rq3l8A==}
     engines: {node: '>= 0.10'}
 
+  validator@13.15.26:
+    resolution: {integrity: sha512-spH26xU080ydGggxRyR1Yhcbgx+j3y5jbNXk/8L+iRvdIEQ4uTRH2Sgf2dokud6Q4oAtsbNvJ1Ft+9xmm6IZcA==}
+    engines: {node: '>= 0.10'}
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -6827,8 +6836,8 @@ packages:
       vue: ^3.5.25
       vue-router: ^4.6.3
 
-  vitrify@0.25.5:
-    resolution: {integrity: sha512-BrOTjYzOSVGNpw+35SpFola6DEymWhIfZ7KGDd92GEx6MKHkOY7mGPqmmAETC7XAFUZyrL4nbSr7KpJQ8ajujg==}
+  vitrify@0.25.6:
+    resolution: {integrity: sha512-nIzkwV2NEaoLUbH0UBtWipLmdNIpqZoYT33NHSnKk6mL/4qhCGwMuaSrdCGXu5F+3wEXWChU/COKtZI1mLQ9pA==}
     engines: {node: '>=24.0.0'}
     hasBin: true
     peerDependencies:
@@ -9024,6 +9033,14 @@ snapshots:
       '@vueuse/core': 13.9.0(vue@3.5.27(typescript@5.9.3))
       quasar: 2.18.6
       validator: 13.15.15
+    transitivePeerDependencies:
+      - vue
+
+  '@simsustech/quasar-components@0.11.24(quasar@2.18.6)(vue@3.5.27(typescript@5.9.3))':
+    dependencies:
+      '@vueuse/core': 14.1.0(vue@3.5.27(typescript@5.9.3))
+      quasar: 2.18.6
+      validator: 13.15.26
     transitivePeerDependencies:
       - vue
 
@@ -13864,6 +13881,8 @@ snapshots:
 
   validator@13.15.15: {}
 
+  validator@13.15.26: {}
+
   vary@1.1.2: {}
 
   verror@1.10.0:
@@ -14016,7 +14035,7 @@ snapshots:
       - workbox-build
       - yaml
 
-  vitrify@0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@2.79.2)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1):
+  vitrify@0.25.6(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@2.79.2)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1):
     dependencies:
       '@fastify/middie': 9.1.0
       '@fastify/one-line-logger': 2.1.0
@@ -14091,7 +14110,7 @@ snapshots:
       - workbox-build
       - yaml
 
-  vitrify@0.25.5(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1):
+  vitrify@0.25.6(@babel/parser@7.28.6)(@fastify/static@9.0.0)(@pinia/colada@0.21.2(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)))(@types/node@25.0.10)(animate.css@4.1.1)(fastify@5.7.1)(jiti@2.6.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(postcss@8.5.6)(quasar@2.18.6)(rollup@4.51.0)(terser@5.44.0)(typescript@5.9.3)(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))(workbox-build@7.3.0)(yaml@2.8.1):
     dependencies:
       '@fastify/middie': 9.1.0
       '@fastify/one-line-logger': 2.1.0

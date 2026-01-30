@@ -6,4 +6,4 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@vitrify/*"
   - vitrify
-  - beasties
+  - "@simsustech/quasar-components"
