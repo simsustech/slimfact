@@ -4,7 +4,7 @@ import typescriptEslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
 import { defineConfig } from 'eslint/config'
 
-export default defineConfig(
+export default defineConfig([
   {
     ignores: ['src/slimfact/slimfact.d.ts']
   },
