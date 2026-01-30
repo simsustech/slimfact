@@ -416,7 +416,7 @@ export const adminInvoiceRoutes = ({
                 emailBody
               })
 
-              const pdfResult = await downloadPdf(invoice)
+              const pdfResult = await downloadPdf(result.invoice)
               const attachments = []
               if (pdfResult.success)
                 attachments.push({
@@ -424,9 +424,9 @@ export const adminInvoiceRoutes = ({
                   content: pdfResult.pdf
                 })
               await fastify.mailer?.sendMail({
-                from: `${invoice.companyDetails.name} <noreply@slimfact.app>`,
-                replyTo: invoice.companyDetails.email,
-                to: invoice.clientDetails.email,
+                from: `${result.invoice.companyDetails.name} <noreply@slimfact.app>`,
+                replyTo: result.invoice.companyDetails.email,
+                to: result.invoice.clientDetails.email,
                 bcc: emailBcc,
                 subject,
                 html: body,
