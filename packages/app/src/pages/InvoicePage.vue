@@ -448,9 +448,7 @@ const { mutateAsync: invoiceEventEmailOpenedMutation } =
 
 const typstInvoiceRef = ref<InstanceType<typeof TypstInvoice>>()
 const downloadPdf = () => {
-  console.log(typstInvoiceRef.value)
   if (typstInvoiceRef.value) {
-    console.log('lkjsdjklsdf')
     typstInvoiceRef.value.downloadPdf()
   }
 }
@@ -480,11 +478,8 @@ onMounted(async () => {
     if (route.query?.eventType === 'emailOpened' && invoice.value) {
       invoiceEventEmailOpenedMutation({ invoiceId: invoice.value.id })
     }
-    console.log(route.query.download)
-    console.log(invoice.value)
 
     if (route.query?.download !== undefined && invoice.value) {
-      console.log('?')
       await typstInvoiceRef.value?.downloadPdf()
     }
   }
