@@ -1,5 +1,5 @@
 <template>
-  <q-form ref="formRef">
+  <q-form v-if="filteredClients && filteredCompanies" ref="formRef">
     <div class="grid grid-cols-12 gap-3">
       <company-select
         v-model="modelValue.companyId"
@@ -231,7 +231,7 @@ import {
   type RawInvoiceSurcharge
 } from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
-import { ref, toRefs, watch, nextTick, computed } from 'vue'
+import { ref, toRefs, watch, computed } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import ClientSelect from '../client/ClientSelect.vue'
 import {
@@ -244,6 +244,7 @@ import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
 import ClientForm from '../client/ClientForm.vue'
 import { computeNumberPrefix } from 'src/tools.js'
+import { until } from '@vueuse/core'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -389,8 +390,22 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
 }
 const setValue = (newValue: RawNewInvoice) => {
   modelValue.value = extend(true, {}, initialValue, newValue)
-  modelValue.value.companyId = newValue.companyId || newValue.companyDetails.id
-  modelValue.value.clientId = newValue.clientId || newValue.clientDetails.id
+  if (newValue.companyId && !Number.isNaN(newValue.companyId)) {
+    modelValue.value.companyId = newValue.companyId
+  } else if (
+    newValue.companyDetails.id &&
+    !Number.isNaN(newValue.companyDetails.id)
+  ) {
+    modelValue.value.companyId = newValue.companyDetails.id
+  }
+  if (newValue.clientId && !Number.isNaN(newValue.clientId)) {
+    modelValue.value.clientId = newValue.clientId
+  } else if (
+    newValue.clientDetails.id &&
+    !Number.isNaN(newValue.clientDetails.id)
+  ) {
+    modelValue.value.companyId = newValue.clientDetails.id
+  }
 }
 
 watch(
@@ -452,12 +467,13 @@ const currencySymbols = ref({
 const updateClientFormRef = ref<typeof ClientForm>()
 const updateDialogRef = ref<typeof ResponsiveDialog>()
 
-const openUpdateClientDialog = () => {
+const openUpdateClientDialog = async () => {
   const data = modelValue.value.clientDetails
   updateDialogRef.value?.functions.open()
-  nextTick(() => {
-    updateClientFormRef.value?.functions.setValue(data)
-  })
+
+  await until(updateClientFormRef).toBeTruthy()
+
+  updateClientFormRef.value?.functions.setValue(data)
 }
 
 const submitClient: InstanceType<

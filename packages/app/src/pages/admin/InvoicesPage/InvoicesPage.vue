@@ -62,12 +62,7 @@
     @submit="update"
   >
     <invoice-form
-      v-if="
-        filteredCompanies &&
-        filteredClients &&
-        filteredCompaniesAsyncStatus === 'idle' &&
-        filteredClientsAsyncStatus === 'idle'
-      "
+      v-if="filteredCompanies && filteredClients"
       ref="updateInvoiceFormRef"
       :filtered-companies="filteredCompanies"
       :filtered-clients="filteredClients"
@@ -85,12 +80,7 @@
     @submit="create"
   >
     <invoice-form
-      v-if="
-        filteredCompanies &&
-        filteredClients &&
-        filteredCompaniesAsyncStatus === 'idle' &&
-        filteredClientsAsyncStatus === 'idle'
-      "
+      v-if="filteredCompanies && filteredClients"
       ref="createInvoiceFormRef"
       :filtered-companies="filteredCompanies"
       :filtered-clients="filteredClients"
@@ -247,6 +237,9 @@ const openUpdateDialog: InstanceType<
   updateDialogRef.value?.functions.open()
 
   await until(updateInvoiceFormRef).toBeTruthy()
+  await until(filteredClientsAsyncStatus).toBe('idle')
+  await until(filteredCompaniesAsyncStatus).toBe('idle')
+
   updateInvoiceFormRef.value?.functions.setValue(data)
 }
 
