@@ -72,15 +72,13 @@ function find({
       )
 
     query = query
-      .groupBy('clients.id')
+      .select((seb) =>
+        seb.cast<number>(seb.fn.count('id').over(), 'integer').as('total')
+      )
       .limit(pagination.limit)
       .offset(pagination.offset)
   }
-
-  return query.select((seb) => [
-    ...select,
-    seb.cast<number>(seb.fn.count('id'), 'integer').as('total')
-  ])
+  return query.select((seb) => [...select])
 }
 
 export async function findClient({

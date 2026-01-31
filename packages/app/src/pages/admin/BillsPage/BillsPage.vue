@@ -60,6 +60,7 @@
     @submit="update"
   >
     <invoice-form
+      v-if="filteredCompanies && filteredClients"
       ref="updateInvoiceFormRef"
       :filtered-companies="filteredCompanies"
       :filtered-clients="filteredClients"
@@ -77,6 +78,7 @@
     @submit="create"
   >
     <invoice-form
+      v-if="filteredCompanies && filteredClients"
       ref="createInvoiceFormRef"
       :filtered-companies="filteredCompanies"
       :filtered-clients="filteredClients"
@@ -200,9 +202,17 @@ const createDialogRef = ref<typeof ResponsiveDialog>()
 const openUpdateDialog: InstanceType<
   typeof ResourcePage
 >['$props']['onUpdate'] = async ({ data }) => {
+  // @ts-expect-error untyped
+  companiesSearchPhrase.value = data?.companyDetails?.name
+  clientName.value =
+    // @ts-expect-error untyped
+    data?.clientDetails?.contactPersonName ?? data?.clientDetails?.companyName
+
   updateDialogRef.value?.functions.open()
 
-  await until(updateDialogRef).toBeTruthy()
+  await until(updateInvoiceFormRef).toBeTruthy()
+  await until(filteredClientsAsyncStatus).toBe('idle')
+  await until(filteredCompaniesAsyncStatus).toBe('idle')
 
   updateInvoiceFormRef.value?.functions.setValue(data)
 }
@@ -258,7 +268,8 @@ const createInvoice: InstanceType<
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies
+  refetch: refetchFilteredCompanies,
+  asyncStatus: filteredCompaniesAsyncStatus
 } = useAdminSearchCompaniesQuery()
 
 // const filteredCompanies = ref<CompanyDetails[]>([])
@@ -274,8 +285,10 @@ const onFilterCompanies: InstanceType<
 const {
   clients: filteredClients,
   name: clientName,
-  refetch: refetchFilteredClients
+  refetch: refetchFilteredClients,
+  asyncStatus: filteredClientsAsyncStatus
 } = useAdminSearchClientsQuery()
+
 // const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
   typeof InvoiceForm

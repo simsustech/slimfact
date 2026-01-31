@@ -133,7 +133,7 @@ const openUpdateDialog: InstanceType<
   typeof ResourcePage
 >['$props']['onUpdate'] = async ({ data }) => {
   updateDialogRef.value?.functions.open()
-  await until(updateDialogRef).toBeTruthy()
+  await until(updateClientFormRef).toBeTruthy()
 
   updateClientFormRef.value?.functions.setValue(data)
 }

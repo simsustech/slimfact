@@ -158,7 +158,7 @@ const openUpdateDialog: InstanceType<
 >['$props']['onUpdate'] = async ({ data }) => {
   updateDialogRef.value?.functions.open()
 
-  await until(updateDialogRef).toBeTruthy()
+  await until(updateSubscriptionFormRef).toBeTruthy()
 
   updateSubscriptionFormRef.value?.functions.setValue(data)
 }
