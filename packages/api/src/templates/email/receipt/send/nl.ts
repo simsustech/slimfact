@@ -1,6 +1,6 @@
 import { c } from 'compress-tag'
 
-const subject = `Bon`
+const subject = `Bekijk uw bon`
 const body = c`<p>Beste {{#if clientDetails.contactPersonName}}{{clientDetails.contactPersonName}}{{else}}{{clientDetails.companyName}}{{/if}},</p>
 
   <p>Bijgevoegd treft u uw bon aan voor het bedrag ter hoogte van {{totalIncludingTax}}.</p>
