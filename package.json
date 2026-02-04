@@ -48,8 +48,5 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm run lint && pnpm run format:check",
     "commit-msg": "pnpm exec commitlint --edit $1"
-  },
-  "dependencies": {
-    "@modular-api/fastify-checkout": "link:../modular-api/packages/fastify-checkout"
   }
 }
