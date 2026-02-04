@@ -33,10 +33,6 @@
       "import": "./templates/invoice/*"
     }
   },
-  "types": "./dist/types/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsc",
     "format:check": "prettier --check .",
@@ -64,17 +60,5 @@
     "fast-xml-parser": "^5.3.3",
     "handlebars": "^4.7.8",
     "ibantools": "^4.5.1"
-  },
-  "devDependencies": {
-    "@types/iban": "^0.0.35",
-    "@types/node": "^25.1.0",
-    "csv-parse": "^6.1.0",
-    "eslint": "9.39.2",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-vue": "10.7.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
-    "vue-eslint-parser": "^10.2.0"
   }
 }
