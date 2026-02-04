@@ -69,7 +69,7 @@
     "sitemap-ts": "1.10.1",
     "typescript": "5.9.3",
     "vite": "7.3.1",
-    "vitrify": "0.25.7",
+    "vitrify": "0.25.8",
     "workbox-window": "7.4.0"
   },
   "productName": "SlimFact documentation"
