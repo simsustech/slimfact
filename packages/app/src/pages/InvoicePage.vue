@@ -322,17 +322,16 @@ watch(invoice, (newVal) => {
 useMeta(() => {
   let title
   if (invoice.value && invoice.value?.status === InvoiceStatus.RECEIPT) {
-    title = `${lang.value.receipt.receipt} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}.pdf`
+    title = `${lang.value.receipt.receipt} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}`
   } else if (invoice.value && invoice.value?.status === InvoiceStatus.BILL) {
-    title = `${lang.value.bill.bill} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}.pdf`
+    title = `${lang.value.bill.bill} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}`
   } else if (invoice.value && invoice.value?.status === InvoiceStatus.CONCEPT) {
     title = `${invoice.value.companyDetails.name}
-      ${lang.value.invoice.status.concept}
-      .pdf`
+      ${lang.value.invoice.status.concept}`
   } else if (invoice.value) {
     title = `${invoice.value.date} ${invoice.value.companyDetails.name}
       ${lang.value.invoice.invoice}
-      ${invoice.value.numberPrefix}${invoice.value.number}.pdf`
+      ${invoice.value.numberPrefix}${invoice.value.number}`
   }
   return {
     title: title || 'SlimFact'
