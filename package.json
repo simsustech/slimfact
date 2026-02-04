@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=25.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "build": "run-s build:tools build:app build:api build:downloader",
@@ -48,5 +48,8 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm run lint && pnpm run format:check",
     "commit-msg": "pnpm exec commitlint --edit $1"
+  },
+  "dependencies": {
+    "@modular-api/fastify-checkout": "link:../modular-api/packages/fastify-checkout"
   }
 }

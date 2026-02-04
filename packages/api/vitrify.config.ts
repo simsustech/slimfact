@@ -46,7 +46,8 @@ export default async function ({
           'axios',
           'playwright',
           'svgo',
-          'compress-tag'
+          'compress-tag',
+          'short-uuid'
         ]
       },
       manualChunks: ['api.config', 'zod', 'date-fns', 'types']
