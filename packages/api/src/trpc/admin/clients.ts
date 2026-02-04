@@ -60,7 +60,7 @@ export const adminClientRoutes = ({
   searchClients: procedure
     .input(
       z.object({
-        name: z.string(),
+        name: z.string().nullable(),
         pagination: z
           .object({
             limit: z.number(),

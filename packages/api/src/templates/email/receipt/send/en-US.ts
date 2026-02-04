@@ -1,6 +1,6 @@
 import { c } from 'compress-tag'
 
-const subject = `Receipt`
+const subject = `View your receipt`
 const body = c`</p>Dear {{#if clientDetails.contactPersonName}}{{clientDetails.contactPersonName}}{{else}}{{clientDetails.companyName}}{{/if}},</p>
 
 <p>In the attachment you can find the receipt for the amount of {{totalIncludingTax}}.</p>

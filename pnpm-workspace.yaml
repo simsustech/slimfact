@@ -7,4 +7,6 @@ minimumReleaseAgeExclude:
   - "@vitrify/*"
   - vitrify
   - "@simsustech/quasar-components"
-  - "vue-router"
+  - vue-router
+  - "@modular-api/api"
+  - "@modular-api/fastify-checkout"

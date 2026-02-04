@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import { Client } from '@slimfact/api/zod'
 
 export const useAdminSearchClientsQuery = defineQuery(() => {
-  const name = ref<string>('')
+  const name = ref<string | null>(null)
   const page = ref(1)
   const rowsPerPage = ref(5)
   const pagination = computed<{
@@ -20,8 +20,7 @@ export const useAdminSearchClientsQuery = defineQuery(() => {
   }))
 
   const { data: clients, ...rest } = useQuery({
-    enabled: () =>
-      !import.meta.env.SSR && name.value !== '' && name.value !== null,
+    enabled: () => !import.meta.env.SSR && name.value !== null,
     key: () => ['adminSearchClients', name.value, pagination.value],
     query: () =>
       trpc.admin.searchClients.query({

@@ -390,8 +390,22 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
 }
 const setValue = (newValue: RawNewInvoice) => {
   modelValue.value = extend(true, {}, initialValue, newValue)
-  modelValue.value.companyId = newValue.companyId || newValue.companyDetails.id
-  modelValue.value.clientId = newValue.clientId || newValue.clientDetails.id
+  if (newValue.companyId && !Number.isNaN(newValue.companyId)) {
+    modelValue.value.companyId = newValue.companyId
+  } else if (
+    newValue.companyDetails.id &&
+    !Number.isNaN(newValue.companyDetails.id)
+  ) {
+    modelValue.value.companyId = newValue.companyDetails.id
+  }
+  if (newValue.clientId && !Number.isNaN(newValue.clientId)) {
+    modelValue.value.clientId = newValue.clientId
+  } else if (
+    newValue.clientDetails.id &&
+    !Number.isNaN(newValue.clientDetails.id)
+  ) {
+    modelValue.value.companyId = newValue.clientDetails.id
+  }
 }
 
 watch(
@@ -457,7 +471,7 @@ const openUpdateClientDialog = async () => {
   const data = modelValue.value.clientDetails
   updateDialogRef.value?.functions.open()
 
-  await until(updateDialogRef).toBeTruthy()
+  await until(updateClientFormRef).toBeTruthy()
 
   updateClientFormRef.value?.functions.setValue(data)
 }
