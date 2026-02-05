@@ -10,6 +10,11 @@
           "
           class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm"
         >
+          <div
+            id="qrcode"
+            style="max-width: 5cm; max-height: 5cm"
+            v-html="qrSvg"
+          ></div>
           <q-btn-dropdown
             v-if="
               invoice &&
@@ -17,7 +22,8 @@
                 invoice.status
               ) &&
               invoice.amountDue &&
-              invoice.amountDue > 0
+              invoice.amountDue > 0 &&
+              Object.values(paymentHandlersAvailable).some((v) => v)
             "
             icon="i-mdi-payment"
             :label="lang.payment.pay"
@@ -25,7 +31,7 @@
           >
             <q-list>
               <q-item
-                v-if="configuration.PAYMENT_HANDLERS.ideal"
+                v-if="paymentHandlersAvailable.ideal"
                 clickable
                 @click="payWithIdeal"
               >
@@ -37,11 +43,7 @@
                 </q-item-section>
               </q-item>
               <q-item
-                v-if="
-                  configuration.PAYMENT_HANDLERS.bankTransfer &&
-                  invoice.status === InvoiceStatus.OPEN &&
-                  qrSvg
-                "
+                v-if="paymentHandlersAvailable.bankTransfer"
                 clickable
                 @click="openBankTransferDialog"
               >
@@ -362,6 +364,7 @@ const qrSvg = computed(() => {
       })
       return renderSVG(data)
     } catch (e) {
+      console.error(e)
       return null
     }
   }
@@ -451,6 +454,14 @@ const downloadPdf = () => {
     typstInvoiceRef.value.downloadPdf()
   }
 }
+
+const paymentHandlersAvailable = computed(() => ({
+  ideal: configuration.value.PAYMENT_HANDLERS.ideal,
+  bankTransfer:
+    configuration.value.PAYMENT_HANDLERS?.bankTransfer &&
+    invoice.value?.status === InvoiceStatus.OPEN &&
+    qrSvg.value
+}))
 
 onMounted(async () => {
   if (__IS_PWA__) {
