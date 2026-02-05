@@ -78,7 +78,7 @@ function find({
       .limit(pagination.limit)
       .offset(pagination.offset)
   }
-  return query.select((seb) => [...select])
+  return query.select([...select])
 }
 
 export async function findClient({
