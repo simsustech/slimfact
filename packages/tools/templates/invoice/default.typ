@@ -217,7 +217,7 @@
   ),
   ..for v in invoice.lines {
     (
-      [#formatQuantity(v.quantity, v.quantityPerMille, v.quantityUnit)],
+      [#formatQuantity(v.quantity, v.quantityPerMille, v.at("quantityUnit", default: none))],
       [#v.description],
       [#formatPrice(ternary(includeTax, v.listPriceIncludingTax, v.listPriceExcludingTax), invoice.currency)],
       [#formatPrice(ternary(includeTax, v.discountIncludingTax, v.discountExcludingTax), invoice.currency)],
