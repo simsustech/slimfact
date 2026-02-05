@@ -85,7 +85,6 @@
     "eslint-plugin-prettier-vue": "5.0.0",
     "eslint-plugin-vue": "10.7.0",
     "fastify": "5.7.2",
-    "html2pdf.js": "0.14.0",
     "icon-gen": "5.0.0",
     "kysely": "0.28.10",
     "lionel-oauth-client": "npm:@stefanvh/lionel-oauth-client@^0.7.0",
