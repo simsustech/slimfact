@@ -1,20 +1,21 @@
 <template>
   <q-page padding>
-    <div class="row q-col-gutter-md">
+    <div class="grid grid-cols-12 gap-3">
       <company-select
+        v-if="filteredCompanies"
         v-model="companyId"
-        class="col-md-4 col-12"
+        class="md:col-span-4 col-span-12"
         :filtered-options="filteredCompanies"
         required
         @filter="onFilterCompanies"
       />
       <date-input
         v-model="startDate"
-        label="start"
+        :label="lang.subscription.fields.startDate"
         format="DD-MM-YYYY"
         clearable
         required
-        class="col-md-4 col-12"
+        class="md:col-span-4 col-span-12"
         :date="{
           noUnset: true,
           defaultView: 'Years',
@@ -27,10 +28,10 @@
       />
       <date-input
         v-model="endDate"
-        label="end"
+        :label="lang.subscription.fields.endDate"
         format="DD-MM-YYYY"
         clearable
-        class="col-md-4 col-12"
+        class="md:col-span-4 col-span-12"
         :date="{
           noUnset: true,
           defaultView: 'Years',
@@ -62,7 +63,9 @@ import { DateInput } from '@simsustech/quasar-components/form'
 import { useQuery } from '@pinia/colada'
 import { trpc } from '../../trpc.js'
 import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies'
+import { useLang } from '../../lang/index.js'
 
+const lang = useLang()
 const companyId = ref<number>()
 const endDate = ref(new Date().toISOString().slice(0, 10))
 const startDate = ref(
