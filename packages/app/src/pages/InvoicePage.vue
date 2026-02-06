@@ -10,6 +10,11 @@
           "
           class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm"
         >
+          <div
+            id="qrcode"
+            style="max-width: 5cm; max-height: 5cm"
+            v-html="qrSvg"
+          ></div>
           <q-btn-dropdown
             v-if="
               invoice &&
@@ -17,7 +22,8 @@
                 invoice.status
               ) &&
               invoice.amountDue &&
-              invoice.amountDue > 0
+              invoice.amountDue > 0 &&
+              Object.values(paymentHandlersAvailable).some((v) => v)
             "
             icon="i-mdi-payment"
             :label="lang.payment.pay"
@@ -25,7 +31,7 @@
           >
             <q-list>
               <q-item
-                v-if="configuration.PAYMENT_HANDLERS.ideal"
+                v-if="paymentHandlersAvailable.ideal"
                 clickable
                 @click="payWithIdeal"
               >
@@ -37,11 +43,7 @@
                 </q-item-section>
               </q-item>
               <q-item
-                v-if="
-                  configuration.PAYMENT_HANDLERS.bankTransfer &&
-                  invoice.status === InvoiceStatus.OPEN &&
-                  qrSvg
-                "
+                v-if="paymentHandlersAvailable.bankTransfer"
                 clickable
                 @click="openBankTransferDialog"
               >
@@ -104,13 +106,13 @@
             icon="i-mdi-download"
             color="primary"
             download="proposed_file_name"
-            :href="`${slimfactDownloaderUrl}/?uuid=${invoice.uuid}&host=${host}`"
+            @click="downloadPdf"
           >
             <q-tooltip class="no-print">
               {{ lang.invoice.labels.download }}
             </q-tooltip>
           </q-btn>
-          <q-btn
+          <!-- <q-btn
             v-if="invoice"
             icon="i-mdi-printer"
             color="primary"
@@ -119,7 +121,7 @@
             <q-tooltip class="no-print">
               {{ lang.invoice.labels.print }}
             </q-tooltip>
-          </q-btn>
+          </q-btn> -->
 
           <q-btn
             v-if="user?.roles?.includes('administrator')"
@@ -175,7 +177,17 @@
     <q-page-container>
       <div class="row justify-center">
         <q-scroll-area class="no-print" style="height: 297mm; width: 212mm">
-          <invoice-page
+          <typst-invoice
+            v-if="invoice"
+            ref="typstInvoiceRef"
+            :model-value="invoice"
+            :include-tax="
+              [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+                invoice.status
+              )
+            "
+          />
+          <!-- <invoice-page
             v-if="invoice"
             id="invoice"
             ref="invoiceRef"
@@ -185,20 +197,10 @@
                 invoice.status
               )
             "
-          />
+          /> -->
         </q-scroll-area>
       </div>
 
-      <invoice-page
-        v-if="invoice"
-        id="invoice"
-        ref="invoiceRef"
-        class="invisible print:!visible"
-        :model-value="invoice"
-        :include-tax="
-          [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(invoice.status)
-        "
-      />
       <responsive-dialog
         :icons="{ close: 'i-mdi-close' }"
         class="no-print"
@@ -234,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import { InvoicePage } from '@modular-api/quasar-components/checkout'
+// import { InvoicePage } from '@modular-api/quasar-components/checkout'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
@@ -257,6 +259,8 @@ import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
+import TypstInvoice from '../components/TypstInvoice.vue'
+// import { InvoicePage } from '@modular-api/quasar-components/checkout'
 
 const $q = useQuasar()
 const language = ref($q.lang.isoName)
@@ -284,12 +288,12 @@ const configuration = useConfiguration()
 await initializeTRPCClient(configuration.value.API_HOST)
 
 const route = useRoute()
-const host = ref(import.meta.env.SSR ? '' : window.location.host)
-const slimfactDownloaderUrl = ref(
-  import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST
-    ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST}`
-    : 'https://download.slimfact.app'
-)
+// const host = ref(import.meta.env.SSR ? '' : window.location.host)
+// const slimfactDownloaderUrl = ref(
+//   import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST
+//     ? `http://${import.meta.env.VITE_SLIMFACT_DOWNLOADER_HOST}`
+//     : 'https://download.slimfact.app'
+// )
 
 const uuid = ref(
   Array.isArray(route.params.uuid) ? route.params.uuid[0] : route.params.uuid
@@ -320,17 +324,16 @@ watch(invoice, (newVal) => {
 useMeta(() => {
   let title
   if (invoice.value && invoice.value?.status === InvoiceStatus.RECEIPT) {
-    title = `${lang.value.receipt.receipt} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}.pdf`
+    title = `${lang.value.receipt.receipt} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}`
   } else if (invoice.value && invoice.value?.status === InvoiceStatus.BILL) {
-    title = `${lang.value.bill.bill} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}.pdf`
+    title = `${lang.value.bill.bill} ${invoice.value.companyDetails.name || invoice.value.companyDetails.contactPersonName}`
   } else if (invoice.value && invoice.value?.status === InvoiceStatus.CONCEPT) {
     title = `${invoice.value.companyDetails.name}
-      ${lang.value.invoice.status.concept}
-      .pdf`
+      ${lang.value.invoice.status.concept}`
   } else if (invoice.value) {
     title = `${invoice.value.date} ${invoice.value.companyDetails.name}
       ${lang.value.invoice.invoice}
-      ${invoice.value.numberPrefix}${invoice.value.number}.pdf`
+      ${invoice.value.numberPrefix}${invoice.value.number}`
   }
   return {
     title: title || 'SlimFact'
@@ -361,13 +364,14 @@ const qrSvg = computed(() => {
       })
       return renderSVG(data)
     } catch (e) {
+      console.error(e)
       return null
     }
   }
   return null
 })
 
-const invoiceRef = ref()
+// const invoiceRef = ref()
 
 const { mutateAsync: payWithIdealMutation } = usePublicPayWithIdealMutation()
 const { mutateAsync: payDownPaymentWithIdealMutation } =
@@ -413,11 +417,11 @@ const openBankTransferDialog = () => {
   bankTransferDialogRef.value?.functions.open()
 }
 
-const print = () => {
-  if (!import.meta.env.SSR) {
-    window.print()
-  }
-}
+// const print = () => {
+//   if (!import.meta.env.SSR) {
+//     window.print()
+//   }
+// }
 
 const format = (value: number) =>
   Intl.NumberFormat(invoice.value?.locale || $q.lang.isoName, {
@@ -444,6 +448,21 @@ const getAdminUrl = () => {
 const { mutateAsync: invoiceEventEmailOpenedMutation } =
   useAccountInvoiceEventEmailOpenedMutation()
 
+const typstInvoiceRef = ref<InstanceType<typeof TypstInvoice>>()
+const downloadPdf = () => {
+  if (typstInvoiceRef.value) {
+    typstInvoiceRef.value.downloadPdf()
+  }
+}
+
+const paymentHandlersAvailable = computed(() => ({
+  ideal: configuration.value.PAYMENT_HANDLERS.ideal,
+  bankTransfer:
+    configuration.value.PAYMENT_HANDLERS?.bankTransfer &&
+    invoice.value?.status === InvoiceStatus.OPEN &&
+    qrSvg.value
+}))
+
 onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
@@ -464,11 +483,15 @@ onMounted(async () => {
       user.value = await oAuthClient.value?.getUser()
     }
 
+    await refetch()
+
     if (route.query?.eventType === 'emailOpened' && invoice.value) {
       invoiceEventEmailOpenedMutation({ invoiceId: invoice.value.id })
     }
 
-    await refetch()
+    if (route.query?.download !== undefined && invoice.value) {
+      await typstInvoiceRef.value?.downloadPdf()
+    }
   }
 })
 </script>
