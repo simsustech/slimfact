@@ -24,10 +24,10 @@ const templates = {
 }
 
 const host = env.read('API_HOST') || env.read('VITE_API_HOST')
-const slimfactDownloaderHost =
-  env.read('SLIMFACT_DOWNLOADER_HOST') ||
-  env.read('VITE_SLIMFACT_DOWNLOADER_HOST') ||
-  'download.slimfact.app'
+// const slimfactDownloaderHost =
+//   env.read('SLIMFACT_DOWNLOADER_HOST') ||
+//   env.read('VITE_SLIMFACT_DOWNLOADER_HOST') ||
+//   'download.slimfact.app'
 const formatDateShort = ({
   dateString,
   locale

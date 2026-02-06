@@ -5,15 +5,9 @@
 <script setup lang="ts">
 import { onMounted, ref, toRefs, watch } from 'vue'
 import { type InvoicePayload } from '@modular-api/fastify-checkout'
-import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 import { $typst } from '@myriaddreamin/typst.ts'
 import typstLang from '@slimfact/tools/templates/invoice/lang.typ?raw'
 import typstInternal from '@slimfact/tools/templates/invoice/internal.typ?raw'
-import { useLang } from 'src/lang'
-import {
-  SweetCompileOptions,
-  SweetRenderOptions
-} from '@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs'
 import { exportFile } from 'quasar'
 import { renderTypstInvoice } from '@slimfact/tools/typst'
 
@@ -32,16 +26,13 @@ const props = withDefaults(defineProps<Props>(), {
   pageSize: 'a4'
 })
 const { modelValue, includeTax, pageSize, template } = toRefs(props)
-const lang = useLang()
 
 const svg = ref<string>()
 const typstTemplate = ref()
 
-const renderOptions = ref<SweetRenderOptions | SweetCompileOptions>({})
-
 watch(
   () => typstTemplate.value,
-  async (newVal, _) => {
+  async (newVal) => {
     const result = await renderTypstInvoice({
       $typst,
       invoice: modelValue.value,
@@ -84,34 +75,6 @@ const downloadPdf = async () => {
   if (result.success && result.pdf) {
     exportFile(result.filename ?? 'invoice.pdf', result.pdf)
   }
-  // const pdf = await $typst.pdf({
-  //   ...(renderOptions.value as SweetCompileOptions)
-  // })
-
-  // let filename = 'invoice.pdf'
-  // if (modelValue.value && modelValue.value?.status === InvoiceStatus.RECEIPT) {
-  //   filename = `${lang.value.receipt.receipt} ${modelValue.value.companyDetails.name || modelValue.value.companyDetails.contactPersonName}.pdf`
-  // } else if (
-  //   modelValue.value &&
-  //   modelValue.value?.status === InvoiceStatus.BILL
-  // ) {
-  //   filename = `${lang.value.bill.bill} ${modelValue.value.companyDetails.name || modelValue.value.companyDetails.contactPersonName}.pdf`
-  // } else if (
-  //   modelValue.value &&
-  //   modelValue.value?.status === InvoiceStatus.CONCEPT
-  // ) {
-  //   filename = `${modelValue.value.companyDetails.name}
-  //     ${lang.value.invoice.status.concept}
-  //     .pdf`
-  // } else if (modelValue.value) {
-  //   filename = `${modelValue.value.date} ${modelValue.value.companyDetails.name}
-  //     ${lang.value.invoice.invoice}
-  //     ${modelValue.value.numberPrefix}${modelValue.value.number}.pdf`
-  // }
-
-  // if (pdf) {
-  //   exportFile(filename, pdf)
-  // }
 }
 
 defineExpose({
@@ -119,7 +82,7 @@ defineExpose({
 })
 
 onMounted(async () => {
-  typstTemplate.value = await (await templates.default).default
+  typstTemplate.value = await (await templates[template.value]).default
   $typst.setCompilerInitOptions({
     beforeBuild: [],
     getModule: () => '/typst/typst_ts_web_compiler_bg.wasm'

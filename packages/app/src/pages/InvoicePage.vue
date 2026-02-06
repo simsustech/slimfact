@@ -202,10 +202,10 @@
       </div>
 
       <responsive-dialog
+        ref="bankTransferDialogRef"
         :icons="{ close: 'i-mdi-close' }"
         class="no-print"
         padding
-        ref="bankTransferDialogRef"
         display
       >
         <div v-if="invoice && qrSvg">

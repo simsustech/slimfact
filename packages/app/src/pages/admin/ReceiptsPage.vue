@@ -52,9 +52,9 @@
   </q-page>
 
   <responsive-dialog
+    ref="sendEmailDialogRef"
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="sendEmailDialogRef"
     persistent
     @submit="sendReceipt"
   >

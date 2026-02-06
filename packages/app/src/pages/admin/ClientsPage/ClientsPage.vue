@@ -45,9 +45,9 @@
   </q-page>
 
   <responsive-dialog
+    ref="updateDialogRef"
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="updateDialogRef"
     persistent
     @submit="update"
   >
@@ -59,9 +59,9 @@
     ></client-form>
   </responsive-dialog>
   <responsive-dialog
+    ref="createDialogRef"
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="createDialogRef"
     persistent
     @submit="create"
   >
