@@ -36,7 +36,9 @@
   "scripts": {
     "build": "tsc",
     "format:check": "prettier --check .",
-    "format:write": "prettier --write ."
+    "format:write": "prettier --write .",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "devDependencies": {
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0-rc2",
