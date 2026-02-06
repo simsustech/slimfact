@@ -208,9 +208,9 @@
   </q-form>
 
   <responsive-dialog
+    ref="updateDialogRef"
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="updateDialogRef"
     persistent
     @submit="submitClient"
   >

@@ -3,8 +3,8 @@
     <div v-if="ready" class="grid grid-cols-12 gap-3">
       <company-card
         v-for="company in companies"
-        class="col-span-12 md:col-span-3"
         :key="company.id"
+        class="col-span-12 md:col-span-3"
         :model-value="company"
         @update="openUpdateDialog"
       />
@@ -12,9 +12,9 @@
   </q-page>
 
   <responsive-dialog
+    ref="updateDialogRef"
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="updateDialogRef"
     persistent
     @submit="update"
   >
@@ -25,9 +25,9 @@
     ></company-form>
   </responsive-dialog>
   <responsive-dialog
+    ref="createDialogRef"
     :icons="{ close: 'i-mdi-close' }"
     padding
-    ref="createDialogRef"
     persistent
     @submit="create"
   >

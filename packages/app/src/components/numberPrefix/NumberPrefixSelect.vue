@@ -9,7 +9,7 @@
     input-debounce="500"
     :hide-selected="Number.isNaN(modelValue)"
     :rules="required ? [requiredValidation] : []"
-    @update:model-value="$emit('update:model-value', $event)"
+    @update:model-value="emit('update:modelValue', $event)"
   >
   </q-select>
 </template>
@@ -36,6 +36,9 @@ export interface Props {
 }
 const props = defineProps<Props>()
 const attrs = useAttrs()
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
 const lang = useLang()
 
