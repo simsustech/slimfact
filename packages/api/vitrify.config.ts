@@ -47,7 +47,10 @@ export default async function ({
           'playwright',
           'svgo',
           'compress-tag',
-          'short-uuid'
+          'short-uuid',
+          '@slimfact/tools',
+          '@myriaddreamin/typst-ts-node-compiler',
+          '@myriaddreamin/typst-ts'
         ]
       },
       manualChunks: ['api.config', 'zod', 'date-fns', 'types']

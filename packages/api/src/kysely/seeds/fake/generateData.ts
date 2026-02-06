@@ -40,6 +40,7 @@ const createInvoiceLine = () => ({
   listPriceIncludesTax: true,
   quantity: 1,
   quantityPerMille: false,
+  quantityUnit: null,
   taxRate: 21
 })
 
