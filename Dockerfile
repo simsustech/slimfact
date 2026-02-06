@@ -42,13 +42,13 @@ ENV PORT=80
 EXPOSE 80
 CMD ["npm", "start"]
 
-FROM node:20-slim AS downloader
-RUN apt-get update
-RUN npx -y playwright install --with-deps
-LABEL "io.slimfact.vendor"="simsustech"
-WORKDIR /app
-COPY --from=api-deploy /build/downloader /app
-ENV HOST=0.0.0.0
-ENV PORT=80
-EXPOSE 80
-CMD ["npm", "start"]
+# FROM node:20-slim AS downloader
+# RUN apt-get update
+# RUN npx -y playwright install --with-deps
+# LABEL "io.slimfact.vendor"="simsustech"
+# WORKDIR /app
+# COPY --from=api-deploy /build/downloader /app
+# ENV HOST=0.0.0.0
+# ENV PORT=80
+# EXPOSE 80
+# CMD ["npm", "start"]

@@ -52,6 +52,7 @@ services:
         - SIMSUSTECH_NPM_TOKEN
       dockerfile: Dockerfile
       target: api
+      network: host
     depends_on:
       database:
         condition: service_healthy
