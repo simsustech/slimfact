@@ -45,22 +45,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta_downloader
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-downloader
-          tags: |
-            type=raw,value=latest
-            type=semver,pattern={{version}}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          target: downloader
-          tags: ${{ steps.meta_downloader.outputs.tags }}
-          labels: ${{ steps.meta_downloader.outputs.labels }}
-          secrets: |
-            "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"

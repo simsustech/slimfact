@@ -26,7 +26,6 @@ RUN pnpm run build
 FROM build-stage AS api-deploy
 RUN pnpm --filter @slimfact/api deploy api --prod
 RUN pnpm --filter @slimfact/app deploy app --prod --no-optional
-RUN pnpm --filter @slimfact/downloader deploy downloader --prod --no-optional
 RUN gzip -k -r /build/api/dist/server/*
 RUN gzip -k -r /build/app/dist/ssr/client/*
 RUN rm /build/app/dist/ssr/client/logo.svg.gz
@@ -41,14 +40,3 @@ ENV HOST=0.0.0.0
 ENV PORT=80
 EXPOSE 80
 CMD ["npm", "start"]
-
-# FROM node:20-slim AS downloader
-# RUN apt-get update
-# RUN npx -y playwright install --with-deps
-# LABEL "io.slimfact.vendor"="simsustech"
-# WORKDIR /app
-# COPY --from=api-deploy /build/downloader /app
-# ENV HOST=0.0.0.0
-# ENV PORT=80
-# EXPOSE 80
-# CMD ["npm", "start"]
