@@ -63,26 +63,6 @@ services:
           - api
       web:
 
-  downloader:
-    build:
-      context: .
-      secrets:
-        - SIMSUSTECH_NPM_TOKEN
-      dockerfile: Dockerfile
-      target: downloader
-    labels:
-      caddy: download.${HOST}.local
-      caddy.reverse_proxy: "{{upstreams 80}}"
-    environment:
-      DEV: true
-    secrets:
-      - SIMSUSTECH_NPM_TOKEN
-    networks:
-      dev:
-        aliases:
-          - database
-      web:
-
 secrets:
   SIMSUSTECH_NPM_TOKEN:
     file: ./env/SIMSUSTECH_NPM_TOKEN
