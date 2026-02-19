@@ -86,7 +86,7 @@
       "address": "281 Justyn Curve",
       "country": "Estonia",
       "postalCode": "88151-3557",
-      "companyName": "Walker LLC",
+      "companyName": none,
       "vatIdNumber": none,
       "contactPersonName": "Carmen Boehm",
     ),
@@ -150,8 +150,8 @@
     #if (invoice.companyDetails.logoSvg != none) [
       #image(bytes(invoice.companyDetails.logoSvg), format: "svg", width: 80%)
     ]
-    #align(bottom)[#invoice.clientDetails.companyName \
-      #invoice.clientDetails.contactPersonName \
+    #align(bottom)[#invoice.clientDetails.at("companyName", default: none) \
+      #invoice.clientDetails.at("contactPersonName", default: none) \
       #invoice.clientDetails.address \
       #invoice.clientDetails.postalCode #invoice.clientDetails.city \
       #invoice.clientDetails.country]
