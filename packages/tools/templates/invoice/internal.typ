@@ -1,5 +1,5 @@
 #import "@preview/zero:0.6.0": format-table, num, zi
-#import "@preview/datify:1.0.0": *
+#import "@preview/datify:1.0.1": *
 
 #let quantityUnits = (
   h: zi.hour(),
@@ -36,18 +36,16 @@
   }
 }
 
+/**
+ * Only YYYY-MM-DD
+ **/
 #let formatDate(date, locale, pattern: "short") = {
-  // Only YYYY-MM-DD
   if date != none {
     let dt = datetime(
       year: int(date.slice(0, count: 4)),
       month: int(date.slice(5, count: 2)),
       day: int(date.slice(8, count: 2)),
     )
-    // https://github.com/Jeomhps/datify-core/pull/13
-    if (locale == "en-US" and pattern == "short") {
-      pattern = "M/d/y"
-    }
     let text = custom-date-format(dt, lang: locale.slice(0, count: 2), pattern: pattern)
     text
   }
