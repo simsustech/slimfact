@@ -154,14 +154,14 @@
       #invoice.clientDetails.at("contactPersonName", default: none) \
       #invoice.clientDetails.address \
       #invoice.clientDetails.postalCode #invoice.clientDetails.city \
-      #invoice.clientDetails.country]
+      #invoice.clientDetails.at("country", default: none)]
   ],
   [
     #align(right)[
       #invoice.companyDetails.name \
       #invoice.companyDetails.address \
       #invoice.companyDetails.postalCode #invoice.companyDetails.city \
-      #invoice.companyDetails.country
+      #invoice.companyDetails.at("country", default: none)
       #v(1em)
       #invoice.companyDetails.telephoneNumber \
       #invoice.companyDetails.email \
