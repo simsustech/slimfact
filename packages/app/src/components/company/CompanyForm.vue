@@ -190,6 +190,14 @@
         lazy-rules
         name="defaultCurrency"
       />
+      <boolean-select
+        v-model="modelValue.defaultIncludeTax"
+        :label="lang.company.fields.defaultIncludeTax"
+        class="md:col-span-3 col-span-12"
+        bottom-slots
+        lazy-rules
+        name="defaultIncludeTax"
+      />
     </div>
   </q-form>
 </template>
@@ -204,7 +212,8 @@ import SvgAvatar from '../SvgAvatar.vue'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import {
   LocaleSelect,
-  CurrencySelect
+  CurrencySelect,
+  BooleanSelect
 } from '@simsustech/quasar-components/form'
 import { Company, NumberPrefix } from '@slimfact/api/zod'
 export interface Props {
@@ -255,7 +264,8 @@ const initialValue: Company = {
   website: null,
   defaultNumberPrefixTemplate: '',
   defaultLocale: 'en-US',
-  defaultCurrency: 'EUR'
+  defaultCurrency: 'EUR',
+  defaultIncludeTax: true
 }
 
 const modelValue = ref<Company>(initialValue)

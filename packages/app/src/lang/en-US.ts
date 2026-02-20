@@ -70,7 +70,8 @@ const lang: Language = {
       bic: 'BIC',
       defaultNumberPrefixTemplate: 'Default number prefix',
       defaultLocale: 'Default locale',
-      defaultCurrency: 'Default currency'
+      defaultCurrency: 'Default currency',
+      defaultIncludeTax: 'Default incl. VAT'
     },
     validations: {
       fieldRequired: 'Field is required'

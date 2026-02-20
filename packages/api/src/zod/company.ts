@@ -38,7 +38,8 @@ export const companyValidation = {
   defaultCurrency: z
     .union([z.literal('EUR'), z.literal('USD')])
     .nullable()
-    .optional()
+    .optional(),
+  defaultIncludeTax: z.boolean().optional()
 }
 
 export const company = z.object(companyValidation)
