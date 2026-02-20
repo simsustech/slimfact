@@ -70,6 +70,7 @@ export interface Language {
       defaultNumberPrefixTemplate: string
       defaultLocale: string
       defaultCurrency: string
+      defaultIncludeTax: string
     }
     validations: {
       fieldRequired: string

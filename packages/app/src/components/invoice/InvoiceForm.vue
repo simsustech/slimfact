@@ -333,7 +333,7 @@ const filterClients: InstanceType<
 const addLine = () => {
   modelValue.value.lines.push({
     listPrice: 0,
-    listPriceIncludesTax: true,
+    listPriceIncludesTax: includeTax.value,
     taxRate: 21,
     description: '',
     quantity: 1000,
@@ -408,6 +408,8 @@ const setValue = (newValue: RawNewInvoice) => {
   }
 }
 
+const includeTax = ref(true)
+
 watch(
   () => modelValue.value.companyId,
   (newVal) => {
@@ -421,12 +423,19 @@ watch(
     const defaultLocale = filteredCompanies.value.find(
       (company) => company.id === newVal
     )?.defaultLocale
-    if (defaultLocale) modelValue.value.locale = defaultLocale
+    if (defaultLocale !== void 0 && defaultLocale !== null)
+      modelValue.value.locale = defaultLocale
 
     const defaultCurrency = filteredCompanies.value.find(
       (company) => company.id === newVal
     )?.defaultCurrency
-    if (defaultCurrency) modelValue.value.currency = defaultCurrency
+    if (defaultCurrency !== void 0 && defaultCurrency !== null)
+      modelValue.value.currency = defaultCurrency
+
+    const defaultIncludeTax = filteredCompanies.value.find(
+      (company) => company.id === newVal
+    )?.defaultIncludeTax
+    if (defaultIncludeTax !== void 0) includeTax.value = defaultIncludeTax
   }
 )
 

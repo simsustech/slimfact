@@ -53,6 +53,7 @@ export interface Companies {
   defaultNumberPrefixTemplate: string | null
   defaultLocale: string | null
   defaultCurrency: 'EUR' | 'USD' | null
+  defaultIncludeTax: Generated<boolean>
   createdAt: Generated<string>
 }
 
