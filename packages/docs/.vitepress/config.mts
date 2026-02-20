@@ -3,6 +3,7 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "SlimFact",
+  head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   description: "Streamlined invoicing made easy.",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
