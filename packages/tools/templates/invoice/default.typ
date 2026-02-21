@@ -148,7 +148,9 @@
   columns: (50%, 50%),
   [
     #if (invoice.companyDetails.logoSvg != none) [
-      #image(bytes(invoice.companyDetails.logoSvg), format: "svg", width: 80%)
+      #box(height: 15em)[
+        #image(bytes(invoice.companyDetails.logoSvg), format: "svg")
+      ]
     ]
     #align(bottom)[#invoice.clientDetails.at("companyName", default: none) \
       #invoice.clientDetails.at("contactPersonName", default: none) \
