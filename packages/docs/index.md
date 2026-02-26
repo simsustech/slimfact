@@ -23,4 +23,6 @@ features:
     details: Bills, receipts and invoices are linked to an account which can be viewed by your clients.
   - title: Easy third-party integration
     details: SlimFact can be used headless and completely integrated into your applications.
+  - title: Support for UBL invoices
+    details: Invoices in the Universal Business Language format allow for fully automated processing.
 ---
