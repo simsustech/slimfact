@@ -84,21 +84,7 @@ export const renderTypstInvoice = async ({
         ...(renderOptions as SweetCompileOptions)
       })
 
-      let filename = 'invoice.pdf'
-      const locale = invoice.locale as TypstInvoiceLocales
-      if (invoice && invoice?.status === InvoiceStatus.RECEIPT) {
-        filename = `${lang[locale].receipt} ${invoice.companyDetails.name || invoice.companyDetails.contactPersonName}.pdf`
-      } else if (invoice && invoice?.status === InvoiceStatus.BILL) {
-        filename = `${lang[locale].bill} ${invoice.companyDetails.name || invoice.companyDetails.contactPersonName}.pdf`
-      } else if (invoice && invoice?.status === InvoiceStatus.CONCEPT) {
-        filename = `${invoice.companyDetails.name}
-      ${lang[locale].concept}
-      .pdf`
-      } else if (invoice) {
-        filename = `${invoice.date} ${invoice.companyDetails.name}
-      ${lang[locale].invoice}
-      ${invoice.numberPrefix}${invoice.number}.pdf`
-      }
+      const filename = getFilename(invoice)
 
       if ('evictCache' in $typst) $typst.evictCache(10)
 
@@ -139,4 +125,27 @@ export const renderTypstInvoice = async ({
       errorMessage: e
     }
   }
+}
+
+export const getFilename = (
+  invoice: Invoice,
+  extension: '.pdf' | '.xml' = '.pdf'
+) => {
+  let filename = 'invoice.pdf'
+  const locale = invoice.locale as TypstInvoiceLocales
+  if (invoice && invoice?.status === InvoiceStatus.RECEIPT) {
+    filename = `${lang[locale].receipt} ${invoice.companyDetails.name || invoice.companyDetails.contactPersonName}${extension}`
+  } else if (invoice && invoice?.status === InvoiceStatus.BILL) {
+    filename = `${lang[locale].bill} ${invoice.companyDetails.name || invoice.companyDetails.contactPersonName}${extension}`
+  } else if (invoice && invoice?.status === InvoiceStatus.CONCEPT) {
+    filename = `${invoice.companyDetails.name}
+      ${lang[locale].concept}
+      ${extension}`
+  } else if (invoice) {
+    filename = `${invoice.date} ${invoice.companyDetails.name}
+      ${lang[locale].invoice}
+      ${invoice.numberPrefix}${invoice.number}${extension}`
+  }
+
+  return filename
 }

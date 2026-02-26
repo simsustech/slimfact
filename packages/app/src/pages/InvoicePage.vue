@@ -101,27 +101,34 @@
             @click="refund"
           />
 
-          <q-btn
-            v-if="invoice"
-            icon="i-mdi-download"
-            color="primary"
-            download="proposed_file_name"
-            @click="downloadPdf"
-          >
-            <q-tooltip class="no-print">
-              {{ lang.invoice.labels.download }}
-            </q-tooltip>
-          </q-btn>
-          <!-- <q-btn
-            v-if="invoice"
-            icon="i-mdi-printer"
-            color="primary"
-            @click="print"
-          >
-            <q-tooltip class="no-print">
-              {{ lang.invoice.labels.print }}
-            </q-tooltip>
-          </q-btn> -->
+          <q-btn-dropdown v-if="invoice" icon="i-mdi-download" color="primary">
+            <q-list>
+              <q-item
+                color="primary"
+                download="proposed_file_name"
+                clickable
+                @click="downloadPdf"
+              >
+                <q-item-section>
+                  <q-item-label> PDF </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-if="
+                  [InvoiceStatus.OPEN, InvoiceStatus.PAID].includes(
+                    invoice.status
+                  )
+                "
+                color="primary"
+                clickable
+                @click="downloadUbl"
+              >
+                <q-item-section>
+                  <q-item-label> UBL </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
 
           <q-btn
             v-if="user?.roles?.includes('administrator')"
@@ -229,7 +236,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
-import { useMeta, useQuasar } from 'quasar'
+import { exportFile, useMeta, useQuasar } from 'quasar'
 import { InvoiceStatus } from '@slimfact/api/zod'
 import { generateEpcQrCodeData } from '@slimfact/tools/epc-qr'
 import { renderSVG } from 'uqr'
@@ -256,6 +263,8 @@ import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/che
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
 import TypstInvoice from '../components/TypstInvoice.vue'
+import { createUblInvoice } from '@slimfact/tools/ubl'
+import { getFilename } from '@slimfact/tools/typst'
 
 const $q = useQuasar()
 const lang = useLang()
@@ -449,6 +458,13 @@ const typstInvoiceRef = ref<InstanceType<typeof TypstInvoice>>()
 const downloadPdf = () => {
   if (typstInvoiceRef.value) {
     typstInvoiceRef.value.downloadPdf()
+  }
+}
+
+const downloadUbl = () => {
+  if (invoice.value) {
+    const ubl = createUblInvoice({ invoice: invoice.value })
+    exportFile(getFilename(invoice.value, '.xml'), ubl)
   }
 }
 
