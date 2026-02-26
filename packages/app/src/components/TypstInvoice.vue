@@ -1,5 +1,8 @@
 <template>
   <div v-if="svg" class="[&>svg]:(border-1px border-solid)" v-html="svg" />
+  <q-inner-loading :showing="!svg" style="height: 300px">
+    <q-spinner size="50px" color="primary" />
+  </q-inner-loading>
 </template>
 
 <script setup lang="ts">
