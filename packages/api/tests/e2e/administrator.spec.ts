@@ -53,9 +53,14 @@ test.describe('Settings', async () => {
     await page
       .getByRole('textbox', { name: 'City*' })
       .fill(faker.location.city())
-    await page
-      .getByRole('textbox', { name: 'Country*' })
-      .fill(faker.location.countryCode())
+
+    await page.getByRole('combobox', { name: 'Country' }).click()
+    await expect(page.getByRole('listbox').first()).toBeVisible()
+    await page.getByRole('option').first().click()
+
+    await page.getByRole('toolbar').first().click({ force: true })
+    await expect(page.getByRole('listbox').first()).not.toBeVisible()
+
     await page
       .getByRole('textbox', { name: 'Telephone number*' })
       .fill(faker.phone.number())
@@ -106,9 +111,14 @@ test.describe('Administrator', async () => {
     await page
       .getByRole('textbox', { name: 'City*' })
       .fill(faker.location.city())
-    await page
-      .getByRole('textbox', { name: 'Country' })
-      .fill(faker.location.countryCode())
+
+    await page.getByRole('combobox', { name: 'Country' }).click()
+    await expect(page.getByRole('listbox').first()).toBeVisible()
+    await page.getByRole('option').first().click()
+
+    await page.getByRole('toolbar').first().click({ force: true })
+    await expect(page.getByRole('listbox').first()).not.toBeVisible()
+
     await page
       .getByRole('textbox', { name: 'VAT ID number' })
       .fill(faker.string.numeric(10))
