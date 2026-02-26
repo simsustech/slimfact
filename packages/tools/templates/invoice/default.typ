@@ -64,7 +64,7 @@
       "email": "Fredrick_Muller81@yahoo.com",
       "prefix": "deliverables",
       "address": "4209 Trinity Road",
-      "country": "Kazakhstan",
+      "country": "US",
       "logoSvg": none,
       "website": none,
       "emailBcc": "Cora.Kshlerin@gmail.com",
@@ -84,7 +84,7 @@
       "email": "Melyssa86@yahoo.com",
       "number": none,
       "address": "281 Justyn Curve",
-      "country": "Estonia",
+      "country": "NL",
       "postalCode": "88151-3557",
       "companyName": none,
       "vatIdNumber": none,
@@ -156,14 +156,19 @@
       #invoice.clientDetails.at("contactPersonName", default: none) \
       #invoice.clientDetails.address \
       #invoice.clientDetails.postalCode #invoice.clientDetails.city \
-      #invoice.clientDetails.at("country", default: none)]
+      #if invoice.clientDetails.at("country", default: none) != none {
+        lang.countries.at(invoice.clientDetails.at("country"), default: none)
+      }
+    ]
   ],
   [
     #align(right)[
       #invoice.companyDetails.name \
       #invoice.companyDetails.address \
       #invoice.companyDetails.postalCode #invoice.companyDetails.city \
-      #invoice.companyDetails.at("country", default: none)
+      #if (invoice.companyDetails.at("country", default: none) != none) {
+        lang.countries.at(invoice.companyDetails.at("country"), default: none)
+      }
       #v(1em)
       #invoice.companyDetails.telephoneNumber \
       #invoice.companyDetails.email \

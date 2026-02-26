@@ -217,6 +217,7 @@ import {
   type RawInvoiceSurcharge
 } from '@modular-api/fastify-checkout'
 import { computeNumberPrefix } from 'src/tools.js'
+import { languageLocales } from '../../configuration.js'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -283,17 +284,6 @@ const initialValue: Subscription = {
 const modelValue = ref<Subscription>(initialValue)
 
 const lang = useLang()
-
-const languageLocales = ref([
-  {
-    icon: 'i-flagpack-nl',
-    isoName: 'nl'
-  },
-  {
-    icon: 'i-flagpack-us',
-    isoName: 'en-US'
-  }
-])
 
 const filterCompanies: InstanceType<
   typeof CompanySelect

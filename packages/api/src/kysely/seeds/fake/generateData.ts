@@ -12,14 +12,15 @@ const createCompany = () => ({
   address: faker.location.streetAddress(),
   postalCode: faker.location.zipCode(),
   city: faker.location.city(),
-  country: faker.location.country(),
+  country: 'NL',
   email: faker.internet.email(),
   telephoneNumber: faker.phone.number(),
   cocNumber: faker.commerce.isbn(),
   iban: faker.finance.iban(),
   bic: faker.finance.bic(),
   prefix: faker.company.buzzNoun(),
-  vatIdNumber: faker.number.bigInt({ min: 1e7, max: 1e8 }).toString(),
+  // vatIdNumber: faker.number.bigInt({ min: 1e7, max: 1e8 }).toString(),
+  vatIdNumber: 'NL705568076B01',
   emailBcc: faker.internet.email()
 })
 
@@ -28,7 +29,7 @@ const createClient = () => ({
   address: faker.location.streetAddress(),
   postalCode: faker.location.zipCode(),
   city: faker.location.city(),
-  country: faker.location.country(),
+  country: 'US',
   email: faker.internet.email(),
   contactPersonName: faker.person.fullName()
 })

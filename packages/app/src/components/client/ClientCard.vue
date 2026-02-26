@@ -11,7 +11,7 @@
         <form-item
           v-for="field in fields"
           :key="field"
-          :model-value="modelValue[field]"
+          :model-value="field === 'country' ? countryLabel : modelValue[field]"
           :label="lang.client.fields[field]"
         />
       </q-list>
@@ -21,10 +21,11 @@
 
 <script setup lang="ts">
 import { QStyledCard } from '@simsustech/quasar-components'
-import { FormItem } from '@simsustech/quasar-components/form'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { ClientDetails } from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
+import { FormItem, type ISO3166 } from '@simsustech/quasar-components/form'
+import { useLang as useFormLang } from '@simsustech/quasar-components/form'
 
 export interface Props {
   modelValue: ClientDetails
@@ -45,6 +46,8 @@ defineProps<Props>()
 // }>()
 
 const lang = useLang()
+const formLang = useFormLang()
+
 const fields = ref([
   'contactPersonName',
   'address',
@@ -61,4 +64,7 @@ const fields = ref([
 //   }
 //   emit('update', { data, done })
 // }
+const countryLabel = computed(
+  () => formLang.value.countries[modelValue.country as ISO3166]
+)
 </script>

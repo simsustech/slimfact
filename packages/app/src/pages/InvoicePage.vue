@@ -101,27 +101,34 @@
             @click="refund"
           />
 
-          <q-btn
-            v-if="invoice"
-            icon="i-mdi-download"
-            color="primary"
-            download="proposed_file_name"
-            @click="downloadPdf"
-          >
-            <q-tooltip class="no-print">
-              {{ lang.invoice.labels.download }}
-            </q-tooltip>
-          </q-btn>
-          <!-- <q-btn
-            v-if="invoice"
-            icon="i-mdi-printer"
-            color="primary"
-            @click="print"
-          >
-            <q-tooltip class="no-print">
-              {{ lang.invoice.labels.print }}
-            </q-tooltip>
-          </q-btn> -->
+          <q-btn-dropdown v-if="invoice" icon="i-mdi-download" color="primary">
+            <q-list>
+              <q-item
+                color="primary"
+                download="proposed_file_name"
+                clickable
+                @click="downloadPdf"
+              >
+                <q-item-section>
+                  <q-item-label> PDF </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-if="
+                  [InvoiceStatus.OPEN, InvoiceStatus.PAID].includes(
+                    invoice.status
+                  )
+                "
+                color="primary"
+                clickable
+                @click="downloadUbl"
+              >
+                <q-item-section>
+                  <q-item-label> UBL </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
 
           <q-btn
             v-if="user?.roles?.includes('administrator')"
@@ -187,17 +194,6 @@
               )
             "
           />
-          <!-- <invoice-page
-            v-if="invoice"
-            id="invoice"
-            ref="invoiceRef"
-            :model-value="invoice"
-            :include-tax="
-              [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
-                invoice.status
-              )
-            "
-          /> -->
         </q-scroll-area>
       </div>
 
@@ -240,13 +236,17 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useLang, loadLang } from './../lang/index.js'
-import { useMeta, useQuasar } from 'quasar'
+import { exportFile, useMeta, useQuasar } from 'quasar'
 import { InvoiceStatus } from '@slimfact/api/zod'
 import { generateEpcQrCodeData } from '@slimfact/tools/epc-qr'
 import { renderSVG } from 'uqr'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import Price from '../components/Price.vue'
-import { loadConfiguration, useConfiguration } from '../configuration.js'
+import {
+  loadConfiguration,
+  useConfiguration,
+  languageImports
+} from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
 import { useQuery } from '@pinia/colada'
 import { initializeTRPCClient, trpc } from '../trpc.js'
@@ -255,35 +255,40 @@ import {
   usePublicPayWithIdealMutation
 } from 'src/queries/public/invoices.js'
 import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
-import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
+import {
+  loadLang as loadFormLang,
+  Locales
+} from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
 import TypstInvoice from '../components/TypstInvoice.vue'
-// import { InvoicePage } from '@modular-api/quasar-components/checkout'
+import { createUblInvoice } from '@slimfact/tools/ubl'
+import { getFilename } from '@slimfact/tools/typst'
 
 const $q = useQuasar()
-const language = ref($q.lang.isoName)
 const lang = useLang()
+const quasarLanguageMap: Partial<Record<Locales, string>> = {
+  'en-US': 'en-US',
+  'nl-NL': 'nl'
+}
+const locale = ref<Locales>('en-US')
+watch(locale, (newVal) => {
+  const quasarLang = quasarLanguageMap[newVal]
+  if (quasarLang) {
+    loadLang(quasarLang)
+    loadFormLang(quasarLang)
+    loadCheckoutLang(quasarLang)
+    loadGeneralLang(quasarLang)
 
-const languageImports = ref({
-  nl: () => import(`quasar/lang/nl.js`),
-  'en-US': () => import(`quasar/lang/en-US.js`)
+    // @ts-expect-error string
+    languageImports.value[quasarLang]().then((lang) => {
+      $q.lang.set(lang.default)
+    })
+  }
 })
 
-watch(language, (newVal) => {
-  loadLang(newVal)
-  loadFormLang(newVal)
-  loadCheckoutLang(newVal)
-  loadGeneralLang(newVal)
-
-  // @ts-expect-error string
-  languageImports.value[newVal]().then((lang) => {
-    $q.lang.set(lang.default)
-  })
-})
-
-await loadConfiguration(language)
+await loadConfiguration(locale)
 const configuration = useConfiguration()
 await initializeTRPCClient(configuration.value.API_HOST)
 
@@ -317,7 +322,8 @@ const { data: invoice, refetch } = useQuery({
 
 watch(invoice, (newVal) => {
   if (newVal?.locale) {
-    loadLang(newVal.locale)
+    const quasarLang = quasarLanguageMap[newVal.locale as Locales]
+    loadLang(quasarLang)
   }
 })
 
@@ -452,6 +458,13 @@ const typstInvoiceRef = ref<InstanceType<typeof TypstInvoice>>()
 const downloadPdf = () => {
   if (typstInvoiceRef.value) {
     typstInvoiceRef.value.downloadPdf()
+  }
+}
+
+const downloadUbl = () => {
+  if (invoice.value) {
+    const ubl = createUblInvoice({ invoice: invoice.value })
+    exportFile(getFilename(invoice.value, '.xml'), ubl)
   }
 }
 
