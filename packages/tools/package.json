@@ -29,6 +29,10 @@
       "types": "./dist/types/typst/index.d.ts",
       "import": "./dist/typst/index.js"
     },
+    "./ubl": {
+      "types": "./dist/types/ubl/index.d.ts",
+      "import": "./dist/ubl/index.js"
+    },
     "./templates/invoice/*": {
       "import": "./templates/invoice/*"
     }

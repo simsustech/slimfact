@@ -17,6 +17,7 @@ import {
 import typstLang from '@slimfact/tools/templates/invoice/lang.typ?raw'
 import typstInternal from '@slimfact/tools/templates/invoice/internal.typ?raw'
 import { NodeCompiler } from '@myriaddreamin/typst-ts-node-compiler'
+import { createUblInvoice } from '@slimfact/tools/ubl'
 // import { $typst } from '@myriaddreamin/typst.ts';
 const $typst = NodeCompiler.create({})
 const templates = {
@@ -418,11 +419,24 @@ export const adminInvoiceRoutes = ({
 
               const pdfResult = await downloadPdf(result.invoice)
               const attachments = []
-              if (pdfResult.success)
+              if (pdfResult.success) {
                 attachments.push({
                   filename: pdfResult.filename,
                   content: pdfResult.pdf
                 })
+
+                if (
+                  [InvoiceStatus.OPEN, InvoiceStatus.PAID].includes(
+                    result.invoice.status
+                  )
+                ) {
+                  attachments.push({
+                    filename: pdfResult.filename?.replace('.pdf', '.xml'),
+                    content: createUblInvoice({ invoice: result.invoice })
+                  })
+                }
+              }
+
               await fastify.mailer?.sendMail({
                 from: `${result.invoice.companyDetails.name} <noreply@slimfact.app>`,
                 replyTo: result.invoice.companyDetails.email,
