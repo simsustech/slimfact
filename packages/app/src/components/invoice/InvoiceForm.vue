@@ -245,6 +245,7 @@ import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
 import ClientForm from '../client/ClientForm.vue'
 import { computeNumberPrefix } from 'src/tools.js'
 import { until } from '@vueuse/core'
+import { languageLocales } from '../../configuration.js'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -308,17 +309,6 @@ const { filteredCompanies, filteredClients } = toRefs(props)
 const modelValue = ref<Invoice>(initialValue)
 
 const lang = useLang()
-
-const languageLocales = ref([
-  {
-    icon: 'i-flagpack-nl',
-    isoName: 'nl'
-  },
-  {
-    icon: 'i-flagpack-us',
-    isoName: 'en-US'
-  }
-])
 
 const filterCompanies: InstanceType<
   typeof CompanySelect

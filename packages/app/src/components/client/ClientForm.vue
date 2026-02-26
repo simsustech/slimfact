@@ -50,10 +50,11 @@
         lazy-rules
         name="city"
       />
-      <form-input
-        v-bind="input"
+      <country-select
         v-model="modelValue.country"
         :label="lang.client.fields.country"
+        :countries="countryOptions"
+        filled
         class="md:col-span-3 col-span-12"
         bottom-slots
         lazy-rules
@@ -110,8 +111,9 @@ import { type QFormProps, type QInputProps, type QForm, extend } from 'quasar'
 import { useLang } from '../../lang/index.js'
 import { ref } from 'vue'
 import { type ResponsiveDialog } from '@simsustech/quasar-components'
-import { FormInput } from '@simsustech/quasar-components/form'
+import { FormInput, CountrySelect } from '@simsustech/quasar-components/form'
 import { Account } from '@slimfact/api/zod'
+import { countryOptions } from '../../configuration.js'
 
 export interface Props {
   form?: QFormProps & Partial<HTMLFormElement> & Partial<HTMLDivElement>

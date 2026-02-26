@@ -130,7 +130,7 @@ const companies: Insertable<Companies>[] = [
     address: 'Hoofdweg 1',
     postalCode: '1234 AB',
     city: 'Amsterdam',
-    country: 'Netherlands',
+    country: 'NL',
     email: 'john@acme.local',
     cocNumber: '123456789',
     iban: 'NL82RABO6579776978',
@@ -147,7 +147,7 @@ const clients: Insertable<Clients>[] = [
     address: 'Hoofdweg 2',
     postalCode: '1234 AB',
     city: 'Amsterdam',
-    country: 'Nederland',
+    country: 'NL',
     email: 'jane@goodsforall.local',
     contactPersonName: 'Jane Doe'
   }

@@ -14,7 +14,7 @@
         <form-item
           v-for="field in fields"
           :key="field"
-          :model-value="modelValue[field]"
+          :model-value="field === 'country' ? countryLabel : modelValue[field]"
           :label="lang.company.fields[field]"
         />
       </q-list>
@@ -24,17 +24,18 @@
 
 <script setup lang="ts">
 import { QStyledCard } from '@simsustech/quasar-components'
-import { FormItem } from '@simsustech/quasar-components/form'
-import { ref } from 'vue'
+import { FormItem, ISO3166 } from '@simsustech/quasar-components/form'
+import { computed, ref } from 'vue'
 import type { CompanyDetails } from '@modular-api/fastify-checkout'
 import { useLang } from '../../lang/index.js'
 import SvgAvatar from '../SvgAvatar.vue'
 import { Company } from '@slimfact/api/zod'
+import { useLang as useFormLang } from '@simsustech/quasar-components/form'
 
 export interface Props {
   modelValue: CompanyDetails
 }
-defineProps<Props>()
+const { modelValue } = defineProps<Props>()
 
 const emit = defineEmits<{
   (
@@ -50,6 +51,8 @@ const emit = defineEmits<{
 }>()
 
 const lang = useLang()
+const formLang = useFormLang()
+
 const fields = ref([
   'name',
   'prefix',
@@ -74,4 +77,8 @@ const update = (company: Company) => {
   }
   emit('update', { data: company, done })
 }
+
+const countryLabel = computed(
+  () => formLang.value.countries[modelValue.country as ISO3166]
+)
 </script>

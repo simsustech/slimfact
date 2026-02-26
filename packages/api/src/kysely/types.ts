@@ -3,7 +3,6 @@ import type {
   OidcPayloadsTable,
   AuthenticationMethodsTable
 } from '@modular-api/fastify-oidc/kysely'
-import type { Database as CartDatabase } from '@modular-api/fastify-cart/kysely'
 import type { Database as CheckoutDatabase } from '@modular-api/fastify-checkout/kysely'
 import type {
   RawInvoiceLine,
@@ -107,7 +106,7 @@ export interface InvoiceEvents {
   timestamp: Generated<string>
 }
 
-export interface DB extends CartDatabase, CheckoutDatabase {
+export interface DB extends CheckoutDatabase {
   accounts: AccountsTable
   authenticationMethods: AuthenticationMethodsTable
   oidcPayloads: OidcPayloadsTable

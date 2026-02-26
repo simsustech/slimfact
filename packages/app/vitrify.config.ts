@@ -181,7 +181,9 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
           options: { colada: true } as PiniaPluginOptions
         }
       ],
-      lang: env.VITE_LANG,
+      lang: env.VITE_LANG?.includes('en')
+        ? env.VITE_LANG
+        : env.VITE_LANG?.split('-').at(0),
       productName: 'SlimFact',
       hooks: {
         onSetup: [new URL('src/setup.ts', import.meta.url)]

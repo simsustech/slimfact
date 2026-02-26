@@ -8,5 +8,11 @@ minimumReleaseAgeExclude:
   - vitrify
   - "@simsustech/quasar-components"
   - vue-router
-  - "@modular-api/api"
-  - "@modular-api/fastify-checkout"
+  - "@modular-api/*"
+  - fast-xml-parser
+  - fast-xml-builder
+  - cronstrue
+  - pg*
+  - unocss
+  - "@unocss/*"
+  - "@types/node"
