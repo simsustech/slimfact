@@ -187,17 +187,6 @@
               )
             "
           />
-          <!-- <invoice-page
-            v-if="invoice"
-            id="invoice"
-            ref="invoiceRef"
-            :model-value="invoice"
-            :include-tax="
-              [InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
-                invoice.status
-              )
-            "
-          /> -->
         </q-scroll-area>
       </div>
 
@@ -259,30 +248,38 @@ import {
   usePublicPayWithIdealMutation
 } from 'src/queries/public/invoices.js'
 import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
-import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
+import {
+  loadLang as loadFormLang,
+  Locales
+} from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
 import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
 import TypstInvoice from '../components/TypstInvoice.vue'
-// import { InvoicePage } from '@modular-api/quasar-components/checkout'
 
 const $q = useQuasar()
-const language = ref($q.lang.isoName)
 const lang = useLang()
+const quasarLanguageMap: Partial<Record<Locales, string>> = {
+  'en-US': 'en-US',
+  'nl-NL': 'nl'
+}
+const locale = ref<Locales>('en-US')
+watch(locale, (newVal) => {
+  const quasarLang = quasarLanguageMap[newVal]
+  if (quasarLang) {
+    loadLang(quasarLang)
+    loadFormLang(quasarLang)
+    loadCheckoutLang(quasarLang)
+    loadGeneralLang(quasarLang)
 
-watch(language, (newVal) => {
-  loadLang(newVal)
-  loadFormLang(newVal)
-  loadCheckoutLang(newVal)
-  loadGeneralLang(newVal)
-
-  // @ts-expect-error string
-  languageImports.value[newVal]().then((lang) => {
-    $q.lang.set(lang.default)
-  })
+    // @ts-expect-error string
+    languageImports.value[quasarLang]().then((lang) => {
+      $q.lang.set(lang.default)
+    })
+  }
 })
 
-await loadConfiguration(language)
+await loadConfiguration(locale)
 const configuration = useConfiguration()
 await initializeTRPCClient(configuration.value.API_HOST)
 
@@ -316,7 +313,8 @@ const { data: invoice, refetch } = useQuery({
 
 watch(invoice, (newVal) => {
   if (newVal?.locale) {
-    loadLang(newVal.locale)
+    const quasarLang = quasarLanguageMap[newVal.locale as Locales]
+    loadLang(quasarLang)
   }
 })
 
