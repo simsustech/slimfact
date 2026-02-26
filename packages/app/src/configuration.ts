@@ -47,35 +47,37 @@ export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
 
 export const useConfiguration = () => configuration
 
-export const loadConfiguration = async (language: Ref<string>) => {
+export const loadConfiguration = async (locale: Ref<string>) => {
   Loading.show({
     message: lang.value.configuration.loading + '...',
     boxClass: 'bg-grey-2 text-grey-9',
     spinnerColor: 'primary'
   })
-  return fetch('/configuration')
-    .then((res) => res.json())
-    .then((res) => {
-      configuration.value = { ...configuration.value, ...res }
-      if (configuration.value.LANG) language.value = configuration.value.LANG
-    })
-    .then(() => {
-      const sassVariables = configuration.value.SASS_VARIABLES
-      if (sassVariables) {
-        for (const key in sassVariables) {
-          if (sassVariables[key]) setCssVar(key.slice(1), sassVariables[key])
-        }
-      }
-    })
-    .then(() => Loading.hide())
-    .catch(() => {
-      Loading.show({
-        message: lang.value.configuration.errorLoading,
-        messageColor: 'red',
-        boxClass: 'bg-grey-2 text-grey-9',
-        spinner: undefined
+  return (
+    fetch('/configuration')
+      .then((res) => res.json())
+      .then((res) => {
+        configuration.value = { ...configuration.value, ...res }
+        if (configuration.value.LANG) locale.value = configuration.value.LANG
       })
-    })
+      // .then(() => {
+      //   const sassVariables = configuration.value.SASS_VARIABLES
+      //   if (sassVariables) {
+      //     for (const key in sassVariables) {
+      //       if (sassVariables[key]) setCssVar(key.slice(1), sassVariables[key])
+      //     }
+      //   }
+      // })
+      .then(() => Loading.hide())
+      .catch(() => {
+        Loading.show({
+          message: lang.value.configuration.errorLoading,
+          messageColor: 'red',
+          boxClass: 'bg-grey-2 text-grey-9',
+          spinner: undefined
+        })
+      })
+  )
 }
 
 export const COMPANY_ICON = 'i-mdi-company'
@@ -89,3 +91,30 @@ export const CLIENT_ICON = 'i-mdi-person'
 export const SUBSCRIPTION_ICON = 'i-mdi-subscriptions'
 export const SETTINGS_ICON = 'i-mdi-account-settings'
 export const EXPORT_ICON = 'i-mdi-download'
+
+export const languageLocales = ref([
+  {
+    icon: 'i-flagpack-nl',
+    bcp47: 'nl-NL'
+  },
+  {
+    icon: 'i-flagpack-us',
+    bcp47: 'en-US'
+  }
+])
+
+export const countryOptions = ref([
+  {
+    icon: 'i-flagpack-nl',
+    iso3166: 'NL'
+  },
+  {
+    icon: 'i-flagpack-us',
+    iso3166: 'US'
+  }
+])
+
+export const languageImports = ref({
+  nl: () => import(`quasar/lang/nl.js`),
+  'en-US': () => import(`quasar/lang/en-US.js`)
+})

@@ -44,22 +44,22 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0-rc2",
     "@myriaddreamin/typst.ts": "0.7.0-rc2",
     "@types/iban": "^0.0.35",
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.3.1",
     "csv-parse": "^6.1.0",
-    "eslint": "9.39.2",
+    "eslint": "10.0.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-vue": "10.7.0",
+    "eslint-plugin-vue": "10.8.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.1",
-    "vue-eslint-parser": "^10.2.0"
+    "typescript-eslint": "^8.56.1",
+    "vue-eslint-parser": "^10.4.0"
   },
   "dependencies": {
-    "@modular-api/fastify-checkout": "^0.5.4",
+    "@modular-api/fastify-checkout": "^0.5.6",
     "@myriaddreamin/typst-ts-renderer": "0.7.0-rc2",
     "@rgrove/parse-xml": "^4.2.0",
     "export-to-csv": "^1.4.0",
-    "fast-xml-parser": "^5.3.3",
+    "fast-xml-parser": "^5.4.1",
     "handlebars": "^4.7.8",
     "ibantools": "^4.5.1"
   }

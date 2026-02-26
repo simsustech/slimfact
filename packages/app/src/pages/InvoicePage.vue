@@ -246,7 +246,11 @@ import { generateEpcQrCodeData } from '@slimfact/tools/epc-qr'
 import { renderSVG } from 'uqr'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import Price from '../components/Price.vue'
-import { loadConfiguration, useConfiguration } from '../configuration.js'
+import {
+  loadConfiguration,
+  useConfiguration,
+  languageImports
+} from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
 import { useQuery } from '@pinia/colada'
 import { initializeTRPCClient, trpc } from '../trpc.js'
@@ -265,11 +269,6 @@ import TypstInvoice from '../components/TypstInvoice.vue'
 const $q = useQuasar()
 const language = ref($q.lang.isoName)
 const lang = useLang()
-
-const languageImports = ref({
-  nl: () => import(`quasar/lang/nl.js`),
-  'en-US': () => import(`quasar/lang/en-US.js`)
-})
 
 watch(language, (newVal) => {
   loadLang(newVal)

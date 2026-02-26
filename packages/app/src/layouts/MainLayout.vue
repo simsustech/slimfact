@@ -26,7 +26,7 @@
             </q-item>
 
             <q-language-select
-              v-model="language"
+              v-model="locale"
               :language-imports="languageImports"
               :locales="languageLocales"
               is-item
@@ -268,7 +268,10 @@ import {
 import { QLanguageSelect } from '@simsustech/quasar-components'
 import { Md3Layout } from '@simsustech/quasar-components/md3'
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
-import { loadLang as loadFormLang } from '@simsustech/quasar-components/form'
+import {
+  loadLang as loadFormLang,
+  type Locales
+} from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { useOAuthClient, userRouteKey, user, oAuthClient } from '../oauth.js'
 import { useRoute, useRouter } from 'vue-router'
@@ -277,41 +280,32 @@ import { useConfiguration, loadConfiguration } from '../configuration'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
 import NavigationTabs from './NavigationTabs.vue'
 import { initializeTRPCClient } from 'src/trpc.js'
+import { languageLocales, languageImports } from '../configuration.js'
 
 const $q = useQuasar()
-const language = ref('en-US')
 
-const languageLocales = ref([
-  {
-    icon: 'i-flagpack-nl',
-    isoName: 'nl'
-  },
-  {
-    icon: 'i-flagpack-us',
-    isoName: 'en-US'
+const quasarLanguageMap: Partial<Record<Locales, string>> = {
+  'en-US': 'en-US',
+  'nl-NL': 'nl'
+}
+const locale = ref<Locales>('en-US')
+
+watch(locale, (newVal) => {
+  const quasarLang = quasarLanguageMap[newVal]
+  if (quasarLang) {
+    loadLang(quasarLang)
+    loadFormLang(quasarLang)
+    loadCheckoutLang(quasarLang)
+    loadGeneralLang(quasarLang)
+
+    // @ts-expect-error string
+    languageImports.value[quasarLang]().then((lang) => {
+      $q.lang.set(lang.default)
+    })
   }
-])
-
-// prettier-ignore
-const languageImports = ref({
-  nl: () => import(`quasar/lang/nl.js`),
-  'en-US': () => import(`quasar/lang/en-US.js`)
 })
 
-watch(language, (newVal) => {
-  loadLang(newVal)
-  loadFormLang(newVal)
-  loadCheckoutLang(newVal)
-  loadGeneralLang(newVal)
-
-  // @ts-expect-error string
-  languageImports.value[newVal]().then((lang) => {
-    $q.lang.set(lang.default)
-  })
-})
-language.value = $q.lang.isoName
-
-await loadConfiguration(language)
+await loadConfiguration(locale)
 const configuration = useConfiguration()
 await initializeTRPCClient(configuration.value.API_HOST)
 

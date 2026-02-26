@@ -54,12 +54,12 @@
         lazy-rules
         name="city"
       />
-      <form-input
-        v-bind="input"
+      <country-select
         v-model="modelValue.country"
         :label="lang.company.fields.country"
+        :countries="countryOptions"
+        filled
         class="md:col-span-3 col-span-12"
-        required
         bottom-slots
         lazy-rules
         name="country"
@@ -207,15 +207,18 @@ import { type QFormProps, type QInputProps, type QForm, extend } from 'quasar'
 import { useLang } from '../../lang/index.js'
 import { ref } from 'vue'
 import { type ResponsiveDialog } from '@simsustech/quasar-components'
-import { FormInput } from '@simsustech/quasar-components/form'
 import SvgAvatar from '../SvgAvatar.vue'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import {
+  FormInput,
   LocaleSelect,
   CurrencySelect,
-  BooleanSelect
+  BooleanSelect,
+  CountrySelect
 } from '@simsustech/quasar-components/form'
 import { Company, NumberPrefix } from '@slimfact/api/zod'
+import { languageLocales, countryOptions } from '../../configuration.js'
+
 export interface Props {
   form?: QFormProps & Partial<HTMLFormElement> & Partial<HTMLDivElement>
   input?: Omit<
@@ -272,17 +275,6 @@ const modelValue = ref<Company>(initialValue)
 
 // const $q = useQuasar()
 const lang = useLang()
-
-const languageLocales = ref([
-  {
-    icon: 'i-flagpack-nl',
-    isoName: 'nl'
-  },
-  {
-    icon: 'i-flagpack-us',
-    isoName: 'en-US'
-  }
-])
 
 const formRef = ref<QForm>()
 
