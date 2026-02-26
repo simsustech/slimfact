@@ -156,7 +156,9 @@
       #invoice.clientDetails.at("contactPersonName", default: none) \
       #invoice.clientDetails.address \
       #invoice.clientDetails.postalCode #invoice.clientDetails.city \
-      #lang.countries.at(invoice.clientDetails.at("country", default: none), default: none)
+      #if invoice.clientDetails.at("country", default: none) != none {
+        lang.countries.at(invoice.clientDetails.at("country"), default: none)
+      }
     ]
   ],
   [
@@ -164,7 +166,9 @@
       #invoice.companyDetails.name \
       #invoice.companyDetails.address \
       #invoice.companyDetails.postalCode #invoice.companyDetails.city \
-      #lang.countries.at(invoice.companyDetails.at("country", default: none), default: none)
+      #if (invoice.companyDetails.at("country", default: none) != none) {
+        lang.countries.at(invoice.companyDetails.at("country"), default: none)
+      }
       #v(1em)
       #invoice.companyDetails.telephoneNumber \
       #invoice.companyDetails.email \
