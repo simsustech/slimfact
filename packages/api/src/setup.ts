@@ -263,24 +263,12 @@ export default async function (fastify: FastifyInstance) {
           )
         },
         ttl: {
-          // Set ttl to 360 days in seconds if client is a trusted API
-          Grant: (ctx, token, client) => {
-            if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
-              return 360 * 24 * 60 * 60
-            }
-
-            return 14 * 24 * 60 * 60
-          },
-          Session: (ctx, token, client) => {
-            if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
-              return 360 * 24 * 60 * 60
-            }
-
-            return 14 * 24 * 60 * 60
-          },
+          // Set ttl to 90 days in seconds if client is a trusted API
+          Grant: 90 * 24 * 60 * 60,
+          Session: 90 * 24 * 60 * 60,
           RefreshToken: (ctx, token, client) => {
             if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
-              return 360 * 24 * 60 * 60
+              return 90 * 24 * 60 * 60
             }
 
             return 14 * 24 * 60 * 60

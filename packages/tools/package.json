@@ -48,7 +48,7 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0-rc2",
     "@myriaddreamin/typst.ts": "0.7.0-rc2",
     "@types/iban": "^0.0.35",
-    "@types/node": "^25.3.1",
+    "@types/node": "^25.3.3",
     "csv-parse": "^6.1.0",
     "eslint": "10.0.2",
     "eslint-config-prettier": "10.1.8",
@@ -63,7 +63,7 @@
     "@myriaddreamin/typst-ts-renderer": "0.7.0-rc2",
     "@rgrove/parse-xml": "^4.2.0",
     "export-to-csv": "^1.4.0",
-    "fast-xml-parser": "^5.4.1",
+    "fast-xml-parser": "^5.4.2",
     "handlebars": "^4.7.8",
     "ibantools": "^4.5.1"
   }
