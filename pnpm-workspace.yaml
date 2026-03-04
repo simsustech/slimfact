@@ -16,3 +16,4 @@ minimumReleaseAgeExclude:
   - unocss
   - "@unocss/*"
   - "@types/node"
+  - "@pinia/colada"

@@ -68,7 +68,10 @@ export const createContext = (fastify?: FastifyInstance) =>
     return {}
   }
 /* eslint-enable @typescript-eslint/no-unused-vars */
-export type Context = inferAsyncReturnType<
-  inferAsyncReturnType<typeof createContext>
-> & { account: { id: string; roles?: string[] } | null }
+export type Context = Awaited<
+  ReturnType<Awaited<ReturnType<typeof createContext>>> & {
+    account: { id: string; roles?: string[] } | null
+    session: { exp: number } | null
+  }
+>
 export type AppRouter = ReturnType<typeof createRouter>

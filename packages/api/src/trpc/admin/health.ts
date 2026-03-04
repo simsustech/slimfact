@@ -9,7 +9,7 @@ export const adminHealthRoutes = ({
   fastify: FastifyInstance
   procedure: typeof t.procedure
 }) => ({
-  healthcheck: procedure.query(async () => {
-    return true
+  healthcheck: procedure.query(async ({ ctx }) => {
+    return { exp: ctx.session?.exp }
   })
 })
