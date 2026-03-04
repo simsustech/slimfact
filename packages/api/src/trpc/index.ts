@@ -1,5 +1,4 @@
 import { initTRPC, TRPCError } from '@trpc/server'
-import type { inferAsyncReturnType } from '@trpc/server'
 import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify'
 import type { FastifyInstance } from 'fastify'
 import { userRoutes } from './user/index.js'
