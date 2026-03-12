@@ -13,3 +13,7 @@ www.slimfact.app {
     file_server
   }
 }
+
+slimfact.app {
+  redir https://www.slimfact.app
+}
