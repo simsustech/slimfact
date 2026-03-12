@@ -13,7 +13,4 @@ minimumReleaseAgeExclude:
   - fast-xml-builder
   - cronstrue
   - pg*
-  - unocss
-  - "@unocss/*"
-  - "@types/node"
-  - "@pinia/colada"
+  - docker-compose
