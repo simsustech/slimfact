@@ -492,7 +492,6 @@ const sendMutations = {
 const sendBill: InstanceType<
   typeof ResponsiveDialog
 >['$props']['onSubmit'] = async ({ done }) => {
-  console.log(sendEmailType.value)
   try {
     await sendMutations[sendEmailType.value]({
       id: sendEmailId.value,
