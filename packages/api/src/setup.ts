@@ -63,9 +63,9 @@ export default async function (fastify: FastifyInstance) {
       'Please define a OTP_SECRET or VITE_OTP_SECRET environment variable'
     )
 
-  const OIDC_COOKIES_KEYS =
-    env.read('OIDC_COOKIES_KEYS') ||
-    env.read('VITE_OIDC_COOKIES_KEYS')?.split(',')
+  const OIDC_COOKIES_KEYS = (
+    env.read('OIDC_COOKIES_KEYS') || env.read('VITE_OIDC_COOKIES_KEYS')
+  )?.split(',')
 
   if (!OIDC_COOKIES_KEYS)
     throw new Error(
