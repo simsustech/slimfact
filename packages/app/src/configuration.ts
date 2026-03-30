@@ -109,6 +109,10 @@ export const countryOptions = ref([
     iso3166: 'NL'
   },
   {
+    icon: 'i-flagpack-be',
+    iso3166: 'BE'
+  },
+  {
     icon: 'i-flagpack-us',
     iso3166: 'US'
   }
