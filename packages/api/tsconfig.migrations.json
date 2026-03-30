@@ -4,7 +4,6 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "baseUrl": "./",
     "declaration": true,
     "outDir": "./dist",
     "declarationDir": "./dist/types",
@@ -15,7 +14,8 @@
     "skipLibCheck": true,
     "paths": {
       "src": ["./src"]
-    }
+    },
+    "rootDir": "./src/kysely"
   },
   "include": [
     "src/kysely/migrations",

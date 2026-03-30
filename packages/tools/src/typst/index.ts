@@ -12,14 +12,14 @@ import {
 import { RenderSvgOptions } from '@myriaddreamin/typst.ts/dist/esm/options.render.mjs'
 
 export type TypstInvoiceTemplates = 'default'
-export type TypstInvoiceLocales = 'nl' | 'en-US'
+export type TypstInvoiceLocales = 'nl-NL' | 'en-US'
 const pageWidth = {
   a4: 210,
   'us-letter': 216
 }
 
 const lang = {
-  nl: {
+  'nl-NL': {
     concept: 'Concept',
     bill: 'Rekening',
     receipt: 'Bon',

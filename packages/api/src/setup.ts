@@ -6,8 +6,7 @@ import env from '@vitrify/tools/env'
 // @ts-expect-error no types
 import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plugin'
 import {
-  onAppRendered as appOnAppRendered,
-  onTemplateRendered as appOnTemplateRendered
+  hooks
   // @ts-expect-error no types
 } from '@slimfact/app/hooks'
 import { db as kysely } from '../src/kysely/index.js'
@@ -58,6 +57,21 @@ export default async function (fastify: FastifyInstance) {
   const host = env.read('API_HOST') || env.read('VITE_API_HOST')
   const corsOrigin = [`https://${host}`]
 
+  const OTP_SECRET = env.read('OTP_SECRET') || env.read('VITE_OTP_SECRET')
+  if (!OTP_SECRET)
+    throw new Error(
+      'Please define a OTP_SECRET or VITE_OTP_SECRET environment variable'
+    )
+
+  const OIDC_COOKIES_KEYS =
+    env.read('OIDC_COOKIES_KEYS') ||
+    env.read('VITE_OIDC_COOKIES_KEYS')?.split(',')
+
+  if (!OIDC_COOKIES_KEYS)
+    throw new Error(
+      'Please define a OIDC_COOKIES_KEYS or VITE_ OIDC_COOKIES_KEYS environment variable'
+    )
+
   if (!host)
     throw new Error(
       'Please define a API_HOST or VITE_API_HOST environment variable'
@@ -68,7 +82,7 @@ export default async function (fastify: FastifyInstance) {
     fastify,
     kysely,
     {
-      OTP_SECRET: env.read('OTP_SECRET') || env.read('VITE_OTP_SECRET'),
+      OTP_SECRET,
       OTP_VALIDITY_SECONDS:
         env.read('OTP_VALIDITY_SECONDS') ||
         env.read('VITE_OTP_VALIDITY_SECONDS'),
@@ -235,9 +249,7 @@ export default async function (fastify: FastifyInstance) {
       configuration: {
         cookies: {
           // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#cookieskeys
-          keys: (
-            env.read('OIDC_COOKIES_KEYS') || env.read('VITE_OIDC_COOKIES_KEYS')
-          ).split(',')
+          keys: OIDC_COOKIES_KEYS
         },
         routes: {
           authorization: '/authorize',
@@ -322,8 +334,8 @@ export default async function (fastify: FastifyInstance) {
 
   await fastify.register(appSsrPlugin, {
     host,
-    onAppRendered: appOnAppRendered,
-    onTemplateRendered: appOnTemplateRendered
+    onAppRendered: hooks.onAppRendered,
+    onTemplateRendered: hooks.onTemplateRendered
   })
 
   const boss = await initialize({ fastify })

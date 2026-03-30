@@ -4,7 +4,6 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "baseUrl": "./",
     "types": ["vite/client", "vitrify/client"],
     "declaration": true,
     "outDir": "./dist",
@@ -15,7 +14,9 @@
     "skipLibCheck": true,
     "paths": {
       "src": ["./src"]
-    }
+    },
+    "rootDir": "./"
+
   },
   "include": [
     "vitrify.config.ts",

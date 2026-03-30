@@ -9,8 +9,5 @@ minimumReleaseAgeExclude:
   - "@simsustech/quasar-components"
   - vue-router
   - "@modular-api/*"
-  - fast-xml-parser
-  - fast-xml-builder
-  - cronstrue
-  - pg*
-  - docker-compose
+  - vue
+  - "@vue/*"
