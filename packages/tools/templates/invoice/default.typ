@@ -158,6 +158,9 @@
       #invoice.clientDetails.postalCode #invoice.clientDetails.city \
       #if invoice.clientDetails.at("country", default: none) != none {
         lang.countries.at(invoice.clientDetails.at("country"), default: invoice.clientDetails.country)
+      } \
+      #if invoice.clientDetails.at("vatIdNumber", default: none) != none {
+        [#lang.invoice.fields.vatIdNumber: #invoice.clientDetails.at("vatIdNumber", default: none)]
       }
     ]
   ],
