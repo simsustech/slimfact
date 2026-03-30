@@ -49,9 +49,13 @@ const routes: RouteRecordRaw[] = [
             path: 'subscriptions',
             components: {
               default: () =>
-                import('../pages/admin/SubscriptionsPage/SubscriptionsPage.vue'),
+                import(
+                  '../pages/admin/SubscriptionsPage/SubscriptionsPage.vue'
+                ),
               fabs: () =>
-                import('../pages/admin/SubscriptionsPage/SubscriptionsPageFabs.vue')
+                import(
+                  '../pages/admin/SubscriptionsPage/SubscriptionsPageFabs.vue'
+                )
             }
           },
           {
@@ -76,9 +80,13 @@ const routes: RouteRecordRaw[] = [
                 path: 'companies',
                 components: {
                   default: () =>
-                    import('../pages/admin/settings/CompaniesPage/CompaniesPage.vue'),
+                    import(
+                      '../pages/admin/settings/CompaniesPage/CompaniesPage.vue'
+                    ),
                   fabs: () =>
-                    import('../pages/admin/settings/CompaniesPage/CompaniesPageFabs.vue')
+                    import(
+                      '../pages/admin/settings/CompaniesPage/CompaniesPageFabs.vue'
+                    )
                 }
               },
               {
@@ -90,18 +98,26 @@ const routes: RouteRecordRaw[] = [
                 path: 'numberprefixes',
                 components: {
                   default: () =>
-                    import('../pages/admin/settings/NumberPrefixesPage/NumberPrefixesPage.vue'),
+                    import(
+                      '../pages/admin/settings/NumberPrefixesPage/NumberPrefixesPage.vue'
+                    ),
                   fabs: () =>
-                    import('../pages/admin/settings/NumberPrefixesPage/NumberPrefixesPageFabs.vue')
+                    import(
+                      '../pages/admin/settings/NumberPrefixesPage/NumberPrefixesPageFabs.vue'
+                    )
                 }
               },
               {
                 path: 'initialnumberforprefixes',
                 components: {
                   default: () =>
-                    import('../pages/admin/settings/InitialNumberForPrefixesPage/InitialNumberForPrefixesPage.vue'),
+                    import(
+                      '../pages/admin/settings/InitialNumberForPrefixesPage/InitialNumberForPrefixesPage.vue'
+                    ),
                   fabs: () =>
-                    import('../pages/admin/settings/InitialNumberForPrefixesPage/InitialNumberForPrefixesPageFabs.vue')
+                    import(
+                      '../pages/admin/settings/InitialNumberForPrefixesPage/InitialNumberForPrefixesPageFabs.vue'
+                    )
                 }
               },
               {
