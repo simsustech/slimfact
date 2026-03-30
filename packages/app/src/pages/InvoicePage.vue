@@ -101,7 +101,13 @@
             @click="refund"
           />
 
-          <q-btn-dropdown v-if="invoice" icon="i-mdi-download" color="primary">
+          <q-btn-dropdown
+            v-if="invoice"
+            icon="i-mdi-download"
+            color="primary"
+            split
+            @click="downloadPdf"
+          >
             <q-list>
               <q-item
                 color="primary"
