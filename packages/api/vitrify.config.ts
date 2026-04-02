@@ -43,7 +43,6 @@ export default async function ({
           'pg',
           'sharp',
           '@mollie/api-client',
-          'axios',
           'playwright',
           'svgo',
           'compress-tag',
