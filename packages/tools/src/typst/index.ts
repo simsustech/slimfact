@@ -54,8 +54,8 @@ export const renderTypstInvoice = async ({
     pageSize: 'a4' | 'us-letter'
     includeTax: boolean
     export: 'svg' | 'pdf'
-    typstCompilerUrl?: string
-    typstRendererUrl?: string
+    // typstCompilerUrl?: string
+    // typstRendererUrl?: string
   }
 }) => {
   try {
