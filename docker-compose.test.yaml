@@ -59,6 +59,7 @@ services:
     labels:
       caddy: localhost:3000
       caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.encode: zstd gzip
     volumes:
       - ./jwks/:/app/dist/server/jwks/
     environment:
