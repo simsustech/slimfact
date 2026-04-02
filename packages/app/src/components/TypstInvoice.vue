@@ -71,9 +71,9 @@ const downloadPdf = async () => {
     options: {
       export: 'pdf',
       includeTax: includeTax,
-      pageSize: pageSize,
-      typstCompilerUrl: '/typst/typst_ts_web_compiler_bg.wasm',
-      typstRendererUrl: '/typst/typst_ts_renderer_bg.wasm'
+      pageSize: pageSize
+      // typstCompilerUrl: '/typst/typst_ts_web_compiler_bg.wasm',
+      // typstRendererUrl: '/typst/typst_ts_renderer_bg.wasm'
     }
   })
   if (result.success && result.pdf) {
@@ -86,17 +86,19 @@ defineExpose({
 })
 
 onMounted(async () => {
-  typstTemplate.value = await (await templates[template]).default
+  typstTemplate.value = (await templates[template]).default
   $typst.setCompilerInitOptions({
     beforeBuild: [],
-    getModule: () => '/typst/typst_ts_web_compiler_bg.wasm'
-    // 'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm'
+    getModule: () =>
+      'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm'
+    // '/typst/typst_ts_web_compiler_bg.wasm'
   })
 
   $typst.setRendererInitOptions({
     beforeBuild: [],
-    getModule: () => '/typst/typst_ts_renderer_bg.wasm'
-    // 'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm'
+    getModule: () =>
+      'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm'
+    // '/typst/typst_ts_renderer_bg.wasm'
   })
   readyPromiseResolve()
 })
