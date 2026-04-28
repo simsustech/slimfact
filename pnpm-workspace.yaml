@@ -11,3 +11,6 @@ minimumReleaseAgeExclude:
   - "@modular-api/*"
   - vue
   - "@vue/*"
+  - oidc-provider
+  - typescript-eslint
+  - "@typescript-eslint/*"
