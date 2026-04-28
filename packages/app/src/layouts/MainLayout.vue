@@ -178,7 +178,7 @@
                   </q-item-section>
                   <q-item-section side> </q-item-section>
                 </template>
-                <q-item to="/admin/companies">
+                <q-item to="/admin/settings/companies">
                   <!-- <q-item-section avatar>
                     <q-icon name="store" />
                   </q-item-section> -->
