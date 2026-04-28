@@ -4,6 +4,9 @@
   "private": true,
   "description": "SlimFact App",
   "author": "",
+  "files": [
+    "dist/"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -17,9 +20,6 @@
       "import": "./dist/ssr/server/virtual_vitrify-hooks.mjs"
     }
   },
-  "files": [
-    "dist/"
-  ],
   "scripts": {
     "dev": "vitrify dev",
     "dev:ssr": "vitrify dev -m ssr",
@@ -34,10 +34,10 @@
     "minify:fastify": "vitrify minify ./dist/server",
     "generate:types": "vue-tsc -p tsconfig.types.json",
     "test": "vitrify test",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "format:check": "prettier --check .",
-    "format:write": "prettier --write ."
+    "lint": "oxlint src",
+    "lint:fix": "oxlint src --fix",
+    "format:check": "oxfmt --check .",
+    "format:write": "oxfmt --write ."
   },
   "dependencies": {
     "@fastify/middie": "9.3.2",
@@ -65,8 +65,6 @@
     "@slimfact/shared": "link:../shared",
     "@trpc/client": "11.16.0",
     "@trpc/server": "11.16.0",
-    "@typescript-eslint/eslint-plugin": "8.59.1",
-    "@typescript-eslint/parser": "8.59.1",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-vue": "6.0.6",
     "@vue/reactivity": "3.5.33",
@@ -78,28 +76,23 @@
     "abort-controller": "3.0.0",
     "beasties": "0.4.2",
     "date-holidays": "3.27.0",
-    "eslint": "10.2.1",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.5",
-    "eslint-plugin-prettier-vue": "5.0.0",
-    "eslint-plugin-vue": "10.9.0",
     "fastify": "5.8.5",
     "icon-gen": "5.0.0",
     "kysely": "0.28.16",
     "lionel-oauth-client": "npm:@stefanvh/lionel-oauth-client@^0.7.0",
     "node-fetch": "3.3.2",
     "npm-run-all": "4.1.5",
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0",
     "pinia": "3.0.4",
     "quasar": "2.19.3",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.59.1",
     "unocss": "66.6.8",
     "unocss-preset-quasar": "0.2.13",
     "vite": "8.0.10",
     "vite-plugin-pwa": "1.2.0",
     "vitrify": "0.26.3",
     "vue": "3.5.33",
-    "vue-eslint-parser": "10.4.0",
     "vue-router": "5.0.6",
     "vue-tsc": "3.2.7",
     "workbox-window": "7.4.0",
