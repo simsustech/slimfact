@@ -15,9 +15,55 @@ export const createPeppolInvoice = ({
   customer
 }: {
   invoice: Invoice
-  supplier: Peppol
-  customer: Peppol
-}) => `
+  supplier?: Peppol
+  customer?: Peppol
+}) => {
+  const cacPartyName = invoice.companyDetails?.name
+    ? `<cac:PartyName>
+        <cbc:Name>
+              ${invoice.companyDetails.name}
+        </cbc:Name>
+      </cac:PartyName>`
+    : ''
+
+  const cacProjectReference = invoice.projectId
+    ? `    <cac:ProjectReference>
+    <cbc:ID>${invoice.projectId ?? ''}</cbc:ID>
+    </cac:ProjectReference>`
+    : ''
+
+  const accountingSupplierPartyCbcEndPointId = supplier?.endPointId
+    ? `<cbc:EndpointID schemeID="0088">${supplier.endPointId}</cbc:EndpointID>`
+    : ''
+
+  const accountingCustomerPartyCbcEndPointId = customer?.endPointId
+    ? `<cbc:EndpointID schemeID="0002">${customer?.endPointId}</cbc:EndpointID>`
+    : ''
+
+  const cbcNote = invoice.notes ? `<cbc:Note>${invoice.notes}</cbc:Note>` : ''
+
+  const clientCbcCompanyId = invoice.clientDetails.cocNumber
+    ? `<cbc:CompanyID schemeID="0183">${invoice.clientDetails.cocNumber}</cbc:CompanyID>`
+    : ''
+
+  const companyCbcContactName = invoice.companyDetails.contactPersonName
+    ? `<cbc:Name>${invoice.companyDetails.contactPersonName ?? ''}</cbc:Name>`
+    : ''
+
+  const clientCbcContactName = invoice.clientDetails.contactPersonName
+    ? `<cbc:Name>${invoice.clientDetails.contactPersonName ?? ''}</cbc:Name>`
+    : ''
+
+  const clientCacPartyTaxScheme = invoice.clientDetails.vatIdNumber
+    ? `<cac:PartyTaxScheme>
+                <cbc:CompanyID>${invoice.clientDetails.vatIdNumber}</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>`
+    : ''
+
+  return `
 <?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
@@ -29,12 +75,15 @@ export const createPeppolInvoice = ({
     <cbc:DueDate>${invoice.dueDate}</cbc:DueDate>
     <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
     <cbc:DocumentCurrencyCode>${invoice.currency}</cbc:DocumentCurrencyCode>
-    <cac:ProjectReference>
-    <cbc:ID>${invoice.projectId ?? ''}</cbc:ID>
-    </cac:ProjectReference>
+    ${cacProjectReference}
+
+    <cbc:BuyerReference>
+      ${invoice.numberPrefix}${invoice.number}
+    </cbc:BuyerReference>
     <cac:AccountingSupplierParty>
         <cac:Party>
-            <cbc:EndpointID schemeID="0088">${supplier.endPointId}</cbc:EndpointID>
+          ${accountingSupplierPartyCbcEndPointId}
+          ${cacPartyName}
             <cac:PostalAddress>
                 <cbc:StreetName>${invoice.companyDetails.address}</cbc:StreetName>
                 <cbc:CityName>${invoice.companyDetails.city}</cbc:CityName>
@@ -54,15 +103,15 @@ export const createPeppolInvoice = ({
                 <cbc:CompanyID>${invoice.companyDetails.cocNumber}</cbc:CompanyID>
             </cac:PartyLegalEntity>
             <cac:Contact>
-                <cbc:Name>${invoice.companyDetails.contactPersonName ?? ''}</cbc:Name>
-                <cbc:ElectronicMail>${invoice.companyDetails.email}</cbc:ElectronicMail>
+              ${companyCbcContactName}
+              <cbc:ElectronicMail>${invoice.companyDetails.email}</cbc:ElectronicMail>
             </cac:Contact>
         </cac:Party>
     </cac:AccountingSupplierParty>
     <cac:AccountingCustomerParty>
         <cac:Party>
-            <cbc:EndpointID schemeID="0002">${customer.endPointId}</cbc:EndpointID>
-            <cac:PostalAddress>
+          ${accountingCustomerPartyCbcEndPointId}
+          <cac:PostalAddress>
                 <cbc:StreetName>${invoice.clientDetails.address}</cbc:StreetName>
                 <cbc:CityName>${invoice.clientDetails.city}</cbc:CityName>
                 <cbc:PostalZone>${invoice.clientDetails.postalCode}</cbc:PostalZone>
@@ -70,19 +119,14 @@ export const createPeppolInvoice = ({
                     <cbc:IdentificationCode>${invoice.clientDetails.country}</cbc:IdentificationCode>
                 </cac:Country>
             </cac:PostalAddress>
-            <cac:PartyTaxScheme>
-                <cbc:CompanyID>${invoice.clientDetails.vatIdNumber}</cbc:CompanyID>
-                <cac:TaxScheme>
-                    <cbc:ID>VAT</cbc:ID>
-                </cac:TaxScheme>
-            </cac:PartyTaxScheme>
+            ${clientCacPartyTaxScheme}
             <cac:PartyLegalEntity>
                 <cbc:RegistrationName>${invoice.clientDetails.companyName}</cbc:RegistrationName>
-                <cbc:CompanyID schemeID="0183">${invoice.clientDetails.cocNumber ?? ''}</cbc:CompanyID>
-            </cac:PartyLegalEntity>
+                ${clientCbcCompanyId}
+                </cac:PartyLegalEntity>
             <cac:Contact>
-                <cbc:Name>${invoice.clientDetails.contactPersonName ?? ''}</cbc:Name>
-                <cbc:ElectronicMail>${invoice.clientDetails.email}</cbc:ElectronicMail>
+              ${clientCbcContactName}
+              <cbc:ElectronicMail>${invoice.clientDetails.email}</cbc:ElectronicMail>
             </cac:Contact>
         </cac:Party>
     </cac:AccountingCustomerParty>
@@ -101,29 +145,28 @@ export const createPeppolInvoice = ({
     <cac:PaymentTerms>
         <cbc:Note>Payment before ${invoice.dueDate}.</cbc:Note>
     </cac:PaymentTerms>
-    ${formatSurcharges({ surcharges: invoice.surcharges, currency: invoice.currency })}
-    ${formatDiscounts({ discounts: invoice.discounts, currency: invoice.currency })}
 
-    ${formatInvoiceLines({ lines: invoice.lines, currency: invoice.currency })}
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="${invoice.currency}">${formatAmount(invoice.taxSummary.reduce((acc, cur) => (acc += cur.tax), 0))}</cbc:TaxAmount>
+      ${formatTaxSubTotals({ taxSummary: invoice.taxSummary, currency: invoice.currency, lines: invoice.lines, discounts: invoice.discounts || [], surcharges: invoice.surcharges || [] })}
+    </cac:TaxTotal>
 
     <cac:LegalMonetaryTotal>
         <cbc:LineExtensionAmount currencyID="${invoice.currency}">${formatAmount(invoice.lines?.reduce((acc, cur) => (acc += cur.discountedLinePriceExcludingTax), 0))}</cbc:LineExtensionAmount>
         <cbc:TaxExclusiveAmount currencyID="${invoice.currency}">${formatAmount(invoice.totalExcludingTax)}</cbc:TaxExclusiveAmount>
         <cbc:TaxInclusiveAmount currencyID="${invoice.currency}">${formatAmount(invoice.totalIncludingTax)}</cbc:TaxInclusiveAmount>
-        <cbc:ChargeTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.surcharges?.reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0))}</cbc:ChargeTotalAmount>
         <cbc:AllowanceTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.discounts?.reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0))}</cbc:AllowanceTotalAmount>
+        <cbc:ChargeTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.surcharges?.reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0))}</cbc:ChargeTotalAmount>
         <cbc:PrepaidAmount currencyID="${invoice.currency}">${formatAmount(invoice.amountPaid)}</cbc:PrepaidAmount>
         <cbc:PayableAmount currencyID="${invoice.currency}">${formatAmount(invoice.amountDue)}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
 
-    <cac:TaxTotal>
-        <cbc:TaxAmount currencyID="${invoice.currency}">${formatAmount(invoice.taxSummary.reduce((acc, cur) => (acc += cur.tax), 0))}</cbc:TaxAmount>
-        ${formatTaxSubTotals({ taxSummary: invoice.taxSummary, currency: invoice.currency, lines: invoice.lines, discounts: invoice.discounts || [], surcharges: invoice.surcharges || [] })}
-    </cac:TaxTotal>
-
-    <cbc:Note>${invoice.notes || ''}</cbc:Note>
-
+    ${formatSurcharges({ surcharges: invoice.surcharges, currency: invoice.currency })}
+    ${formatDiscounts({ discounts: invoice.discounts, currency: invoice.currency })}
+    ${formatInvoiceLines({ lines: invoice.lines, currency: invoice.currency })}
+    ${cbcNote}
 </Invoice>`
+}
 
 const formatSurcharges = ({
   surcharges,
@@ -140,7 +183,7 @@ const formatSurcharges = ({
             <cbc:AllowanceChargeReason>${surcharge.description}</cbc:AllowanceChargeReason>
             <cbc:Amount currencyID="${currency}">${formatAmount(surcharge.listPriceExcludingTax)}</cbc:Amount>
             <cac:TaxCategory>
-                <cbc:ID>${surcharge.taxRate}</cbc:ID>
+                <cbc:ID>${surcharge.taxRate ? 'S' : 'E'}</cbc:ID>
                 <cbc:Percent>${surcharge.taxRate}</cbc:Percent>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
@@ -165,7 +208,7 @@ const formatDiscounts = ({
               <cbc:AllowanceChargeReason>${discount.description}</cbc:AllowanceChargeReason>
               <cbc:Amount currencyID="${currency}">${formatAmount(discount.listPriceExcludingTax)}</cbc:Amount>
               <cac:TaxCategory>
-                  <cbc:ID>${discount.taxRate}</cbc:ID>
+                <cbc:ID>${discount.taxRate ? 'S' : 'E'}</cbc:ID>
                   <cbc:Percent>${discount.taxRate}</cbc:Percent>
                   <cac:TaxScheme>
                       <cbc:ID>VAT</cbc:ID>
@@ -186,15 +229,15 @@ const formatInvoiceLines = ({
     (line, index) => `
 <cac:InvoiceLine>
     <cbc:ID>${index}</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="H87">${line.quantity}</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="${currency}">${formatAmount(line.discountedLinePriceIncludingTax)}</cbc:LineExtensionAmount>
+    <cbc:InvoicedQuantity unitCode="H87">${line.quantityPerMille ? line.quantity / 1000 : line.quantity}</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="${currency}">${formatAmount(line.discountedLinePriceExcludingTax)}</cbc:LineExtensionAmount>
     <cac:OrderLineReference>
         <cbc:LineID>123</cbc:LineID>
     </cac:OrderLineReference>
     <cac:Item>
-        <cbc:Description>${line.description}</cbc:Description>
+        <cbc:Name>${line.description}</cbc:Name>
         <cac:ClassifiedTaxCategory>
-            <cbc:ID>${line.taxRate}</cbc:ID>
+            <cbc:ID>${line.taxRate ? 'S' : 'E'}</cbc:ID>
             <cbc:Percent>${line.taxRate}</cbc:Percent>
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
@@ -202,11 +245,11 @@ const formatInvoiceLines = ({
         </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-        <cbc:PriceAmount currencyID="${currency}">${formatAmount(line.listPrice)}</cbc:PriceAmount>
+        <cbc:PriceAmount currencyID="${currency}">${formatAmount(line.discountedLinePriceExcludingTax)}</cbc:PriceAmount>
          <cac:AllowanceCharge>
             <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-            <cbc:Amount>${formatAmount(line.discountIncludingTax)}</cbc:Amount>
-            <cbc:BaseAmount>${formatAmount(line.discountExcludingTax)}</cbc:BaseAmount>
+            <cbc:Amount currencyID="${currency}">${formatAmount(line.discountExcludingTax)}</cbc:Amount>
+            <cbc:BaseAmount currencyID="${currency}">${formatAmount(line.listPriceExcludingTax)}</cbc:BaseAmount>
         </cac:AllowanceCharge>
     </cac:Price>
 </cac:InvoiceLine>
@@ -239,7 +282,7 @@ const formatTaxSubTotals = ({
             )}</cbc:TaxableAmount>
             <cbc:TaxAmount currencyID="${currency}">${formatAmount(tax.tax)}</cbc:TaxAmount>
             <cac:TaxCategory>
-                <cbc:ID>${tax.taxRate}</cbc:ID>
+                <cbc:ID>${tax.taxRate ? 'S' : 'E'}</cbc:ID>
                 <cbc:Percent>${tax.taxRate.toFixed(1)}</cbc:Percent>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
