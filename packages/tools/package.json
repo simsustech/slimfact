@@ -45,11 +45,11 @@
     "format:write": "oxfmt --write ."
   },
   "dependencies": {
-    "@modular-api/fastify-checkout": "^0.5.12",
+    "@modular-api/fastify-checkout": "^0.5.14",
     "@myriaddreamin/typst-ts-renderer": "0.7.0-rc2",
     "@rgrove/parse-xml": "^4.2.0",
     "export-to-csv": "^1.4.0",
-    "fast-xml-parser": "^5.7.2",
+    "fast-xml-parser": "^5.8.0",
     "handlebars": "^4.7.9",
     "ibantools": "^4.5.4"
   },
@@ -57,17 +57,17 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0-rc2",
     "@myriaddreamin/typst.ts": "0.7.0-rc2",
     "@types/iban": "^0.0.35",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.7.0",
     "csv-parse": "^6.2.1",
-    "eslint": "10.2.1",
+    "eslint": "10.3.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-vue": "10.9.0",
-    "kysely": "0.28.16",
-    "oxfmt": "^0.46.0",
-    "oxlint": "^1.61.0",
+    "eslint-plugin-vue": "10.9.1",
+    "kysely": "0.29.0",
+    "oxfmt": "^0.49.0",
+    "oxlint": "^1.64.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.1",
+    "typescript-eslint": "^8.59.3",
     "vue-eslint-parser": "^10.4.0"
   }
 }
