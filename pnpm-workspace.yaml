@@ -14,3 +14,16 @@ minimumReleaseAgeExclude:
   - oidc-provider
   - typescript-eslint
   - "@typescript-eslint/*"
+  - vite
+  - oxfmt
+  - "@oxfmt/*"
+  - oxlint
+  - "@oxlint/*"
+  - fast-xml-parser
+  - playwright
+  - playwright-core
+  - "@playwright/*"
+  - "@types/node"
+  - content-type
+  - vitest
+  - "@vitest/*"
