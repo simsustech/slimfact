@@ -53,6 +53,7 @@
         <locale-select
           v-model="modelValue.locale"
           :locales="languageLocales"
+          :label="lang.invoice.fields.locale"
           required
           filled
           class="md:col-span-4 col-span-12"
