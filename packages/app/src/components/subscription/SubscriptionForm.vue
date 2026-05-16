@@ -217,7 +217,7 @@ import {
   type RawInvoiceLine,
   type RawInvoiceSurcharge
 } from '@modular-api/fastify-checkout'
-import { computeNumberPrefix } from 'src/tools.js'
+import { computeNumberPrefix } from '../../tools.js'
 import { languageLocales } from '../../configuration.js'
 
 export interface Props {
@@ -447,7 +447,7 @@ const computedNumberPrefix = computed(() => {
         prefix: company!.prefix
       },
       clientDetails: {
-        number: client!.number
+        number: client?.number ?? ''
       }
     })
   }
