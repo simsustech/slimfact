@@ -244,7 +244,7 @@ import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
 import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
 import ClientForm from '../client/ClientForm.vue'
-import { computeNumberPrefix } from 'src/tools.js'
+import { computeNumberPrefix } from '../../tools.js'
 import { until } from '@vueuse/core'
 import { languageLocales } from '../../configuration.js'
 
@@ -451,7 +451,7 @@ const computedNumberPrefix = computed(() => {
         prefix: company!.prefix
       },
       clientDetails: {
-        number: client!.number
+        number: client?.number ?? ''
       },
       projectId: modelValue.value.projectId
     })
