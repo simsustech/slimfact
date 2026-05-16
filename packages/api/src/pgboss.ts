@@ -162,7 +162,7 @@ export const startSubscription = async ({
     clientId: clientDetails.id,
     status: subscription.type === 'bill' ? InvoiceStatus.BILL : undefined
   }
-  const queueName = `subscription:${subscription.uuid}`
+  const queueName = `subscription.${subscription.uuid}`
 
   if (!(await boss.getQueue(queueName))) {
     await boss.createQueue(queueName)
@@ -184,7 +184,7 @@ export const stopSubscription = async (id: number) => {
     .select('uuid')
     .executeTakeFirstOrThrow()
 
-  const queueName = `subscription:${subscription.uuid}`
+  const queueName = `subscription.${subscription.uuid}`
 
   await boss.unschedule(queueName)
 }
