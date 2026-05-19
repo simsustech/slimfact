@@ -11,10 +11,9 @@ export default defineConfig({
       { text: "Home", link: "/" },
       { text: "Demo", link: "/demo" },
       { text: "Contact", link: "/contact" },
+      { text: "Benchmark", link: "/benchmark" },
     ],
 
-    socialLinks: [
-      { icon: "github", link: "https://github.com/simsustech/slimfact" },
-    ],
+    socialLinks: [{ icon: "github", link: "https://github.com/simsustech/slimfact" }],
   },
 });
