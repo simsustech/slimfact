@@ -4,9 +4,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "engines": {
-    "node": ">=24.0.0"
-  },
   "scripts": {
     "build": "run-s build:tools build:app build:api",
     "build:app": "cd packages/app && pnpm run build:ssr",
@@ -45,5 +42,8 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm run lint && pnpm run format:check",
     "commit-msg": "pnpm exec commitlint --edit $1"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }
