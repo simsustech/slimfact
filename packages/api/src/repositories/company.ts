@@ -48,7 +48,11 @@ function find({
 
   if (criteria.name) {
     query = query.where((eb) =>
-      eb(eb.fn('lower', ['name']), 'like', `%${criteria.name?.toLowerCase()}%`)
+      eb(
+        eb.fn('lower', ['name']),
+        'like',
+        eb.val(`%${criteria.name?.toLowerCase()}%`)
+      )
     )
   }
 
