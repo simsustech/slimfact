@@ -259,15 +259,15 @@ import { initializeTRPCClient, trpc } from '../trpc.js'
 import {
   usePublicPayDownPaymentWithIdealMutation,
   usePublicPayWithIdealMutation
-} from 'src/queries/public/invoices.js'
-import { useAdminRefundInvoiceMutation } from 'src/queries/admin/invoices.js'
+} from '../queries/public/invoices.js'
+import { useAdminRefundInvoiceMutation } from '../queries/admin/invoices.js'
 import {
   loadLang as loadFormLang,
   Locales
 } from '@simsustech/quasar-components/form'
 import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/checkout'
 import { loadLang as loadGeneralLang } from '@simsustech/quasar-components'
-import { useAccountInvoiceEventEmailOpenedMutation } from 'src/mutations/account/invoiceEvent.js'
+import { useAccountInvoiceEventEmailOpenedMutation } from '../mutations/account/invoiceEvent.js'
 import TypstInvoice from '../components/TypstInvoice.vue'
 import { createUblInvoice } from '@slimfact/tools/ubl'
 import { getFilename } from '@slimfact/tools/typst'
@@ -395,7 +395,9 @@ const payWithIdeal = async () => {
     const result = await payWithIdealMutation(uuid.value)
 
     if (result) window.location.href = result
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 const payDownPaymentWithIdeal = async () => {
@@ -403,7 +405,9 @@ const payDownPaymentWithIdeal = async () => {
     const result = await payDownPaymentWithIdealMutation(uuid.value)
 
     if (result) window.location.href = result
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 const refund = async () => {
