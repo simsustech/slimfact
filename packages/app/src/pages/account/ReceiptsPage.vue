@@ -22,7 +22,7 @@ export default {
 import { ref, onMounted } from 'vue'
 // import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
 import InvoiceItem from '../../components/invoice/InvoiceItem.vue'
-import { useAccountGetReceiptsQuery } from 'src/queries/account/receipts.js'
+import { useAccountGetReceiptsQuery } from '../../queries/account/receipts.js'
 
 const { receipts, refetch } = useAccountGetReceiptsQuery()
 

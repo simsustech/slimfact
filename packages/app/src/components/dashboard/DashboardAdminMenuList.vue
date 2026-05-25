@@ -63,7 +63,7 @@ import {
   RECEIPT_ICON,
   SETTINGS_ICON,
   SUBSCRIPTION_ICON
-} from 'src/configuration.js'
+} from '../../configuration.js'
 import { useLang } from '../../lang/index.js'
 
 const lang = useLang()

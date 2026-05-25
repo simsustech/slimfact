@@ -52,7 +52,7 @@ import {
   EXPORT_ICON,
   INITIAL_NUMBER_FOR_PREFIX_ICON,
   NUMBER_PREFIX_ICON
-} from 'src/configuration.js'
+} from '../../configuration.js'
 import { useLang } from '../../lang/index.js'
 
 const lang = useLang()

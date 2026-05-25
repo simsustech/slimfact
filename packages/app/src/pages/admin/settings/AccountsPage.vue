@@ -33,9 +33,9 @@ import {
   useAdminAddRoleMutation,
   useAdminGetAccountsQuery,
   useAdminRemoveRoleMutation
-} from 'src/queries/admin/accounts.js'
+} from '../../../queries/admin/accounts.js'
 import { useQuery } from '@pinia/colada'
-import { trpc } from 'src/trpc.js'
+import { trpc } from '../../../trpc.js'
 
 const lang = useLang()
 

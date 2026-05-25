@@ -7,5 +7,5 @@
 </template>
 
 <script setup lang="ts">
-import DashboardAdminMenuList from 'src/components/dashboard/DashboardAdminMenuList.vue'
+import DashboardAdminMenuList from '../components/dashboard/DashboardAdminMenuList.vue'
 </script>

@@ -56,8 +56,8 @@ import {
   useAdminCreateCompanyMutation,
   useAdminGetCompaniesQuery,
   useAdminUpdateCompanyMutation
-} from 'src/queries/admin/companies.js'
-import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
+} from '../../../../queries/admin/companies.js'
+import { useAdminGetNumberPrefixesQuery } from '../../../../queries/admin/numberPrefixes.js'
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
