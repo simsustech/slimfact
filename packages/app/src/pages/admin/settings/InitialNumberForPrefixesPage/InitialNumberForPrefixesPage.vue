@@ -56,8 +56,8 @@ import {
   useAdminCreateInitialNumberForPrefixMutation,
   useAdminGetInitialNumberForPrefixesQuery,
   useAdminUpdateInitialNumberForPrefixMutation
-} from 'src/queries/admin/numberPrefixes'
-import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies'
+} from '../../../../queries/admin/numberPrefixes.js'
+import { useAdminSearchCompaniesQuery } from '../../../../queries/admin/companies.js'
 import { EventBus } from 'quasar'
 
 const bus = inject<EventBus>('bus')!

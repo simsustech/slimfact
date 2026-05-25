@@ -276,11 +276,15 @@ import { loadLang as loadCheckoutLang } from '@modular-api/quasar-components/che
 import { useOAuthClient, userRouteKey, user, oAuthClient } from '../oauth.js'
 import { useRoute, useRouter } from 'vue-router'
 import { useLang, loadLang } from '../lang/index.js'
-import { useConfiguration, loadConfiguration } from '../configuration'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
 import NavigationTabs from './NavigationTabs.vue'
-import { initializeTRPCClient } from 'src/trpc.js'
-import { languageLocales, languageImports } from '../configuration.js'
+import { initializeTRPCClient } from '../trpc.js'
+import {
+  languageLocales,
+  languageImports,
+  useConfiguration,
+  loadConfiguration
+} from '../configuration.js'
 
 const $q = useQuasar()
 

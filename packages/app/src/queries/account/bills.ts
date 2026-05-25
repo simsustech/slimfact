@@ -1,5 +1,5 @@
 import { defineQuery, useQuery } from '@pinia/colada'
-import { trpc } from 'src/trpc'
+import { trpc } from '../../trpc.js'
 
 export const useAccountGetBillsQuery = defineQuery(() => {
   const { data: bills, ...rest } = useQuery({

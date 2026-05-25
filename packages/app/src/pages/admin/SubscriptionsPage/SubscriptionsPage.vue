@@ -116,10 +116,10 @@ import {
   useAdminStartSubscriptionMutation,
   useAdminStopSubscriptionMutation,
   useAdminUpdateSubscriptionMutation
-} from 'src/queries/admin/subscriptions.js'
-import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
-import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
-import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
+} from '../../../queries/admin/subscriptions.js'
+import { useAdminSearchClientsQuery } from '../../../queries/admin/clients.js'
+import { useAdminSearchCompaniesQuery } from '../../../queries/admin/companies.js'
+import { useAdminGetNumberPrefixesQuery } from '../../../queries/admin/numberPrefixes.js'
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!

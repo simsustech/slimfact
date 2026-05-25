@@ -84,13 +84,13 @@ import { QSelect } from 'quasar'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 
 import { useAdminGetReceiptsQuery } from '../../queries/admin/receipts.js'
-import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
-import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
+import { useAdminSearchCompaniesQuery } from '../../queries/admin/companies.js'
+import { useAdminSearchClientsQuery } from '../../queries/admin/clients.js'
 import {
   useAdminGetInvoiceEmailQuery,
   useAdminSendInvoiceMutation,
   useAdminSendReceiptMutation
-} from 'src/queries/admin/email.js'
+} from '../../queries/admin/email.js'
 
 const route = useRoute()
 

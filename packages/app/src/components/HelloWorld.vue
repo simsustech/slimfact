@@ -17,5 +17,5 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import logo from 'src/assets/quasar-logo-vertical.svg'
+import logo from '../assets/quasar-logo-vertical.svg'
 </script>

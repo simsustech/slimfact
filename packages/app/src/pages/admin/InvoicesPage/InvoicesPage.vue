@@ -136,17 +136,17 @@ import {
   useAdminCreateInvoiceMutation,
   useAdminGetInvoicesQuery,
   useAdminUpdateInvoiceMutation
-} from 'src/queries/admin/invoices.js'
-import { useAdminGetNumberPrefixesQuery } from 'src/queries/admin/numberPrefixes.js'
+} from '../../../queries/admin/invoices.js'
+import { useAdminGetNumberPrefixesQuery } from '../../../queries/admin/numberPrefixes.js'
 import {
   useAdminExhortInvoiceMutation,
   useAdminGetInvoiceEmailQuery,
   useAdminRemindInvoiceMutation,
   useAdminSendInvoiceMutation
-} from 'src/queries/admin/email.js'
-import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies.js'
-import { useAdminSearchClientsQuery } from 'src/queries/admin/clients.js'
-import { useAdminGetInvoiceEventsByInvoiceIdsQuery } from 'src/queries/admin/invoiceEvents'
+} from '../../../queries/admin/email.js'
+import { useAdminSearchCompaniesQuery } from '../../../queries/admin/companies.js'
+import { useAdminSearchClientsQuery } from '../../../queries/admin/clients.js'
+import { useAdminGetInvoiceEventsByInvoiceIdsQuery } from '../../../queries/admin/invoiceEvents.js'
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!

@@ -58,11 +58,11 @@
 import { date as dateUtil, exportFile } from 'quasar'
 import { onMounted, ref } from 'vue'
 import CompanySelect from '../../components/company/CompanySelect.vue'
-import InvoiceForm from 'src/components/invoice/InvoiceForm.vue'
+import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
 import { DateInput } from '@simsustech/quasar-components/form'
 import { useQuery } from '@pinia/colada'
 import { trpc } from '../../trpc.js'
-import { useAdminSearchCompaniesQuery } from 'src/queries/admin/companies'
+import { useAdminSearchCompaniesQuery } from '../../queries/admin/companies.js'
 import { useLang } from '../../lang/index.js'
 
 const lang = useLang()

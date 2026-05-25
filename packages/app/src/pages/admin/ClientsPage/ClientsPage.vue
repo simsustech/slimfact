@@ -93,8 +93,8 @@ import {
   useAdminCreateClientMutation,
   useAdminSearchClientsQuery,
   useAdminUpdateClientMutation
-} from 'src/queries/admin/clients.js'
-import { useAdminSearchAccountsQuery } from 'src/queries/admin/accounts.js'
+} from '../../../queries/admin/clients.js'
+import { useAdminSearchAccountsQuery } from '../../../queries/admin/accounts.js'
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!

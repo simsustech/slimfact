@@ -53,7 +53,7 @@ import {
   useAdminCreateNumberPrefixMutation,
   useAdminGetNumberPrefixesQuery,
   useAdminUpdateNumberPrefixMutation
-} from 'src/queries/admin/numberPrefixes.js'
+} from '../../../../queries/admin/numberPrefixes.js'
 
 const bus = inject<EventBus>('bus')!
 bus.on('administrator-settings-open-number-prefixes-create-dialog', () => {
