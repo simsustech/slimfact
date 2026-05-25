@@ -49,12 +49,12 @@ function find({
         eb(
           eb.fn('lower', ['clients.companyName']),
           'like',
-          `%${criteria.name?.toLowerCase()}%`
+          eb.val(`%${criteria.name?.toLowerCase()}%`)
         ),
         eb(
           eb.fn('lower', ['clients.contactPersonName']),
           'like',
-          `%${criteria.name?.toLowerCase()}%`
+          eb.val(`%${criteria.name?.toLowerCase()}%`)
         )
       ])
     )
