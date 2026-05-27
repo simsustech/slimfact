@@ -9,27 +9,9 @@ minimumReleaseAgeExclude:
   - "@vitrify/*"
   - vitrify
   - "@simsustech/quasar-components"
-  - vue-router
   - "@modular-api/*"
-  - vue
-  - "@vue/*"
-  - oidc-provider
-  - typescript-eslint
-  - "@typescript-eslint/*"
-  - vite
-  - oxfmt
-  - "@oxfmt/*"
-  - oxlint
-  - "@oxlint/*"
-  - fast-xml-parser
-  - playwright
-  - playwright-core
-  - "@playwright/*"
-  - "@types/node"
-  - content-type
-  - vitest
-  - "@vitest/*"
-  - kysely
+  - date-holidays
+  - nodemailer
 
 allowBuilds:
   "@parcel/watcher": true
