@@ -79,12 +79,7 @@ services:
       OTP_SECRET_FILE: nonsecure
       OTP_VALIDITY_SECONDS: 3600
       EMAIL_FOOTER: "SlimFact staging"
-    command:
-      [
-        "sh",
-        "-c",
-        "npm run migrate:latest && npm run seed:test && npm run start",
-      ]
+    command: ["sh", "-c", "npm run migrate:latest && npm run seed:test && npm run start"]
     healthcheck:
       test: curl --fail --insecure http://localhost || exit 1
       interval: 5s
