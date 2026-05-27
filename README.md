@@ -50,7 +50,10 @@ nano -L env/POSTGRES_PASSWORD # Enter postgress password
 nano -L env/OTP_SECRET  # Enter OTP secret, use openssl rand -base64 32
 nano -L env/OIDC_COOKIES_KEYS # Enter OIDC cookies keys, use openssl rand -base64 32, comma separated
 docker compose up
+docker exec -it slimfact-database-1 /bin/sh
+MODULARAPI_ADMIN_PASSWORD=yourpassword npm run seed:data
 ```
+You can now login with `admin@slimfact.app / yourpassword`.
 
 ## Developers
 
