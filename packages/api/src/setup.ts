@@ -286,6 +286,14 @@ export default async function (fastify: FastifyInstance) {
             return 14 * 24 * 60 * 60
           }
         }
+      },
+      defaultCredentials: {
+        email:
+          env.read('MODULARAPI_DEFAULT_EMAIL') ||
+          env.read('VITE_MODULARAPI_DEFAULT_EMAIL'),
+        password:
+          env.read('MODULARAPI_DEFAULT_PASSWORD') ||
+          env.read('VITE_MODULARAPI_DEFAULT_PASSWORD')
       }
     },
     nodemailer: {
