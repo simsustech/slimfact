@@ -1,6 +1,7 @@
 import { Ref, ref } from 'vue'
 import { Loading } from 'quasar'
 import { useLang } from './lang/index.js'
+import { Locales } from '@simsustech/quasar-components/form'
 
 const lang = useLang()
 
@@ -100,6 +101,10 @@ export const languageLocales = ref([
   {
     icon: 'i-flagpack-us',
     bcp47: 'en-US'
+  },
+  {
+    icon: 'i-flagpack-de',
+    bcp47: 'de-DE'
   }
 ])
 
@@ -115,10 +120,21 @@ export const countryOptions = ref([
   {
     icon: 'i-flagpack-us',
     iso3166: 'US'
+  },
+  {
+    icon: 'i-flagpack-de',
+    iso3166: 'DE'
   }
 ])
 
 export const languageImports = ref({
   nl: () => import(`quasar/lang/nl.js`),
-  'en-US': () => import(`quasar/lang/en-US.js`)
+  'en-US': () => import(`quasar/lang/en-US.js`),
+  de: () => import('quasar/lang/de.js')
 })
+
+export const quasarLanguageMap: Partial<Record<Locales, string>> = {
+  'en-US': 'en-US',
+  'nl-NL': 'nl',
+  'de-DE': 'de'
+}

@@ -26,7 +26,8 @@
             </q-item>
 
             <q-language-select
-              v-model="locale"
+              :model-value="locale"
+              @update:model-value="updateLocale"
               :language-imports="languageImports"
               :locales="languageLocales"
               is-item
@@ -283,20 +284,21 @@ import {
   languageLocales,
   languageImports,
   useConfiguration,
-  loadConfiguration
+  loadConfiguration,
+  quasarLanguageMap
 } from '../configuration.js'
 
 const $q = useQuasar()
 
-const quasarLanguageMap: Partial<Record<Locales, string>> = {
-  'en-US': 'en-US',
-  'nl-NL': 'nl'
+const locale = ref<Locales>($q.lang.isoName as Locales)
+const updateLocale = (val: Locales) => {
+  locale.value = val
+  $q.localStorage.set('locale', val)
 }
-const locale = ref<Locales>('en-US')
 
-watch(locale, (newVal) => {
+watch(locale, (newVal, oldVal) => {
   const quasarLang = quasarLanguageMap[newVal]
-  if (quasarLang) {
+  if (quasarLang && newVal !== oldVal) {
     loadLang(quasarLang)
     loadFormLang(quasarLang)
     loadCheckoutLang(quasarLang)
@@ -353,6 +355,9 @@ onMounted(async () => {
   if (__IS_PWA__) {
     await import('../pwa.js')
   }
+  if ($q.localStorage.getItem('locale'))
+    locale.value = $q.localStorage.getItem('locale') as Locales
+
   await useOAuthClient()
   await oAuthClient.value?.getUserInfo()
 
