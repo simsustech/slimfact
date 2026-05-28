@@ -251,7 +251,8 @@ import Price from '../components/Price.vue'
 import {
   loadConfiguration,
   useConfiguration,
-  languageImports
+  languageImports,
+  quasarLanguageMap
 } from '../configuration.js'
 import { useOAuthClient, user, oAuthClient } from '../oauth.js'
 import { useQuery } from '@pinia/colada'
@@ -274,10 +275,6 @@ import { getFilename } from '@slimfact/tools/typst'
 
 const $q = useQuasar()
 const lang = useLang()
-const quasarLanguageMap: Partial<Record<Locales, string>> = {
-  'en-US': 'en-US',
-  'nl-NL': 'nl'
-}
 const locale = ref<Locales>('en-US')
 watch(locale, (newVal) => {
   const quasarLang = quasarLanguageMap[newVal]

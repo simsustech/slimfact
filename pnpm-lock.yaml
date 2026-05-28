@@ -52,14 +52,14 @@ importers:
         specifier: 9.1.3
         version: 9.1.3
       '@modular-api/api':
-        specifier: 0.6.28
-        version: 0.6.28(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(openid-client@6.8.4)(otplib@13.4.0)(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))
+        specifier: 0.6.30
+        version: 0.6.30(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(openid-client@6.8.4)(otplib@13.4.0)(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))
       '@modular-api/fastify-checkout':
         specifier: 0.5.17
         version: 0.5.17(kysely@0.29.2)
       '@modular-api/fastify-oidc':
-        specifier: 0.9.22
-        version: 0.9.22(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(otplib@13.4.0)(typescript@6.0.3)
+        specifier: 0.9.24
+        version: 0.9.24(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(otplib@13.4.0)(typescript@6.0.3)
       '@mollie/api-client':
         specifier: 4.5.0
         version: 4.5.0
@@ -255,8 +255,8 @@ importers:
         specifier: 0.5.17
         version: 0.5.17(kysely@0.29.2)
       '@modular-api/quasar-components':
-        specifier: 0.3.37
-        version: 0.3.37(quasar@2.19.3)
+        specifier: 0.3.38
+        version: 0.3.38(quasar@2.19.3)
       '@myriaddreamin/typst-ts-renderer':
         specifier: 0.7.0-rc2
         version: 0.7.0-rc2
@@ -279,8 +279,8 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       '@simsustech/quasar-components':
-        specifier: 0.12.0
-        version: 0.12.0(quasar@2.19.3)(vue@3.5.34(typescript@6.0.3))
+        specifier: 0.12.2
+        version: 0.12.2(quasar@2.19.3)(vue@3.5.34(typescript@6.0.3))
       '@slimfact/api':
         specifier: link:../api
         version: link:../api
@@ -1708,8 +1708,8 @@ packages:
   '@material/material-color-utilities@0.3.0':
     resolution: {integrity: sha512-ztmtTd6xwnuh2/xu+Vb01btgV8SQWYCaK56CkRK8gEkWe5TuDyBcYJ0wgkMRn+2VcE9KUmhvkz+N9GHrqw/C0g==}
 
-  '@modular-api/api@0.6.28':
-    resolution: {integrity: sha512-w4C9R3E62bZek2h0HYZ0KVx2J4U+YrE9FvQjrEWlPWIddPaqAuz5rdh3o2kIJ3G4zVs9F0gRvoi7+9klEVE21g==}
+  '@modular-api/api@0.6.30':
+    resolution: {integrity: sha512-xkI5FR/d6Y/jK2jqHCAjL/TCqDFyDtm4S6KnGPonyDgN/Io1Oi7x4w4NP3D4WW6WjRB7WGvveECII0/RwqIZZQ==}
     peerDependencies:
       kysely: ^0.29.2
       openid-client: ^6.8.4
@@ -1724,22 +1724,22 @@ packages:
     peerDependencies:
       kysely: ^0.29.2
 
-  '@modular-api/fastify-oidc@0.9.22':
-    resolution: {integrity: sha512-mOacnFpoVhuIGSi6p5wJqYCG5e7+U924X1YyxKixvAaVD01YlgN6yrr2mopnVzSi0XUIA0yaOGArutOzWaMPfw==}
+  '@modular-api/fastify-oidc@0.9.24':
+    resolution: {integrity: sha512-4mMuY+sEKcJVcRSGxnHB/TbN4c8rnb06yalx9Yg+f7dT589/hnTmlxOzuzIyZ7CO/w362PowaI2M2BxmfoSz+g==}
     peerDependencies:
       bcryptjs: ^3.0.3
       handlebars: ^4.7.9
-      kysely: ^0.29.0
+      kysely: ^0.29.2
       otplib: ^13.4.0
 
-  '@modular-api/oidc-interactions@0.7.18':
-    resolution: {integrity: sha512-plREvFjdLfESU1xj29j5XatqboMNYeK8Vicn76FwPqfsMfTYj1tYgsO+ev+73wASVz/I5hBAUJDXtp6BKabVCA==}
+  '@modular-api/oidc-interactions@0.7.20':
+    resolution: {integrity: sha512-aVt5VEhIzqfJHD5iHeoI4JNLaRa/hTAVfjcybpLprtgK7N43tLBcmnHFHqmKJ0efUFgHMcpUk3qftOme7TOkbA==}
     peerDependencies:
       '@fastify/static': ^9.1.3
       fastify: ^5.8.5
 
-  '@modular-api/quasar-components@0.3.37':
-    resolution: {integrity: sha512-Q3k8UqHCahxyfFoeuOS83aBDaO5B4MbQlhT8EpiE+KQvzWCY/20vo+hmGjFOyHNlZn2c0yVSUql2w5zE+f3XHw==}
+  '@modular-api/quasar-components@0.3.38':
+    resolution: {integrity: sha512-LC2GqHfC/RbPDZ1pxDtXspJdgasEB2v5ZD9IwTLLntynbjOEvHiqGjzeFWy6nCxqkmUExqs/1/RSrNS6xApHlQ==}
     peerDependencies:
       quasar: ^2.19.3
 
@@ -3283,10 +3283,10 @@ packages:
     resolution: {integrity: sha512-KxXvfapcixpz6rVEB6HPjOUZT22yN6v0vI0urQSk1L8MlEWPDFCZkhw2xmkyoTGYeFw7tWTZd7e3lVzRZRN/EA==}
     engines: {node: '>=18'}
 
-  '@simsustech/quasar-components@0.12.0':
-    resolution: {integrity: sha512-f5PQ3NezHRyA21ppHnjJWXcya9JWSqaGYekyo0FroltzMbDStRT+UCEckJx8cYfWq0Bni8Qfh+G+2lXruPQIrg==}
+  '@simsustech/quasar-components@0.12.2':
+    resolution: {integrity: sha512-Ed6SNtQCBvsloH+gRFyyjXMKN7DINIp7eCGd2NRN5xnsXUdv96tnxdzbhpL2KC1Xhxi574tH6Pc8fpII4TAG+w==}
     peerDependencies:
-      quasar: ^2.18.6
+      quasar: ^2.19.3
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -9496,7 +9496,7 @@ snapshots:
 
   '@material/material-color-utilities@0.3.0': {}
 
-  '@modular-api/api@0.6.28(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(openid-client@6.8.4)(otplib@13.4.0)(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))':
+  '@modular-api/api@0.6.30(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(openid-client@6.8.4)(otplib@13.4.0)(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/cors': 11.2.0
@@ -9505,7 +9505,7 @@ snapshots:
       '@fastify/static': 9.1.3
       '@modular-api/fastify-cart': 0.3.18(kysely@0.29.2)
       '@modular-api/fastify-checkout': 0.5.17(kysely@0.29.2)
-      '@modular-api/fastify-oidc': 0.9.22(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(otplib@13.4.0)(typescript@6.0.3)
+      '@modular-api/fastify-oidc': 0.9.24(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(otplib@13.4.0)(typescript@6.0.3)
       '@trpc/server': 11.17.0(typescript@6.0.3)
       '@types/compression': 1.8.1
       '@types/serve-static': 2.2.0
@@ -9558,11 +9558,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@modular-api/fastify-oidc@0.9.22(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(otplib@13.4.0)(typescript@6.0.3)':
+  '@modular-api/fastify-oidc@0.9.24(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.8.5)(handlebars@4.7.9)(kysely@0.29.2)(otplib@13.4.0)(typescript@6.0.3)':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.3.2
-      '@modular-api/oidc-interactions': 0.7.18(@fastify/static@9.1.3)(fastify@5.8.5)
+      '@modular-api/oidc-interactions': 0.7.20(@fastify/static@9.1.3)(fastify@5.8.5)
       '@vitrify/tools': 0.5.2
       bcryptjs: 3.0.3
       fastify-plugin: 5.1.0
@@ -9578,12 +9578,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@modular-api/oidc-interactions@0.7.18(@fastify/static@9.1.3)(fastify@5.8.5)':
+  '@modular-api/oidc-interactions@0.7.20(@fastify/static@9.1.3)(fastify@5.8.5)':
     dependencies:
       '@fastify/static': 9.1.3
       fastify: 5.8.5
 
-  '@modular-api/quasar-components@0.3.37(quasar@2.19.3)':
+  '@modular-api/quasar-components@0.3.38(quasar@2.19.3)':
     dependencies:
       quasar: 2.19.3
       validator: 13.15.35
@@ -10483,7 +10483,7 @@ snapshots:
 
   '@simple-libs/stream-utils@1.2.0': {}
 
-  '@simsustech/quasar-components@0.12.0(quasar@2.19.3)(vue@3.5.34(typescript@6.0.3))':
+  '@simsustech/quasar-components@0.12.2(quasar@2.19.3)(vue@3.5.34(typescript@6.0.3))':
     dependencies:
       '@vueuse/core': 14.3.0(vue@3.5.34(typescript@6.0.3))
       quasar: 2.19.3
@@ -10539,7 +10539,7 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 25.8.0
+      '@types/node': 25.9.1
 
   '@types/chai@5.2.3':
     dependencies:
@@ -10549,7 +10549,7 @@ snapshots:
   '@types/compression@1.8.1':
     dependencies:
       '@types/express': 5.0.6
-      '@types/node': 25.8.0
+      '@types/node': 25.9.1
 
   '@types/configstore@2.1.1': {}
 
@@ -10576,7 +10576,7 @@ snapshots:
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 25.8.0
+      '@types/node': 25.9.1
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -10694,12 +10694,12 @@ snapshots:
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 25.8.0
+      '@types/node': 25.9.1
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 25.8.0
+      '@types/node': 25.9.1
 
   '@types/tmp@0.0.33': {}
 
