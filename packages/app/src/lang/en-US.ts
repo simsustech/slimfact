@@ -77,7 +77,8 @@ const lang: Language = {
       fieldRequired: 'Field is required'
     },
     helpers: {
-      emailBcc: 'All invoices will be sent as BCC to this address.',
+      emailBcc:
+        'All invoices will be sent as BCC to these addresses, comma separated.',
       prefix: 'The company prefix used in e.g. the invoice number prefix.'
     }
   },

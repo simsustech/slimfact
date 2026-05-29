@@ -77,7 +77,8 @@ const lang: Language = {
       fieldRequired: 'Feld ist ein Pflichtfeld'
     },
     helpers: {
-      emailBcc: 'Alle Rechnungen werden als BCC an diese Adresse gesendet.',
+      emailBcc:
+        'Alle Rechnungen werden als BCC an diese Adressen gesendet, durch Komma getrennt.',
       prefix:
         'Das Unternehmenspräfix, das z. B. als Präfix für die Rechnungsnummer verwendet wird.'
     }
