@@ -10,8 +10,9 @@ minimumReleaseAgeExclude:
   - vitrify
   - "@simsustech/quasar-components"
   - "@modular-api/*"
-  - date-holidays
-  - nodemailer
+  - "@quasar/*"
+  - vue-router
+  - unocss-preset-quasar
 
 allowBuilds:
   "@parcel/watcher": true

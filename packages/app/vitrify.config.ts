@@ -198,7 +198,10 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
             style: MaterialDesign3,
             sourceColor: env.SOURCE_COLOR || env.VITE_SOURCE_COLOR || '#00a4e6',
             plugins: quasarConf['framework']['plugins'],
-            iconSet: quasarConf['framework']['iconSet']
+            iconSet:
+              typeof quasarConf['framework']['iconSet'] === 'object'
+                ? quasarConf['framework']['iconSet']
+                : undefined
           })
         ],
         theme: {},
