@@ -87,14 +87,14 @@ export const renderTypstInvoice = async ({
     if (!typstInitialized) {
       $typst.setCompilerInitOptions({
         beforeBuild: [],
-        getModule: () => '/typst/typst_ts_web_compiler_bg.wasm'
-        // 'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm'
+        getModule: () =>
+          'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm'
       })
 
       $typst.setRendererInitOptions({
         beforeBuild: [],
-        getModule: () => '/typst/typst_ts_renderer_bg.wasm'
-        // 'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm'
+        getModule: () =>
+          'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm'
       })
       typstInitialized = true
     }

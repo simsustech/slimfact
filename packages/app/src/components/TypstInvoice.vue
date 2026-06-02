@@ -46,9 +46,9 @@ watch(
       options: {
         export: 'svg',
         includeTax: includeTax,
-        pageSize: pageSize,
-        typstCompilerUrl: '/typst/typst_ts_web_compiler_bg.wasm',
-        typstRendererUrl: '/typst/typst_ts_renderer_bg.wasm'
+        pageSize: pageSize
+        // typstCompilerUrl: '/typst/typst_ts_web_compiler_bg.wasm',
+        // typstRendererUrl: '/typst/typst_ts_renderer_bg.wasm'
       }
     })
     if (result.success) svg.value = result.svg
