@@ -35,7 +35,8 @@ const formatPrice = ({ value, locale }: { value: number; locale: string }) =>
     currencyDisplay: 'code'
   })
     .format(value / 100)
-    .replace('EUR ', '')
+    .replace('EUR', '')
+    .trim()
 
 export const exportDigibooxInvoices = (invoices: Invoice[]) => {
   const csvConfig = mkConfig({ useKeysAsHeaders: true })
