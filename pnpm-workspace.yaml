@@ -13,6 +13,12 @@ minimumReleaseAgeExclude:
   - "@quasar/*"
   - vue-router
   - unocss-preset-quasar
+  - oxfmt
+  - "@oxfmt/*"
+  - "@myriaddreamin/*"
+  - "@oxlint/*"
+  - oxlint
+  - vite
 
 allowBuilds:
   "@parcel/watcher": true
@@ -20,3 +26,5 @@ allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: true
+
+minimumReleaseAgeIgnoreMissingTime: true
