@@ -73,6 +73,52 @@ export const exportDigibooxInvoices = (invoices: Invoice[]) => {
           })
         })
       })
+
+      invoice.surcharges?.forEach((surchargeLine) => {
+        data.push({
+          Factuurnummer: `${invoice.numberPrefix || ''}${invoice.number}`,
+          Referentie: invoice.projectId ? invoice.projectId : '',
+          Factuurdatum: formatDateShort({
+            dateString: invoice.date!,
+            locale: 'nl'
+          }),
+          Relatie: invoice.clientDetails.companyName!,
+          Vervaldatum: formatDateShort({
+            dateString: invoice.dueDate!,
+            locale: 'nl'
+          }),
+          Omschrijving: surchargeLine.description ?? '',
+          'Btw-percentage': surchargeLine.taxRate,
+          Aantal: 1,
+          'Bedrag excl. btw': formatPrice({
+            value: surchargeLine.listPriceExcludingTax,
+            locale: 'nl'
+          })
+        })
+      })
+
+      invoice.discounts?.forEach((discountLine) => {
+        data.push({
+          Factuurnummer: `${invoice.numberPrefix || ''}${invoice.number}`,
+          Referentie: invoice.projectId ? invoice.projectId : '',
+          Factuurdatum: formatDateShort({
+            dateString: invoice.date!,
+            locale: 'nl'
+          }),
+          Relatie: invoice.clientDetails.companyName!,
+          Vervaldatum: formatDateShort({
+            dateString: invoice.dueDate!,
+            locale: 'nl'
+          }),
+          Omschrijving: discountLine.description ?? '',
+          'Btw-percentage': discountLine.taxRate,
+          Aantal: 1,
+          'Bedrag excl. btw': `-${formatPrice({
+            value: discountLine.listPriceExcludingTax,
+            locale: 'nl'
+          })}`
+        })
+      })
     })
 
   // @ts-expect-error wrong types
