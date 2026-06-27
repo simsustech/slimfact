@@ -28,7 +28,7 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
     pin: boolean
     ideal: boolean
     bankTransfer: boolean
-    smartpin: boolean
+    creditcard: boolean
   }
 }
 
@@ -41,8 +41,7 @@ export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
   PAYMENT_HANDLERS: {
     cash: false,
     ideal: false,
-    bankTransfer: false,
-    smartpin: false
+    bankTransfer: false
   }
 })
 
@@ -80,6 +79,8 @@ export const loadConfiguration = async (locale: Ref<string>) => {
       })
   )
 }
+
+// export const IDEAL_SUPPORTED_CURRENCIES: Currency = ['EUR']
 
 export const COMPANY_ICON = 'i-mdi-company'
 export const NUMBER_PREFIX_ICON = 'i-mdi-numbers'
