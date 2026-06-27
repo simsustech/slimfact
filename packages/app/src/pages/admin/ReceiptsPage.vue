@@ -38,6 +38,11 @@
           :model-value="receipt"
           v-on="invoiceExpansionItemHandlers"
         />
+        <q-item v-if="!receipts?.length" class="flex flex-center text-grey-6">
+          <q-item-section class="text-center">
+            {{ lang.noResultsAvailable }}
+          </q-item-section>
+        </q-item>
       </q-list>
     </div>
     <div class="flex flex-center q-mt-md">
@@ -82,6 +87,7 @@ import CompanySelect from '../../components/company/CompanySelect.vue'
 import ClientSelect from '../../components/client/ClientSelect.vue'
 import { QSelect } from 'quasar'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { useLang } from '../../lang/index.js'
 
 import { useAdminGetReceiptsQuery } from '../../queries/admin/receipts.js'
 import { useAdminSearchCompaniesQuery } from '../../queries/admin/companies.js'
@@ -117,6 +123,7 @@ if (route.params.uuids && Array.isArray(route.params.uuids)) {
   uuids.value = route.params.uuids as string[]
 }
 
+const lang = useLang()
 const total = computed(() => receipts.value?.at(0)?.total || 0)
 
 const {

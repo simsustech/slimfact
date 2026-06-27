@@ -8,6 +8,12 @@
         :model-value="company"
         @update="openUpdateDialog"
       />
+      <div
+        v-if="!companies?.length"
+        class="col-span-12 flex flex-center text-grey-6 q-pa-xl"
+      >
+        {{ lang.noResultsAvailable }}
+      </div>
     </div>
   </q-page>
 
@@ -52,6 +58,7 @@ import CompanyForm from '../../../../components/company/CompanyForm.vue'
 import CompanyCard from '../../../../components/company/CompanyCard.vue'
 
 import { EventBus } from 'quasar'
+import { useLang } from '../../../../lang/index.js'
 import {
   useAdminCreateCompanyMutation,
   useAdminGetCompaniesQuery,

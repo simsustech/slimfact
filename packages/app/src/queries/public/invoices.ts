@@ -13,6 +13,18 @@ export const usePublicPayWithIdealMutation = () => {
   }
 }
 
+export const usePublicPayWithCreditcardMutation = () => {
+  const { ...rest } = useMutation({
+    mutation: (uuid: string) =>
+      trpc.public.payWithCreditcard.mutate({
+        uuid
+      })
+  })
+  return {
+    ...rest
+  }
+}
+
 export const usePublicPayDownPaymentWithIdealMutation = () => {
   const { ...rest } = useMutation({
     mutation: (uuid: string) =>
