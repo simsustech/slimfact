@@ -41,6 +41,11 @@
           :invoice-events="invoiceEvents[invoice.id]"
           v-on="invoiceExpansionItemHandlers"
         />
+        <q-item v-if="!invoices?.length" class="flex flex-center text-grey-6">
+          <q-item-section class="text-center">
+            {{ lang.noResultsAvailable }}
+          </q-item-section>
+        </q-item>
       </q-list>
     </div>
     <div class="flex flex-center q-mt-md">
@@ -502,6 +507,58 @@ const openAddPinPaymentDialog: InstanceType<
     })
 }
 
+const openAddIdealPaymentDialog: InstanceType<
+  typeof InvoiceExpansionItem
+>['$props']['onAddPaymentIdeal'] = async ({ data, done }) => {
+  try {
+    const result = await addPaymentToInvoiceMutation({
+      id: data.id,
+      payment: {
+        amount: data.amountDue || data.totalIncludingTax,
+        currency: data.currency,
+        description: `iDEAL payment ${new Date().toISOString().slice(0, 10)}`,
+        method: PaymentMethod.ideal
+      }
+    })
+    if (result?.checkoutUrl) {
+      await navigator.clipboard.writeText(result.checkoutUrl)
+      $q.notify({
+        message: 'Checkout URL copied to clipboard',
+        color: 'positive'
+      })
+    }
+    await execute()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const openAddCreditcardPaymentDialog: InstanceType<
+  typeof InvoiceExpansionItem
+>['$props']['onAddPaymentCreditcard'] = async ({ data, done }) => {
+  try {
+    const result = await addPaymentToInvoiceMutation({
+      id: data.id,
+      payment: {
+        amount: data.amountDue || data.totalIncludingTax,
+        currency: data.currency,
+        description: `Credit card payment ${new Date().toISOString().slice(0, 10)}`,
+        method: PaymentMethod.creditcard
+      }
+    })
+    if (result?.checkoutUrl) {
+      await navigator.clipboard.writeText(result.checkoutUrl)
+      $q.notify({
+        message: 'Checkout URL copied to clipboard',
+        color: 'positive'
+      })
+    }
+    await execute()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 const { mutateAsync: cancelInvoiceMutation } = useAdminCancelInvoiceMutation()
 
 const openCancelDialog: InstanceType<
@@ -553,6 +610,12 @@ const invoiceExpansionItemHandlers = computed(() => ({
     : undefined,
   addPaymentBankTransfer: configuration.value.PAYMENT_HANDLERS.bankTransfer
     ? openAddBankTransferPaymentDialog
+    : undefined,
+  addPaymentIdeal: configuration.value.PAYMENT_HANDLERS.ideal
+    ? openAddIdealPaymentDialog
+    : undefined,
+  addPaymentCreditcard: configuration.value.PAYMENT_HANDLERS.creditcard
+    ? openAddCreditcardPaymentDialog
     : undefined,
   cancel: openCancelDialog
 }))

@@ -1,15 +1,36 @@
 import { defineQuery, useQuery } from '@pinia/colada'
 import { trpc } from '../../trpc.js'
+import { ref, computed } from 'vue'
 
 export const useAccountGetReceiptsQuery = defineQuery(() => {
+  const page = ref(1)
+  const rowsPerPage = ref(5)
+
+  const pagination = computed<{
+    limit: number
+    offset: number
+    sortBy: 'id' | 'totalIncludingTax' | 'createdAt'
+    descending: boolean
+  }>(() => ({
+    limit: rowsPerPage.value,
+    offset: (page.value - 1) * rowsPerPage.value,
+    sortBy: 'id',
+    descending: true
+  }))
+
   const { data: receipts, ...rest } = useQuery({
     enabled: !import.meta.env.SSR,
-    key: () => ['accountGetReceipts'],
-    query: () => trpc.user.getReceipts.query()
+    key: () => ['accountGetReceipts', pagination.value],
+    query: () =>
+      trpc.user.getReceipts.query({
+        pagination: pagination.value
+      })
   })
 
   return {
     receipts,
+    page,
+    rowsPerPage,
     ...rest
   }
 })

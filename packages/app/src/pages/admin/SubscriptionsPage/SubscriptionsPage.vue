@@ -43,6 +43,14 @@
           @start="onStartSubscription"
           @stop="onStopSubscription"
         />
+        <q-item
+          v-if="!subscriptions?.length"
+          class="flex flex-center text-grey-6"
+        >
+          <q-item-section class="text-center">
+            {{ lang.noResultsAvailable }}
+          </q-item-section>
+        </q-item>
       </q-list>
     </div>
     <div class="flex flex-center q-mt-md">
