@@ -250,7 +250,8 @@ const lang: Language = {
       cash: 'Barzahlung',
       bankTransfer: 'Überweisung',
       ideal: 'iDEAL',
-      pin: 'PIN'
+      pin: 'PIN',
+      creditcard: 'Kreditkarte'
     },
     messages: {
       scanQrOrUseInformationBelow:

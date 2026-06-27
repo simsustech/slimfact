@@ -248,7 +248,8 @@ const lang: Language = {
       cash: 'Cash',
       bankTransfer: 'Bank transfer',
       ideal: 'iDEAL',
-      pin: 'PIN'
+      pin: 'PIN',
+      creditcard: 'Credit card'
     },
     messages: {
       scanQrOrUseInformationBelow:
