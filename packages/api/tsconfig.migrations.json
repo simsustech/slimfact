@@ -15,7 +15,7 @@
     "paths": {
       "src": ["./src"]
     },
-    "rootDir": "./src/kysely"
+    "rootDir": "./src"
   },
   "include": [
     "src/kysely/migrations",
