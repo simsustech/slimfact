@@ -1,0 +1,5 @@
+services:
+  api:
+    environment:
+      IDEAL_PAYMENT_HANDLER: mollie
+      CREDITCARD_PAYMENT_HANDLER: mollie
