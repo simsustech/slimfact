@@ -122,16 +122,16 @@ export const createUblInvoice = ({ invoice }: { invoice: Invoice }) => {
     </cac:PaymentTerms>
 
     <cac:TaxTotal>
-      <cbc:TaxAmount currencyID="${invoice.currency}">${formatAmount(invoice.taxSummary.reduce((acc, cur) => (acc += cur.tax), 0))}</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="${invoice.currency}">${formatAmount(invoice.taxSummary.reduce((acc: number, cur: { tax: number }) => (acc += cur.tax), 0))}</cbc:TaxAmount>
       ${formatTaxSubTotals({ taxSummary: invoice.taxSummary, currency: invoice.currency, lines: invoice.lines, discounts: invoice.discounts || [], surcharges: invoice.surcharges || [] })}
     </cac:TaxTotal>
 
     <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="${invoice.currency}">${formatAmount(invoice.lines?.reduce((acc, cur) => (acc += cur.discountedLinePriceExcludingTax), 0))}</cbc:LineExtensionAmount>
+        <cbc:LineExtensionAmount currencyID="${invoice.currency}">${formatAmount(invoice.lines?.reduce((acc: number, cur: { discountedLinePriceExcludingTax: number }) => (acc += cur.discountedLinePriceExcludingTax), 0))}</cbc:LineExtensionAmount>
         <cbc:TaxExclusiveAmount currencyID="${invoice.currency}">${formatAmount(invoice.totalExcludingTax)}</cbc:TaxExclusiveAmount>
         <cbc:TaxInclusiveAmount currencyID="${invoice.currency}">${formatAmount(invoice.totalIncludingTax)}</cbc:TaxInclusiveAmount>
-        <cbc:AllowanceTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.discounts?.reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0))}</cbc:AllowanceTotalAmount>
-        <cbc:ChargeTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.surcharges?.reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0))}</cbc:ChargeTotalAmount>
+        <cbc:AllowanceTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.discounts?.reduce((acc: number, cur: { listPriceExcludingTax: number }) => (acc += cur.listPriceExcludingTax), 0))}</cbc:AllowanceTotalAmount>
+        <cbc:ChargeTotalAmount currencyID="${invoice.currency}">${formatAmount(invoice.surcharges?.reduce((acc: number, cur: { listPriceExcludingTax: number }) => (acc += cur.listPriceExcludingTax), 0))}</cbc:ChargeTotalAmount>
         <cbc:PrepaidAmount currencyID="${invoice.currency}">${formatAmount(invoice.amountPaid)}</cbc:PrepaidAmount>
         <cbc:PayableAmount currencyID="${invoice.currency}">${formatAmount(invoice.amountDue)}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
@@ -242,7 +242,7 @@ const formatTaxSubTotals = ({
   discounts: InvoiceDiscount[]
 }) =>
   taxSummary?.map(
-    (tax) => `
+    (tax: Invoice['taxSummary'][number]) => `
         <cac:TaxSubtotal>
             <cbc:TaxableAmount currencyID="${currency}">${formatAmount(
               calculateTaxableAmount({
@@ -280,16 +280,28 @@ const calculateTaxableAmount = ({
   discounts: InvoiceDiscount[]
 }) => {
   const linesTotal = lines
-    .filter((line) => line.taxRate === taxRate)
-    .reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0)
+    .filter((line: { taxRate: number }) => line.taxRate === taxRate)
+    .reduce(
+      (acc: number, cur: { listPriceExcludingTax: number }) =>
+        (acc += cur.listPriceExcludingTax),
+      0
+    )
 
   const discountsTotal = discounts
-    .filter((line) => line.taxRate === taxRate)
-    .reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0)
+    .filter((line: { taxRate: number }) => line.taxRate === taxRate)
+    .reduce(
+      (acc: number, cur: { listPriceExcludingTax: number }) =>
+        (acc += cur.listPriceExcludingTax),
+      0
+    )
 
   const surchargesTotal = surcharges
-    .filter((line) => line.taxRate === taxRate)
-    .reduce((acc, cur) => (acc += cur.listPriceExcludingTax), 0)
+    .filter((line: { taxRate: number }) => line.taxRate === taxRate)
+    .reduce(
+      (acc: number, cur: { listPriceExcludingTax: number }) =>
+        (acc += cur.listPriceExcludingTax),
+      0
+    )
 
   return linesTotal - discountsTotal + surchargesTotal
 }
