@@ -65,8 +65,8 @@ cd slimfact
 pnpm i
 docker compose -f docker-compose.dev.yaml up
 cd packages/api
-POSTGRES_PASSWORD=ufgouifdgjdfg POSTGRES_DB=slimfact pnpm run migrate:latest
-POSTGRES_PASSWORD=ufgouifdgjdfg POSTGRES_DB=slimfact pnpm run seed:fake
+POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact pnpm run migrate:latest
+POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact pnpm run seed:fake
 pnpm run dev
 ```
 
@@ -75,3 +75,6 @@ pnpm run dev
 Copyright © simsustech 2024-present
 
 [ELv2 License](./LICENSE)
+
+## AI
+As of June 2026 the development is AI assisted.
