@@ -271,6 +271,7 @@ export interface Language {
       bankTransfer: string
       ideal: string
       pin: string
+      creditcard: string
     }
     messages: {
       scanQrOrUseInformationBelow: string

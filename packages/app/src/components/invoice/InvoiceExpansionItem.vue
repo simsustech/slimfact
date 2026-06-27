@@ -225,7 +225,9 @@
                   modelValue.amountDue &&
                   (onAddPaymentCash ||
                     onAddPaymentBankTransfer ||
-                    onAddPaymentPin)
+                    onAddPaymentPin ||
+                    onAddPaymentIdeal ||
+                    onAddPaymentCreditcard)
                 "
                 clickable
               >
@@ -299,6 +301,21 @@
                       <q-item-section>
                         <q-item-label>
                           {{ lang.payment.methods.ideal }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item
+                      v-if="onAddPaymentCreditcard"
+                      v-close-popup
+                      clickable
+                      @click="addPaymentCreditcard(modelValue)"
+                    >
+                      <q-item-section avatar>
+                        <q-icon name="i-mdi-credit-card-outline"></q-icon>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ lang.payment.methods.creditcard }}
                         </q-item-label>
                       </q-item-section>
                     </q-item>
@@ -490,6 +507,7 @@ export interface Props {
   onAddPaymentCash?: unknown
   onAddPaymentBankTransfer?: unknown
   onAddPaymentIdeal?: unknown
+  onAddPaymentCreditcard?: unknown
   onSend?: unknown
   invoiceEvents?: InvoiceEvent[]
 }
@@ -568,6 +586,16 @@ const emit = defineEmits<{
   ): void
   (
     e: 'addPaymentIdeal',
+    {
+      data,
+      done
+    }: {
+      data: Invoice
+      done: (success?: boolean) => void
+    }
+  ): void
+  (
+    e: 'addPaymentCreditcard',
     {
       data,
       done
@@ -667,6 +695,12 @@ const addPaymentIdeal = (data: Invoice) => {
     //
   }
   emit('addPaymentIdeal', { data: data, done })
+}
+const addPaymentCreditcard = (data: Invoice) => {
+  function done() {
+    //
+  }
+  emit('addPaymentCreditcard', { data: data, done })
 }
 const addPaymentPin = (data: Invoice) => {
   function done() {
