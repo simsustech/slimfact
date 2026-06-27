@@ -4,11 +4,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-      - "3000:3000"
-      - "3000:3000/udp"
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+      - '3000:3000'
+      - '3000:3000/udp'
     environment:
       - CADDY_INGRESS_NETWORKS=web
     labels:
@@ -19,12 +19,12 @@ services:
   database:
     image: postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_PASSWORD: ufgouifdgjdfg
       POSTGRES_DB: slimfact
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 2s
       timeout: 5s
       retries: 5
@@ -36,10 +36,10 @@ services:
   mailhog:
     image: mailhog/mailhog:latest
     logging:
-      driver: "none"
+      driver: 'none'
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - '8025:8025'
+      - '1025:1025'
     networks:
       staging:
         aliases:
@@ -48,42 +48,66 @@ services:
   api:
     build:
       context: .
+      args:
+        DEBUG: 'true'
       secrets:
         - SIMSUSTECH_NPM_TOKEN
+        - MOLLIE_API_KEY
+        - STRIPE_API_KEY
       dockerfile: Dockerfile
       target: api
-      network: host
+      network: 'host'
+      additional_contexts:
+        linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
+        linked-unocss-preset-quasar: ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
+        linked-modular-api: ${LINKED_MODULAR_API_PATH:-.docker/empty}
+        linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
+        linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
+        linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
+    ports:
+      - '3001:80'
     depends_on:
       database:
         condition: service_healthy
     labels:
-      caddy: localhost:3000
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy: localhost:3000, slimfact-dev.eu1.netbird.services
+      caddy.reverse_proxy: '{{upstreams 80}}'
       caddy.encode: zstd gzip
-    volumes:
-      - ./jwks/:/app/dist/server/jwks/
     environment:
-      # API env variables
-      VITE_API_HOST: localhost:3000
+      # VITE_API_HOST: localhost:3000
+      VITE_API_HOST: slimfact-dev.eu1.netbird.services
       VITE_LICENSE_KEY: undefined
-      VITE_TITLE: SlimFact staging
+      VITE_TITLE: SlimFact
+      VITE_SOURCE_COLOR: '#00a4e6'
       POSTGRES_HOST: database
       POSTGRES_DB: slimfact
       POSTGRES_PASSWORD: ufgouifdgjdfg
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_FROM: ${MAIL_FROM}
-      MAIL_USER: ${MAIL_USER}
-      MAIL_PASS: ${MAIL_PASS}
-      OIDC_COOKIES_KEYS: YIleVCm+VzjP2Ug+MpveLQF3ZIGnl9SMLA1F5lkpMhM=
-      OTP_SECRET_FILE: nonsecure
+      MAIL_HOST: mailhog
+      MAIL_PORT: '1025'
+      MAIL_FROM: 'test@slimfact.app'
+      MAIL_SECURE: 'false'
+      OIDC_COOKIES_KEYS: 7JOoAPoC5232uJiUdDd+7EUuyFFcZqQJwsAQDnoldZI=
+      OIDC_CLIENT_SECRET: slimfact
+      OTP_SECRET: NNXHQ5TPNF2WK53POJUWU53MMVXHE===
       OTP_VALIDITY_SECONDS: 3600
-      EMAIL_FOOTER: "SlimFact staging"
-    command: ["sh", "-c", "npm run migrate:latest && npm run seed:test && npm run start"]
+      EMAIL_FOOTER: 'SlimFact <info@slimfact.app>'
+      MOLLIE_API_KEY: /run/secrets/MOLLIE_API_KEY
+      STRIPE_API_KEY: /run/secrets/STRIPE_API_KEY
+    secrets:
+      - MOLLIE_API_KEY
+      - STRIPE_API_KEY
+    command:
+      [
+        'sh',
+        '-c',
+        'npm run migrate:latest && npm run seed:test && npm run start'
+      ]
     healthcheck:
       test: curl --fail --insecure http://localhost || exit 1
-      interval: 5s
-      retries: 5
+      interval: 10s
+      retries: 10
       start_period: 15s
       timeout: 10s
     networks:
@@ -92,8 +116,11 @@ services:
 
 secrets:
   SIMSUSTECH_NPM_TOKEN:
-    environment: "SIMSUSTECH_NPM_TOKEN"
-    # file: ./env/SIMSUSTECH_NPM_TOKEN
+    environment: 'SIMSUSTECH_NPM_TOKEN'
+  MOLLIE_API_KEY:
+    file: ./env/MOLLIE_API_KEY
+  STRIPE_API_KEY:
+    file: ./env/STRIPE_API_KEY
 
 networks:
   staging:

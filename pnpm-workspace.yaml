@@ -19,6 +19,12 @@ minimumReleaseAgeExclude:
   - "@oxlint/*"
   - oxlint
   - vite
+  - axios@1.18.1
+  - cronstrue@3.21.0
+  - '@types/node@26.0.1'
+  - cron-parser@5.6.1
+  - pg-boss@12.22.0
+  - stripe@22.3.0
 
 allowBuilds:
   "@parcel/watcher": true
@@ -28,3 +34,5 @@ allowBuilds:
   simple-git-hooks: true
 
 minimumReleaseAgeIgnoreMissingTime: true
+
+overrides: {}
