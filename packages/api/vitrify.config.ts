@@ -19,8 +19,10 @@ export default async function ({
       },
       ssr: {
         fastify: {
-          bodyLimit: 5e6,
-          maxParamLength: 5000
+          routerOptions: {
+            maxParamLength: 5000
+          },
+          bodyLimit: 5e6
         },
         serverModules: [
           '@slimfact/app',
@@ -43,6 +45,7 @@ export default async function ({
           'pg',
           'sharp',
           '@mollie/api-client',
+          'stripe',
           'playwright',
           'svgo',
           'compress-tag',
@@ -66,6 +69,10 @@ export default async function ({
         cert: certificate,
         key: certificate
       }
+    }
+    // When using NetBird tunnel, set the public origin so Vite generates correct URLs
+    if (env.VITE_API_HOST?.includes('netbird')) {
+      config.server.origin = `https://${env.VITE_API_HOST}`
     }
   }
   return config

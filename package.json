@@ -6,8 +6,11 @@
   ],
   "scripts": {
     "build": "run-s build:tools build:app build:api",
+    "build:debug": "run-s build:tools build:app:debug build:api:debug",
+    "build:app:debug": "cd packages/app && pnpm run build:debug",
     "build:app": "cd packages/app && pnpm run build:ssr",
     "build:api": "cd packages/api && pnpm run build",
+    "build:api:debug": "cd packages/api && pnpm run build:debug",
     "build:tools": "cd packages/tools && pnpm run build",
     "format:check:api": "cd packages/api && pnpm run format:check",
     "format:check:app": "cd packages/app && pnpm run format:check",
@@ -45,5 +48,6 @@
   },
   "engines": {
     "node": ">=24.0.0"
-  }
+  },
+  "dependencies": {}
 }
