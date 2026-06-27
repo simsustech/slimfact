@@ -5,6 +5,11 @@ import { FastifyInstance } from 'fastify'
 import { RefundStatus } from '@modular-api/fastify-checkout/types'
 
 let boss: PgBoss
+
+export function getBossOrThrow(): PgBoss {
+  if (!boss) throw new Error('pg-boss not initialized')
+  return boss
+}
 const createSubscriptionWorker = ({ fastify }: { fastify: FastifyInstance }) =>
   async function subscriptionWorker(
     job: Job<RawNewInvoice> | Job<RawNewInvoice>[]
@@ -38,9 +43,9 @@ const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
           web('checkout.refunds.status', '=', RefundStatus.QUEUED)
         ])
       )
-      .where('checkout.refunds.paymentServiceProvider', '=', 'mollie')
       .select((seb) => [
         'checkout.refunds.id',
+        'checkout.refunds.paymentServiceProvider',
         seb
           .ref('checkout.invoices.companyDetails', '->>')
           .key('prefix')
@@ -49,12 +54,18 @@ const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
       .execute()
 
     for (const refund of refunds) {
-      if (fastify.checkout?.paymentHandlers?.mollie) {
+      const psp = refund.paymentServiceProvider
+      if (psp === 'mollie' && fastify.checkout?.paymentHandlers?.mollie) {
         await fastify.checkout.paymentHandlers
           .mollie(refund.companyPrefix)
-          .getRefund({
-            id: refund.id
-          })
+          .getRefund({ id: refund.id })
+      } else if (
+        psp === 'stripe' &&
+        fastify.checkout?.paymentHandlers?.stripe
+      ) {
+        await fastify.checkout.paymentHandlers
+          .stripe()
+          .getRefund({ id: refund.id })
       }
     }
   }

@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import modularApiPlugin from '@modular-api/api'
 import { createAccountMethods } from '@modular-api/fastify-oidc/kysely'
+import rateLimit from '@fastify/rate-limit'
 import { createRouter, createContext } from './trpc/index.js'
-import env from '@vitrify/tools/env'
+import { appConfig as config, env } from './config/index.js'
 // @ts-expect-error no types
 import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plugin'
 import {
@@ -18,84 +19,54 @@ import {
   createInvoiceHandler,
   createMolliePaymentHandler,
   createBankTransferPaymentHandler,
-  createSmartpinPaymentHandler,
-  createPinPaymentHandler
+  createPinPaymentHandler,
+  createStripePaymentHandler
 } from '@modular-api/fastify-checkout'
 import { initialize } from './pgboss.js'
+import healthRoutes from './routes/health.js'
 import type { ClientMetadata } from 'oidc-provider'
 import { generateTheme } from 'unocss-preset-quasar/theme'
 
 const OIDC_API_CLIENT_IDS = ['petboarding']
 
-const theme = generateTheme(
-  env.read('SOURCE_COLOR') || env.read('VITE_SOURCE_COLOR') || '#00a4e6'
-)
+const theme = generateTheme(config.sourceColor)
 const sassVariables = {
-  $primary:
-    env.read('SASS_VARIABLE_PRIMARY') || env.read('VITE_SASS_VARIABLE_PRIMARY'),
-  $secondary:
-    env.read('SASS_VARIABLE_SECONDARY') ||
-    env.read('VITE_SASS_VARIABLE_SECONDARY'),
-  $accent:
-    env.read('SASS_VARIABLE_ACCENT') || env.read('VITE_SASS_VARIABLE_ACCENT'),
-  $dark: env.read('SASS_VARIABLE_DARK') || env.read('VITE_SASS_VARIABLE_DARK'),
-  $positive:
-    env.read('SASS_VARIABLE_POSITIVE') ||
-    env.read('VITE_SASS_VARIABLE_POSITIVE'),
-  $negative:
-    env.read('SASS_VARIABLE_NEGATIVE') ||
-    env.read('VITE_SASS_VARIABLE_NEGATIVE'),
-  $info: env.read('SASS_VARIABLE_INFO') || env.read('VITE_SASS_VARIABLE_INFO'),
-  $warning:
-    env.read('SASS_VARIABLE_WARNING') || env.read('VITE_SASS_VARIABLE_WARNING')
+  $primary: config.sassVariablePrimary,
+  $secondary: config.sassVariableSecondary,
+  $accent: config.sassVariableAccent,
+  $dark: config.sassVariableDark,
+  $positive: config.sassVariablePositive,
+  $negative: config.sassVariableNegative,
+  $info: config.sassVariableInfo,
+  $warning: config.sassVariableWarning
 }
 
 /**
  * Only used in SSR/SSG
  */
 export default async function (fastify: FastifyInstance) {
-  const host = env.read('API_HOST') || env.read('VITE_API_HOST')
+  const { apiHost: host } = config
   const corsOrigin = [`https://${host}`]
 
-  const OTP_SECRET = env.read('OTP_SECRET') || env.read('VITE_OTP_SECRET')
-  if (!OTP_SECRET)
-    throw new Error(
-      'Please define a OTP_SECRET or VITE_OTP_SECRET environment variable'
-    )
-
-  const OIDC_COOKIES_KEYS = (
-    env.read('OIDC_COOKIES_KEYS') || env.read('VITE_OIDC_COOKIES_KEYS')
-  )?.split(',')
-
-  if (!OIDC_COOKIES_KEYS)
-    throw new Error(
-      'Please define a OIDC_COOKIES_KEYS or VITE_ OIDC_COOKIES_KEYS environment variable'
-    )
-
-  if (!host)
-    throw new Error(
-      'Please define a API_HOST or VITE_API_HOST environment variable'
-    )
-
   console.log('Running setup function....')
+
+  await fastify.register(rateLimit, {
+    max: Number(config.rateLimitPerMinute),
+    timeWindow: '1 minute'
+  })
+
+  await fastify.register(healthRoutes)
+
   const accountMethods = await createAccountMethods(
     fastify,
     kysely,
     {
-      OTP_SECRET,
-      OTP_VALIDITY_SECONDS:
-        env.read('OTP_VALIDITY_SECONDS') ||
-        env.read('VITE_OTP_VALIDITY_SECONDS'),
-      EMAIL_FOOTER: env.read('EMAIL_FOOTER') || env.read('VITE_EMAIL_FOOTER')
+      OTP_SECRET: config.otpSecret,
+      OTP_VALIDITY_SECONDS: config.otpValiditySeconds,
+      EMAIL_FOOTER: config.emailFooter
     },
-    env.read('VITE_LANG') || 'en-US'
+    config.lang
   )
-
-  // const orderHandler = createOrderHandler({
-  //   fastify,
-  //   kysely,
-  //   options: {}
-  // })
 
   const cashPaymentHandler = createCashPaymentHandler({
     fastify,
@@ -109,10 +80,7 @@ export default async function (fastify: FastifyInstance) {
 
   let pinPaymentHandler: FastifyCheckoutPaymentHandler | undefined
 
-  if (
-    env.read('PIN_ENABLED') === 'true' ||
-    env.read('VITE_PIN_ENABLED') === 'true'
-  ) {
+  if (config.pinEnabled) {
     pinPaymentHandler = createPinPaymentHandler({
       fastify,
       kysely
@@ -122,7 +90,7 @@ export default async function (fastify: FastifyInstance) {
   let molliePaymentHandler:
     | CheckoutPluginOptionsPaymentHandlers['mollie']
     | undefined
-  if (env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY')) {
+  if (config.mollieApiKey) {
     const mollieProfiles = Object.keys({
       ...process.env,
       ...import.meta.env
@@ -137,7 +105,7 @@ export default async function (fastify: FastifyInstance) {
         fastify,
         kysely,
         options: {
-          apiKey: env.read('VITE_MOLLIE_API_KEY') || env.read('MOLLIE_API_KEY'),
+          apiKey: config.mollieApiKey,
           host
         }
       }),
@@ -148,7 +116,7 @@ export default async function (fastify: FastifyInstance) {
               fastify,
               kysely,
               options: {
-                apiKey: env.read(cur),
+                apiKey: env.read(cur) || '',
                 host
               }
             })
@@ -163,19 +131,53 @@ export default async function (fastify: FastifyInstance) {
     }
   }
 
-  let smartpinPaymentHandler: FastifyCheckoutPaymentHandler | undefined
+  let stripePaymentHandler: CheckoutPluginOptionsPaymentHandlers['stripe']
 
-  if (
-    env.read('SMARTPIN_ENABLED') === 'true' ||
-    env.read('VITE_SMARTPIN_ENABLED') === 'true'
-  ) {
-    smartpinPaymentHandler = createSmartpinPaymentHandler({
-      fastify,
-      kysely,
-      options: {
-        host
-      }
-    })
+  if (config.stripeApiKey) {
+    const stripeProfiles = Object.keys({
+      ...process.env,
+      ...import.meta.env
+    }).filter(
+      (envVar) =>
+        envVar.includes('STRIPE_API_KEY_') ||
+        envVar.includes('VITE_STRIPE_API_KEY_')
+    )
+
+    const profiles = {
+      default: createStripePaymentHandler({
+        fastify,
+        kysely,
+        options: {
+          apiKey: config.stripeApiKey
+        }
+      }),
+      ...stripeProfiles.reduce(
+        (acc, cur) => {
+          acc[cur.replace('VITE_', '').replace('STRIPE_API_KEY_', '')] =
+            createStripePaymentHandler({
+              fastify,
+              kysely,
+              options: {
+                apiKey: env.read(cur) || ''
+              }
+            })
+          return acc
+        },
+        {} as Record<string, FastifyCheckoutPaymentHandler>
+      )
+    }
+
+    stripePaymentHandler = {
+      profiles
+    }
+  }
+
+  const paymentMethodRouting = {
+    ideal: config.idealPaymentHandler as 'mollie' | 'stripe' | undefined,
+    creditcard: config.creditcardPaymentHandler as
+      | 'mollie'
+      | 'stripe'
+      | undefined
   }
 
   const invoiceHandler = createInvoiceHandler({
@@ -185,43 +187,42 @@ export default async function (fastify: FastifyInstance) {
       mollie: molliePaymentHandler,
       cash: cashPaymentHandler,
       bankTransfer: bankTransferPaymentHandler,
-      smartpin: smartpinPaymentHandler,
-      pin: pinPaymentHandler
+      pin: pinPaymentHandler,
+      stripe: {
+        ...stripePaymentHandler,
+        webhookSecret: config.stripeWebhookSecret
+      }
+    },
+    options: {
+      paymentMethodRouting
     }
   })
 
   const clients: ClientMetadata[] = [
     {
-      client_id:
-        env.read('OIDC_CLIENT_ID') ||
-        env.read('VITE_OIDC_CLIENT_ID') ||
-        'slimfact',
+      client_id: config.oidcClientId,
       client_name: 'SlimFact webapp',
       logo_uri: 'https://www.slimfact.app/logo.png',
       grant_types: ['authorization_code', 'refresh_token'],
       scope: 'openid offline_access profile email api',
-      client_secret: 'secret',
+      client_secret: config.oidcClientSecret,
       redirect_uris: [`https://${host}/redirect`],
       token_endpoint_auth_method: 'none',
       'urn:custom:client:allowed-cors-origins': [`https://${host}`]
     }
   ]
 
-  if (
-    env.read('VITE_PETBOARDING_CLIENT_HOST') ||
-    env.read('PETBOARDING_CLIENT_HOST')
-  ) {
-    const petboardingClientHost =
-      env.read('VITE_PETBOARDING_CLIENT_HOST') ||
-      env.read('PETBOARDING_CLIENT_HOST')
+  if (config.petboardingClientHost) {
     clients.push({
       client_id: 'petboarding',
       client_name: 'Petboarding',
       logo_uri: 'https://www.petboarding.app/logo.png',
       grant_types: ['authorization_code', 'refresh_token'],
       scope: 'openid offline_access profile email api',
-      client_secret: 'secret',
-      redirect_uris: [`https://${petboardingClientHost}/callback/slimfact`],
+      client_secret: config.oidcClientSecret,
+      redirect_uris: [
+        `https://${config.petboardingClientHost}/callback/slimfact`
+      ],
       token_endpoint_auth_method: 'none',
       'urn:custom:client:allowed-cors-origins': [`https://${host}`]
     })
@@ -237,9 +238,8 @@ export default async function (fastify: FastifyInstance) {
       createContext
     },
     oidc: {
-      issuerName:
-        env.read('OIDC_ISSUER_NAME') || env.read('VITE_OIDC_ISSUER_NAME'),
-      locale: env.read('VITE_LANG') || 'en-US',
+      issuerName: config.oidcIssuerName,
+      locale: config.lang,
       themeColors: theme['colors'],
       sassVariables,
       issuer: `https://${host}`,
@@ -248,8 +248,7 @@ export default async function (fastify: FastifyInstance) {
       jwksURL: new URL('jwks/jwks.json', import.meta.url),
       configuration: {
         cookies: {
-          // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#cookieskeys
-          keys: OIDC_COOKIES_KEYS
+          keys: config.oidcCookiesKeys.split(',')
         },
         routes: {
           authorization: '/authorize',
@@ -275,7 +274,6 @@ export default async function (fastify: FastifyInstance) {
           )
         },
         ttl: {
-          // Set ttl to 90 days in seconds if client is a trusted API
           Grant: 90 * 24 * 60 * 60,
           Session: 90 * 24 * 60 * 60,
           RefreshToken: (ctx, token, client) => {
@@ -288,53 +286,46 @@ export default async function (fastify: FastifyInstance) {
         }
       },
       defaultCredentials: {
-        email:
-          env.read('MODULARAPI_DEFAULT_EMAIL') ||
-          env.read('VITE_MODULARAPI_DEFAULT_EMAIL'),
-        password:
-          env.read('MODULARAPI_DEFAULT_PASSWORD') ||
-          env.read('VITE_MODULARAPI_DEFAULT_PASSWORD')
+        email: config.modularapiDefaultEmail,
+        password: config.modularapiDefaultPassword
       }
     },
     nodemailer: {
-      defaults: { from: env.read('MAIL_FROM') || env.read('VITE_MAIL_FROM') },
+      defaults: { from: config.mailFrom },
       transport: {
-        host: env.read('MAIL_HOST') || env.read('VITE_MAIL_HOST'),
-        port: Number(env.read('MAIL_PORT') || env.read('VITE_MAIL_PORT')),
-        secure:
-          (env.read('MAIL_SECURE') || env.read('VITE_MAIL_SECURE')) === 'false'
-            ? false
-            : true,
+        host: config.mailHost,
+        port: config.mailPort,
+        secure: config.mailSecure,
         auth:
-          (env.read('MAIL_USER') || env.read('VITE_MAIL_USER')) &&
-          (env.read('MAIL_PASS') || env.read('VITE_MAIL_PASS'))
+          config.mailUser && config.mailPass
             ? {
-                user: env.read('MAIL_USER') || env.read('VITE_MAIL_USER'),
-                pass: env.read('MAIL_PASS') || env.read('VITE_MAIL_PASS')
+                user: config.mailUser,
+                pass: config.mailPass
               }
             : {}
       }
     },
     configuration: () => ({
       API_HOST: host,
-      LANG: env.read('VITE_LANG') || 'en-US',
-      COUNTRY: env.read('VITE_COUNTRY') || 'NL',
-      TITLE: env.read('VITE_TITLE') || 'SlimFact',
+      LANG: config.lang,
+      COUNTRY: config.country,
+      TITLE: config.title,
       SASS_VARIABLES: sassVariables,
       PAYMENT_HANDLERS: {
         cash: cashPaymentHandler !== void 0,
         pin: pinPaymentHandler !== void 0,
-        ideal: molliePaymentHandler !== void 0,
         bankTransfer: bankTransferPaymentHandler !== void 0,
-        smartpin: smartpinPaymentHandler !== void 0
-      }
+        ideal: !!molliePaymentHandler || !!stripePaymentHandler,
+        creditcard: !!stripePaymentHandler || !!molliePaymentHandler
+      },
+      PAYMENT_METHOD_ROUTING: paymentMethodRouting
     }),
     checkout: {
       paymentHandlers: {
         cash: cashPaymentHandler,
         bankTransfer: bankTransferPaymentHandler,
         mollie: molliePaymentHandler,
-        smartpin: smartpinPaymentHandler
+        stripe: stripePaymentHandler
       },
       invoiceHandler
     }
