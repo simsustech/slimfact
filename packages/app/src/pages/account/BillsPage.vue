@@ -7,7 +7,21 @@
           :key="invoice.id"
           :model-value="invoice"
         />
+        <q-item v-if="!bills?.length" class="flex flex-center text-grey-6">
+          <q-item-section class="text-center">
+            {{ lang.noResultsAvailable }}
+          </q-item-section>
+        </q-item>
       </q-list>
+      <div class="flex flex-center full-width q-mt-md">
+        <q-pagination
+          v-model="page"
+          :disable="!(total && page && rowsPerPage)"
+          :max="Math.ceil(total / rowsPerPage)"
+          :max-pages="5"
+          direction-links
+        />
+      </div>
     </div>
   </q-page>
 </template>
@@ -19,12 +33,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-// import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
+import { ref, computed, onMounted } from 'vue'
 import InvoiceItem from '../../components/invoice/InvoiceItem.vue'
+import { useLang } from '../../lang/index.js'
 import { useAccountGetBillsQuery } from '../../queries/account/bills.js'
 
-const { bills, refetch } = useAccountGetBillsQuery()
+const lang = useLang()
+const { bills, page, rowsPerPage, refetch } = useAccountGetBillsQuery()
+const total = computed(() => bills.value?.at(0)?.total || 0)
 
 const ready = ref<boolean>(false)
 onMounted(async () => {

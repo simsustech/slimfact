@@ -23,7 +23,13 @@
         :model-value="client"
         show-update-button
         @update="openUpdateDialog"
-    /></q-list>
+      />
+      <q-item v-if="!clients?.length" class="flex flex-center text-grey-6">
+        <q-item-section class="text-center">
+          {{ lang.noResultsAvailable }}
+        </q-item-section>
+      </q-item>
+    </q-list>
 
     <div class="flex flex-center q-mt-md">
       <q-pagination
