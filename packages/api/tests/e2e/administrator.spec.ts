@@ -35,8 +35,7 @@ test.beforeAll(async ({ browser }) => {
 
 test.describe('Settings', async () => {
   test('Companies', async () => {
-    await page.goto('/admin/settings/companies')
-
+    await page.locator('#fabAdd').click()
     await page.locator('#fabAdd').click()
     await page
       .getByRole('textbox', { name: 'Name*' })
@@ -135,6 +134,7 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/bills')
 
     await page.locator('#fabAdd').click()
+    await page.waitForTimeout(500)
     await page.getByRole('combobox', { name: 'Company*' }).click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()
@@ -172,6 +172,7 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/invoices')
 
     await page.locator('#fabAdd').click()
+    await page.waitForTimeout(500)
     await page.getByRole('combobox', { name: 'Company*' }).click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()
@@ -209,6 +210,7 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/subscriptions')
 
     await page.locator('#fabAdd').click()
+    await page.waitForTimeout(500)
     await page.getByRole('combobox', { name: 'Company*' }).click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()
@@ -216,6 +218,7 @@ test.describe('Administrator', async () => {
     await page.getByRole('toolbar').first().click({ force: true })
     await expect(page.getByRole('listbox').first()).not.toBeVisible()
 
+    await page.waitForTimeout(1000)
     await page.getByRole('combobox', { name: 'Client*' }).click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()

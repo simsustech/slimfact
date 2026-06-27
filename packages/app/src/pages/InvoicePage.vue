@@ -43,6 +43,18 @@
                 </q-item-section>
               </q-item>
               <q-item
+                v-if="paymentHandlersAvailable.creditcard"
+                clickable
+                @click="payWithCreditcard"
+              >
+                <q-item-section avatar>
+                  <q-icon name="i-mdi-credit-card-outline" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> Credit card </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
                 v-if="paymentHandlersAvailable.bankTransfer"
                 clickable
                 @click="openBankTransferDialog"
@@ -174,7 +186,11 @@
           />
         </div>
         <div
-          v-if="invoice?.amountDue && invoice?.amountDue > 0"
+          v-if="
+            invoice?.amountDue &&
+            invoice?.amountDue > 0 &&
+            invoice.status !== InvoiceStatus.CONCEPT
+          "
           class="row justify-center no-print"
         >
           {{ lang.payment.amountDue }}:
@@ -259,7 +275,8 @@ import { useQuery } from '@pinia/colada'
 import { initializeTRPCClient, trpc } from '../trpc.js'
 import {
   usePublicPayDownPaymentWithIdealMutation,
-  usePublicPayWithIdealMutation
+  usePublicPayWithIdealMutation,
+  usePublicPayWithCreditcardMutation
 } from '../queries/public/invoices.js'
 import { useAdminRefundInvoiceMutation } from '../queries/admin/invoices.js'
 import {
@@ -383,6 +400,8 @@ const qrSvg = computed(() => {
 // const invoiceRef = ref()
 
 const { mutateAsync: payWithIdealMutation } = usePublicPayWithIdealMutation()
+const { mutateAsync: payWithCreditcardMutation } =
+  usePublicPayWithCreditcardMutation()
 const { mutateAsync: payDownPaymentWithIdealMutation } =
   usePublicPayDownPaymentWithIdealMutation()
 const { mutateAsync: refundInvoiceMutation } = useAdminRefundInvoiceMutation()
@@ -390,6 +409,16 @@ const { mutateAsync: refundInvoiceMutation } = useAdminRefundInvoiceMutation()
 const payWithIdeal = async () => {
   try {
     const result = await payWithIdealMutation(uuid.value)
+
+    if (result) window.location.href = result
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const payWithCreditcard = async () => {
+  try {
+    const result = await payWithCreditcardMutation(uuid.value)
 
     if (result) window.location.href = result
   } catch (e) {
@@ -476,7 +505,9 @@ const downloadUbl = () => {
 }
 
 const paymentHandlersAvailable = computed(() => ({
-  ideal: configuration.value.PAYMENT_HANDLERS.ideal,
+  ideal: configuration.value.PAYMENT_HANDLERS.ideal && invoice.value?.currency,
+  creditcard:
+    configuration.value.PAYMENT_HANDLERS.creditcard && invoice.value?.currency,
   bankTransfer:
     configuration.value.PAYMENT_HANDLERS?.bankTransfer &&
     invoice.value?.status === InvoiceStatus.OPEN &&
