@@ -140,6 +140,7 @@ export interface Language {
       markPaid: string
       cancel: string
       print: string
+      downloadPdfToPrint: string
       openReference: string
     }
     messages: {

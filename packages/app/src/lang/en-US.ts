@@ -142,6 +142,8 @@ const lang: Language = {
       markPaid: 'Mark paid',
       cancel: 'Cancel',
       print: 'Print',
+      downloadPdfToPrint:
+        'Please use the Download button to get the PDF, then print from your PDF viewer.',
       openReference: 'Open reference'
     },
     messages: {
