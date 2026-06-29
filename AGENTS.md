@@ -353,14 +353,27 @@ Resolved via `(companyPrefix?) => handler` — returns company-specific profile 
 
 **Stripe**: After redirect to checkout.stripe.com → fill email/name (card pre-filled for credit card, bank selection for iDEAL) → click Submit → authorize if prompted (iDEAL may show "Authorize Test Payment" button, credit card auto-completes) → wait for redirect back → wait for webhook (up to 60s) → verify invoice shows "paid"
 
-### E2E Tests
+**Test environment separation (strict)**:
 
-| File | Tests |
-|------|-------|
-| `packages/api/tests/e2e/payments.spec.ts` | Public invoice shows payment options, cash payment lifecycle |
-| `packages/api/tests/e2e/payments-mollie.spec.ts` | iDEAL via Mollie, creditcard via Mollie, cash lifecycle |
-| `packages/api/tests/e2e/payments-stripe.spec.ts` | iDEAL via Stripe, creditcard via Stripe, Stripe refunds |
+| Environment | Command | Tests |
+|---|---|---|
+| **Local** (default routing) | `PLAYWRIGHT_BASE_URL=https://slimfact.localhost npx playwright test --grep-invert="payments-mollie\|payments-stripe" --workers=1` | All non-PSP: administrator, account, invoice-line-types, payments |
+| **Mollie** (both PSP→Mollie) | `SLIMFACT_PSP=mollie API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-mollie.spec.ts --workers=1` | Mollie PSP only: iDEAL, Creditcard |
+| **Stripe** (both PSP→Stripe) | `SLIMFACT_PSP=stripe API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-stripe.spec.ts --workers=1` | Stripe PSP only: iDEAL, Creditcard, Refunds |
 
+**Never mix**: PSP tests need `API_HOST` set to NetBird URL (for OIDC issuer match). Non-PSP tests use `slimfact.localhost`. Use `--workers=1` to avoid parallel DB conflicts.
+
+### Test patterns
+
+**Combobox (Quasar QSelect)**: Never use `expect(locator).toBeVisible()` on a listbox after clicking a combobox — the Quasar QSelect popup can be unreliable. Use the `fillComboboxes()` helper from `helpers.ts` which clicks the combobox, presses ArrowDown as fallback, and waits for `[role="listbox"] [role="option"]` with 15s timeout.
+
+**mkInvoice / mkBill**: After submitting an invoice/bill form, navigate to `/admin/invoices` and `waitForLoadState('networkidle')` before clicking `.q-expansion-item__toggle-icon'.first()` — otherwise parallel tests' invoices pollute the list and `.first()` selects the wrong item.
+
+**Cash payments**: Cash is an admin-side (POS) payment method, NOT available on the public invoice page. Tests must go through `/admin/invoices` → expand invoice → More → "Add payment" → Cash.
+
+**Stripe `completeStripePayment`**: The `#authorize-test-payment` button only appears for iDEAL flow. Use short timeout (5s) on its click attempt, not 60s. For credit card payments, Stripe auto-redirects after submit — no confirm button needed.
+
+**Shared page state**: Tests sharing a `page` variable (serial mode) must be careful about leftover state from prior tests. Prefer `browser.newPage()` + `login()` for each test that creates/modifies data.
 Run with: `cd packages/api && npx playwright test tests/e2e/payments.spec.ts`
 
 ### Docker Test Configs

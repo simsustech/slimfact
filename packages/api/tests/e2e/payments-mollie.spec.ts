@@ -24,18 +24,15 @@ test.beforeAll(async ({ browser }) => {
   ).toBeVisible({ timeout: 20000 })
 })
 
+test.afterAll(async () => {
+  await page.close()
+})
 test.beforeAll(async ({ request }) => {
   const resp = await request.get('/configuration')
   const config = await resp.json()
   const routing = config.PAYMENT_METHOD_ROUTING
-  if (
-    !routing ||
-    (routing.ideal !== 'mollie' && routing.creditcard !== 'mollie')
-  ) {
-    test.skip(
-      true,
-      `Mollie not configured as payment handler (routing: ${JSON.stringify(routing)})`
-    )
+  if (!routing) {
+    test.skip(true, 'No payment method routing configured')
   }
 })
 
@@ -47,7 +44,13 @@ test.describe('Mollie', () => {
     await page.waitForTimeout(5000)
   })
 
-  test('iDEAL', async () => {
+  test('iDEAL', async ({ request }) => {
+    const resp = await request.get('/configuration')
+    const routing = (await resp.json()).PAYMENT_METHOD_ROUTING
+    if (routing?.ideal !== 'mollie') {
+      test.skip(true, 'iDEAL not routed to Mollie')
+      return
+    }
     const uuid = await mkInvoice(page)
     expect(uuid).toBeTruthy()
     await page.goto(`/invoice/${uuid}`)
@@ -90,7 +93,13 @@ test.describe('Mollie', () => {
     ).toBe(true)
   })
 
-  test('Creditcard', async () => {
+  test('Creditcard', async ({ request }) => {
+    const resp = await request.get('/configuration')
+    const routing = (await resp.json()).PAYMENT_METHOD_ROUTING
+    if (routing?.creditcard !== 'mollie') {
+      test.skip(true, 'Creditcard not routed to Mollie')
+      return
+    }
     const uuid = await mkInvoice(page)
     expect(uuid).toBeTruthy()
     await page.goto(`/invoice/${uuid}`)
