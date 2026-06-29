@@ -3,3 +3,10 @@ services:
     environment:
       IDEAL_PAYMENT_HANDLER: mollie
       CREDITCARD_PAYMENT_HANDLER: mollie
+      MOLLIE_API_KEY: /run/secrets/MOLLIE_API_KEY
+    secrets:
+      - MOLLIE_API_KEY
+
+secrets:
+  MOLLIE_API_KEY:
+    environment: MOLLIE_API_KEY

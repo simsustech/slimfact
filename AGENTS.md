@@ -237,7 +237,13 @@ pnpm run dev
 
 ### Required Secrets
 
-Secrets are mounted as Docker secrets from local files:
+Before any Docker command, export secrets from `env/*` files:
+
+```bash
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)
+export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
+```
 
 | Secret | File | Purpose |
 |--------|------|---------|
@@ -245,7 +251,7 @@ Secrets are mounted as Docker secrets from local files:
 | `MOLLIE_API_KEY` | `env/MOLLIE_API_KEY` | Mollie API key (test mode) |
 | `STRIPE_API_KEY` | `env/STRIPE_API_KEY` | Stripe API key (test mode) |
 
-Unlike the old approach (Docker secrets mount to ~/.npmrc), the npm token is now passed as a build arg and written to ~/.npmrc directly in the Dockerfile.
+`SIMSUSTECH_NPM_TOKEN` is needed for all builds. `MOLLIE_API_KEY`/`STRIPE_API_KEY` are only needed when using PSP override files (`-f docker-compose.test.mollie.yaml` or `-f docker-compose.test.stripe.yaml`).
 
 ### Build
 
@@ -255,11 +261,12 @@ pnpm run build  # Builds tools → app → api
 
 ### Docker Secrets
 
-Secrets (API keys, tokens) must use Docker secrets, never env vars or hardcoded values in compose files:
-1. Add to `secrets:` section with `environment:` source
-2. Reference in service's `secrets:` list  
-3. `@vitrify/tools/env` reads `/run/secrets/<NAME>` automatically — no command changes needed
-4. Required secrets: `SIMSUSTECH_NPM_TOKEN`, `MOLLIE_API_KEY`, `STRIPE_API_KEY`
+Secrets use Docker Compose `secrets:` with `environment:` source — not `file:` (which breaks in CI):
+1. Export secrets as env vars: `export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)`
+2. Compose declares: `secrets: { MOLLIE_API_KEY: { environment: MOLLIE_API_KEY } }`
+3. Service mounts them: `secrets: [MOLLIE_API_KEY]` → file at `/run/secrets/MOLLIE_API_KEY`
+4. `@vitrify/tools/env` reads `/run/secrets/<NAME>` automatically
+5. `SIMSUSTECH_NPM_TOKEN` is wired in `docker-compose.test.yaml`. `MOLLIE_API_KEY`/`STRIPE_API_KEY` are in the PSP override files only (`test.mollie.yaml` / `test.stripe.yaml`).
 
 ## Payment Flow
 
@@ -388,17 +395,26 @@ Usage: `docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie
 
 ### Quality Checks (run after every change)
 
-> **Note:** `PI_RTK_BYPASS=1` must be set when running `pnpm run build` inside a Pi session to bypass RTK output compression that hides TypeScript errors. `SIMSUSTECH_NPM_TOKEN` must be `export`ed (not just set) before any Docker command.
+> **Note:** `PI_RTK_BYPASS=1` must be set when running `pnpm run build` inside a Pi session to bypass RTK output compression that hides TypeScript errors. All secrets must be `export`ed (not just set) before any Docker command.
 
 ```bash
+# Export all needed secrets (once per shell)
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)
+export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
+
 pnpm run lint
 pnpm run format:check || pnpm run format:write
-pnpm run build
-export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN) && docker compose -f docker-compose.test.yaml down --volumes
-export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN) && docker compose -f docker-compose.test.yaml build --no-cache api
-export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN) && docker compose -f docker-compose.test.yaml up -d api
+PI_RTK_BYPASS=1 pnpm run build
+
+# Base test stack (no PSP)
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+docker compose -f docker-compose.test.yaml up -d api
 cd packages/api && pnpm run test:e2e
-# PSP tests need: PLAYWRIGHT_BASE_URL=<NETBIRD_URL> pnpm run test:e2e
+
+# PSP tests need NetBird URL + the right override file:
+# PLAYWRIGHT_BASE_URL=<NETBIRD_URL> pnpm run test:e2e
 ```
 
 ### Database
