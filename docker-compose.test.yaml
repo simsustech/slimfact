@@ -72,12 +72,12 @@ services:
       database:
         condition: service_healthy
     labels:
-      caddy: localhost:3000, slimfact-dev.eu1.netbird.services
+      caddy: ${API_HOST:-slimfact.localhost}
       caddy.reverse_proxy: '{{upstreams 80}}'
       caddy.encode: zstd gzip
     environment:
       # VITE_API_HOST: localhost:3000
-      VITE_API_HOST: slimfact-dev.eu1.netbird.services
+      VITE_API_HOST: ${API_HOST:-slimfact.localhost}
       VITE_LICENSE_KEY: undefined
       VITE_TITLE: SlimFact
       VITE_SOURCE_COLOR: '#00a4e6'
