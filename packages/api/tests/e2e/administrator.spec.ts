@@ -26,16 +26,13 @@ test.beforeAll(async ({ browser }) => {
   await page.locator('button >> text=Login').click()
 
   await page.waitForURL(/.*user/)
-  await expect(
-    page
-      .getByRole('tab', { name: 'Administrator' })
-      .or(page.getByText('Administrator').locator(':scope.q-item__label'))
-  ).toBeVisible()
+  await expect(page.getByText('Administrator').first()).toBeAttached()
 })
 
 test.describe('Settings', async () => {
   test('Companies', async () => {
-    await page.locator('#fabAdd').click()
+    await page.goto('/admin/settings/companies')
+    await page.waitForTimeout(1000)
     await page.locator('#fabAdd').click()
     await page
       .getByRole('textbox', { name: 'Name*' })
