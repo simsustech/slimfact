@@ -23,14 +23,9 @@ export default async function globalSetup() {
     timeout: 30000
   })
   console.log('[global-setup] Starting test stack…')
-  execSync(`docker compose ${composeArgs} up -d api`, {
+  execSync(`docker compose ${composeArgs} up -d --wait`, {
     stdio: 'inherit',
     timeout: 60000
   })
-  console.log('[global-setup] Waiting for API to be healthy…')
-  execSync(
-    'timeout 120 sh -c "while ! curl -sk http://localhost:3001 > /dev/null 2>&1; do sleep 2; done"',
-    { stdio: 'inherit', timeout: 130000 }
-  )
-  console.log('[global-setup] API ready, database reseeded.')
+  console.log('[global-setup] Stack ready.')
 }

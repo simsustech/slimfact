@@ -16,7 +16,7 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     headless: !!process.env.CI,
     serviceWorkers: 'block',
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://localhost:3000'
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://slimfact.localhost'
   },
 
   projects: [
