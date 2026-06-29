@@ -145,7 +145,9 @@ test.describe('Mollie', () => {
     ).toBe(true)
   })
 
-  test('shows iDEAL and Credit card payment options on public invoice', async ({ request }) => {
+  test('shows iDEAL and Credit card payment options on public invoice', async ({
+    request
+  }) => {
     const resp = await request.get('/configuration')
     const routing = (await resp.json()).PAYMENT_METHOD_ROUTING
     if (routing?.ideal !== 'mollie') {
