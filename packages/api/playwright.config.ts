@@ -29,7 +29,11 @@ export default defineConfig({
         }
       },
       testIgnore: process.env.CI
-        ? ['payments.spec.ts', 'payments-mollie.spec.ts', 'payments-stripe.spec.ts']
+        ? [
+            'payments.spec.ts',
+            'payments-mollie.spec.ts',
+            'payments-stripe.spec.ts'
+          ]
         : undefined
     }
   ]
