@@ -219,6 +219,12 @@
         </q-scroll-area>
       </div>
 
+      <div class="print-only-message">
+        <div class="text-h5 text-center q-pa-xl">
+          {{ lang.invoice.labels.downloadPdfToPrint }}
+        </div>
+      </div>
+
       <responsive-dialog
         ref="bankTransferDialogRef"
         :icons="{ close: 'i-mdi-close' }"
@@ -548,21 +554,28 @@ onMounted(async () => {
 </script>
 
 <style>
-@page {
-  size: a4;
-  margin-top: 15mm;
-  margin-left: 15mm;
+.print-only-message {
+  display: none;
 }
 @media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
   .no-print,
   .no-print * {
     display: none !important;
   }
-  #invoice {
-    margin-top: -76px;
-    padding: 0;
-    padding: 0 !important;
-    border: none !important;
+  .q-scroll-area {
+    display: none !important;
+  }
+  .print-only-message {
+    display: flex !important;
+    position: fixed;
+    inset: 0;
+    justify-content: center;
+    align-items: center;
   }
 }
 #invoice {
