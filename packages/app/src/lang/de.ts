@@ -143,6 +143,8 @@ const lang: Language = {
       markPaid: 'Als bezahlt markieren',
       cancel: 'Abbrechen',
       print: 'Drucken',
+      downloadPdfToPrint:
+        'Bitte nutzen Sie den Download-Button, um das PDF zu erhalten, und drucken Sie es aus Ihrem PDF-Viewer.',
       openReference: 'Referenz öffnen'
     },
     messages: {
