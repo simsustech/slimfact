@@ -50,27 +50,26 @@ export const moreBtn = async (p: Page) => {
     .locator('.q-expansion-item')
     .first()
     .locator('button')
-    .filter({ has: p.locator('.i-mdi-more-vert') })
+    .filter({ has: p.locator('.i-mdi-more-vert, .i-mdi-dots-vertical') })
     .first()
   await btn.waitFor({ state: 'visible', timeout: 10000 })
   await btn.click()
-  await p.waitForTimeout(300)
+  await p.locator('.q-menu, .q-popup-edit, [role="menu"]').first().waitFor({
+    state: 'visible',
+    timeout: 5000
+  })
 }
 
 async function fillComboboxes(p: Page) {
   for (const name of ['Company*', 'Client*', 'Number prefix*']) {
-    // Open the combobox
     await p.getByRole('combobox', { name }).click()
-    // Wait for the dropdown with options
     await p.waitForSelector('[role="listbox"] [role="option"]', {
       timeout: 5000
     })
-    // Click first option via evaluate to avoid timing issues
     await p.evaluate(() => {
       const opts = document.querySelectorAll('[role="listbox"] [role="option"]')
       if (opts.length) (opts[0] as HTMLElement).click()
     })
-    // Close the dropdown for all except the last combobox
     if (name !== 'Number prefix*') {
       await p.getByRole('toolbar').first().click({ force: true })
       await p
@@ -79,13 +78,12 @@ async function fillComboboxes(p: Page) {
         .waitFor({ state: 'hidden', timeout: 5000 })
         .catch(() => {})
     }
-    await p.waitForTimeout(300)
   }
 }
 
 export async function mkInvoice(p: Page) {
   await p.goto('/admin/invoices')
-  await p.waitForTimeout(3000)
+  await p.waitForLoadState('networkidle')
   await p.locator('#fabAdd').click({ force: true })
   await fillComboboxes(p)
   await p
@@ -99,34 +97,35 @@ export async function mkInvoice(p: Page) {
   await p.getByRole('button', { name: 'Submit' }).click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p.waitForTimeout(300)
+  await p.locator('.q-expansion-item__content').first().waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const so = p.getByText('Send').first()
   if (await so.isVisible().catch(() => false)) await so.click()
-  await p.waitForTimeout(500)
   const subj = p.locator('.q-dialog input[type="text"]').first()
-  if (await subj.isVisible()) await subj.fill('Invoice')
+  if (await subj.isVisible()) {
+    await subj.waitFor({ state: 'visible', timeout: 5000 })
+    await subj.fill('Invoice')
+  }
   const body = p.locator('.q-dialog textarea').first()
   if (await body.isVisible()) await body.fill('.')
   await p.getByRole('button', { name: 'Send' }).click({ timeout: 3000 })
-  await p.waitForTimeout(1500)
+  await p.locator('.q-notification, .q-banner').first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {})
   await p.goto('/admin/invoices')
-  await p.waitForTimeout(3000)
+  await p.waitForLoadState('networkidle')
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p.waitForTimeout(300)
+  await p.locator('.q-expansion-item__content').first().waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const lnk = p.locator('a').filter({ hasText: 'Open' }).first()
   let uuid = ''
   if (await lnk.isVisible({ timeout: 3000 }).catch(() => false))
     uuid = (await lnk.getAttribute('href'))?.replace('/invoice/', '') || ''
   await p.keyboard.press('Escape')
-  await p.waitForTimeout(200)
   return uuid
 }
 
 export async function mkBill(p: Page) {
   await p.goto('/admin/bills')
-  await p.waitForTimeout(3000)
+  await p.waitForLoadState('networkidle')
   await p.locator('#fabAdd').click({ force: true })
   await fillComboboxes(p)
   await p
@@ -140,13 +139,12 @@ export async function mkBill(p: Page) {
   await p.getByRole('button', { name: 'Submit' }).click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p.waitForTimeout(300)
+  await p.locator('.q-expansion-item__content').first().waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const lnk = p.locator('a').filter({ hasText: 'Open' }).first()
   let uuid = ''
   if (await lnk.isVisible({ timeout: 3000 }).catch(() => false))
     uuid = (await lnk.getAttribute('href'))?.replace('/invoice/', '') || ''
   await p.keyboard.press('Escape')
-  await p.waitForTimeout(200)
   return uuid
 }
