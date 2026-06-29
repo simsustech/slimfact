@@ -45,9 +45,9 @@
     "format:write": "oxfmt --write ."
   },
   "dependencies": {
-    "@modular-api/fastify-checkout": "0.5.17",
+    "@modular-api/fastify-checkout": "0.7.0",
     "@myriaddreamin/typst-ts-renderer": "0.7.0",
-    "@rgrove/parse-xml": "4.2.0",
+    "@rgrove/parse-xml": "4.2.1",
     "export-to-csv": "1.4.0",
     "fast-xml-parser": "5.9.3",
     "handlebars": "4.7.9",
