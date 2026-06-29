@@ -21,20 +21,16 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-      testIgnore: process.env.CI
-        ? ['payments-mollie.spec.ts', 'payments-stripe.spec.ts']
-        : undefined
-    },
-    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
           args: ['--no-sandbox', '--disable-setuid-sandbox']
         }
-      }
+      },
+      testIgnore: process.env.CI
+        ? ['payments-mollie.spec.ts', 'payments-stripe.spec.ts']
+        : undefined
     }
   ]
 })

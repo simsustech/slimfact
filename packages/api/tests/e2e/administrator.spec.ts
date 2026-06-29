@@ -132,6 +132,7 @@ test.describe('Administrator', async () => {
 
     await page.locator('#fabAdd').click()
     await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await page.getByRole('combobox', { name: 'Company*' }).click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()
