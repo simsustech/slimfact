@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { dumpPage, mkInvoice, moreBtn as clickMoreButton } from './helpers'
+import { mkInvoice, moreBtn as clickMoreButton } from './helpers'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -34,6 +34,9 @@ test.beforeAll(async ({ browser }) => {
   await page.waitForURL(/.*user/)
 })
 
+test.afterAll(async () => {
+  await page.close()
+})
 test.describe('Payment Options', () => {
   test.setTimeout(120000)
 
@@ -41,11 +44,15 @@ test.describe('Payment Options', () => {
     const invoiceUuid = await mkInvoice(page)
     expect(invoiceUuid).toBeTruthy()
     await page.goto(`/invoice/${invoiceUuid}`)
-    await page.waitForTimeout(3000)
+    await page.waitForLoadState('networkidle')
 
     const payButton = page.getByRole('button', { name: /Pay/ })
     await payButton.click()
-    await page.waitForTimeout(300)
+    await page
+      .getByRole('dialog')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {})
 
     await expect(page.getByText('iDEAL').first()).toBeVisible()
     await expect(page.getByText('Credit card').first()).toBeVisible()
@@ -54,78 +61,37 @@ test.describe('Payment Options', () => {
 })
 
 test.describe('Cash Payment', () => {
+  test.setTimeout(120000)
   test('Full lifecycle: invoice sent → paid via cash', async () => {
+    // Create and send invoice using the proven helper
+    const uuid = await mkInvoice(page)
+    expect(uuid).toBeTruthy()
+    // Go to admin panel, expand the invoice, add cash payment (admin/POS flow)
     await page.goto('/admin/invoices')
-    await page.waitForTimeout(3000)
-    await page.locator('#fabAdd').click()
-
-    await page.getByRole('combobox', { name: 'Company*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-    await page.getByRole('toolbar').first().click({ force: true })
-    await page.waitForTimeout(500)
-
-    await page.getByRole('combobox', { name: 'Client*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-    await page.getByRole('toolbar').first().click({ force: true })
-    await page.waitForTimeout(500)
-
-    // Wait for number prefix options to load before selecting
-    await page.getByRole('combobox', { name: 'Number prefix*' }).click()
-    await expect(page.getByRole('option').first()).toBeVisible({
-      timeout: 10000
-    })
-    await page.getByRole('option').first().click()
-
+    await page.waitForLoadState('networkidle')
     await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
-    await page
-      .getByRole('textbox', { name: 'Description' })
-      .fill('E2E test invoice')
-    await page.getByRole('spinbutton', { name: 'Unit price' }).fill('50.00')
-    await page.getByRole('button', { name: 'Done' }).click()
-    await page.getByRole('button', { name: 'Submit' }).click()
-    await expect(page.getByText('€50.00').first()).toBeVisible({
-      timeout: 10000
-    })
-
-    const expandButton = page.locator('.q-expansion-item__toggle-icon').first()
-    await expandButton.click({ force: true })
-    await page.waitForTimeout(500)
+      .locator('.q-expansion-item__toggle-icon')
+      .first()
+      .click({ force: true })
     await clickMoreButton(page)
-
-    const sendOption = page.getByText('Send').first()
-    await expect(sendOption).toBeVisible()
-    await sendOption.click()
-    await page.waitForTimeout(500)
-
-    const subjectInput = page.locator('.q-dialog input[type="text"]').first()
-    if (await subjectInput.isVisible()) {
-      await subjectInput.fill('Invoice')
-    }
-    const bodyTextarea = page.locator('.q-dialog textarea').first()
-    if (await bodyTextarea.isVisible()) {
-      await bodyTextarea.fill('Please find your invoice attached.')
-    }
-    await page.getByRole('button', { name: 'Send' }).click()
-    await page.waitForTimeout(1500)
-
-    await expandButton.click({ force: true })
-    await page.waitForTimeout(500)
-    await clickMoreButton(page)
-
     await page.getByText('Add payment').first().click()
-    await page.waitForTimeout(500)
+    await page
+      .getByRole('dialog')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {})
 
+    // Select Cash payment in the dialog
     const cashOption = page.getByText('Cash').first()
     await expect(cashOption).toBeVisible({ timeout: 5000 })
     await cashOption.click({ force: true })
-    await page.waitForTimeout(500)
+    await page
+      .getByRole('dialog')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {})
 
+    // Fill the total amount and confirm
     const fillTotalButton = page
       .locator('.q-dialog button i[class*="mdi-dollar"]')
       .first()
@@ -133,15 +99,24 @@ test.describe('Cash Payment', () => {
       await fillTotalButton.click()
     }
     await page.locator('.q-dialog button:has-text("OK")').click()
-    await page.waitForTimeout(1500)
+    await page
+      .locator('.q-notification, .q-banner')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 })
+      .catch(() => {})
 
-    await expandButton.click({ force: true })
-    await page.waitForTimeout(500)
+    // Verify the payment is recorded
+    await page.goto('/admin/invoices')
+    await page.waitForLoadState('networkidle')
+    await page
+      .locator('.q-expansion-item__toggle-icon')
+      .first()
+      .click({ force: true })
+    await clickMoreButton(page)
     await expect(page.getByText('Payments').first()).toBeVisible({
       timeout: 5000
     })
 
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(200)
   })
 })

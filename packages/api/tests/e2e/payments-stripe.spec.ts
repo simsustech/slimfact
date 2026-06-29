@@ -52,23 +52,42 @@ async function completeStripePayment(p: Page): Promise<boolean> {
     console.log('Clicked submit')
   }
 
-  // Wait for redirect back — credit card auto-completes, iDEAL needs authorize
+  // Wait for redirect back after submit
   try {
     await p.waitForURL(/slimfact|localhost/, { timeout: 60000 })
     console.log('Back on SlimFact:', p.url())
     return true
   } catch {
-    // Still on Stripe — click authorize for iDEAL flow
+    // Still on Stripe — try confirmation / authorize buttons
   }
 
+  // Try the Stripe test authorize button (iDEAL flow)
   try {
-    await p
-      .locator('#authorize-test-payment')
-      .click({ force: true, timeout: 60000 })
+    await p.locator('#authorize-test-payment').click({ timeout: 5000 })
+    console.log('Clicked authorize-test-payment')
   } catch {
-    /* button not present, no-op */
+    /* no-op */
   }
 
+  // Try other confirm/complete buttons
+  for (const sel of [
+    'button:has-text("Complete")',
+    '#confirm',
+    'button[type="submit"]'
+  ]) {
+    try {
+      const btn = p.locator(sel).first()
+      if (await btn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await btn.click({ timeout: 5000 })
+        console.log('Clicked:', sel)
+        break
+      }
+    } catch {
+      /* no-op */
+    }
+  }
+
+  // Final redirect wait
   try {
     await p.waitForURL(/slimfact|localhost/, { timeout: 60000 })
     console.log('Back on SlimFact:', p.url())
@@ -152,6 +171,17 @@ test.describe('Creditcard via Stripe', () => {
 
 test.describe('Stripe Refunds', () => {
   test.setTimeout(600000)
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage()
+    await login(page)
+    const r = await page.request.get('/configuration')
+    if (
+      !r.ok() ||
+      (await r.json()).PAYMENT_METHOD_ROUTING?.creditcard !== 'stripe'
+    )
+      test.skip(true, 'Creditcard not routed to Stripe')
+    await page.close()
+  })
   test('Refund via Stripe', async ({ browser }) => {
     const page = await browser.newPage()
     await login(page)

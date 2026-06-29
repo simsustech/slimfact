@@ -60,9 +60,16 @@ export const moreBtn = async (p: Page) => {
   })
 }
 
-async function fillComboboxes(p: Page) {
+export async function fillComboboxes(p: Page) {
   for (const name of ['Company*', 'Client*', 'Number prefix*']) {
     await p.getByRole('combobox', { name }).click()
+    await p.waitForTimeout(300)
+    // Try keyboard open if click didn't work
+    await p.keyboard.press('ArrowDown')
+    await p.waitForTimeout(300)
+    await p.waitForSelector('[role="listbox"]', {
+      timeout: 10000
+    })
     await p.waitForSelector('[role="listbox"] [role="option"]', {
       timeout: 5000
     })
@@ -96,8 +103,13 @@ export async function mkInvoice(p: Page) {
   await p.getByRole('button', { name: 'Done' }).click()
   await p.getByRole('button', { name: 'Submit' }).click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
+  await p.goto('/admin/invoices')
+  await p.waitForLoadState('networkidle')
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p.locator('.q-expansion-item__content').first().waitFor({ state: 'visible', timeout: 5000 })
+  await p
+    .locator('.q-expansion-item__content')
+    .first()
+    .waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const so = p.getByText('Send').first()
   if (await so.isVisible().catch(() => false)) await so.click()
@@ -109,11 +121,18 @@ export async function mkInvoice(p: Page) {
   const body = p.locator('.q-dialog textarea').first()
   if (await body.isVisible()) await body.fill('.')
   await p.getByRole('button', { name: 'Send' }).click({ timeout: 3000 })
-  await p.locator('.q-notification, .q-banner').first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {})
+  await p
+    .locator('.q-notification, .q-banner')
+    .first()
+    .waitFor({ state: 'visible', timeout: 10000 })
+    .catch(() => {})
   await p.goto('/admin/invoices')
   await p.waitForLoadState('networkidle')
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p.locator('.q-expansion-item__content').first().waitFor({ state: 'visible', timeout: 5000 })
+  await p
+    .locator('.q-expansion-item__content')
+    .first()
+    .waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const lnk = p.locator('a').filter({ hasText: 'Open' }).first()
   let uuid = ''
@@ -139,7 +158,10 @@ export async function mkBill(p: Page) {
   await p.getByRole('button', { name: 'Submit' }).click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p.locator('.q-expansion-item__content').first().waitFor({ state: 'visible', timeout: 5000 })
+  await p
+    .locator('.q-expansion-item__content')
+    .first()
+    .waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const lnk = p.locator('a').filter({ hasText: 'Open' }).first()
   let uuid = ''
