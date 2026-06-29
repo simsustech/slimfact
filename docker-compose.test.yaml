@@ -52,8 +52,7 @@ services:
         DEBUG: 'true'
       secrets:
         - SIMSUSTECH_NPM_TOKEN
-        - MOLLIE_API_KEY
-        - STRIPE_API_KEY
+  
       dockerfile: Dockerfile
       target: api
       network: 'host'
@@ -93,11 +92,8 @@ services:
       OTP_SECRET: NNXHQ5TPNF2WK53POJUWU53MMVXHE===
       OTP_VALIDITY_SECONDS: 3600
       EMAIL_FOOTER: 'SlimFact <info@slimfact.app>'
-      MOLLIE_API_KEY: /run/secrets/MOLLIE_API_KEY
-      STRIPE_API_KEY: /run/secrets/STRIPE_API_KEY
-    secrets:
-      - MOLLIE_API_KEY
-      - STRIPE_API_KEY
+
+
     command:
       [
         'sh',
@@ -117,10 +113,7 @@ services:
 secrets:
   SIMSUSTECH_NPM_TOKEN:
     environment: 'SIMSUSTECH_NPM_TOKEN'
-  MOLLIE_API_KEY:
-    environment: MOLLIE_API_KEY
-  STRIPE_API_KEY:
-    environment: STRIPE_API_KEY
+
 
 networks:
   staging:
