@@ -144,4 +144,29 @@ test.describe('Mollie', () => {
       t?.toLowerCase().includes('paid') || t?.toLowerCase().includes('betaald')
     ).toBe(true)
   })
+
+  test('shows iDEAL and Credit card payment options on public invoice', async ({ request }) => {
+    const resp = await request.get('/configuration')
+    const routing = (await resp.json()).PAYMENT_METHOD_ROUTING
+    if (routing?.ideal !== 'mollie') {
+      test.skip(true, 'iDEAL not routed to Mollie')
+      return
+    }
+    const uuid = await mkInvoice(page)
+    expect(uuid).toBeTruthy()
+    await page.goto(`/invoice/${uuid}`)
+    await page.waitForLoadState('networkidle')
+
+    const payButton = page.getByRole('button', { name: /Pay/ })
+    await payButton.click()
+    await page
+      .getByRole('dialog')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {})
+
+    await expect(page.getByText('iDEAL').first()).toBeVisible()
+    await expect(page.getByText('Credit card').first()).toBeVisible()
+    await expect(page.getByText('Bank transfer').first()).toBeVisible()
+  })
 })
