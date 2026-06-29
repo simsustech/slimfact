@@ -104,7 +104,7 @@
     "oxlint": "1.71.0",
     "quasar": "2.20.1",
     "typescript": "6.0.3",
-    "unocss": "66.7.3",
+    "unocss": "66.7.4",
     "unocss-preset-quasar": "0.3.4",
     "vite": "8.1.0",
     "vitrify": "0.26.11",
