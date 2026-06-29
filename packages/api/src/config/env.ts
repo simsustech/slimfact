@@ -25,8 +25,6 @@ export const appConfig = {
   title: read('VITE_TITLE') || 'SlimFact',
 
   modularapiDefaultEmail: read('MODULARAPI_DEFAULT_EMAIL'),
-
-  modularapiDefaultEmail: read('MODULARAPI_DEFAULT_EMAIL'),
   modularapiDefaultPassword: read('MODULARAPI_DEFAULT_PASSWORD'),
 
   pinEnabled: read('PIN_ENABLED') === 'true',
