@@ -16,6 +16,7 @@ const invoiceLineValidation = z.object({
     .nullable()
     .optional(),
   description: z.string(),
+  type: z.string().nullable().optional(),
   listPrice: z.number(),
   discount: z.number(),
   taxRate: z.number(),
@@ -51,7 +52,8 @@ export const invoiceValidation = {
   status: z.nativeEnum(InvoiceStatus).nullable().optional(),
   reminderSentDates: z.array(z.string()).optional(),
   paymentId: z.number().optional().nullable(),
-  metadata: z.record(z.string(), z.unknown()).optional().nullable()
+  metadata: z.record(z.string(), z.unknown()).optional().nullable(),
+  replaceExistingLinesOfSameType: z.boolean().optional()
 }
 
 export const invoice = z.object(invoiceValidation)
