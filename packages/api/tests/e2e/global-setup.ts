@@ -9,15 +9,14 @@ import { resolve } from 'node:path'
 export default async function globalSetup() {
   const root =
     process.env.SLIMFACT_ROOT || resolve(import.meta.dirname, '../../../..')
+  const pspOverride = process.env.SLIMFACT_PSP
+    ? `-f ${root}/docker-compose.test.${process.env.SLIMFACT_PSP}.yaml`
+    : ''
   const composeArgs =
     process.env.COMPOSE_ARGS ||
-    [
-      '-f',
-      `${root}/docker-compose.test.yaml`,
-      '-f',
-      `${root}/docker-compose.test.stripe.yaml`
-    ].join(' ')
-  console.log(`[global-setup] Tearing down test stack (${composeArgs})…`)
+    [`-f`, `${root}/docker-compose.test.yaml`, pspOverride]
+      .filter(Boolean)
+      .join(' ')
   execSync(`docker compose ${composeArgs} down --volumes --remove-orphans`, {
     stdio: 'inherit',
     timeout: 30000
