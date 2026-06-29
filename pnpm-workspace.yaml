@@ -25,6 +25,7 @@ minimumReleaseAgeExclude:
   - cron-parser@5.6.1
   - pg-boss@12.22.0
   - stripe@22.3.0
+  - cronstrue@3.23.0
 
 allowBuilds:
   "@parcel/watcher": true
@@ -34,5 +35,3 @@ allowBuilds:
   simple-git-hooks: true
 
 minimumReleaseAgeIgnoreMissingTime: true
-
-overrides: {}
