@@ -118,9 +118,9 @@ secrets:
   SIMSUSTECH_NPM_TOKEN:
     environment: 'SIMSUSTECH_NPM_TOKEN'
   MOLLIE_API_KEY:
-    file: ./env/MOLLIE_API_KEY
+    environment: MOLLIE_API_KEY
   STRIPE_API_KEY:
-    file: ./env/STRIPE_API_KEY
+    environment: STRIPE_API_KEY
 
 networks:
   staging:
