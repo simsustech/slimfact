@@ -32,8 +32,6 @@ import {
   QChip
 } from 'quasar'
 
-import { setDefaultPropsMd3 } from 'unocss-preset-quasar/styles'
-
 import { EventBus } from 'quasar'
 import { provide } from 'vue'
 
@@ -53,17 +51,6 @@ useMeta(() => {
   return {
     title: configuration.value.TITLE
   }
-})
-
-setDefaultPropsMd3({
-  QBtn,
-  QBtnDropdown,
-  QBtnGroup,
-  QBtnToggle,
-  QInput,
-  QSelect,
-  QField,
-  QChip
 })
 </script>
 
