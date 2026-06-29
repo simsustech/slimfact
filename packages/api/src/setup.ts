@@ -27,11 +27,8 @@ import healthRoutes from './routes/health.js'
 import type { ClientMetadata } from 'oidc-provider'
 import { generateTheme } from 'unocss-preset-quasar/theme'
 
+const theme = generateTheme(config.sourceColor)
 const OIDC_API_CLIENT_IDS = ['petboarding']
-
-import { initialize } from './pgboss.js'
-import healthRoutes from './routes/health.js'
-import type { ClientMetadata } from 'oidc-provider'
 
 /**
  * Only used in SSR/SSG
@@ -233,7 +230,6 @@ export default async function (fastify: FastifyInstance) {
       issuerName: config.oidcIssuerName,
       locale: config.lang,
       themeColors: theme['colors'],
-      {},
       issuer: `https://${host}`,
       accountMethods,
       firstPartyClients: ['slimfact'],
