@@ -24,14 +24,7 @@ export const appConfig = {
   country: read('VITE_COUNTRY') || 'NL',
   title: read('VITE_TITLE') || 'SlimFact',
 
-  sassVariablePrimary: read('SASS_VARIABLE_PRIMARY'),
-  sassVariableSecondary: read('SASS_VARIABLE_SECONDARY'),
-  sassVariableAccent: read('SASS_VARIABLE_ACCENT'),
-  sassVariableDark: read('SASS_VARIABLE_DARK'),
-  sassVariablePositive: read('SASS_VARIABLE_POSITIVE'),
-  sassVariableNegative: read('SASS_VARIABLE_NEGATIVE'),
-  sassVariableInfo: read('SASS_VARIABLE_INFO'),
-  sassVariableWarning: read('SASS_VARIABLE_WARNING'),
+  modularapiDefaultEmail: read('MODULARAPI_DEFAULT_EMAIL'),
 
   modularapiDefaultEmail: read('MODULARAPI_DEFAULT_EMAIL'),
   modularapiDefaultPassword: read('MODULARAPI_DEFAULT_PASSWORD'),

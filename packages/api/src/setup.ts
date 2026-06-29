@@ -29,17 +29,9 @@ import { generateTheme } from 'unocss-preset-quasar/theme'
 
 const OIDC_API_CLIENT_IDS = ['petboarding']
 
-const theme = generateTheme(config.sourceColor)
-const sassVariables = {
-  $primary: config.sassVariablePrimary,
-  $secondary: config.sassVariableSecondary,
-  $accent: config.sassVariableAccent,
-  $dark: config.sassVariableDark,
-  $positive: config.sassVariablePositive,
-  $negative: config.sassVariableNegative,
-  $info: config.sassVariableInfo,
-  $warning: config.sassVariableWarning
-}
+import { initialize } from './pgboss.js'
+import healthRoutes from './routes/health.js'
+import type { ClientMetadata } from 'oidc-provider'
 
 /**
  * Only used in SSR/SSG
@@ -241,7 +233,7 @@ export default async function (fastify: FastifyInstance) {
       issuerName: config.oidcIssuerName,
       locale: config.lang,
       themeColors: theme['colors'],
-      sassVariables,
+      {},
       issuer: `https://${host}`,
       accountMethods,
       firstPartyClients: ['slimfact'],
@@ -310,7 +302,7 @@ export default async function (fastify: FastifyInstance) {
       LANG: config.lang,
       COUNTRY: config.country,
       TITLE: config.title,
-      SASS_VARIABLES: sassVariables,
+      SASS_VARIABLES: {},
       PAYMENT_HANDLERS: {
         cash: cashPaymentHandler !== void 0,
         pin: pinPaymentHandler !== void 0,
