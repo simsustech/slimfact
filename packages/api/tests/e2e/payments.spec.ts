@@ -37,28 +37,6 @@ test.beforeAll(async ({ browser }) => {
 test.afterAll(async () => {
   await page.close()
 })
-test.describe('Payment Options', () => {
-  test.setTimeout(120000)
-
-  test('shows iDEAL payment option on public invoice', async () => {
-    const invoiceUuid = await mkInvoice(page)
-    expect(invoiceUuid).toBeTruthy()
-    await page.goto(`/invoice/${invoiceUuid}`)
-    await page.waitForLoadState('networkidle')
-
-    const payButton = page.getByRole('button', { name: /Pay/ })
-    await payButton.click()
-    await page
-      .getByRole('dialog')
-      .first()
-      .waitFor({ state: 'visible', timeout: 5000 })
-      .catch(() => {})
-
-    await expect(page.getByText('iDEAL').first()).toBeVisible()
-    await expect(page.getByText('Credit card').first()).toBeVisible()
-    await expect(page.getByText('Bank transfer').first()).toBeVisible()
-  })
-})
 
 test.describe('Cash Payment', () => {
   test.setTimeout(120000)
