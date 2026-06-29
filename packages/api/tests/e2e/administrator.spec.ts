@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { faker } from '@faker-js/faker'
+import { fillComboboxes } from './helpers'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -29,6 +30,9 @@ test.beforeAll(async ({ browser }) => {
   await expect(page.getByText('Administrator').first()).toBeAttached()
 })
 
+test.afterAll(async () => {
+  await page.close()
+})
 test.describe('Settings', async () => {
   test('Companies', async () => {
     await page.goto('/admin/settings/companies')
@@ -133,24 +137,7 @@ test.describe('Administrator', async () => {
 
     await page.locator('#fabAdd').click()
     await page.waitForSelector('[role="combobox"]')
-    await page.getByRole('combobox', { name: 'Company*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
-
-    await page.getByRole('combobox', { name: 'Client*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
-
-    await page.getByRole('combobox', { name: 'Number prefix*' }).click()
-    await expect(page.getByRole('option').first()).toBeVisible()
-
-    await page.getByRole('option').first().click()
+    await fillComboboxes(page)
 
     await page
       .getByRole('list')
@@ -170,25 +157,7 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/invoices')
 
     await page.locator('#fabAdd').click()
-    await page.waitForSelector('[role="combobox"]')
-    await page.getByRole('combobox', { name: 'Company*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
-
-    await page.getByRole('combobox', { name: 'Client*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
-
-    await page.getByRole('combobox', { name: 'Number prefix*' }).click()
-    await expect(page.getByRole('option').first()).toBeVisible()
-
-    await page.getByRole('option').first().click()
+    await fillComboboxes(page)
 
     await page
       .getByRole('list')
@@ -208,27 +177,7 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/subscriptions')
 
     await page.locator('#fabAdd').click()
-    await page.waitForSelector('[role="combobox"]')
-    await page.getByRole('combobox', { name: 'Company*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
-
-    await page.getByRole('combobox', { name: 'Client*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
-
-    await page.getByRole('combobox', { name: 'Number prefix*' }).click()
-    await expect(page.getByRole('listbox').first()).toBeVisible()
-    await page.getByRole('option').first().click()
-
-    await page.getByRole('toolbar').first().click({ force: true })
-    await expect(page.getByRole('listbox').first()).not.toBeVisible()
+    await fillComboboxes(page)
 
     await page
       .getByRole('list')

@@ -65,6 +65,10 @@ test.beforeAll(async ({ browser }) => {
       .or(page.getByText('Account').locator(':scope.q-item__label'))
   ).toBeVisible()
 })
+test.afterAll(async () => {
+  await page.close()
+})
+
 test.describe('Account', async () => {
   test('Home', async () => {
     await page.goto('/account')
