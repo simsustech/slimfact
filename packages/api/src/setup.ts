@@ -304,8 +304,8 @@ export default async function (fastify: FastifyInstance) {
         cash: cashPaymentHandler !== void 0,
         pin: pinPaymentHandler !== void 0,
         bankTransfer: bankTransferPaymentHandler !== void 0,
-        ideal: !!molliePaymentHandler || !!stripePaymentHandler,
-        creditcard: !!stripePaymentHandler || !!molliePaymentHandler
+        ideal: !!paymentMethodRouting.ideal,
+        creditcard: !!paymentMethodRouting.creditcard
       },
       PAYMENT_METHOD_ROUTING: paymentMethodRouting
     }),
