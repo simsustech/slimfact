@@ -1,8 +1,5 @@
 import env from '@vitrify/tools/env'
 
-export { appConfig } from './env.js'
-export { postgresConfig } from './postgres.js'
-
 export function read(key: string, defaultValue?: string): string | undefined {
   const val = env.read(key)
   if (val !== undefined) return val

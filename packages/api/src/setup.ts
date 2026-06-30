@@ -3,7 +3,8 @@ import modularApiPlugin from '@modular-api/api'
 import { createAccountMethods } from '@modular-api/fastify-oidc/kysely'
 import rateLimit from '@fastify/rate-limit'
 import { createRouter, createContext } from './trpc/index.js'
-import { appConfig as config, env } from './config/index.js'
+import { appConfig as config } from './config/env.js'
+import { env } from './config/index.js'
 // @ts-expect-error no types
 import { fastifySsrPlugin as appSsrPlugin } from '@slimfact/app/fastify-ssr-plugin'
 import {
