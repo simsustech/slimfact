@@ -225,7 +225,7 @@ Dit zijn offline betaalmethoden. Registreer contante betalingen of overschrijvin
 
 Ga naar **Instellingen → Exports** voor toegang tot:
 
-- **Digiboox** — exporteer facturen in Digiboox-formaat
+- **Digiboox** — exporteer facturen in Digiboox-formaat. Meer formaten op verzoek beschikbaar.
 
 ## E-mailtracking
 
