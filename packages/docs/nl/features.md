@@ -81,7 +81,7 @@ Beheer meerdere bedrijven vanuit één account. Elk bedrijf krijgt zijn eigen id
 Verstuur facturen per e-mail. Weet wanneer ze gelezen worden.
 
 - **Aanpasbare e-mailsjablonen** — Handlebars-aangedreven met varianten per taal
-- **Open-tracking** — een onzichtbare pixel vertelt je wanneer een klant je e-mail opent
+- **Open-tracking** — een URL-queryparameter vertelt je wanneer een klant je e-mail opent
 - **E-mailinstellingen per bedrijf** — verschillende afzenderadressen en BCC per bedrijf
 - **Verstuur, verstuur opnieuw, beantwoord** — volledige e-mailworkflow vanuit het factuurdetail
 
@@ -108,8 +108,6 @@ SlimFact gebruikt [Typst](https://typst.app) — een moderne, open-source zetsys
 Jouw data, jouw formaat. SlimFact spreekt elke facturatie-taal.
 
 - **PDF** — Typst-gerenderd met perfecte typografie en je bedrijfshuisstijl
-- **UBL XML** — Universal Business Language voor geautomatiseerde e-facturatie
-- **Peppol XML** — Europese e-facturatiestandaard
 - **Digiboox** — formaat voor Digiboox-integratie
 - **EPC QR-codes** — scanbare betaalcodes op elke PDF-factuur
 - **CSV-export** — ruwe data voor je eigen analyse

@@ -232,10 +232,7 @@ These are offline payment methods. Record cash payments or bank transfers manual
 
 Go to **Settings → Exports** to access:
 
-- **CSV** — download all invoice data as a spreadsheet
-- **UBL XML** — e-invoicing standard format
-- **Peppol XML** — European e-invoicing
-- **Digiboox** — format for Digiboox integration
+- **Digiboox** — export invoices in Digiboox format
 
 ![Export options](/screenshots/admin-exports.png)
 
@@ -243,11 +240,7 @@ Go to **Settings → Exports** to access:
 
 ## Email Tracking
 
-When you send an invoice by email:
-
-- A tracking pixel is embedded in the email
-- When the customer opens the email, SlimFact records the event
-- Check the invoice events to see if and when the email was opened
+When you send an invoice by email, a URL query parameter is appended. When the customer opens the email and the image loads, the query is triggered and SlimFact records the event.
 
 ---
 

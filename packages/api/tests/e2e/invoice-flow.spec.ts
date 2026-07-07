@@ -100,9 +100,7 @@ test.describe('Invoice Lifecycle \u2014 Valid Transitions', () => {
     const cancelBtn = page.getByText('Cancel').first()
     await expect(cancelBtn).toBeVisible({ timeout: 3000 })
     await cancelBtn.click()
-    await page
-      .getByRole('button', { name: /cancel/i })
-      .click({ timeout: 3000 })
+    await page.getByRole('button', { name: /cancel/i }).click({ timeout: 3000 })
 
     await expect(page.getByRole('dialog')).not.toBeAttached({
       timeout: 5000

@@ -59,6 +59,7 @@
           name="currency"
         />
         <locale-select
+          filled
           v-model="modelValue.locale"
           :disable="!modelValue.companyId"
           :locales="languageLocales"
