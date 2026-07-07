@@ -34,28 +34,61 @@ test.afterAll(async () => {
 const headers = () => ({ Authorization: `Bearer ${token}` })
 
 async function trpc(path: string, input?: any) {
-  const res = await page.request.post(`/trpc/${path}`, { data: input, headers: headers() })
+  const res = await page.request.post(`/trpc/${path}`, {
+    data: input,
+    headers: headers()
+  })
   return res.json()
 }
 
 test('Create test invoices', async () => {
   for (const status of ['bill', 'open']) {
     const json = await trpc('admin.createInvoice', {
-      companyId: 1, clientId: 1, currency: 'EUR', paymentTermDays: 14,
-      numberPrefixTemplate: '{year}-{num}', locale: 'en-US',
-      lines: [{ description: 't', listPrice: 1000, listPriceIncludesTax: true, quantity: 1, quantityPerMille: false, taxRate: 21, discount: 0 }],
-      discounts: [], surcharges: [],
-      status,
+      companyId: 1,
+      clientId: 1,
+      currency: 'EUR',
+      paymentTermDays: 14,
+      numberPrefixTemplate: '{year}-{num}',
+      locale: 'en-US',
+      lines: [
+        {
+          description: 't',
+          listPrice: 1000,
+          listPriceIncludesTax: true,
+          quantity: 1,
+          quantityPerMille: false,
+          taxRate: 21,
+          discount: 0
+        }
+      ],
+      discounts: [],
+      surcharges: [],
+      status
     })
     expect(json.error).toBeUndefined()
     ids[status] = json.result.data.id
   }
   // Create concept (no status = defaults to concept)
   const json = await trpc('admin.createInvoice', {
-    companyId: 1, clientId: 1, currency: 'EUR', paymentTermDays: 14,
-    numberPrefixTemplate: '{year}-{num}', locale: 'en-US',
-    lines: [{ description: 't', listPrice: 1000, listPriceIncludesTax: true, quantity: 1, quantityPerMille: false, taxRate: 21, discount: 0 }],
-    discounts: [], surcharges: [],
+    companyId: 1,
+    clientId: 1,
+    currency: 'EUR',
+    paymentTermDays: 14,
+    numberPrefixTemplate: '{year}-{num}',
+    locale: 'en-US',
+    lines: [
+      {
+        description: 't',
+        listPrice: 1000,
+        listPriceIncludesTax: true,
+        quantity: 1,
+        quantityPerMille: false,
+        taxRate: 21,
+        discount: 0
+      }
+    ],
+    discounts: [],
+    surcharges: []
   })
   expect(json.error).toBeUndefined()
   ids.concept = json.result.data.id
@@ -63,24 +96,36 @@ test('Create test invoices', async () => {
 })
 
 test('BILL → OPEN blocked', async () => {
-  const json = await trpc('admin.setInvoiceStatus', { id: ids.bill, status: 'open' })
+  const json = await trpc('admin.setInvoiceStatus', {
+    id: ids.bill,
+    status: 'open'
+  })
   expect(json.result.data.success).toBe(false)
   expect(json.result.data.errorMessage).toContain('concept')
 })
 
 test('CONCEPT → RECEIPT blocked', async () => {
-  const json = await trpc('admin.setInvoiceStatus', { id: ids.concept, status: 'receipt' })
+  const json = await trpc('admin.setInvoiceStatus', {
+    id: ids.concept,
+    status: 'receipt'
+  })
   expect(json.result.data.success).toBe(false)
   expect(json.result.data.errorMessage).toContain('bills')
 })
 
 test('OPEN → CANCELED blocked', async () => {
-  const json = await trpc('admin.setInvoiceStatus', { id: ids.open, status: 'canceled' })
+  const json = await trpc('admin.setInvoiceStatus', {
+    id: ids.open,
+    status: 'canceled'
+  })
   expect(json.result.data.success).toBe(false)
   expect(json.result.data.errorMessage).toContain('cancel')
 })
 
 test('CONCEPT → CANCELED allowed', async () => {
-  const json = await trpc('admin.setInvoiceStatus', { id: ids.concept, status: 'canceled' })
+  const json = await trpc('admin.setInvoiceStatus', {
+    id: ids.concept,
+    status: 'canceled'
+  })
   expect(json.result.data.success).toBe(true)
 })

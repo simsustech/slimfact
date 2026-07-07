@@ -188,8 +188,18 @@ const seed = async () => {
     .execute()
 
   // Create invoices for the admin's linked client
-  const company = insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
-  const statuses = [InvoiceStatus.BILL, InvoiceStatus.BILL, InvoiceStatus.BILL, InvoiceStatus.OPEN, InvoiceStatus.OPEN, InvoiceStatus.PAID, InvoiceStatus.PAID, InvoiceStatus.RECEIPT]
+  const company =
+    insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
+  const statuses = [
+    InvoiceStatus.BILL,
+    InvoiceStatus.BILL,
+    InvoiceStatus.BILL,
+    InvoiceStatus.OPEN,
+    InvoiceStatus.OPEN,
+    InvoiceStatus.PAID,
+    InvoiceStatus.PAID,
+    InvoiceStatus.RECEIPT
+  ]
   for (const status of statuses) {
     await invoiceHandler.createInvoice({
       companyDetails: company,
