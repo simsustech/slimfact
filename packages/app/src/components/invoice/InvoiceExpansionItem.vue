@@ -142,6 +142,7 @@
               <q-item
                 v-if="
                   modelValue.status === 'open' &&
+                  lastReminderDate &&
                   getFutureDate(lastReminderDate, { days: 7 }) < currentDate
                 "
                 v-close-popup
