@@ -223,7 +223,7 @@ These are offline payment methods. Record cash payments or bank transfers manual
 
 Go to **Settings → Exports** to access:
 
-- **Digiboox** — export invoices in Digiboox format
+- **Digiboox** — export invoices in Digiboox format. More formats available on request.
 
 > When sending an invoice by email, the PDF is attached automatically. If the invoice is OPEN or PAID, a UBL XML is also attached.
 
