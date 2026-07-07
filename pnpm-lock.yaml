@@ -8,13 +8,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@simsustech/quasar-components':
-        specifier: link:../quasar-components/packages/components
-        version: link:../quasar-components/packages/components
-      unocss-preset-quasar:
-        specifier: 0.3.7
-        version: 0.3.7(animate.css@4.1.1)(quasar@2.21.1)(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.0
@@ -1740,10 +1733,10 @@ packages:
       kysely: ^0.29.2
       openid-client: ^6.8.4
 
-  '@modular-api/fastify-cart@0.3.19':
-    resolution: {integrity: sha512-SdsZs2wPgmjMynHR/CinDtve78QXnmV/HZhyDJRHQo2Xp7YBOgasUAwCspUZPj6B1+Elwf+aR7B5GfsXnow1QQ==}
+  '@modular-api/fastify-cart@0.3.20':
+    resolution: {integrity: sha512-pDLVk15OuAw8tRlk+RDgTk6OvRt3+CKGfDRcYao9/fwzQopRPCh/lj6lejoF5YALqXmd3tBzqOR+4HGXmlrDFw==}
     peerDependencies:
-      kysely: ^0.29.2
+      kysely: ^0.29.3
 
   '@modular-api/fastify-checkout@0.8.0':
     resolution: {integrity: sha512-PuaDeekEbG+zFX49+0Y7kr3eRlq5LNjfpug1SckIBRXXQYwKP2rfZCrTlUhGHtGCxu5uNlYgZ9ltwQPswHOolw==}
@@ -3734,8 +3727,8 @@ packages:
   browser-process-hrtime@1.0.0:
     resolution: {integrity: sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==}
 
-  browserslist@4.28.4:
-    resolution: {integrity: sha512-MTc8i/x9jBQd1iMw2CFGS+rwMa07eYjLR0CCTLDACl9xhxy+nIs3KeML/biicXtk9JrZ6dnnTatmc7ErPXIxqw==}
+  browserslist@4.28.5:
+    resolution: {integrity: sha512-Cu2E6QejHWzuDMTkuwgpABFgDfZrXLQq5V13YOACZx4mFAG4IwGTbTfHPMr4WtxlHoXSM8FIuRwYYCz5XiabaQ==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -3786,8 +3779,8 @@ packages:
     resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
     engines: {node: '>=6'}
 
-  caniuse-lite@1.0.30001802:
-    resolution: {integrity: sha512-vmv8ub2xwTNmljSKf82mtCk5JH7hC+YgzLj3P5zotvA0tPQ9016tdNNOG8WRca1IxOnhSsivB+J0z5FeE5LOUw==}
+  caniuse-lite@1.0.30001803:
+    resolution: {integrity: sha512-g/uHREV2ZpK9qMalCsWaxmA6ol+DX8GYhuf3T40RKoP+oL7vhRJh8LNt73PCjpnR6l14FzfPrB5Yux4PKm2meg==}
 
   capture-stack-trace@1.0.2:
     resolution: {integrity: sha512-X/WM2UQs6VMHUtjUDnZTRI+i1crWteJySFzr9UpGoQa4WQffXVTTXuekjl7TjZRlcF2XfjgITT0HxZ9RnxeT0w==}
@@ -4310,8 +4303,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.387:
-    resolution: {integrity: sha512-TaxwufTFDufvPEoXdhwVrA3UdFWBeWGkYoJ1K8ldF1xe6gKfth6iRNS5lTQ5JPNOHdGQm8PT1QYKUqFLCiUefQ==}
+  electron-to-chromium@1.5.388:
+    resolution: {integrity: sha512-Pl/aJaqOOxYxda3vcx1IKSJimwYXHDkEnGn0F+kG2EE68dDtx2uCinaS+Vih8Z91B9t8CSAbiF/HKyWcnXjhzw==}
 
   emoji-regex@10.6.0:
     resolution: {integrity: sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==}
@@ -5740,9 +5733,6 @@ packages:
   ofetch@1.5.1:
     resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
 
-  oidc-provider@9.8.6:
-    resolution: {integrity: sha512-jodnMKbwfMbV5qUFnbCxtnrdRztJJubJbw/7HTokIJSiHm1JT7pU4G83sD/bPkvZnFDdv5POB/kJU5uGG3ek4g==}
-
   oidc-provider@9.9.0:
     resolution: {integrity: sha512-RZVcul1BMSjQLaEbD9AYXLZYrWe7gW3n96akMqQC91Z9wmAHrsYKaUUutzxoYNTQj8UlQdRqtD5F+EqnXy7wGQ==}
 
@@ -7012,16 +7002,6 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  unocss-preset-quasar@0.3.7:
-    resolution: {integrity: sha512-0dqiGQnQ+d5OhK5FJXh2TFXPAYpUw5Bw6Tyb86lDHUmGq+MBEpjWxZZLN5gtjvJDQaqrRAHQERxKJ2sSKwBDmA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      quasar: ^2.20.2
-      vite: '*'
-    peerDependenciesMeta:
-      vite:
-        optional: true
-
   unocss-preset-quasar@0.4.0:
     resolution: {integrity: sha512-HGXC4ctvFhKB94yVQxpdQoUXfb3DQQS1LYO8tRLVQhXbz5qZ6QgDCE4dcXsyFTpz8Y0DyX1eGxpWJL2e0m7qdg==}
     engines: {node: '>=20.0.0'}
@@ -7645,7 +7625,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      browserslist: 4.28.4
+      browserslist: 4.28.5
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -9027,7 +9007,7 @@ snapshots:
       '@fastify/formbody': 8.0.2
       '@fastify/middie': 9.3.3
       '@fastify/static': 9.1.3
-      '@modular-api/fastify-cart': 0.3.19(kysely@0.29.3)
+      '@modular-api/fastify-cart': 0.3.20(kysely@0.29.3)
       '@modular-api/fastify-checkout': 0.8.0(@types/node@26.1.0)(kysely@0.29.3)
       '@modular-api/fastify-oidc': 0.9.25(@fastify/static@9.1.3)(bcryptjs@3.0.3)(fastify@5.10.0)(handlebars@4.7.9)(kysely@0.29.3)(otplib@13.4.1)(typescript@6.0.3)
       '@trpc/server': 11.18.0(typescript@6.0.3)
@@ -9058,7 +9038,7 @@ snapshots:
       - typescript
       - vue
 
-  '@modular-api/fastify-cart@0.3.19(kysely@0.29.3)':
+  '@modular-api/fastify-cart@0.3.20(kysely@0.29.3)':
     dependencies:
       '@fastify/cookie': 11.0.2
       '@fastify/middie': 9.3.3
@@ -9095,7 +9075,7 @@ snapshots:
       fastify-plugin: 6.0.0
       handlebars: 4.7.9
       kysely: 0.29.3
-      oidc-provider: 9.8.6
+      oidc-provider: 9.9.0
       openid-client: 6.8.4
       otplib: 13.4.1
       vue: 3.5.39(typescript@6.0.3)
@@ -10602,6 +10582,13 @@ snapshots:
       animate.css: 4.1.1
       unocss: 66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
 
+  animated-unocss@0.0.6(animate.css@4.1.1)(unocss@66.7.5(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))):
+    dependencies:
+      '@unocss/autocomplete': 0.51.13
+      '@unocss/preset-mini': 0.51.8
+      animate.css: 4.1.1
+      unocss: 66.7.5(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
+
   ansi-colors@4.1.3: {}
 
   ansi-escapes@4.3.2:
@@ -10796,13 +10783,13 @@ snapshots:
 
   browser-process-hrtime@1.0.0: {}
 
-  browserslist@4.28.4:
+  browserslist@4.28.5:
     dependencies:
       baseline-browser-mapping: 2.10.42
-      caniuse-lite: 1.0.30001802
-      electron-to-chromium: 1.5.387
+      caniuse-lite: 1.0.30001803
+      electron-to-chromium: 1.5.388
       node-releases: 2.0.50
-      update-browserslist-db: 1.2.3(browserslist@4.28.4)
+      update-browserslist-db: 1.2.3(browserslist@4.28.5)
 
   buffer-from@1.1.2: {}
 
@@ -10850,7 +10837,7 @@ snapshots:
 
   camelcase@5.3.1: {}
 
-  caniuse-lite@1.0.30001802: {}
+  caniuse-lite@1.0.30001803: {}
 
   capture-stack-trace@1.0.2: {}
 
@@ -11025,7 +11012,7 @@ snapshots:
 
   core-js-compat@3.49.0:
     dependencies:
-      browserslist: 4.28.4
+      browserslist: 4.28.5
 
   core-util-is@1.0.2: {}
 
@@ -11354,7 +11341,7 @@ snapshots:
     dependencies:
       jake: 10.9.4
 
-  electron-to-chromium@1.5.387: {}
+  electron-to-chromium@1.5.388: {}
 
   emoji-regex@10.6.0: {}
 
@@ -12820,21 +12807,6 @@ snapshots:
       destr: 2.0.5
       node-fetch-native: 1.6.7
       ufo: 1.6.4
-
-  oidc-provider@9.8.6:
-    dependencies:
-      '@koa/cors': 5.0.0
-      '@koa/router': 15.7.0(koa@3.2.1)
-      debug: 4.4.3
-      eta: 4.6.0
-      jose: 6.2.3
-      jsesc: 3.1.0
-      koa: 3.2.1
-      nanoid: 5.1.16
-      quick-lru: 7.3.0
-      raw-body: 3.0.2
-    transitivePeerDependencies:
-      - supports-color
 
   oidc-provider@9.9.0:
     dependencies:
@@ -14375,32 +14347,13 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss-preset-quasar@0.3.7(animate.css@4.1.1)(quasar@2.21.1)(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)):
-    dependencies:
-      '@poupe/material-color-utilities': 0.4.1
-      '@unocss/core': 66.7.4
-      '@unocss/preset-uno': 66.7.4
-      '@unocss/preset-web-fonts': 66.7.4
-      '@unocss/preset-wind': 66.7.4
-      '@unocss/preset-wind4': 66.7.4
-      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)))
-      quasar: 2.21.1
-      unocss: 66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
-    optionalDependencies:
-      vite: 8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)
-    transitivePeerDependencies:
-      - '@unocss/astro'
-      - '@unocss/postcss'
-      - '@unocss/webpack'
-      - animate.css
-
   unocss-preset-quasar@0.4.0(animate.css@4.1.1)(quasar@2.21.1)(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)):
     dependencies:
       '@poupe/material-color-utilities': 0.4.1
-      '@unocss/core': 66.7.4
-      '@unocss/preset-uno': 66.7.4
+      '@unocss/core': 66.7.5
+      '@unocss/preset-uno': 66.7.5
       '@unocss/preset-web-fonts': 66.7.4
-      '@unocss/preset-wind': 66.7.4
+      '@unocss/preset-wind': 66.7.5
       '@unocss/preset-wind4': 66.7.4
       animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)))
       quasar: 2.21.1
@@ -14520,9 +14473,9 @@ snapshots:
 
   upath@1.2.0: {}
 
-  update-browserslist-db@1.2.3(browserslist@4.28.4):
+  update-browserslist-db@1.2.3(browserslist@4.28.5):
     dependencies:
-      browserslist: 4.28.4
+      browserslist: 4.28.5
       escalade: 3.2.0
       picocolors: 1.1.1
 
@@ -14694,13 +14647,13 @@ snapshots:
       '@fastify/one-line-logger': 2.1.0
       '@fastify/static': 9.1.3
       '@pinia/colada': 1.3.1(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
-      '@unocss/core': 66.7.4
-      '@unocss/preset-uno': 66.7.4
+      '@unocss/core': 66.7.5
+      '@unocss/preset-uno': 66.7.5
       '@unocss/preset-web-fonts': 66.7.2
-      '@unocss/preset-wind': 66.7.4
+      '@unocss/preset-wind': 66.7.5
       '@vitejs/plugin-vue': 6.0.7(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3))
       ajv: 8.20.0
-      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)))
+      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.7.5(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)))
       cac: 7.0.0
       chalk: 5.6.2
       cross-env: 10.1.0
@@ -14719,7 +14672,7 @@ snapshots:
       sass: 1.101.0
       stringify-object: 6.0.0
       ts-node: 10.9.2(@types/node@26.1.0)(typescript@6.0.3)
-      unocss: 66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
+      unocss: 66.7.5(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
       unplugin-vue-components: 32.1.0(esbuild@0.28.1)(rolldown@1.1.2)(rollup@4.62.2)(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3))
       vite: 8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)
       vite-plugin-pwa: 1.3.0(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))(workbox-build@7.4.1)(workbox-window@7.4.1)
@@ -14776,13 +14729,13 @@ snapshots:
       '@fastify/one-line-logger': 2.1.0
       '@fastify/static': 9.1.3
       '@pinia/colada': 1.3.1(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
-      '@unocss/core': 66.7.4
-      '@unocss/preset-uno': 66.7.4
+      '@unocss/core': 66.7.5
+      '@unocss/preset-uno': 66.7.5
       '@unocss/preset-web-fonts': 66.7.2
-      '@unocss/preset-wind': 66.7.4
+      '@unocss/preset-wind': 66.7.5
       '@vitejs/plugin-vue': 6.0.7(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3))
       ajv: 8.20.0
-      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)))
+      animated-unocss: 0.0.6(animate.css@4.1.1)(unocss@66.7.5(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)))
       cac: 7.0.0
       chalk: 5.6.2
       cross-env: 10.1.0
@@ -14801,7 +14754,7 @@ snapshots:
       sass: 1.101.0
       stringify-object: 6.0.0
       ts-node: 10.9.2(@types/node@26.1.0)(typescript@6.0.3)
-      unocss: 66.7.4(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
+      unocss: 66.7.5(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))
       unplugin-vue-components: 32.1.0(esbuild@0.28.1)(rolldown@1.1.2)(rollup@4.62.2)(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3))
       vite: 8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0)
       vite-plugin-pwa: 1.3.0(vite@8.1.3(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.48.0)(yaml@2.9.0))(workbox-build@7.4.1)(workbox-window@7.4.1)
