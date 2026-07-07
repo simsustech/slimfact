@@ -32,7 +32,11 @@ export default defineConfig({
         'screenshots-*.spec.ts',
         'invoice-flow-guards.spec.ts',
         ...(process.env.CI
-          ? ['payments.spec.ts', 'payments-mollie.spec.ts', 'payments-stripe.spec.ts']
+          ? [
+              'payments.spec.ts',
+              'payments-mollie.spec.ts',
+              'payments-stripe.spec.ts'
+            ]
           : [])
       ]
     }

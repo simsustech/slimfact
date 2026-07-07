@@ -891,7 +891,10 @@ export const adminInvoiceRoutes = ({
         })
         return result
       }
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invoice handler not available' })
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invoice handler not available'
+      })
     }),
   refundInvoice: procedure
     .input(
