@@ -79,9 +79,14 @@ async function snapInvoice(browser: any, accessToken: string, suffix: string) {
     // Download invoice PDF
     try {
       const downloadPromise = pub.waitForEvent('download', { timeout: 30000 })
-      await pub.locator('.q-btn-dropdown--split button.q-btn').first().click({ timeout: 5000 })
+      await pub
+        .locator('.q-btn-dropdown--split button.q-btn')
+        .first()
+        .click({ timeout: 5000 })
       const download = await downloadPromise
-      await download.saveAs(`../docs/public/screenshots/${suffix ? 'invoice-' + suffix : 'invoice'}.pdf`)
+      await download.saveAs(
+        `../docs/public/screenshots/${suffix ? 'invoice-' + suffix : 'invoice'}.pdf`
+      )
     } catch {
       // PDF download is best-effort
     }
