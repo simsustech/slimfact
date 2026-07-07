@@ -430,3 +430,24 @@ cd packages/api && pnpm run test:e2e
 - **Service workers**: Blocked in `playwright.config.ts` (`serviceWorkers: 'block'`) to prevent hydration warnings.
 - **Base URL**: Set via `PLAYWRIGHT_BASE_URL` env var. Defaults to `https://localhost:3000`. Only PSP payment tests (Mollie/Stripe) need the NetBird URL for webhook callbacks.
 - **PSP overrides**: Use `-f docker-compose.test.mollie.yaml` or `-f docker-compose.test.stripe.yaml` to route payment methods through a specific PSP.
+
+### Screenshots & Invoice PDF
+
+Screenshots are taken via `screenshots-customer.spec.ts` and `screenshots-admin.spec.ts`. The test compose runs `seed:test && seed:fake` which creates invoices (including for the admin-linked client).
+
+```bash
+# Export npm token (required for Docker build)
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+
+# Take all screenshots + download invoice PDFs
+cd packages/api && pnpm exec playwright test tests/e2e/screenshots-customer.spec.ts --project=chromium
+cd packages/api && pnpm exec playwright test tests/e2e/screenshots-admin.spec.ts --project=chromium
+```
+
+Output goes to `packages/docs/public/screenshots/`:
+- `invoice-public.png`, `invoice-public-nl.png` — public invoice page with rendered Typst PDF
+- `invoice.pdf`, `invoice-nl.pdf` — downloaded invoice PDFs
+- `admin-*.png` — admin panel pages
+- `customer-*.png` — customer-facing pages
+
+**How it works**: `snapInvoice()` in `screenshots-customer.spec.ts` logs in, navigates to `/admin/invoices`, finds the first invoice's public link, opens it in a fresh context, waits for `<typst-invoice>` to render, takes a screenshot, and clicks the download button to save the PDF.
