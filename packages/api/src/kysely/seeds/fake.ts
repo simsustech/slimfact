@@ -120,6 +120,93 @@ const seed = async () => {
       })
     }
   }
+
+  // Seed subscriptions
+  for (let i = 0; i < 5; i++) {
+    const company =
+      insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
+    const client =
+      insertedClients[Math.floor(Math.random() * insertedClients.length)]
+
+    await db
+      .insertInto('subscriptions')
+      .values({
+        name: [
+          'Monthly retainer',
+          'Quarterly service',
+          'Annual support',
+          'Weekly cleaning',
+          'Bi-weekly maintenance'
+        ][i],
+        active: true,
+        companyId: company.id,
+        clientId: client.id,
+        numberPrefixTemplate: numberPrefix.template,
+        locale: 'en-US',
+        currency: 'EUR',
+        lines: JSON.stringify([
+          {
+            description: 'Subscription service',
+            listPrice: Math.round(Math.random() * 50000) + 5000,
+            listPriceIncludesTax: true,
+            quantity: 1,
+            taxRate: 21,
+            discount: 0
+          }
+        ]),
+        discounts: JSON.stringify([]),
+        surcharges: JSON.stringify([]),
+        paymentTermDays: 14,
+        startDate: new Date().toISOString().split('T')[0],
+        cronSchedule: [
+          '0 0 1 * *',
+          '0 0 1 */3 *',
+          '0 0 1 1 *',
+          '0 0 * * 1',
+          '0 0 1,15 * *'
+        ][i],
+        type: i % 2 === 0 ? 'invoice' : 'bill'
+      })
+      .execute()
+  }
+
+  // Link first client to the admin account for demo screenshots
+  const admin = await db
+    .selectFrom('accounts')
+    .where('email', '=', 'admin@slimfact.app')
+    .selectAll()
+    .executeTakeFirstOrThrow()
+  const firstClient = await db
+    .selectFrom('clients')
+    .select('id')
+    .limit(1)
+    .executeTakeFirstOrThrow()
+  await db
+    .updateTable('clients')
+    .set({ accountId: admin.id })
+    .where('id', '=', firstClient.id)
+    .execute()
+
+  // Create invoices for the admin's linked client
+  const company = insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
+  const statuses = [InvoiceStatus.BILL, InvoiceStatus.BILL, InvoiceStatus.BILL, InvoiceStatus.OPEN, InvoiceStatus.OPEN, InvoiceStatus.PAID, InvoiceStatus.PAID, InvoiceStatus.RECEIPT]
+  for (const status of statuses) {
+    await invoiceHandler.createInvoice({
+      companyDetails: company,
+      clientDetails: insertedClients[0],
+      companyPrefix: company.prefix,
+      numberPrefixTemplate: numberPrefix.template,
+      currency: 'EUR',
+      lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+      discounts: [],
+      surcharges: [],
+      paymentTermDays: 14,
+      locale: 'en-US',
+      status,
+      companyId: company.id,
+      clientId: insertedClients[0].id
+    })
+  }
 }
 
 await seed()
