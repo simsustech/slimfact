@@ -22,6 +22,7 @@ const lang: Language = {
   overview: 'Overzicht',
   noResultsAvailable: 'Geen resultaten beschikbaar.',
   add: 'Toevoegen',
+  darkMode: 'Donkere modus',
   account: {
     title: 'Account',
     accounts: 'Accounts',
