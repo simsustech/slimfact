@@ -1,4 +1,5 @@
 {
+  "name": "@slimfact/docs",
   "scripts": {
     "dev": "vitepress dev .",
     "build": "vitepress build .",
