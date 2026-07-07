@@ -885,11 +885,13 @@ export const adminInvoiceRoutes = ({
     .mutation(async ({ input }) => {
       const { id, status } = input
       if (fastify.checkout?.invoiceHandler) {
-        fastify.checkout.invoiceHandler.setInvoiceStatus({
+        const result = await fastify.checkout.invoiceHandler.setInvoiceStatus({
           id,
           status
         })
+        return result
       }
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invoice handler not available' })
     }),
   refundInvoice: procedure
     .input(
