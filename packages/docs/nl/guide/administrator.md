@@ -230,10 +230,7 @@ Dit zijn offline betaalmethoden. Registreer contante betalingen of overschrijvin
 
 Ga naar **Instellingen → Exports** voor toegang tot:
 
-- **CSV** — download alle factuurgegevens als spreadsheet
-- **UBL XML** — e-facturatiestandaardformaat
-- **Peppol XML** — Europese e-facturatie
-- **Digiboox** — formaat voor Digiboox-integratie
+- **Digiboox** — exporteer facturen in Digiboox-formaat
 
 ![Exportopties](/screenshots/admin-exports.png)
 
@@ -241,11 +238,7 @@ Ga naar **Instellingen → Exports** voor toegang tot:
 
 ## E-mailtracking
 
-Wanneer je een factuur per e-mail verstuurt:
-
-- Er wordt een trackingpixel in de e-mail ingesloten
-- Wanneer de klant de e-mail opent, registreert SlimFact de gebeurtenis
-- Controleer de factuurgebeurtenissen om te zien of en wanneer de e-mail is geopend
+Wanneer je een factuur per e-mail verstuurt, wordt er een URL-queryparameter toegevoegd. Wanneer de klant de e-mail opent en de afbeelding laadt, wordt de query getriggerd en registreert SlimFact de gebeurtenis.
 
 ---
 

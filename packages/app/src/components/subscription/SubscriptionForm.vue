@@ -51,6 +51,7 @@
           name="currency"
         />
         <locale-select
+          filled
           v-model="modelValue.locale"
           :locales="languageLocales"
           :label="lang.invoice.fields.locale"
