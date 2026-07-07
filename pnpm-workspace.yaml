@@ -6,6 +6,9 @@ packages:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
+  - browserslist
+  - caniuse-lite
+  - electron-to-chromium
   - "@vitrify/*"
   - vitrify
   - "@simsustech/quasar-components"
@@ -19,77 +22,19 @@ minimumReleaseAgeExclude:
   - "@oxlint/*"
   - oxlint
   - vite
-  - axios@1.18.1
-  - cronstrue@3.21.0
-  - cron-parser@5.6.1
-  - pg-boss@12.22.0
-  - stripe@22.3.0
-  - cronstrue@3.23.0
-  - '@unocss/cli@66.7.4'
-  - '@unocss/config@66.7.4'
-  - '@unocss/core@66.7.4'
-  - '@unocss/extractor-arbitrary-variants@66.7.4'
-  - '@unocss/inspector@66.7.4'
-  - '@unocss/preset-attributify@66.7.4'
-  - '@unocss/preset-icons@66.7.4'
-  - '@unocss/preset-mini@66.7.4'
-  - '@unocss/preset-tagify@66.7.4'
-  - '@unocss/preset-typography@66.7.4'
-  - '@unocss/preset-uno@66.7.4'
-  - '@unocss/preset-web-fonts@66.7.4'
-  - '@unocss/preset-wind3@66.7.4'
-  - '@unocss/preset-wind4@66.7.4'
-  - '@unocss/preset-wind@66.7.4'
-  - '@unocss/rule-utils@66.7.4'
-  - '@unocss/transformer-attributify-jsx@66.7.4'
-  - '@unocss/transformer-compile-class@66.7.4'
-  - '@unocss/transformer-directives@66.7.4'
-  - '@unocss/transformer-variant-group@66.7.4'
-  - '@unocss/vite@66.7.4'
-  - unocss@66.7.4
-  - "@img/sharp-darwin-arm64@0.35.3"
-  - "@img/sharp-darwin-x64@0.35.3"
-  - "@img/sharp-freebsd-wasm32@0.35.3"
-  - "@img/sharp-linux-arm64@0.35.3"
-  - "@img/sharp-linux-arm@0.35.3"
-  - "@img/sharp-linux-ppc64@0.35.3"
-  - "@img/sharp-linux-riscv64@0.35.3"
-  - "@img/sharp-linux-s390x@0.35.3"
-  - "@img/sharp-linux-x64@0.35.3"
-  - "@img/sharp-linuxmusl-arm64@0.35.3"
-  - "@img/sharp-linuxmusl-x64@0.35.3"
-  - "@img/sharp-wasm32@0.35.3"
-  - "@img/sharp-webcontainers-wasm32@0.35.3"
-  - "@img/sharp-win32-arm64@0.35.3"
-  - "@img/sharp-win32-ia32@0.35.3"
-  - "@img/sharp-win32-x64@0.35.3"
-  - "@types/node"
-  - quasar@2.20.3
-  - sharp@0.35.3
-  - '@types/node@26.1.0'
-  - '@unocss/cli@66.7.5'
-  - '@unocss/config@66.7.5'
-  - '@unocss/core@66.7.5'
-  - '@unocss/extractor-arbitrary-variants@66.7.5'
-  - '@unocss/inspector@66.7.5'
-  - '@unocss/preset-attributify@66.7.5'
-  - '@unocss/preset-icons@66.7.5'
-  - '@unocss/preset-mini@66.7.5'
-  - '@unocss/preset-tagify@66.7.5'
-  - '@unocss/preset-typography@66.7.5'
-  - '@unocss/preset-uno@66.7.5'
-  - '@unocss/preset-web-fonts@66.7.5'
-  - '@unocss/preset-wind3@66.7.5'
-  - '@unocss/preset-wind4@66.7.5'
-  - '@unocss/preset-wind@66.7.5'
-  - '@unocss/rule-utils@66.7.5'
-  - '@unocss/transformer-attributify-jsx@66.7.5'
-  - '@unocss/transformer-compile-class@66.7.5'
-  - '@unocss/transformer-directives@66.7.5'
-  - '@unocss/transformer-variant-group@66.7.5'
-  - '@unocss/vite@66.7.5'
-  - oidc-provider@9.9.0
-  - unocss@66.7.5
+  - axios
+  - cronstrue
+  - '@types/node'
+  - cron-parser
+  - pg-boss
+  - stripe
+  - "@unocss/*"
+  - unocss
+  - oidc-provider
+  - quasar
+  - sharp
+  - "@img/*"
+  - '@types/node'
 
 allowBuilds:
   "@parcel/watcher": true
