@@ -22,6 +22,7 @@ const lang: Language = {
   overview: 'Overview',
   noResultsAvailable: 'No results available.',
   add: 'Add',
+  darkMode: 'Dark mode',
   account: {
     title: 'Account',
     accounts: 'Accounts',
