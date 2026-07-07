@@ -36,11 +36,18 @@ minimumReleaseAgeExclude:
   - "@img/*"
   - '@types/node'
 
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - ejs
+  - esbuild
+  - sharp
+  - simple-git-hooks
+
+minimumReleaseAgeIgnoreMissingTime: true
+
 allowBuilds:
-  "@parcel/watcher": true
+  '@parcel/watcher': true
   ejs: true
   esbuild: true
   sharp: true
   simple-git-hooks: true
-
-minimumReleaseAgeIgnoreMissingTime: true
