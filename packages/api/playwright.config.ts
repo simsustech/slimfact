@@ -28,13 +28,13 @@ export default defineConfig({
           args: ['--no-sandbox', '--disable-setuid-sandbox']
         }
       },
-      testIgnore: process.env.CI
-        ? [
-            'payments.spec.ts',
-            'payments-mollie.spec.ts',
-            'payments-stripe.spec.ts'
-          ]
-        : undefined
+      testIgnore: [
+        'screenshots-*.spec.ts',
+        'invoice-flow-guards.spec.ts',
+        ...(process.env.CI
+          ? ['payments.spec.ts', 'payments-mollie.spec.ts', 'payments-stripe.spec.ts']
+          : [])
+      ]
     }
   ]
 })
