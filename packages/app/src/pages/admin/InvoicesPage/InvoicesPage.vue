@@ -1,9 +1,9 @@
 <template>
   <q-page padding>
-        <q-toolbar>
-        <q-space />
-        <q-btn rounded>
-            <q-icon name="i-mdi-search" />
+    <q-toolbar>
+      <q-space />
+      <q-btn rounded>
+        <q-icon name="i-mdi-search" />
         <q-icon
           v-if="activeSearch"
           name="i-mdi-remove"
