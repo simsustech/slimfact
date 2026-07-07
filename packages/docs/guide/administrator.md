@@ -89,17 +89,16 @@ Number prefixes control how your invoice numbers look.
 
 Once an invoice is expanded, the More menu gives you:
 
-| Action | What it does |
-|--------|-------------|
-| **Edit** | Modify the invoice (only when Draft) |
-| **Send** | Email the invoice to the customer |
-| **Open** | Get the public invoice link |
-| **Add payment** | Record a cash or bank transfer payment |
-| **Cancel** | Cancel the invoice |
-| **Download** | Download button — PDF and UBL XML |
-| **Delete** | Remove the invoice (only when Concept) |
-| **Send reminder** | Send a payment reminder to the customer |
-| **Send exhortation** | Send a formal exhortation after a reminder |
+| Action | When available |
+|--------|---------------|
+| **Edit** | Concept, Bill |
+| **Send** | Concept, Bill — emails the invoice to the customer |
+| **Open** | Any status except Canceled — opens the public invoice page |
+| **Cancel** | Concept, Bill (if no amount paid) |
+| **Add payment** | Open, Bill (if amount due) — cash, bank transfer, or online |
+| **Send receipt** | Bill (if fully paid) — converts to a receipt |
+| **Send reminder** | Open (after due date, with 7-day cooldown) |
+| **Send exhortation** | Open (after 2 reminders, with 7-day cooldown) |
 
 ### Invoice Status Flow
 
@@ -220,27 +219,19 @@ These are offline payment methods. Record cash payments or bank transfers manual
 
 ## Exports
 
-### Downloading
-
-1. Expand an invoice
-2. Click the **download** dropdown button — PDF or UBL XML
-3. The file is generated on the fly with your company branding
-
-> When sending an invoice by email, the PDF is attached automatically. If the invoice is OPEN or PAID, a UBL XML is also attached.
-
 ### Export Formats
 
 Go to **Settings → Exports** to access:
 
 - **Digiboox** — export invoices in Digiboox format
 
-![Export options](/screenshots/admin-exports.png)
+> When sending an invoice by email, the PDF is attached automatically. If the invoice is OPEN or PAID, a UBL XML is also attached.
 
 ---
 
 ## Email Tracking
 
-When you send an invoice by email, a URL query parameter is appended. When the customer opens the email and the image loads, the query is triggered and SlimFact records the event.
+When you send an invoice by email, the invoice link includes a `?eventType=emailOpened` query parameter. When the customer clicks the link to view their invoice, SlimFact records the event.
 
 ---
 
