@@ -114,7 +114,7 @@ Run unlimited companies from one account. Each gets its own:
 | **OIDC auth** | ✅ | ❌ | ❌ | ❌ |
 | **PDF engine** | Typst | HTML-to-PDF | HTML-to-PDF | HTML-to-PDF |
 | **Multi-company** | ✅ Unlimited | Limited | ❌ | Limited |
-| **Multi-PSP routing** | ✅ | ❌ | ❌ | ❌ |
+| **UBL XML attachments** | ✅ Via email | ❌ | ❌ | ❌ |
 | **UBL / Peppol exports** | ✅ | ❌ | ❌ | ❌ |
 | **Feature gating** | None | 4 tiers | 3 tiers | 3 tiers |
 | **Subscription billing** | ✅ Cron-based | ✅ | ✅ | ✅ |

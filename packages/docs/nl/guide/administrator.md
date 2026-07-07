@@ -89,17 +89,16 @@ Nummerprefixen bepalen hoe je factuurnummers eruitzien.
 
 Zodra een factuur is uitgevouwen, geeft het Meer-menu je:
 
-| Actie | Wat het doet |
-|-------|-------------|
-| **Bewerken** | Factuur wijzigen (alleen bij Concept) |
-| **Versturen** | Factuur e-mailen naar de klant |
-| **Openen** | De openbare factuurlink verkrijgen |
-| **Betaling toevoegen** | Een contante betaling of overschrijving registreren |
-| **Annuleren** | De factuur annuleren |
-| **Download** | Downloadknop — PDF en UBL XML |
-| **Verwijderen** | Factuur verwijderen (alleen bij Concept) |
- | **Herinnering sturen** | Stuur een betalingsherinnering |
-| **Aanmaning sturen** | Stuur een formele aanmaning |
+| Actie | Wanneer beschikbaar |
+|-------|-------------------|
+| **Bewerken** | Concept, Rekening |
+| **Versturen** | Concept, Rekening — e-mailt de factuur naar de klant |
+| **Openen** | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
+| **Annuleren** | Concept, Rekening (als er geen bedrag is betaald) |
+| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is) |
+| **Bon versturen** | Rekening (als volledig betaald) — converteert naar een bon |
+| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd) |
+| **Aanmaning sturen** | Open (na 2 herinneringen, met 7 dagen wachttijd) |
 
 ### Factuurstatusverloop
 
@@ -220,11 +219,7 @@ Dit zijn offline betaalmethoden. Registreer contante betalingen of overschrijvin
 
 ## Exports
 
-### PDF's downloaden
-
-1. Vouw een factuur uit
-2. Klik op de **download** dropdownknop — PDF of UBL XML
-3. De PDF wordt on-the-fly gegenereerd met je bedrijfshuisstijl
+> Wanneer je een factuur per e-mail verstuurt, wordt de PDF automatisch bijgevoegd. Als de factuur OPEN of PAID is, wordt ook een UBL XML bijgevoegd.
 
 ### Exportformaten
 
@@ -232,13 +227,9 @@ Ga naar **Instellingen → Exports** voor toegang tot:
 
 - **Digiboox** — exporteer facturen in Digiboox-formaat
 
-![Exportopties](/screenshots/admin-exports.png)
-
----
-
 ## E-mailtracking
 
-Wanneer je een factuur per e-mail verstuurt, wordt er een URL-queryparameter toegevoegd. Wanneer de klant de e-mail opent en de afbeelding laadt, wordt de query getriggerd en registreert SlimFact de gebeurtenis.
+Wanneer je een factuur per e-mail verstuurt, wordt er een `?eventType=emailOpened` queryparameter aan de factuurlink toegevoegd. Wanneer de klant op de link klikt om de factuur te bekijken, registreert SlimFact de gebeurtenis.
 
 ---
 

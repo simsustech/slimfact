@@ -81,7 +81,7 @@ Run multiple businesses from one account. Each company gets its own identity.
 Send invoices by email. Know when they're read.
 
 - **Customizable email templates** — Handlebars-powered with per-locale variants
-- **Open tracking** — a URL query parameter tells you when a customer opens your email
+- **Open tracking** — a URL query parameter tells you when a customer clicks the invoice link from their email
 - **Per-company email settings** — different sender addresses and BCC per company
 - **Send, resend, reply** — full email workflow from the invoice detail view
 
@@ -105,14 +105,10 @@ SlimFact uses [Typst](https://typst.app) — a modern, open-source typesetting e
 
 ## 📦 Exports & Formats
 
-Your data, your format. SlimFact speaks every invoicing language.
-
-- **PDF** — Typst-rendered with perfect typography and your company branding
-- **Digiboox** — format for Digiboox integration
+- **PDF** — download from the public invoice page
+- **Digiboox** — format for Digiboox integration (Settings → Exports)
 - **EPC QR codes** — scannable payment codes on every PDF invoice
-- **CSV export** — raw data for your own analysis
-
-![Export options](/screenshots/admin-exports.png)
+- **UBL XML** — attached automatically to sent OPEN/PAID invoice emails
 
 ---
 

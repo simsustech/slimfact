@@ -268,7 +268,7 @@ Invoice due date passes
 
 - **Handlebars templates** — `{{numberPrefix}}`, `{{num}}`, `{{totalIncludingTax}}`, etc.
 - **Per-locale variants** — `en-US`, `nl-NL`, `de-DE`
-- **Open tracking** — invisible pixel in every email
+- **Open tracking** — `?eventType=emailOpened` queryparameter in de factuurlink
 - **Per-company settings** — custom `MAIL_FROM`, `EMAIL_BCC` per company
 - **PDF attachment** — invoice PDF attached automatically on every send/remind/exhort
 - **UBL XML attachment** — attached automatically when sending OPEN/PAID invoices

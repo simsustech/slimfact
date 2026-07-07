@@ -115,7 +115,7 @@ Beheer onbeperkt veel bedrijven vanuit één account. Elk krijgt zijn eigen:
 | **PDF-engine** | Typst | HTML-naar-PDF | HTML-naar-PDF | HTML-naar-PDF |
 | **Multi-company** | ✅ Onbeperkt | Beperkt | ❌ | Beperkt |
 | **Multi-PSP-routering** | ✅ | ❌ | ❌ | ❌ |
-| **UBL / Peppol export** | ✅ | ❌ | ❌ | ❌ |
+| **UBL XML bijlagen** | ✅ Via e-mail | ❌ | ❌ | ❌ |
 | **Functieblokkering** | Geen | 4 niveaus | 3 niveaus | 3 niveaus |
 | **Abonnementsfacturatie** | ✅ Cron-gebaseerd | ✅ | ✅ | ✅ |
 | **Klantenportaal** | ✅ | ✅ | ✅ | ✅ |
