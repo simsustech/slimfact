@@ -64,7 +64,6 @@
           :disable="!modelValue.companyId"
           :locales="languageLocales"
           :label="lang.invoice.fields.locale"
-          filled
           :borderless="false"
           required
           class="md:col-span-4 col-span-12"
