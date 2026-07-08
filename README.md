@@ -54,3 +54,6 @@ pnpm run dev
 ## License
 
 Copyright © simsustech 2024-present · [ELv2 License](./LICENSE)
+
+## AI
+As of June 2026 the development is AI assisted.
