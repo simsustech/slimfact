@@ -1,5 +1,7 @@
 # Memory
 
+> **How to use this file**: AGENTS.md is your primary reference for the SlimFact project — read it before starting work. It covers architecture, workflows, test patterns, and conventions. Additional project-specific conventions are auto-loaded from `.pi/skills/` by Pi when relevant. After making significant changes, save a dated recap to `.pi/changes/`.
+
 ## Project Overview
 
 **SlimFact** is a streamlined invoicing solution built as a monorepo with three main packages. It focuses on immutable invoices, flexible billing (bills → receipts → invoices), and client payment processing.
@@ -80,6 +82,17 @@ BILL → RECEIPT → INVOICE (convertible)
 - Use descriptive variable names
 - Follow existing patterns in the codebase
 - Extract complex conditions into meaningful boolean variables
+
+## Conventions (.pi/skills/)
+
+Pi auto-loads project-specific conventions from `.pi/skills/` when the task matches. These contain detailed rules covering:
+
+- **code-style**: Type assertions, object map lookups, factory param naming, simplicity
+- **dates**: Date-fns usage, UTC date iteration, holiday surcharge logic
+- **docker**: Build workflow, test stack, local package overlay in Docker
+- **env**: Config patterns, `env.read()`, VITE_ prefix, default placement
+- **workflow**: Planning, change tracking, quality checks, documentation, security, Vue conventions
+You do not need to load these manually — Pi handles discovery.
 
 ## Common Workflows
 
@@ -430,6 +443,12 @@ cd packages/api && pnpm run test:e2e
 - **Service workers**: Blocked in `playwright.config.ts` (`serviceWorkers: 'block'`) to prevent hydration warnings.
 - **Base URL**: Set via `PLAYWRIGHT_BASE_URL` env var. Defaults to `https://localhost:3000`. Only PSP payment tests (Mollie/Stripe) need the NetBird URL for webhook callbacks.
 - **PSP overrides**: Use `-f docker-compose.test.mollie.yaml` or `-f docker-compose.test.stripe.yaml` to route payment methods through a specific PSP.
+
+### Change Recaps (.pi/changes/)
+
+After making significant changes (new features, refactors, bug fixes), save a recap file to `.pi/changes/`:
+- Filename: `YYYY-MM-DD-short-topic.md` (e.g., `2026-07-08-pagination-per-page.md`)
+- Content: list of files changed, what changed in each, and why
 
 ### Screenshots & Invoice PDF
 
