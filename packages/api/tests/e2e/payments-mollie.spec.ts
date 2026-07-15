@@ -159,16 +159,17 @@ test.describe('Mollie', () => {
     await page.goto(`/invoice/${uuid}`)
     await page.waitForLoadState('networkidle')
 
-    const payButton = page.getByRole('button', { name: /Pay/ })
+    const payButton = page.getByRole('button', { name: /Pay/ }).first()
     await payButton.click()
-    await page
-      .getByRole('dialog')
-      .first()
-      .waitFor({ state: 'visible', timeout: 5000 })
-      .catch(() => {})
-
-    await expect(page.getByText('Wero | iDEAL').first()).toBeVisible()
-    await expect(page.getByText('Credit card').first()).toBeVisible()
-    await expect(page.getByText('Bank transfer').first()).toBeVisible()
+    // Payment options appear in a dropdown menu (q-btn-dropdown), not a dialog
+    await expect(page.getByText('Wero | iDEAL').first()).toBeVisible({
+      timeout: 15000
+    })
+    await expect(page.getByText('Credit card').first()).toBeVisible({
+      timeout: 15000
+    })
+    await expect(page.getByText('Bank transfer').first()).toBeVisible({
+      timeout: 15000
+    })
   })
 })

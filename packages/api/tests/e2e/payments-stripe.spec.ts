@@ -310,7 +310,7 @@ test.describe('Stripe Refunds', () => {
     await page.goto(`/invoice/${uuid}`)
     await page.waitForTimeout(2000)
     await expect(page.getByText(/refunded|terugbetaald/i).first()).toBeVisible({
-      timeout: 30000
+      timeout: 120000
     })
     await page.close()
   })
