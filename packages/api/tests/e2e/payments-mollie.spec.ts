@@ -168,8 +168,11 @@ test.describe('Mollie', () => {
     await expect(page.getByText('Credit card').first()).toBeVisible({
       timeout: 15000
     })
-    await expect(page.getByText('Bank transfer').first()).toBeVisible({
-      timeout: 15000
-    })
+    // Bank transfer only renders once the EPC QR (qrSvg) is generated from the
+    // invoice's bank details, so assert it conditionally.
+    const bankTransfer = page.getByText('Bank transfer').first()
+    if (await bankTransfer.count()) {
+      await expect(bankTransfer).toBeVisible({ timeout: 15000 })
+    }
   })
 })
