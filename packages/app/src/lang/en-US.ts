@@ -21,6 +21,7 @@ const lang: Language = {
   name: 'Name',
   overview: 'Overview',
   noResultsAvailable: 'No results available.',
+  rowsPerPage: 'Rows per page',
   add: 'Add',
   darkMode: 'Dark mode',
   account: {

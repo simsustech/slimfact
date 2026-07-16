@@ -152,6 +152,10 @@ const {
 } = useAdminGetSubscriptionsQuery()
 const total = computed(() => subscriptions.value?.at(0)?.total || 0)
 
+watch(rowsPerPage, () => {
+  page.value = 1
+})
+
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
 await refetchNumberPrefixes()

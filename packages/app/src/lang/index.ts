@@ -20,6 +20,7 @@ export interface Language {
   name: string
   overview: string
   noResultsAvailable: string
+  rowsPerPage: string
   add: string
   account: {
     title: string
