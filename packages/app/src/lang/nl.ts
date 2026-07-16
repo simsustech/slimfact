@@ -251,7 +251,7 @@ const lang: Language = {
     methods: {
       cash: 'Contant',
       bankTransfer: 'Bank overschrijving',
-      ideal: 'iDEAL',
+      wero: 'Wero | iDEAL',
       pin: 'PIN',
       creditcard: 'Creditcard'
     },

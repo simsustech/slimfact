@@ -19,7 +19,7 @@ services:
   database:
     image: postgres
     ports:
-      - '5432:5432'
+      - '5433:5432'
     environment:
       POSTGRES_PASSWORD: ufgouifdgjdfg
       POSTGRES_DB: slimfact
@@ -38,8 +38,8 @@ services:
     logging:
       driver: 'none'
     ports:
-      - '8025:8025'
-      - '1025:1025'
+      - '8027:8025'
+      - '1027:1025'
     networks:
       staging:
         aliases:

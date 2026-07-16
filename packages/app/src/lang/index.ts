@@ -270,7 +270,7 @@ export interface Language {
     methods: {
       cash: string
       bankTransfer: string
-      ideal: string
+      wero: string
       pin: string
       creditcard: string
     }
