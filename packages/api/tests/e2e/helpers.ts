@@ -158,10 +158,7 @@ export async function mkBill(p: Page) {
   await p.getByRole('button', { name: 'Submit' }).click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
   await p.locator('.q-expansion-item__toggle-icon').first().click()
-  await p
-    .locator('.q-expansion-item__content')
-    .first()
-    .waitFor({ state: 'visible', timeout: 5000 })
+  await p.locator('a').filter({ hasText: 'Open' }).first().waitFor()
   await moreBtn(p)
   const lnk = p.locator('a').filter({ hasText: 'Open' }).first()
   let uuid = ''

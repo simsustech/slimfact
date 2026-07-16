@@ -47,8 +47,8 @@ test.describe('Mollie', () => {
   test('iDEAL', async ({ request }) => {
     const resp = await request.get('/configuration')
     const routing = (await resp.json()).PAYMENT_METHOD_ROUTING
-    if (routing?.ideal !== 'mollie') {
-      test.skip(true, 'iDEAL not routed to Mollie')
+    if (routing?.wero !== 'mollie') {
+      test.skip(true, 'Wero not routed to Mollie')
       return
     }
     const uuid = await mkInvoice(page)
@@ -60,7 +60,7 @@ test.describe('Mollie', () => {
     })
     await page.getByRole('button', { name: /Pay/ }).click()
     await page.waitForTimeout(1000)
-    await page.getByText('iDEAL').first().click()
+    await page.getByText('Wero | iDEAL').first().click()
     await page.waitForTimeout(5000)
     for (const f of page.frames()) {
       if (f.url().includes('mollie')) {
@@ -150,8 +150,8 @@ test.describe('Mollie', () => {
   }) => {
     const resp = await request.get('/configuration')
     const routing = (await resp.json()).PAYMENT_METHOD_ROUTING
-    if (routing?.ideal !== 'mollie') {
-      test.skip(true, 'iDEAL not routed to Mollie')
+    if (routing?.wero !== 'mollie') {
+      test.skip(true, 'Wero not routed to Mollie')
       return
     }
     const uuid = await mkInvoice(page)
@@ -167,7 +167,7 @@ test.describe('Mollie', () => {
       .waitFor({ state: 'visible', timeout: 5000 })
       .catch(() => {})
 
-    await expect(page.getByText('iDEAL').first()).toBeVisible()
+    await expect(page.getByText('Wero | iDEAL').first()).toBeVisible()
     await expect(page.getByText('Credit card').first()).toBeVisible()
     await expect(page.getByText('Bank transfer').first()).toBeVisible()
   })

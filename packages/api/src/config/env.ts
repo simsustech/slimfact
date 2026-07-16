@@ -34,7 +34,7 @@ export const appConfig = {
   stripeApiKey: read('STRIPE_API_KEY'),
   stripeWebhookSecret: read('STRIPE_WEBHOOK_SECRET'),
 
-  idealPaymentHandler: read('IDEAL_PAYMENT_HANDLER'),
+  weroPaymentHandler: read('WERO_PAYMENT_HANDLER'),
   creditcardPaymentHandler: read('CREDITCARD_PAYMENT_HANDLER'),
 
   petboardingClientHost: read('PETBOARDING_CLIENT_HOST'),

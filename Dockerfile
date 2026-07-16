@@ -15,10 +15,17 @@ COPY --from=linked-modular-api-quasar-components ./ /build/packages/modular-api-
 
 RUN rm -rf node_modules packages/*/node_modules
 
-# Add link overrides for any linked packages that have a package.json,
-# then install (--no-frozen-lockfile only when linked packages are present)
-RUN node -e "const fs=require('fs'),path=require('path'),y=fs.readFileSync('pnpm-workspace.yaml','utf8'),pkgs='/build/packages';let ov={};fs.readdirSync(pkgs).forEach(d=>{let p=path.join(pkgs,d,'package.json');if(fs.existsSync(p)){let pkg=JSON.parse(fs.readFileSync(p,'utf8'));ov[pkg.name]='link:./packages/'+d}});if(Object.keys(ov).length){let lines=Object.entries(ov).map(([k,v])=>'  \"'+k+'\": \"'+v+'\"').join('\\n');fs.writeFileSync('pnpm-workspace.yaml',y.replace('overrides: {}','overrides:\\n'+lines));fs.writeFileSync('/tmp/has-linked','')}" \
-  && if [ -f /tmp/has-linked ]; then pnpm install --no-frozen-lockfile; else pnpm install --frozen-lockfile; fi
+# Build and link any local packages provided via docker-compose additional_contexts
+RUN for pkg in /build/packages/modular-api-* /build/packages/quasar-components /build/packages/vitrify /build/packages/unocss-preset-quasar; do \
+      if [ -f "$pkg/package.json" ]; then \
+        echo "[local] building $(basename "$pkg")..." && \
+        (cd "$pkg" && pnpm install && pnpm run build) && \
+        echo "[local] linking $(basename "$pkg")..." && \
+        pnpm link "$pkg"; \
+      fi; \
+    done || true
+
+RUN pnpm install --frozen-lockfile
 
 FROM install-stage AS build-stage
 ARG VITE_API_HOST

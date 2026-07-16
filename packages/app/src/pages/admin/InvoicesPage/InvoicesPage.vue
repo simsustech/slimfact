@@ -507,17 +507,17 @@ const openAddPinPaymentDialog: InstanceType<
     })
 }
 
-const openAddIdealPaymentDialog: InstanceType<
+const openAddWeroPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onAddPaymentIdeal'] = async ({ data, done }) => {
+>['$props']['onAddPaymentWero'] = async ({ data, done }) => {
   try {
     const result = await addPaymentToInvoiceMutation({
       id: data.id,
       payment: {
         amount: data.amountDue || data.totalIncludingTax,
         currency: data.currency,
-        description: `iDEAL payment ${new Date().toISOString().slice(0, 10)}`,
-        method: PaymentMethod.ideal
+        description: `Wero payment ${new Date().toISOString().slice(0, 10)}`,
+        method: PaymentMethod.wero
       }
     })
     if (result?.checkoutUrl) {
@@ -611,8 +611,8 @@ const invoiceExpansionItemHandlers = computed(() => ({
   addPaymentBankTransfer: configuration.value.PAYMENT_HANDLERS.bankTransfer
     ? openAddBankTransferPaymentDialog
     : undefined,
-  addPaymentIdeal: configuration.value.PAYMENT_HANDLERS.ideal
-    ? openAddIdealPaymentDialog
+  addPaymentWero: configuration.value.PAYMENT_HANDLERS.wero
+    ? openAddWeroPaymentDialog
     : undefined,
   addPaymentCreditcard: configuration.value.PAYMENT_HANDLERS.creditcard
     ? openAddCreditcardPaymentDialog

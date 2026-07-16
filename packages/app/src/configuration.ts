@@ -26,7 +26,7 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
   PAYMENT_HANDLERS: {
     cash: boolean
     pin: boolean
-    ideal: boolean
+    wero: boolean
     bankTransfer: boolean
     creditcard: boolean
   }
@@ -40,7 +40,7 @@ export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
   HIDE_BRANDING: false,
   PAYMENT_HANDLERS: {
     cash: false,
-    ideal: false,
+    wero: false,
     bankTransfer: false
   }
 })

@@ -1,7 +1,7 @@
 services:
   api:
     environment:
-      IDEAL_PAYMENT_HANDLER: mollie
+      WERO_PAYMENT_HANDLER: mollie
       CREDITCARD_PAYMENT_HANDLER: mollie
       MOLLIE_API_KEY: /run/secrets/MOLLIE_API_KEY
     secrets:
