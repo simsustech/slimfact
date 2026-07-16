@@ -21,6 +21,7 @@ const lang: Language = {
   name: 'Naam',
   overview: 'Overzicht',
   noResultsAvailable: 'Geen resultaten beschikbaar.',
+  rowsPerPage: 'Regels per pagina',
   add: 'Toevoegen',
   darkMode: 'Donkere modus',
   account: {

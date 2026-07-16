@@ -13,14 +13,25 @@
           </q-item-section>
         </q-item>
       </q-list>
-      <div class="flex flex-center full-width q-mt-md">
-        <q-pagination
-          v-model="page"
-          :disable="!(total && page && rowsPerPage)"
-          :max="Math.ceil(total / rowsPerPage)"
-          :max-pages="5"
-          direction-links
-        />
+      <div class="grid grid-cols-12 items-center gap-3 q-mt-md">
+        <div class="col-span-12 md:col-span-3">
+          <q-select
+            v-model="rowsPerPage"
+            :options="[5, 10, 15, 25, 50]"
+            :label="lang.rowsPerPage"
+            dense
+            outlined
+          />
+        </div>
+        <div class="col-span-12 md:col-span-6 flex justify-center">
+          <q-pagination
+            v-model="page"
+            :disable="!(total && page && rowsPerPage)"
+            :max="Math.ceil(total / rowsPerPage)"
+            :max-pages="5"
+            direction-links
+          />
+        </div>
       </div>
     </div>
   </q-page>
@@ -41,6 +52,10 @@ import { useAccountGetInvoicesQuery } from '../../queries/account/invoices.js'
 const lang = useLang()
 const { invoices, page, rowsPerPage, refetch } = useAccountGetInvoicesQuery()
 const total = computed(() => invoices.value?.at(0)?.total || 0)
+
+watch(rowsPerPage, () => {
+  page.value = 1
+})
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
