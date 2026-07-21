@@ -201,6 +201,34 @@ export const adminInvoiceRoutes = ({
         code: 'BAD_REQUEST'
       })
     }),
+  syncRefund: procedure
+    .input(
+      z.object({
+        invoiceId: z.number()
+      })
+    )
+    .query(async ({ input }) => {
+      const { invoiceId } = input
+      if (fastify.checkout?.paymentHandlers?.mollie) {
+        const invoice = await fastify.checkout.invoiceHandler.getInvoice({
+          id: invoiceId,
+          options: { withPayments: true }
+        })
+        const payment = invoice?.payments?.find(
+          (p) => p.paymentServiceProvider === 'mollie'
+        )
+        if (payment?.id) {
+          const result = await fastify.checkout.paymentHandlers
+            .mollie()
+            .getRefund({ id: payment.id })
+          if (result.success) return result.refund
+        }
+      }
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Unable to sync refund'
+      })
+    }),
   updateInvoice: procedure
     .input(invoiceValidation)
     .mutation(async ({ input }) => {
