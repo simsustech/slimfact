@@ -90,9 +90,9 @@ Pi auto-loads project-specific conventions from `.pi/skills/` when the task matc
 - **code-style**: Type assertions, object map lookups, factory param naming, simplicity
 - **dates**: Date-fns usage, UTC date iteration, holiday surcharge logic
 - **docker**: Build workflow, test stack, local package overlay in Docker
-- **env**: Config patterns, `env.read()`, VITE_ prefix, default placement
+- **env**: Config patterns, `env.read()`, VITE\_ prefix, default placement
 - **workflow**: Planning, change tracking, quality checks, documentation, security, Vue conventions
-You do not need to load these manually — Pi handles discovery.
+  You do not need to load these manually — Pi handles discovery.
 
 ## Common Workflows
 
@@ -127,10 +127,10 @@ For Docker-based dev stack (with Caddy + NetBird for webhook testing), use `dock
 
 The dev server runs on `https://localhost:3001` via vitrify. For webhook callbacks (Mollie/Stripe), external services need a publicly reachable URL — NetBird provides this via a dedicated subdomain on port 443 (NetBird routes 443 → local dev server).
 
-| Scenario | `VITE_API_HOST` | `PLAYWRIGHT_BASE_URL` | Notes |
-| ---------- | ---------------- | ---------------------- | ------- |
-| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly |
-| Webhook testing | NetBird URL | NetBird URL | NetBird routes 443 → local dev server :3001 via tunnel |
+| Scenario                | `VITE_API_HOST`  | `PLAYWRIGHT_BASE_URL`    | Notes                                                  |
+| ----------------------- | ---------------- | ------------------------ | ------------------------------------------------------ |
+| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly                           |
+| Webhook testing         | NetBird URL      | NetBird URL              | NetBird routes 443 → local dev server :3001 via tunnel |
 
 To switch, edit `packages/api/.env.development.local` and restart the dev server.
 
@@ -260,11 +260,11 @@ export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)
 export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
 ```
 
-| Secret | File | Purpose |
-| -------- | ------ | --------- |
+| Secret                 | File                       | Purpose                                                 |
+| ---------------------- | -------------------------- | ------------------------------------------------------- |
 | `SIMSUSTECH_NPM_TOKEN` | `env/SIMSUSTECH_NPM_TOKEN` | Private npm registry auth for `@modular-api/*` packages |
-| `MOLLIE_API_KEY` | `env/MOLLIE_API_KEY` | Mollie API key (test mode) |
-| `STRIPE_API_KEY` | `env/STRIPE_API_KEY` | Stripe API key (test mode) |
+| `MOLLIE_API_KEY`       | `env/MOLLIE_API_KEY`       | Mollie API key (test mode)                              |
+| `STRIPE_API_KEY`       | `env/STRIPE_API_KEY`       | Stripe API key (test mode)                              |
 
 `SIMSUSTECH_NPM_TOKEN` is needed for all builds. `MOLLIE_API_KEY`/`STRIPE_API_KEY` are only needed when using PSP override files (`-f docker-compose.test.mollie.yaml` or `-f docker-compose.test.stripe.yaml`).
 
@@ -294,13 +294,13 @@ Payment handler code lives in `@modular-api/fastify-checkout` (external npm pack
 
 Each PSP implements a factory function that returns a `FastifyCheckoutPaymentHandler`:
 
-| Handler | Factory | Config |
-| --------- | --------- | -------- |
-| Mollie | `createMolliePaymentHandler({ fastify, kysely, options })` | `apiKey` (required), `host` (required for webhook) |
-| Stripe | `createStripePaymentHandler({ fastify, kysely, options })` | `apiKey` (required) |
-| Cash | `createCashPaymentHandler(...)` | None (offline) |
-| Bank transfer | `createBankTransferPaymentHandler(...)` | None (offline) |
-| PIN | `createPinPaymentHandler(...)` | None (offline) |
+| Handler       | Factory                                                    | Config                                             |
+| ------------- | ---------------------------------------------------------- | -------------------------------------------------- |
+| Mollie        | `createMolliePaymentHandler({ fastify, kysely, options })` | `apiKey` (required), `host` (required for webhook) |
+| Stripe        | `createStripePaymentHandler({ fastify, kysely, options })` | `apiKey` (required)                                |
+| Cash          | `createCashPaymentHandler(...)`                            | None (offline)                                     |
+| Bank transfer | `createBankTransferPaymentHandler(...)`                    | None (offline)                                     |
+| PIN           | `createPinPaymentHandler(...)`                             | None (offline)                                     |
 
 Each handler provides: `createPayment`, `getPayment`, `getPayments`, `settlePayment`, `cancelPayment`, `refundPayment`, `getRefund`.
 
@@ -326,13 +326,13 @@ Each handler provides: `createPayment`, `getPayment`, `getPayments`, `settlePaym
 
 In `invoiceHandler.addPaymentToInvoice()`:
 
-| Method | Default PSP | Env override |
-| -------- | ------------ | -------------- |
-| `ideal` | Mollie | `IDEAL_PAYMENT_HANDLER=mollie\|stripe` |
-| `creditcard` | Stripe | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
-| `cash` | Cash (offline) | — |
-| `bankTransfer` | Bank transfer (offline) | — |
-| `pin` | PIN (offline) | — |
+| Method         | Default PSP             | Env override                                |
+| -------------- | ----------------------- | ------------------------------------------- |
+| `ideal`        | Mollie                  | `IDEAL_PAYMENT_HANDLER=mollie\|stripe`      |
+| `creditcard`   | Stripe                  | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
+| `cash`         | Cash (offline)          | —                                           |
+| `bankTransfer` | Bank transfer (offline) | —                                           |
+| `pin`          | PIN (offline)           | —                                           |
 
 ### Multi-Company Profiles
 
@@ -380,11 +380,11 @@ Resolved via `(companyPrefix?) => handler` — returns company-specific profile 
 
 **Test environment separation (strict)**:
 
-| Environment | Command | Tests |
-| --- | --- | --- |
-| **Local** (default routing) | `PLAYWRIGHT_BASE_URL=https://slimfact.localhost npx playwright test --grep-invert="payments-mollie\|payments-stripe" --workers=1` | All non-PSP: administrator, account, invoice-line-types, payments |
-| **Mollie** (both PSP→Mollie) | `SLIMFACT_PSP=mollie API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-mollie.spec.ts --workers=1` | Mollie PSP only: iDEAL, Creditcard |
-| **Stripe** (both PSP→Stripe) | `SLIMFACT_PSP=stripe API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-stripe.spec.ts --workers=1` | Stripe PSP only: iDEAL, Creditcard, Refunds |
+| Environment                  | Command                                                                                                                                | Tests                                                             |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Local** (default routing)  | `PLAYWRIGHT_BASE_URL=https://slimfact.localhost npx playwright test --grep-invert="payments-mollie\|payments-stripe" --workers=1`      | All non-PSP: administrator, account, invoice-line-types, payments |
+| **Mollie** (both PSP→Mollie) | `SLIMFACT_PSP=mollie API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-mollie.spec.ts --workers=1` | Mollie PSP only: iDEAL, Creditcard                                |
+| **Stripe** (both PSP→Stripe) | `SLIMFACT_PSP=stripe API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-stripe.spec.ts --workers=1` | Stripe PSP only: iDEAL, Creditcard, Refunds                       |
 
 **Never mix**: PSP tests need `API_HOST` set to NetBird URL (for OIDC issuer match). Non-PSP tests use `slimfact.localhost`. Use `--workers=1` to avoid parallel DB conflicts. `playwright.config.ts` enforces this: it derives the active PSP from which API key is set in the environment (`MOLLIE_API_KEY` vs `STRIPE_API_KEY`) and ignores the other PSP's spec, so `payments-mollie.spec.ts` and `payments-stripe.spec.ts` can never run in the same session. The long-wait `payments-mollie-refund-settled.spec.ts` is additionally excluded unless `INCLUDE_LONGWAIT=1` is set.
 
@@ -436,9 +436,9 @@ Run with: `cd packages/api && npx playwright test tests/e2e/payments.spec.ts`
 
 ### Docker Test Configs
 
-| File | Purpose |
-| ------ | --------- |
-| `docker-compose.test.yaml` | Base test setup with DB, MailHog, NetBird |
+| File                              | Purpose                                     |
+| --------------------------------- | ------------------------------------------- |
+| `docker-compose.test.yaml`        | Base test setup with DB, MailHog, NetBird   |
 | `docker-compose.test.mollie.yaml` | Overrides: routes iDEAL+creditcard → Mollie |
 | `docker-compose.test.stripe.yaml` | Overrides: routes iDEAL+creditcard → Stripe |
 
