@@ -80,6 +80,7 @@ services:
     environment:
       # VITE_API_HOST: localhost:3000
       VITE_API_HOST: ${API_HOST:-slimfact.localhost}
+      API_HOST: \${API_HOST:-slimfact.localhost}
       VITE_LICENSE_KEY: undefined
       VITE_TITLE: SlimFact
       VITE_SOURCE_COLOR: '#00a4e6'

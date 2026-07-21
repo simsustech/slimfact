@@ -108,6 +108,7 @@ pnpm run dev
 ```
 
 Fresh start each dev session:
+
 ```bash
 docker compose -f docker-compose.dev.yaml down --volumes
 docker compose -f docker-compose.dev.yaml up --force-recreate -d
@@ -127,7 +128,7 @@ For Docker-based dev stack (with Caddy + NetBird for webhook testing), use `dock
 The dev server runs on `https://localhost:3001` via vitrify. For webhook callbacks (Mollie/Stripe), external services need a publicly reachable URL — NetBird provides this via a dedicated subdomain on port 443 (NetBird routes 443 → local dev server).
 
 | Scenario | `VITE_API_HOST` | `PLAYWRIGHT_BASE_URL` | Notes |
-|----------|----------------|----------------------|-------|
+| ---------- | ---------------- | ---------------------- | ------- |
 | Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly |
 | Webhook testing | NetBird URL | NetBird URL | NetBird routes 443 → local dev server :3001 via tunnel |
 
@@ -180,6 +181,7 @@ Any linked package context that is unset defaults to `.docker/empty` (an empty d
 **2. Clean Docker state and rebuild**
 
 > **Important:** `SIMSUSTECH_NPM_TOKEN` must be `export`ed before any `docker compose` command, not just set:
+>
 > ```bash
 > export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
 > ```
@@ -259,7 +261,7 @@ export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
 ```
 
 | Secret | File | Purpose |
-|--------|------|---------|
+| -------- | ------ | --------- |
 | `SIMSUSTECH_NPM_TOKEN` | `env/SIMSUSTECH_NPM_TOKEN` | Private npm registry auth for `@modular-api/*` packages |
 | `MOLLIE_API_KEY` | `env/MOLLIE_API_KEY` | Mollie API key (test mode) |
 | `STRIPE_API_KEY` | `env/STRIPE_API_KEY` | Stripe API key (test mode) |
@@ -275,6 +277,7 @@ pnpm run build  # Builds tools → app → api
 ### Docker Secrets
 
 Secrets use Docker Compose `secrets:` with `environment:` source — not `file:` (which breaks in CI):
+
 1. Export secrets as env vars: `export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)`
 2. Compose declares: `secrets: { MOLLIE_API_KEY: { environment: MOLLIE_API_KEY } }`
 3. Service mounts them: `secrets: [MOLLIE_API_KEY]` → file at `/run/secrets/MOLLIE_API_KEY`
@@ -292,7 +295,7 @@ Payment handler code lives in `@modular-api/fastify-checkout` (external npm pack
 Each PSP implements a factory function that returns a `FastifyCheckoutPaymentHandler`:
 
 | Handler | Factory | Config |
-|---------|---------|--------|
+| --------- | --------- | -------- |
 | Mollie | `createMolliePaymentHandler({ fastify, kysely, options })` | `apiKey` (required), `host` (required for webhook) |
 | Stripe | `createStripePaymentHandler({ fastify, kysely, options })` | `apiKey` (required) |
 | Cash | `createCashPaymentHandler(...)` | None (offline) |
@@ -324,7 +327,7 @@ Each handler provides: `createPayment`, `getPayment`, `getPayments`, `settlePaym
 In `invoiceHandler.addPaymentToInvoice()`:
 
 | Method | Default PSP | Env override |
-|--------|------------|--------------|
+| -------- | ------------ | -------------- |
 | `ideal` | Mollie | `IDEAL_PAYMENT_HANDLER=mollie\|stripe` |
 | `creditcard` | Stripe | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
 | `cash` | Cash (offline) | — |
@@ -349,6 +352,7 @@ Resolved via `(companyPrefix?) => handler` — returns company-specific profile 
 ### Webhook Handling
 
 **Mollie** (`POST /mollie/webhook`):
+
 - Receives `{ id: molliePaymentId }` from Mollie API
 - Looks up payment in `checkout.payments` by `externalId`
 - Calls `settlePayment()` to fetch/update payment status from Mollie
@@ -356,6 +360,7 @@ Resolved via `(companyPrefix?) => handler` — returns company-specific profile 
 - Calls `fetchWebhookUrl()` for external system notification
 
 **Stripe** (`POST /stripe/webhook`):
+
 - Receives full Stripe event, filters for `checkout.session.completed`
 - Same settle + status flow as Mollie
 - `webhookSecret` config accepted but verification not yet wired
@@ -376,12 +381,45 @@ Resolved via `(companyPrefix?) => handler` — returns company-specific profile 
 **Test environment separation (strict)**:
 
 | Environment | Command | Tests |
-|---|---|---|
+| --- | --- | --- |
 | **Local** (default routing) | `PLAYWRIGHT_BASE_URL=https://slimfact.localhost npx playwright test --grep-invert="payments-mollie\|payments-stripe" --workers=1` | All non-PSP: administrator, account, invoice-line-types, payments |
 | **Mollie** (both PSP→Mollie) | `SLIMFACT_PSP=mollie API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-mollie.spec.ts --workers=1` | Mollie PSP only: iDEAL, Creditcard |
 | **Stripe** (both PSP→Stripe) | `SLIMFACT_PSP=stripe API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-stripe.spec.ts --workers=1` | Stripe PSP only: iDEAL, Creditcard, Refunds |
 
-**Never mix**: PSP tests need `API_HOST` set to NetBird URL (for OIDC issuer match). Non-PSP tests use `slimfact.localhost`. Use `--workers=1` to avoid parallel DB conflicts.
+**Never mix**: PSP tests need `API_HOST` set to NetBird URL (for OIDC issuer match). Non-PSP tests use `slimfact.localhost`. Use `--workers=1` to avoid parallel DB conflicts. `playwright.config.ts` enforces this: it derives the active PSP from which API key is set in the environment (`MOLLIE_API_KEY` vs `STRIPE_API_KEY`) and ignores the other PSP's spec, so `payments-mollie.spec.ts` and `payments-stripe.spec.ts` can never run in the same session. The long-wait `payments-mollie-refund-settled.spec.ts` is additionally excluded unless `INCLUDE_LONGWAIT=1` is set.
+
+**PSP test workflow (full Docker stack):**
+
+```bash
+# Prerequisites: export all secrets
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)
+export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
+export STRIPE_WEBHOOK_SECRET=$(cat ./env/STRIPE_WEBHOOK_SECRET)
+export NETBIRD_SETUP_KEY=$(cat ./env/NETBIRD_SETUP_KEY)
+
+# CRITICAL: API_HOST must be the NetBird URL so the OIDC issuer matches.
+# The docker-compose.test.yaml passes API_HOST → VITE_API_HOST and also
+# sets it as a runtime env var (API_HOST) for the server's OIDC config.
+export API_HOST=slimfact-dev.eu1.netbird.services
+
+# Mollie tests:
+docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml down --volumes
+docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml up -d --wait
+cd packages/api
+unset STRIPE_API_KEY  # ensures only Mollie spec runs
+PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-mollie.spec.ts --workers=1 --config=playwright.nosetup.config.ts
+
+# Stripe tests:
+docker compose -f docker-compose.test.yaml -f docker-compose.test.stripe.yaml down --volumes
+docker compose -f docker-compose.test.yaml -f docker-compose.test.stripe.yaml up -d --wait
+unset MOLLIE_API_KEY  # ensures only Stripe spec runs
+PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-stripe.spec.ts --workers=1 --config=playwright.nosetup.config.ts
+```
+
+> **Why `--config=playwright.nosetup.config.ts`**: The default playwright config has a `globalSetup` that runs `docker compose down --volumes && build && up -d --wait`, which rebuilds the image and re-seeds. Since we already started the stack with the right env vars, use the nosetup config to skip this.
+
+> **Why `API_HOST` must be exported before `up`**: The OIDC provider's issuer URL is set at server startup from the `API_HOST` env var. If `API_HOST` is unset or set to `slimfact.localhost`, the OIDC discovery endpoint will advertise `issuer: https://slimfact.localhost/oidc`, which causes `Incorrect issuer in meta data` errors when accessing via the NetBird URL.
 
 ### Test patterns
 
@@ -399,7 +437,7 @@ Run with: `cd packages/api && npx playwright test tests/e2e/payments.spec.ts`
 ### Docker Test Configs
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `docker-compose.test.yaml` | Base test setup with DB, MailHog, NetBird |
 | `docker-compose.test.mollie.yaml` | Overrides: routes iDEAL+creditcard → Mollie |
 | `docker-compose.test.stripe.yaml` | Overrides: routes iDEAL+creditcard → Stripe |
@@ -447,6 +485,7 @@ cd packages/api && pnpm run test:e2e
 ### Change Recaps (.pi/changes/)
 
 After making significant changes (new features, refactors, bug fixes), save a recap file to `.pi/changes/`:
+
 - Filename: `YYYY-MM-DD-short-topic.md` (e.g., `2026-07-08-pagination-per-page.md`)
 - Content: list of files changed, what changed in each, and why
 
@@ -464,6 +503,7 @@ cd packages/api && pnpm exec playwright test tests/e2e/screenshots-admin.spec.ts
 ```
 
 Output goes to `packages/docs/public/screenshots/`:
+
 - `invoice-public.png`, `invoice-public-nl.png` — public invoice page with rendered Typst PDF
 - `invoice.pdf`, `invoice-nl.pdf` — downloaded invoice PDFs
 - `admin-*.png` — admin panel pages
