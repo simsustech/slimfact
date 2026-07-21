@@ -98,7 +98,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, watch } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import ClientForm from '../../../components/client/ClientForm.vue'
 import ClientItem from '../../../components/client/ClientItem.vue'
