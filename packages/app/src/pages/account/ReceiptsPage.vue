@@ -44,7 +44,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import InvoiceItem from '../../components/invoice/InvoiceItem.vue'
 import { useLang } from '../../lang/index.js'
 import { useAccountGetReceiptsQuery } from '../../queries/account/receipts.js'

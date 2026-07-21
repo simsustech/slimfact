@@ -96,7 +96,8 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/clients')
 
     await page.locator('#fabAdd').click()
-    await page.waitForSelector('[role="combobox"]')
+    await page.waitForSelector('.q-dialog', { timeout: 15000 })
+
     await page
       .getByRole('textbox', { name: 'Company name' })
       .fill(faker.company.name())
@@ -113,7 +114,7 @@ test.describe('Administrator', async () => {
       .getByRole('textbox', { name: 'City*' })
       .fill(faker.location.city())
 
-    await page.getByRole('combobox', { name: 'Country' }).click()
+    await page.getByLabel('Country').click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()
 
