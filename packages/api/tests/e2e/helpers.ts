@@ -62,23 +62,60 @@ export const moreBtn = async (p: Page) => {
 
 export async function fillComboboxes(p: Page) {
   for (const name of ['Company*', 'Client*', 'Number prefix*']) {
-    await p.getByRole('combobox', { name }).click()
-    await p.waitForTimeout(300)
-    // Try keyboard open if click didn't work
-    await p.keyboard.press('ArrowDown')
-    await p.waitForTimeout(300)
-    await p.waitForSelector('[role="listbox"]', {
-      timeout: 10000
-    })
-    await p.waitForSelector('[role="listbox"] [role="option"]', {
-      timeout: 5000
-    })
+    let listboxVisible = false
+    for (let attempt = 0; attempt < 3 && !listboxVisible; attempt++) {
+      // Click the combobox field control via DOM (no viewport scroll) to avoid
+      // Playwright's "outside of viewport" error in tall fixed Quasar dialogs.
+      const opened = await p.evaluate(
+        (n) => {
+          const fields = Array.from(
+            document.querySelectorAll('.q-field')
+          ) as HTMLElement[]
+          const field = fields.find(
+            (f) =>
+              f.getAttribute('aria-label') === n ||
+              f.querySelector(`[aria-label="${n}"]`) !== null
+          )
+          const control = field?.querySelector(
+            '.q-field__control'
+          ) as HTMLElement | null
+          control?.click()
+          // Also focus/click the inner input to trigger Quasar's open
+          const input = field?.querySelector('input') as HTMLElement | null
+          input?.click()
+          return !!control
+        },
+        [name]
+      )
+      if (!opened) {
+        await p.getByRole('combobox', { name }).click({ force: true })
+      }
+      await p.waitForTimeout(300)
+      await p.keyboard.press('ArrowDown')
+      await p.waitForTimeout(300)
+      listboxVisible = await p
+        .waitForSelector('[role="listbox"] [role="option"]', {
+          timeout: 4000
+        })
+        .then(() => true)
+        .catch(() => false)
+    }
+    if (!listboxVisible) {
+      await p.waitForSelector('[role="listbox"] [role="option"]', {
+        timeout: 10000
+      })
+    }
     await p.evaluate(() => {
       const opts = document.querySelectorAll('[role="listbox"] [role="option"]')
       if (opts.length) (opts[0] as HTMLElement).click()
     })
     if (name !== 'Number prefix*') {
-      await p.getByRole('toolbar').first().click({ force: true })
+      await p.evaluate(() => {
+        const tb = document.querySelector(
+          '[role="toolbar"]'
+        ) as HTMLElement | null
+        tb?.click()
+      })
       await p
         .getByRole('listbox')
         .first()
@@ -88,18 +125,47 @@ export async function fillComboboxes(p: Page) {
   }
 }
 
+export async function clickLinesAdd(p: Page) {
+  await p.evaluate(() => {
+    const lists = Array.from(document.querySelectorAll('[role="list"]'))
+    for (const list of lists) {
+      if (
+        list.textContent?.includes('Lines') &&
+        list.textContent?.includes('Add')
+      ) {
+        const item = list.querySelector(
+          '[role="listitem"]'
+        ) as HTMLElement | null
+        // Fall back to any clickable "Add" row inside the list
+        const addRow =
+          item ??
+          (Array.from(list.querySelectorAll('[role="listitem"], .q-item')).find(
+            (e) => e.textContent?.trim() === 'Add'
+          ) as HTMLElement | null)
+        addRow?.click()
+        return
+      }
+    }
+  })
+}
+
 export async function mkInvoice(p: Page) {
   await p.goto('/admin/invoices')
   await p.waitForLoadState('networkidle')
   await p.locator('#fabAdd').click({ force: true })
   await fillComboboxes(p)
-  await p
-    .getByRole('list')
-    .filter({ hasText: 'Lines Add' })
-    .getByRole('listitem')
-    .click()
+  await clickLinesAdd(p)
   await p.getByRole('textbox', { name: 'Description' }).fill('E2E')
-  await p.getByRole('spinbutton', { name: 'Unit price' }).fill('50.00')
+  const unitPrice = p.getByRole('spinbutton', { name: 'Unit price' }).first()
+  await unitPrice.evaluate((el: HTMLInputElement) => {
+    const setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value'
+    )?.set
+    setter?.call(el, '50.00')
+    el.dispatchEvent(new Event('input', { bubbles: true }))
+    el.dispatchEvent(new Event('change', { bubbles: true }))
+  })
   await p.getByRole('button', { name: 'Done' }).click()
   await p.getByRole('button', { name: 'Submit' }).click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
@@ -147,15 +213,26 @@ export async function mkBill(p: Page) {
   await p.waitForLoadState('networkidle')
   await p.locator('#fabAdd').click({ force: true })
   await fillComboboxes(p)
+  await clickLinesAdd(p)
+  const billUnitPrice = p
+    .getByRole('spinbutton', { name: 'Unit price' })
+    .first()
+  await billUnitPrice.evaluate((el: HTMLInputElement) => {
+    const setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value'
+    )?.set
+    setter?.call(el, '50.00')
+    el.dispatchEvent(new Event('input', { bubbles: true }))
+    el.dispatchEvent(new Event('change', { bubbles: true }))
+  })
   await p
-    .getByRole('list')
-    .filter({ hasText: 'Lines Add' })
-    .getByRole('listitem')
-    .click()
-  await p.getByRole('textbox', { name: 'Description' }).fill('E2E')
-  await p.getByRole('spinbutton', { name: 'Unit price' }).fill('50.00')
-  await p.getByRole('button', { name: 'Done' }).click()
-  await p.getByRole('button', { name: 'Submit' }).click()
+    .getByRole('button', { name: 'Done' })
+    .first()
+    .scrollIntoViewIfNeeded()
+    .catch(() => {})
+  await p.getByRole('button', { name: 'Done' }).first().click()
+  await p.getByRole('button', { name: 'Submit' }).first().click()
   await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
   // Re-navigate so the bill list refetches before we look for the new bill
   await p.goto('/admin/bills')

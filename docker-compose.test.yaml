@@ -50,6 +50,9 @@ services:
       context: .
       args:
         DEBUG: 'true'
+        VITE_API_HOST: ${API_HOST:-slimfact.localhost}
+        VITE_TITLE: SlimFact
+        VITE_SOURCE_COLOR: '#00a4e6'
       secrets:
         - SIMSUSTECH_NPM_TOKEN
   
@@ -83,6 +86,7 @@ services:
       POSTGRES_HOST: database
       POSTGRES_DB: slimfact
       POSTGRES_PASSWORD: ufgouifdgjdfg
+      POSTGRES_POOL_MAX: '50'
       MAIL_HOST: mailhog
       MAIL_PORT: '1025'
       MAIL_FROM: 'test@slimfact.app'
