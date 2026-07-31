@@ -298,6 +298,66 @@ export interface Language {
         invoices: string
       }
     }
+    admin: {
+      title: string
+      companyFilter: {
+        label: string
+        allSelected: string
+        noneSelected: string
+      }
+      revenue: {
+        title: string
+        today: string
+        week: string
+        month: string
+        quarter: string
+        year: string
+        customRange: string
+        invoices: string
+        bills: string
+        chart: {
+          title: string
+        }
+      }
+      statusChart: {
+        title: string
+        status: {
+          concept: string
+          open: string
+          paid: string
+          overdue: string
+          canceled: string
+          bill: string
+          receipt: string
+        }
+      }
+      actionItems: {
+        title: string
+        open: string
+        overdue: {
+          needsReminder: string
+          reminder1: string
+          reminder2: string
+          exhortation: string
+        }
+      }
+      recentActivity: {
+        title: string
+        filter: {
+          label: string
+          all: string
+          invoiceOpened: string
+          billCreated: string
+          payment: string
+          reminder: string
+          exhortation: string
+        }
+      }
+      empty: {
+        noData: string
+        noCompanySelected: string
+      }
+    }
   }
   settings: {
     title: string

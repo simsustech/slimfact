@@ -280,6 +280,66 @@ const lang: Language = {
         receipts: 'Bekijk mijn kwitanties.',
         invoices: 'Bekijk mijn facturen.'
       }
+    },
+    admin: {
+      title: 'Dashboard',
+      companyFilter: {
+        label: 'Bedrijfsfilter',
+        allSelected: 'Alle bedrijven',
+        noneSelected: 'Geen bedrijven geselecteerd'
+      },
+      revenue: {
+        title: 'Omzet',
+        today: 'Vandaag',
+        week: 'Deze week',
+        month: 'Deze maand',
+        quarter: 'Dit kwartaal',
+        year: 'Dit jaar',
+        customRange: 'Aangepast bereik',
+        invoices: 'Facturen',
+        bills: 'Rekeningen',
+        chart: {
+          title: 'Omzet per maand'
+        }
+      },
+      statusChart: {
+        title: 'Statusoverzicht',
+        status: {
+          concept: 'Concept',
+          open: 'Open',
+          paid: 'Betaald',
+          overdue: 'Te laat',
+          canceled: 'Geannuleerd',
+          bill: 'Rekening',
+          receipt: 'Kwitantie'
+        }
+      },
+      actionItems: {
+        title: 'Actiepunten',
+        open: 'Open facturen',
+        overdue: {
+          needsReminder: 'Herinnering nodig',
+          reminder1: 'Eerste herinnering verstuurd',
+          reminder2: 'Tweede herinnering verstuurd',
+          exhortation: 'Aanmaning'
+        }
+      },
+      recentActivity: {
+        title: 'Recente activiteit',
+        filter: {
+          label: 'Activiteit filter',
+          all: 'Alle',
+          invoiceOpened: 'Factuur geopend',
+          billCreated: 'Rekening aangemaakt',
+          payment: 'Betaling ontvangen',
+          reminder: 'Herinnering verstuurd',
+          exhortation: 'Aanmaning verstuurd'
+        }
+      },
+      empty: {
+        noData: 'Geen gegevens beschikbaar',
+        noCompanySelected: 'Selecteer een bedrijf om statistieken te zien'
+      }
     }
   },
   settings: {

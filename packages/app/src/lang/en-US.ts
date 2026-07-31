@@ -279,6 +279,66 @@ const lang: Language = {
         receipts: 'View my receipts.',
         invoices: 'View my invoices.'
       }
+    },
+    admin: {
+      title: 'Dashboard',
+      companyFilter: {
+        label: 'Company filter',
+        allSelected: 'All companies',
+        noneSelected: 'No companies selected'
+      },
+      revenue: {
+        title: 'Revenue',
+        today: 'Today',
+        week: 'This week',
+        month: 'This month',
+        quarter: 'This quarter',
+        year: 'This year',
+        customRange: 'Custom range',
+        invoices: 'Invoices',
+        bills: 'Bills',
+        chart: {
+          title: 'Revenue by month'
+        }
+      },
+      statusChart: {
+        title: 'Status overview',
+        status: {
+          concept: 'Concept',
+          open: 'Open',
+          paid: 'Paid',
+          overdue: 'Overdue',
+          canceled: 'Canceled',
+          bill: 'Bill',
+          receipt: 'Receipt'
+        }
+      },
+      actionItems: {
+        title: 'Action items',
+        open: 'Open invoices',
+        overdue: {
+          needsReminder: 'Needs reminder',
+          reminder1: 'First reminder sent',
+          reminder2: 'Second reminder sent',
+          exhortation: 'Exhortation'
+        }
+      },
+      recentActivity: {
+        title: 'Recent activity',
+        filter: {
+          label: 'Activity filter',
+          all: 'All',
+          invoiceOpened: 'Invoice opened',
+          billCreated: 'Bill created',
+          payment: 'Payment received',
+          reminder: 'Reminder sent',
+          exhortation: 'Exhortation sent'
+        }
+      },
+      empty: {
+        noData: 'No data available',
+        noCompanySelected: 'Select a company to view stats'
+      }
     }
   },
   settings: { title: 'Settings' },

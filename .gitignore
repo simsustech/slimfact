@@ -9,3 +9,5 @@ clients
 .pnpm-debug.log
 **/stats.html
 jwks
+.pnpm-store/
+.pi/fff/

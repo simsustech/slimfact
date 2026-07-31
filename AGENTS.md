@@ -90,9 +90,9 @@ For Docker-based dev stack (with Caddy + NetBird for webhook testing), use `dock
 
 The dev server runs on `https://localhost:3001`. NetBird provides a publicly reachable URL (`https://slimfact-dev.eu1.netbird.services`) for PSP webhook callbacks.
 
-| Scenario                | `VITE_API_HOST`  | `PLAYWRIGHT_BASE_URL`    | Notes                                                |
-| ----------------------- | ---------------- | ------------------------ | ---------------------------------------------------- |
-| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly                         |
+| Scenario                | `VITE_API_HOST`  | `PLAYWRIGHT_BASE_URL`    | Notes                                                  |
+| ----------------------- | ---------------- | ------------------------ | ------------------------------------------------------ |
+| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly                           |
 | Webhook testing         | NetBird URL      | NetBird URL              | NetBird routes 443 → local dev server :3001 via tunnel |
 
 To switch, edit `packages/api/.env.development.local` and restart the dev server.
@@ -100,6 +100,19 @@ To switch, edit `packages/api/.env.development.local` and restart the dev server
 **Why VITE_API_HOST matters**: The OIDC issuer URL is built from `VITE_API_HOST`. If set to the NetBird URL but you browse to localhost, OIDC will error with "Incorrect issuer in meta data" because the issuer doesn't match the page origin.
 
 **Gotcha: stale POSTGRES_HOST**: If you previously ran Docker, `POSTGRES_HOST=database` may linger in your shell env. Unset it: `unset POSTGRES_HOST`.
+
+**Gotcha: one-shot test recipe**: Always start a fresh test run with `down --volumes` so the API re-seeds from scratch, then `build --no-cache api` (so any linked local package overlay is picked up), then `up -d --wait` (so containers are healthy before tests run). `up -d api` without `--wait` returns immediately and the API then crashes on a missing DB if its container was recreated against a stale volume. The one-shot recipe:
+
+```bash
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+docker compose -f docker-compose.test.yaml up -d --wait
+cd packages/api && pnpm exec playwright test --workers=1 --config=playwright.nosetup.config.ts
+```
+
+`--volumes` drops the DB so the API re-runs migrations + `seed:test` from scratch. `build --no-cache api` rebuilds the image with any local fastify-checkout overlay. `up -d --wait` blocks until every container's healthcheck passes, so the API is ready before Playwright starts.
 
 ## Docker Test Stack with Linked Local Packages
 
@@ -235,11 +248,11 @@ PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-stripe.spec.ts --work
 
 ### Docker Test Configs
 
-| File                              | Purpose                                     |
-| --------------------------------- | ------------------------------------------- |
-| `docker-compose.test.yaml`        | Base test setup with DB, MailHog, NetBird   |
-| `docker-compose.test.mollie.yaml` | Routes iDEAL+creditcard → Mollie            |
-| `docker-compose.test.stripe.yaml` | Routes iDEAL+creditcard → Stripe            |
+| File                              | Purpose                                   |
+| --------------------------------- | ----------------------------------------- |
+| `docker-compose.test.yaml`        | Base test setup with DB, MailHog, NetBird |
+| `docker-compose.test.mollie.yaml` | Routes iDEAL+creditcard → Mollie          |
+| `docker-compose.test.stripe.yaml` | Routes iDEAL+creditcard → Stripe          |
 
 ## Quality Checks
 

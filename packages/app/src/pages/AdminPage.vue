@@ -1,11 +1,9 @@
 <template>
   <q-page padding>
-    <div class="row">
-      <dashboard-admin-menu-list class="col-12 col-md-4" />
-    </div>
+    <DashboardPage />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import DashboardAdminMenuList from '../components/dashboard/DashboardAdminMenuList.vue'
+import DashboardPage from '../components/dashboard/DashboardPage.vue'
 </script>

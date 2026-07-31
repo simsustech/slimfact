@@ -280,6 +280,67 @@ const lang: Language = {
         receipts: 'Meine Quittungen anzeigen.',
         invoices: 'Meine Rechnungen anzeigen.'
       }
+    },
+    admin: {
+      title: 'Dashboard',
+      companyFilter: {
+        label: 'Unternehmensfilter',
+        allSelected: 'Alle Unternehmen',
+        noneSelected: 'Keine Unternehmen ausgewählt'
+      },
+      revenue: {
+        title: 'Umsatz',
+        today: 'Heute',
+        week: 'Diese Woche',
+        month: 'Dieser Monat',
+        quarter: 'Dieses Quartal',
+        year: 'Dieses Jahr',
+        customRange: 'Benutzerdefinierter Bereich',
+        invoices: 'Rechnungen',
+        bills: 'Belege',
+        chart: {
+          title: 'Umsatz pro Monat'
+        }
+      },
+      statusChart: {
+        title: 'Statusübersicht',
+        status: {
+          concept: 'Entwurf',
+          open: 'Offen',
+          paid: 'Bezahlt',
+          overdue: 'Überfällig',
+          canceled: 'Storniert',
+          bill: 'Beleg',
+          receipt: 'Quittung'
+        }
+      },
+      actionItems: {
+        title: 'Aktionspunkte',
+        open: 'Offene Rechnungen',
+        overdue: {
+          needsReminder: 'Erinnerung nötig',
+          reminder1: 'Erste Erinnerung gesendet',
+          reminder2: 'Zweite Erinnerung gesendet',
+          exhortation: 'Mahnung'
+        }
+      },
+      recentActivity: {
+        title: 'Letzte Aktivitäten',
+        filter: {
+          label: 'Aktivitätsfilter',
+          all: 'Alle',
+          invoiceOpened: 'Rechnung geöffnet',
+          billCreated: 'Beleg erstellt',
+          payment: 'Zahlung erhalten',
+          reminder: 'Erinnerung gesendet',
+          exhortation: 'Mahnung gesendet'
+        }
+      },
+      empty: {
+        noData: 'Keine Daten verfügbar',
+        noCompanySelected:
+          'Wählen Sie ein Unternehmen aus, um Statistiken zu sehen'
+      }
     }
   },
   settings: { title: 'Einstellungen' },
