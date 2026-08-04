@@ -321,12 +321,12 @@ export interface Language {
         receipts: string
         chart: {
           title: string
-          currency: string
           noData: string
           bin: {
             day: string
             week: string
             month: string
+            quarter: string
           }
         }
       }

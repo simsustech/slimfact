@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  bucketEndDate,
   dashboardDateRangeForPreset,
   type DashboardDateRangePreset,
   pickGranularity
@@ -122,17 +123,51 @@ describe('dashboard.trpc.event-type-set', () => {
 })
 
 describe('dashboard.trpc.pickGranularity', () => {
-  it('uses day for <=31d ranges', () => {
-    expect(pickGranularity('2025-01-01', '2025-01-31')).toBe('day')
-    expect(pickGranularity('2025-01-01', '2025-01-15')).toBe('day')
+  it('uses day for <=10d ranges (week view)', () => {
+    expect(pickGranularity('2025-01-01', '2025-01-07')).toBe('day')
+    expect(pickGranularity('2025-01-01', '2025-01-10')).toBe('day')
   })
 
-  it('uses week for 32-84d ranges', () => {
-    expect(pickGranularity('2025-01-01', '2025-03-01')).toBe('week')
+  it('uses week for 11-45d ranges (month view shows week numbers)', () => {
+    expect(pickGranularity('2025-01-01', '2025-01-31')).toBe('week')
+    expect(pickGranularity('2025-01-01', '2025-02-15')).toBe('week')
   })
 
-  it('uses month for >84d ranges', () => {
-    expect(pickGranularity('2025-01-01', '2025-06-01')).toBe('month')
-    expect(pickGranularity('2025-01-01', '2026-01-01')).toBe('month')
+  it('uses month for 46-200d ranges (quarter view)', () => {
+    expect(pickGranularity('2025-01-01', '2025-03-01')).toBe('month')
+    expect(pickGranularity('2025-01-01', '2025-07-19')).toBe('month')
+  })
+
+  it('uses quarter for >200d ranges (year view)', () => {
+    expect(pickGranularity('2025-01-01', '2025-07-21')).toBe('quarter')
+    expect(pickGranularity('2025-01-01', '2026-01-01')).toBe('quarter')
+  })
+})
+
+describe('dashboard.trpc.bucketEndDate', () => {
+  it('keeps a day bucket to itself', () => {
+    expect(bucketEndDate('2025-06-15', 'day')).toBe('2025-06-15')
+  })
+
+  it('ends a week bucket on Sunday (6 days after Monday start)', () => {
+    expect(bucketEndDate('2025-06-02', 'week')).toBe('2025-06-08')
+  })
+
+  it('ends a month bucket on the last day of the month', () => {
+    expect(bucketEndDate('2025-02-01', 'month')).toBe('2025-02-28')
+    expect(bucketEndDate('2024-02-01', 'month')).toBe('2024-02-29')
+    expect(bucketEndDate('2025-06-01', 'month')).toBe('2025-06-30')
+    expect(bucketEndDate('2025-12-01', 'month')).toBe('2025-12-31')
+  })
+
+  it('ends a quarter bucket on the last day of the quarter', () => {
+    expect(bucketEndDate('2025-01-01', 'quarter')).toBe('2025-03-31')
+    expect(bucketEndDate('2025-04-01', 'quarter')).toBe('2025-06-30')
+    expect(bucketEndDate('2025-07-01', 'quarter')).toBe('2025-09-30')
+    expect(bucketEndDate('2025-10-01', 'quarter')).toBe('2025-12-31')
+  })
+
+  it('handles a week spanning a month/year boundary', () => {
+    expect(bucketEndDate('2025-12-29', 'week')).toBe('2026-01-04')
   })
 })

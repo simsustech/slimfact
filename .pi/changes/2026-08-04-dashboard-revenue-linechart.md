@@ -70,6 +70,7 @@ Made the admin dashboard revenue section a real time-series line chart (invoices
 - Hardened flaky QSelect interactions (force click after attach).
 
 ### Status overview → Outstanding (debtors) card
+
 - The doughnut was misleading: Postgres returns count/totalAmount as
   strings, so `target.count += row.count` concatenated ('14'+'3'='143'),
   making one bucket dominate visually ("only see canceled"/"only bill").

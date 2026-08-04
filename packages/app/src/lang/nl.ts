@@ -303,12 +303,13 @@ const lang: Language = {
         bills: 'Rekeningen',
         chart: {
           title: 'Omzet over tijd',
-          currency: '€',
           noData: 'Geen omzet in deze periode',
           bin: {
             day: 'Per dag: elk punt is de omzet betaald op die datum.',
             week: 'Per week: elk punt is de omzet betaald in die week.',
-            month: 'Per maand: elk punt is de omzet betaald in die maand.'
+            month: 'Per maand: elk punt is de omzet betaald in die maand.',
+            quarter:
+              'Per kwartaal: elk punt is de omzet betaald in dat kwartaal.'
           }
         }
       },

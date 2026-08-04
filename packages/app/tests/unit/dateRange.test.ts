@@ -25,29 +25,40 @@ describe('dashboard.dateRange.presetDateRange', () => {
     expect(r.dateTo).toBe('2025-06-15')
   })
 
-  it('week starts on Monday and covers to today', () => {
-    // June 2025: 15th is a Sunday; the week started Monday June 9
+  it('week covers Monday..Sunday of the current week', () => {
+    // June 2025: 15th is a Sunday; the week runs Monday June 9..June 15
     const r = presetDateRange('week', NOW)
     expect(r.dateFrom).toBe('2025-06-09')
     expect(r.dateTo).toBe('2025-06-15')
   })
 
-  it('month covers the first of the month to today', () => {
+  it('week covers the full week for a mid-week day', () => {
+    const r = presetDateRange('week', new Date(2025, 5, 18)) // Wednesday
+    expect(r.dateFrom).toBe('2025-06-16')
+    expect(r.dateTo).toBe('2025-06-22')
+  })
+
+  it('month covers the first to the last day of the month', () => {
     const r = presetDateRange('month', NOW)
     expect(r.dateFrom).toBe('2025-06-01')
-    expect(r.dateTo).toBe('2025-06-15')
+    expect(r.dateTo).toBe('2025-06-30')
   })
 
-  it('quarter covers the start of the current quarter to today', () => {
+  it('month covers the last day of a short month', () => {
+    const r = presetDateRange('month', new Date(2025, 1, 10)) // February
+    expect(r.dateTo).toBe('2025-02-28')
+  })
+
+  it('quarter covers the first to the last day of the quarter', () => {
     const r = presetDateRange('quarter', NOW)
     expect(r.dateFrom).toBe('2025-04-01')
-    expect(r.dateTo).toBe('2025-06-15')
+    expect(r.dateTo).toBe('2025-06-30')
   })
 
-  it('year covers the start of the year to today', () => {
+  it('year covers Jan 1 to Dec 31', () => {
     const r = presetDateRange('year', NOW)
     expect(r.dateFrom).toBe('2025-01-01')
-    expect(r.dateTo).toBe('2025-06-15')
+    expect(r.dateTo).toBe('2025-12-31')
   })
 
   it('always produces dateFrom <= dateTo', () => {

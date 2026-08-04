@@ -76,6 +76,12 @@
 import { computed, ref, watch } from 'vue'
 import Price from '../Price.vue'
 import { useLang } from '../../lang/index.js'
+import {
+  colorForActivity,
+  filterActivity,
+  iconForActivity,
+  paginateEntries
+} from './recentActivity.js'
 
 export interface ActivityEntry {
   type: string
@@ -124,18 +130,16 @@ const filterOptions = computed(() => [
   }
 ])
 
-const filteredEntries = computed(() => {
-  if (selectedEventType.value === 'all') return props.entries
-  return props.entries.filter((e) => e.type === selectedEventType.value)
-})
+const filteredEntries = computed(() =>
+  filterActivity(props.entries, selectedEventType.value)
+)
 
 const page = ref(1)
 const rowsPerPage = ref(5)
 
-const pagedEntries = computed(() => {
-  const start = (page.value - 1) * rowsPerPage.value
-  return filteredEntries.value.slice(start, start + rowsPerPage.value)
-})
+const pagedEntries = computed(() =>
+  paginateEntries(filteredEntries.value, page.value, rowsPerPage.value)
+)
 
 watch(selectedEventType, () => {
   page.value = 1
@@ -143,41 +147,8 @@ watch(selectedEventType, () => {
 watch(rowsPerPage, () => {
   page.value = 1
 })
-
-const iconFor = (type: string) => {
-  switch (type) {
-    case 'invoiceOpened':
-      return 'mdi-file-document-outline'
-    case 'billCreated':
-      return 'mdi-receipt-text-outline'
-    case 'payment':
-      return 'mdi-credit-card-check-outline'
-    case 'reminder':
-      return 'mdi-bell-outline'
-    case 'exhortation':
-      return 'mdi-alert-octagon-outline'
-    default:
-      return 'mdi-circle-medium'
-  }
-}
-
-const colorFor = (type: string) => {
-  switch (type) {
-    case 'invoiceOpened':
-      return 'primary'
-    case 'billCreated':
-      return 'teal'
-    case 'payment':
-      return 'green'
-    case 'reminder':
-      return 'orange'
-    case 'exhortation':
-      return 'red'
-    default:
-      return 'grey'
-  }
-}
-
+const iconFor = iconForActivity
+const colorFor = colorForActivity
 const labelFor = (type: string) => {
   switch (type) {
     case 'invoiceOpened':

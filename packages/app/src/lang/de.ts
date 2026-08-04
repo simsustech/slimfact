@@ -304,13 +304,14 @@ const lang: Language = {
         receipts: 'Quittungen',
         chart: {
           title: 'Umsatz im Zeitverlauf',
-          currency: '€',
           noData: 'Kein Umsatz in diesem Zeitraum',
           bin: {
             day: 'Nach Tag: jeder Punkt ist der an diesem Tag gezahlte Umsatz.',
             week: 'Nach Woche: jeder Punkt ist der in dieser Woche gezahlte Umsatz.',
             month:
-              'Nach Monat: jeder Punkt ist der in diesem Monat gezahlte Umsatz.'
+              'Nach Monat: jeder Punkt ist der in diesem Monat gezahlte Umsatz.',
+            quarter:
+              'Nach Quartal: jeder Punkt ist der in diesem Quartal gezahlte Umsatz.'
           }
         }
       },

@@ -1,3 +1,4 @@
+import { formatPrice } from '../index.js'
 import { type Invoice } from '@modular-api/fastify-checkout'
 import { mkConfig, generateCsv } from 'export-to-csv'
 
@@ -26,17 +27,6 @@ const formatDateShort = ({
   const date = new Date(dateString)
   return shortDateFormatter.format(date)
 }
-
-const formatPrice = ({ value, locale }: { value: number; locale: string }) =>
-  Intl.NumberFormat(locale, {
-    maximumFractionDigits: 2,
-    style: 'currency',
-    currency: 'EUR',
-    currencyDisplay: 'code'
-  })
-    .format(value / 100)
-    .replace('EUR', '')
-    .trim()
 
 export const exportDigibooxInvoices = (invoices: Invoice[]) => {
   const csvConfig = mkConfig({ useKeysAsHeaders: true })

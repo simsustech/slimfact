@@ -177,13 +177,10 @@ test.describe('Dashboard', () => {
     await expect(startInputs.nth(0)).toHaveValue('01')
     await expect(startInputs.nth(1)).toHaveValue('01')
     const endInputs = endField.locator('input')
-    // End input should be today's date (DD-MM-YYYY).
-    const today = new Date()
-    const dd = String(today.getDate()).padStart(2, '0')
-    const mm = String(today.getMonth() + 1).padStart(2, '0')
-    const yyyy = String(today.getFullYear())
-    await expect(endInputs.nth(0)).toHaveValue(dd)
-    await expect(endInputs.nth(1)).toHaveValue(mm)
+    // End input should be Dec 31 of the current year (full-period preset).
+    const yyyy = String(new Date().getFullYear())
+    await expect(endInputs.nth(0)).toHaveValue('31')
+    await expect(endInputs.nth(1)).toHaveValue('12')
     await expect(endInputs.nth(2)).toHaveValue(yyyy)
   })
 
@@ -224,21 +221,92 @@ test.describe('Dashboard', () => {
   test('empty-state', async () => {
     await page.goto('/admin/dashboard')
 
-    const empty = page
-      .getByText('No data available')
-      .or(page.getByText('Select a company to view stats'))
-    await expect(empty.first()).toBeVisible()
+    // Deselect every company via its chip Remove button (re-queried each
+    // loop so re-renders from stats refetches can't detach the locator).
+    const filter = page.locator('.dashboard-company-filter')
+    await expect(filter).toBeVisible()
+    const removeButtons = filter.getByRole('button', { name: 'Remove' })
+    while ((await removeButtons.count()) > 0) {
+      await removeButtons.first().click({ force: true })
+      await page.waitForTimeout(150)
+    }
+    await expect(
+      page.getByText('Select a company to view stats').first()
+    ).toBeVisible()
   })
 
   test('revenue-chart-binning-caption', async () => {
     await page.goto('/admin/dashboard')
 
     // The chart explains how the data is binned. The default month preset
-    // spans at most 31 days so the API bins by day.
-    await expect(page.getByText(/Binned by day/).first()).toBeVisible()
+    // spans at most 31 days so the API bins by week (week numbers).
+    await expect(page.getByText(/Binned by week/).first()).toBeVisible()
 
-    // Selecting a wide preset (This year) switches to monthly bins.
+    // Selecting a wide preset (This year) switches to quarterly bins.
     await page.getByRole('button', { name: 'This year' }).click()
+    await expect(page.getByText(/Binned by quarter/).first()).toBeVisible()
+  })
+
+  test('revenue-chart-complete-axis-week-preset', async () => {
+    await page.goto('/admin/dashboard')
+
+    // This week covers 7 days; the axis must show all 7 even for days with
+    // no revenue (labels are exposed via data-chart-labels for tests).
+    await page.getByRole('button', { name: 'This week' }).click()
+    const labels = page.locator('[data-chart-labels]')
+    await expect(labels).toHaveAttribute(
+      'data-chart-labels',
+      /^\d{4}-\d{2}-\d{2}\|/
+    )
+    const parts = (await labels.getAttribute('data-chart-labels'))!.split('|')
+    expect(parts).toHaveLength(7)
+  })
+
+  test('revenue-chart-complete-axis-year-quarter', async () => {
+    await page.goto('/admin/dashboard')
+
+    // This year is binned into exactly 4 quarters (YYYY-Q1 .. YYYY-Q4).
+    await page.getByRole('button', { name: 'This year' }).click()
+    const year = new Date().getFullYear()
+    const labels = page.locator('[data-chart-labels]')
+    await expect(labels).toHaveAttribute(
+      'data-chart-labels',
+      `${year}-Q1|${year}-Q2|${year}-Q3|${year}-Q4`
+    )
+    const parts = (await labels.getAttribute('data-chart-labels'))!.split('|')
+    expect(parts).toHaveLength(4)
+  })
+
+  test('revenue-chart-click-bucket-zooms-to-period', async () => {
+    await page.goto('/admin/dashboard')
+
+    // Year view shows Q1..Q4; clicking the first bar zooms into Q1.
+    await page.getByRole('button', { name: 'This year' }).click()
+    await expect(page.getByText(/Binned by quarter/).first()).toBeVisible()
+
+    const canvas = page.locator('.chart-canvas-wrap canvas')
+    await expect(canvas).toBeVisible()
+    const box = (await canvas.boundingBox())!
+    await canvas.click({
+      position: { x: box.width * 0.2, y: box.height * 0.5 },
+      force: true
+    })
+
+    const year = String(new Date().getFullYear())
+    // DateInput renders segmented day/month/year inputs (DD-MM-YYYY).
+    const fromInputs = page
+      .locator('.date-input-field')
+      .first()
+      .locator('input')
+    const toInputs = page.locator('.date-input-field').nth(1).locator('input')
+    await expect(fromInputs.nth(0)).toHaveValue('01') // day
+    await expect(fromInputs.nth(1)).toHaveValue('01') // month
+    await expect(fromInputs.nth(2)).toHaveValue(year)
+    await expect(toInputs.nth(0)).toHaveValue('31')
+    await expect(toInputs.nth(1)).toHaveValue('03')
+    await expect(toInputs.nth(2)).toHaveValue(year)
+
+    // The zoomed Q1 range (~91 days) is binned by month.
     await expect(page.getByText(/Binned by month/).first()).toBeVisible()
   })
 

@@ -29,7 +29,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: 'dashboard',
-            component: () => import('../components/dashboard/DashboardPage.vue')
+            component: () => import('../pages/admin/DashboardPage.vue')
           },
           {
             path: 'clients',

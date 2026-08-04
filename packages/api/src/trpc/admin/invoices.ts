@@ -4,6 +4,7 @@ import * as z from 'zod'
 import type { FastifyInstance } from 'fastify'
 import { invoice as invoiceValidation } from '../../zod/invoice.js'
 import { db } from '../../kysely/index.js'
+import { formatPrice } from '@slimfact/tools'
 import handlebars from 'handlebars'
 import env from '@vitrify/tools/env'
 import { Invoice } from '@modular-api/fastify-checkout'
@@ -42,21 +43,6 @@ const formatDateShort = ({
   const date = new Date(dateString)
   return shortDateFormatter.format(date)
 }
-const formatPrice = ({
-  currency,
-  value,
-  locale
-}: {
-  currency: string
-  value: number
-  locale: string
-}) =>
-  Intl.NumberFormat(locale, {
-    maximumFractionDigits: 2,
-    style: 'currency',
-    currency: currency
-  }).format(value / 100)
-
 const composeEmail = ({
   invoice,
   emailSubject,
@@ -793,7 +779,8 @@ export const adminInvoiceRoutes = ({
             totalIncludingTax: formatPrice({
               currency: invoice.currency,
               value: invoice.totalIncludingTax,
-              locale: invoice.locale
+              locale: invoice.locale,
+              includeSymbol: true
             })
           })
           const body = handlebars.compile(bodyTemplate)({
@@ -809,7 +796,8 @@ export const adminInvoiceRoutes = ({
             totalIncludingTax: formatPrice({
               currency: invoice.currency,
               value: invoice.totalIncludingTax,
-              locale: invoice.locale
+              locale: invoice.locale,
+              includeSymbol: true
             }),
             paid: invoice.amountPaid
               ? invoice.amountPaid >= invoice.totalIncludingTax
@@ -817,7 +805,8 @@ export const adminInvoiceRoutes = ({
             amountDue: formatPrice({
               currency: invoice.currency,
               value: invoice.amountDue || invoice.totalIncludingTax,
-              locale: invoice.locale
+              locale: invoice.locale,
+              includeSymbol: true
             })
           })
           return { subject, body }

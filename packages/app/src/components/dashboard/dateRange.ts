@@ -11,38 +11,45 @@ export const toIso = (value: Date): string => {
   return `${year}-${month}-${day}`
 }
 
-// ISO date range for a fixed preset. `now` is injectable for tests.
+// ISO date range for a fixed preset. Presets cover the WHOLE calendar
+// period (e.g. 'week' = Monday..Sunday, 'year' = Jan 1..Dec 31) so the
+// revenue chart axis always shows the complete period. `now` is injectable
+// for tests.
 export const presetDateRange = (
   preset: DashboardPreset,
   now: Date = new Date()
 ): { dateFrom: string; dateTo: string } => {
-  let dateFrom: Date
-  const dateTo = now
+  const start = new Date(now)
+  const end = new Date(now)
   switch (preset) {
     case 'today':
-      dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       break
     case 'week': {
-      const day = (now.getDay() + 6) % 7
-      dateFrom = new Date(now)
-      dateFrom.setDate(now.getDate() - day)
-      dateFrom.setHours(0, 0, 0, 0)
+      const day = (now.getDay() + 6) % 7 // Monday = 0
+      start.setDate(now.getDate() - day)
+      end.setDate(start.getDate() + 6)
       break
     }
-    case 'month':
-      dateFrom = new Date(now.getFullYear(), now.getMonth(), 1)
+    case 'month': {
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0) // day 0 of next month = last day
       break
+    }
     case 'quarter': {
-      const q = Math.floor(now.getMonth() / 3) * 3
-      dateFrom = new Date(now.getFullYear(), q, 1)
+      const q = Math.floor(now.getMonth() / 3) * 3 // first month of quarter
+      start.setMonth(q, 1)
+      end.setMonth(q + 3, 0) // day 0 after quarter = last day of quarter
       break
     }
     case 'year':
-      dateFrom = new Date(now.getFullYear(), 0, 1)
+      start.setMonth(0, 1)
+      end.setMonth(11, 31)
       break
     default:
-      dateFrom = new Date(now.getFullYear(), now.getMonth(), 1)
-      break
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0)
   }
-  return { dateFrom: toIso(dateFrom), dateTo: toIso(dateTo) }
+  start.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
+  return { dateFrom: toIso(start), dateTo: toIso(end) }
 }

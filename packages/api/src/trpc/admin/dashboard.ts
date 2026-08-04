@@ -16,21 +16,49 @@ import {
   getDashboardActivityInput
 } from '../../zod/dashboard.js'
 
-// Pick a time-bucket granularity based on the date-range span:
-// day for <=31d, week for <=12w (~84d), month otherwise.
+// Pick a time-bucket granularity based on the date-range span so the axis
+// always shows the whole period with a sensible number of points:
+// day for <=10d (week view), week (numbers) for <=45d (month view),
+// month for <=200d (quarter view), quarter otherwise (year view).
+export type RevenueGranularity = 'day' | 'week' | 'month' | 'quarter'
+
 export const pickGranularity = (
   dateFrom: string,
   dateTo: string
-): 'day' | 'week' | 'month' => {
+): RevenueGranularity => {
   const from = new Date(dateFrom)
   const to = new Date(dateTo)
   const days = Math.max(
     0,
     Math.round((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24))
   )
-  if (days <= 31) return 'day'
-  if (days <= 84) return 'week'
-  return 'month'
+  if (days <= 10) return 'day'
+  if (days <= 45) return 'week'
+  if (days <= 200) return 'month'
+  return 'quarter'
+}
+
+// Last day (inclusive) of a time bucket whose first day is `start`
+// (YYYY-MM-DD). Used to turn a clicked chart bucket into a date range.
+export const bucketEndDate = (
+  start: string,
+  granularity: RevenueGranularity
+): string => {
+  const [year, month, day] = start.split('-').map(Number)
+  switch (granularity) {
+    case 'day':
+      return start
+    case 'week':
+      return toIsoDate(new Date(Date.UTC(year, month - 1, day + 6)))
+    case 'month':
+      // Day 0 of the month AFTER the bucket month = last day of the month.
+      return toIsoDate(new Date(Date.UTC(year, month, 0)))
+    case 'quarter': {
+      // `month` is the first month of the quarter (1, 4, 7 or 10); day 0 of
+      // the month after the third month = last day of the quarter.
+      return toIsoDate(new Date(Date.UTC(year, month + 2, 0)))
+    }
+  }
 }
 
 export const adminDashboardRoutes = ({
@@ -72,9 +100,10 @@ export const adminDashboardRoutes = ({
           companyIds?: number[]
           dateFrom: string
           dateTo: string
-          granularity: 'day' | 'week' | 'month'
+          granularity: 'day' | 'week' | 'month' | 'quarter'
         }) => Promise<{
           labels: string[]
+          buckets: { start: string }[]
           series: { status: InvoiceStatus; data: number[] }[]
         }>
         getOutstandingTotal: (args: {
@@ -109,11 +138,22 @@ export const adminDashboardRoutes = ({
         ...row,
         label: agingLabelForReminderCount(row.reminderCount)
       }))
+      // Turn every bucket start into an inclusive {start, end} date range so
+      // the app can zoom into a clicked chart bucket.
+      const paidRevenueSeriesWithRanges = paidRevenueSeries
+        ? {
+            ...paidRevenueSeries,
+            buckets: paidRevenueSeries.buckets.map((bucket) => ({
+              start: bucket.start,
+              end: bucketEndDate(bucket.start, granularity)
+            }))
+          }
+        : paidRevenueSeries
 
       return {
         statusCounts,
         overdueAging: overdueAgingLabeled,
-        paidRevenueSeries,
+        paidRevenueSeries: paidRevenueSeriesWithRanges,
         outstandingTotal,
         granularity
       }
