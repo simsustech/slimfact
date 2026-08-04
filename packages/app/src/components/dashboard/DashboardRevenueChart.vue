@@ -1,8 +1,10 @@
 <template>
   <div class="dashboard-revenue-chart">
-    <Line v-if="hasData" :data="chartData" :options="chartOptions" />
-    <div v-else class="empty-chart">
-      {{ lang.dashboard.admin.revenue.chart.noData }}
+    <div class="chart-canvas-wrap">
+      <Bar v-if="hasData" :data="chartData" :options="chartOptions" />
+      <div v-else class="empty-chart">
+        {{ lang.dashboard.admin.revenue.chart.noData }}
+      </div>
     </div>
     <div v-if="hasData && binLabel" class="chart-caption">
       {{ binLabel }}
@@ -12,31 +14,20 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Line } from 'vue-chartjs'
+import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   Title,
   Tooltip,
   Legend,
-  LineElement,
-  PointElement,
+  BarElement,
   CategoryScale,
-  LinearScale,
-  Filler
+  LinearScale
 } from 'chart.js'
 import { useLang } from '../../lang/index.js'
 import { formatCurrency as formatCents } from './formatCurrency.js'
 
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Filler
-)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export interface Props {
   labels: string[]
@@ -67,12 +58,9 @@ const chartData = computed(() => ({
   datasets: props.datasets.map((dataset) => ({
     label: dataset.label,
     data: dataset.data,
-    borderColor: dataset.borderColor,
     backgroundColor: dataset.backgroundColor,
-    tension: 0.3,
-    pointRadius: 3,
-    pointHoverRadius: 5,
-    fill: false
+    borderColor: dataset.borderColor,
+    borderWidth: 1
   }))
 }))
 
@@ -97,6 +85,7 @@ const chartOptions = computed(() => ({
   },
   scales: {
     x: {
+      stacked: false,
       title: {
         display: true,
         text: lang.value.dashboard.admin.revenue.chart.title
@@ -120,11 +109,17 @@ const chartOptions = computed(() => ({
 .dashboard-revenue-chart {
   width: 100%;
 }
+/* The canvas wrapper has a fixed height: with maintainAspectRatio: false
+   and no height constraint the canvas grows unboundedly on every refetch. */
+.chart-canvas-wrap {
+  height: 280px;
+  position: relative;
+}
 .empty-chart {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 280px;
+  height: 100%;
   color: rgba(0, 0, 0, 0.6);
   font-style: italic;
 }

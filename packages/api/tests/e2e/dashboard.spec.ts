@@ -47,7 +47,7 @@ test.describe('Dashboard', () => {
     await expect(page.getByText('Revenue').first()).toBeVisible()
     await expect(page.getByText('Invoices').first()).toBeVisible()
     await expect(page.getByText('Bills').first()).toBeVisible()
-    await expect(page.getByText('Status overview').first()).toBeVisible()
+    await expect(page.getByText('Outstanding').first()).toBeVisible()
     await expect(page.getByText('Action items').first()).toBeVisible()
     await expect(page.getByText('Recent activity').first()).toBeVisible()
   })
@@ -104,13 +104,40 @@ test.describe('Dashboard', () => {
     await expect(page.getByText('2025-01-01 → 2025-01-31')).toBeVisible()
   })
 
-  test('status-chart-renders', async () => {
+  test('debtors-section-renders', async () => {
     await page.goto('/admin/dashboard')
 
-    await expect(page.getByText('Status overview').first()).toBeVisible()
+    const card = page
+      .locator('.q-card')
+      .filter({ hasText: 'Outstanding' })
+      .first()
+    await expect(card).toBeVisible()
+    // Company rows with amounts should be listed (seed has OPEN invoices).
+    await expect(card.locator('.q-item').first()).toBeVisible()
+  })
 
-    const canvas = page.locator('canvas').first()
-    await expect(canvas).toBeVisible()
+  test('debtors-bills-toggle', async () => {
+    await page.goto('/admin/dashboard')
+
+    const card = page
+      .locator('.q-card')
+      .filter({ hasText: 'Outstanding' })
+      .first()
+    // Switch to the Bills tab and verify the list re-renders with bill rows.
+    await card.getByRole('button', { name: 'Bills' }).first().click()
+    await expect(card.locator('.q-item').first()).toBeVisible()
+  })
+
+  test('debtors-row-navigates-to-filtered-invoices', async () => {
+    await page.goto('/admin/dashboard')
+
+    const card = page
+      .locator('.q-card')
+      .filter({ hasText: 'Outstanding' })
+      .first()
+    await card.locator('.q-item').first().click()
+
+    await page.waitForURL(/.*invoices.*companyId=/)
   })
 
   test('action-items-open-navigation', async () => {

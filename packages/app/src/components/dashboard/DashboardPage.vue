@@ -83,11 +83,7 @@
 
         <section class="col-span-12 grid grid-cols-12 gap-4">
           <div class="col-span-12 md:col-span-6">
-            <DashboardStatusChart
-              :labels="statusLabels"
-              :counts="statusCounts"
-              :total-amounts="statusTotalAmounts"
-            />
+            <DashboardDebtors :invoices="debtorInvoices" :bills="debtorBills" />
           </div>
           <div class="col-span-12 md:col-span-6">
             <DashboardActionItems :items="actionItems" @navigate="onNavigate" />
@@ -126,7 +122,7 @@ interface DashboardStatsResponse {
 import { useRouter } from 'vue-router'
 import DashboardRevenueCards from './DashboardRevenueCards.vue'
 import DashboardRevenueChart from './DashboardRevenueChart.vue'
-import DashboardStatusChart from './DashboardStatusChart.vue'
+import DashboardDebtors from './DashboardDebtors.vue'
 import DashboardActionItems, {
   type ActionItemsProps
 } from './DashboardActionItems.vue'
@@ -175,9 +171,9 @@ const companyOptions = computed(() =>
 )
 import { presetDateRange } from './dateRange.js'
 import {
-  DASHBOARD_STATUS_VALUES,
-  dashboardStatusLabelKey
-} from './statusConfig.js'
+  topBillsFromStatusCounts,
+  topDebtorsFromStatusCounts
+} from './topDebtors.js'
 
 type Preset = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 
@@ -306,43 +302,16 @@ const revenueChartData = computed(() => ({
   ]
 }))
 
-const statusLabels = computed(() =>
-  DASHBOARD_STATUS_VALUES.map(
-    (status) =>
-      lang.value.dashboard.admin.statusChart.status[
-        dashboardStatusLabelKey(status)
-      ]
-  )
+const statusCountRows = computed(
+  () => (stats.value as DashboardStatsResponse | undefined)?.statusCounts ?? []
 )
 
-const STATUS_VALUES = DASHBOARD_STATUS_VALUES
-
-const statusRowsByStatus = computed(() => {
-  type Row = { count: number; totalAmount: number }
-  const empty = (): Row => ({ count: 0, totalAmount: 0 })
-  const map = new Map<InvoiceStatus, Row>()
-  for (const status of STATUS_VALUES) map.set(status, empty())
-  const s = stats.value as DashboardStatsResponse | undefined
-  for (const row of s?.statusCounts ?? []) {
-    const target = map.get(row.status)
-    if (target) {
-      target.count += row.count
-      target.totalAmount += row.totalAmount
-    }
-  }
-  return map
-})
-
-const statusCounts = computed(() =>
-  STATUS_VALUES.map(
-    (status) => statusRowsByStatus.value.get(status)?.count ?? 0
-  )
+const debtorInvoices = computed(() =>
+  topDebtorsFromStatusCounts(statusCountRows.value)
 )
 
-const statusTotalAmounts = computed(() =>
-  STATUS_VALUES.map(
-    (status) => statusRowsByStatus.value.get(status)?.totalAmount ?? 0
-  )
+const debtorBills = computed(() =>
+  topBillsFromStatusCounts(statusCountRows.value)
 )
 
 const actionItems = computed<ActionItemsProps>(() => {

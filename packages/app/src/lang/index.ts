@@ -330,17 +330,13 @@ export interface Language {
           }
         }
       }
-      statusChart: {
+      debtors: {
         title: string
-        status: {
-          concept: string
-          open: string
-          paid: string
-          overdue: string
-          canceled: string
-          bill: string
-          receipt: string
+        toggle: {
+          invoices: string
+          bills: string
         }
+        empty: string
       }
       actionItems: {
         title: string

@@ -207,6 +207,16 @@ const applyRouteFilters = (to: typeof route) => {
   if (typeof queryPaid === 'string') {
     paid.value = queryPaid === 'true'
   }
+  const queryCompanyId = to.query.companyId
+  if (
+    typeof queryCompanyId === 'string' &&
+    queryCompanyId !== '' &&
+    !Number.isNaN(Number(queryCompanyId))
+  ) {
+    companyId.value = Number(queryCompanyId)
+  } else {
+    companyId.value = NaN
+  }
 }
 
 applyRouteFilters(route)

@@ -312,17 +312,13 @@ const lang: Language = {
           }
         }
       },
-      statusChart: {
-        title: 'Status overview',
-        status: {
-          concept: 'Concept',
-          open: 'Open',
-          paid: 'Paid',
-          overdue: 'Overdue',
-          canceled: 'Canceled',
-          bill: 'Bill',
-          receipt: 'Receipt'
-        }
+      debtors: {
+        title: 'Outstanding',
+        toggle: {
+          invoices: 'Invoices',
+          bills: 'Bills'
+        },
+        empty: 'No outstanding invoices'
       },
       actionItems: {
         title: 'Action items',

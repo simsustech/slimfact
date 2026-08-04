@@ -312,17 +312,13 @@ const lang: Language = {
           }
         }
       },
-      statusChart: {
-        title: 'Statusoverzicht',
-        status: {
-          concept: 'Concept',
-          open: 'Open',
-          paid: 'Betaald',
-          overdue: 'Te laat',
-          canceled: 'Geannuleerd',
-          bill: 'Rekening',
-          receipt: 'Kwitantie'
-        }
+      debtors: {
+        title: 'Openstaand',
+        toggle: {
+          invoices: 'Facturen',
+          bills: 'Rekeningen'
+        },
+        empty: 'Geen openstaande facturen'
       },
       actionItems: {
         title: 'Actiepunten',

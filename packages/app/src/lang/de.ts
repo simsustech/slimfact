@@ -314,17 +314,13 @@ const lang: Language = {
           }
         }
       },
-      statusChart: {
-        title: 'Statusübersicht',
-        status: {
-          concept: 'Entwurf',
-          open: 'Offen',
-          paid: 'Bezahlt',
-          overdue: 'Überfällig',
-          canceled: 'Storniert',
-          bill: 'Beleg',
-          receipt: 'Quittung'
-        }
+      debtors: {
+        title: 'Offen',
+        toggle: {
+          invoices: 'Rechnungen',
+          bills: 'Belege'
+        },
+        empty: 'Keine offenen Rechnungen'
       },
       actionItems: {
         title: 'Aktionspunkte',
