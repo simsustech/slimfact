@@ -20,8 +20,12 @@ test.beforeAll(async ({ browser }) => {
 
   token = await page.evaluate(() => {
     for (const key of Object.keys(localStorage)) {
-      if (atob(key).includes('accessToken'))
-        return localStorage.getItem(key) || ''
+      try {
+        if (atob(key).endsWith('accessToken'))
+          return localStorage.getItem(key) || ''
+      } catch {
+        continue
+      }
     }
     return ''
   })

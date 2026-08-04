@@ -4,7 +4,7 @@ import type { Insertable } from 'kysely'
 import { RawInvoiceLine } from '@modular-api/fastify-checkout'
 
 const NUMBER_OF_COMPANIES = 3
-const NUMBER_OF_CLIENTS = 500
+const NUMBER_OF_CLIENTS = 20
 const NUMBER_OF_INVOICE_LINES = 200
 
 const createCompany = () => ({

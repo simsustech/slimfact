@@ -45,11 +45,11 @@
     "format:write": "oxfmt --write ."
   },
   "dependencies": {
-    "@modular-api/fastify-checkout": "0.8.1",
+    "@modular-api/fastify-checkout": "0.8.2",
     "@myriaddreamin/typst-ts-renderer": "0.7.0",
-    "@rgrove/parse-xml": "4.2.1",
+    "@rgrove/parse-xml": "4.2.2",
     "export-to-csv": "1.4.0",
-    "fast-xml-parser": "5.9.3",
+    "fast-xml-parser": "5.10.1",
     "handlebars": "4.7.9",
     "ibantools": "4.5.4"
   },
@@ -57,11 +57,11 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0",
     "@myriaddreamin/typst.ts": "0.7.0",
     "@types/iban": "0.0.35",
-    "@types/node": "26.1.0",
+    "@types/node": "26.1.1",
     "csv-parse": "7.0.1",
-    "kysely": "0.29.3",
-    "oxfmt": "0.58.0",
-    "oxlint": "1.73.0",
+    "kysely": "0.29.4",
+    "oxfmt": "0.59.0",
+    "oxlint": "1.74.0",
     "typescript": "6.0.3"
   }
 }
