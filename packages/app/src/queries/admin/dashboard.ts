@@ -1,11 +1,24 @@
-import { defineQuery, useQuery } from '@pinia/colada'
-import { ref } from 'vue'
+import { useQuery } from '@pinia/colada'
+import type { Ref } from 'vue'
 import { trpc } from '../../trpc.js'
 
-export const useAdminGetDashboardStatsQuery = defineQuery(() => {
-  const companyIds = ref<number[]>([])
-  const dateFrom = ref<string>('2025-01-01')
-  const dateTo = ref<string>('2025-12-31')
+export type ActivityEventType =
+  | 'invoiceOpened'
+  | 'billCreated'
+  | 'payment'
+  | 'reminder'
+  | 'exhortation'
+
+export interface DashboardStatsParams {
+  companyIds: Ref<number[]>
+  dateFrom: Ref<string>
+  dateTo: Ref<string>
+}
+
+export const useAdminGetDashboardStatsQuery = (
+  params: DashboardStatsParams
+) => {
+  const { companyIds, dateFrom, dateTo } = params
 
   const { data: stats, ...rest } = useQuery({
     enabled: !import.meta.env.SSR,
@@ -25,17 +38,20 @@ export const useAdminGetDashboardStatsQuery = defineQuery(() => {
 
   return {
     stats,
-    companyIds,
-    dateFrom,
-    dateTo,
     ...rest
   }
-})
+}
 
-export const useAdminGetDashboardActivityQuery = defineQuery(() => {
-  const companyIds = ref<number[]>([])
-  const eventTypes = ref<string[]>([])
-  const limit = ref(20)
+export interface DashboardActivityParams {
+  companyIds: Ref<number[]>
+  eventTypes: Ref<ActivityEventType[]>
+  limit: Ref<number>
+}
+
+export const useAdminGetDashboardActivityQuery = (
+  params: DashboardActivityParams
+) => {
+  const { companyIds, eventTypes, limit } = params
 
   const { data: activity, ...rest } = useQuery({
     enabled: !import.meta.env.SSR,
@@ -55,9 +71,6 @@ export const useAdminGetDashboardActivityQuery = defineQuery(() => {
 
   return {
     activity,
-    companyIds,
-    eventTypes,
-    limit,
     ...rest
   }
-})
+}

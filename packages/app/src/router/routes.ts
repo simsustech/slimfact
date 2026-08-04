@@ -1,4 +1,4 @@
-import { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import { userRouteKey, redirectRouteKey } from '../oauth.js'
 const routes: RouteRecordRaw[] = [
   {
@@ -26,6 +26,10 @@ const routes: RouteRecordRaw[] = [
           {
             path: '',
             component: () => import('../pages/AdminPage.vue')
+          },
+          {
+            path: 'dashboard',
+            component: () => import('../components/dashboard/DashboardPage.vue')
           },
           {
             path: 'clients',

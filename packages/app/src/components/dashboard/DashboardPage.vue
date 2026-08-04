@@ -1,11 +1,14 @@
 <template>
-  <div class="dashboard-page">
-    <h1 class="text-h4 q-mb-md">
+  <div class="grid gap-4">
+    <h1 class="text-h4">
       {{ lang.dashboard.admin.title }}
     </h1>
 
-    <div v-if="showCompanyFilter" class="row q-col-gutter-md q-mb-md">
-      <div class="col-12 col-md-6">
+    <div class="grid grid-cols-12 gap-4">
+      <section
+        v-if="showCompanyFilter"
+        class="dashboard-company-filter col-span-12 lg:col-span-6"
+      >
         <q-select
           v-model="selectedCompanyIds"
           :options="companyOptions"
@@ -16,20 +19,19 @@
           map-options
           dense
           outlined
+          class="w-full"
         />
+      </section>
+
+      <div
+        v-if="(companies?.length ?? 0) > 0 && selectedCompanyIds.length === 0"
+        class="col-span-12 py-6 text-center italic text-gray-600"
+      >
+        {{ lang.dashboard.admin.empty.noCompanySelected }}
       </div>
-    </div>
 
-    <div
-      v-if="companies.length > 0 && selectedCompanyIds.length === 0"
-      class="empty-row"
-    >
-      {{ lang.dashboard.admin.empty.noCompanySelected }}
-    </div>
-
-    <template v-else>
-      <div class="row q-col-gutter-md q-mb-md">
-        <div class="col-12">
+      <template v-else>
+        <section class="col-span-12">
           <q-card>
             <q-card-section class="row items-center q-gutter-md">
               <div class="text-subtitle1">
@@ -42,72 +44,59 @@
                 dense
                 unelevated
               />
-              <div class="col-auto row q-gutter-sm items-center">
-                <q-input
+              <div class="col-12 row q-gutter-md items-center">
+                <DateInput
                   v-model="customDateFrom"
-                  type="date"
-                  :label="lang.dashboard.admin.revenue.customRange"
-                  dense
-                  outlined
+                  :label="lang.dashboard.admin.revenue.startDate"
                   @update:model-value="onCustomDateChange"
+                  :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+                  :format="DATE_FORMAT"
                 />
-                <q-input
+                <DateInput
                   v-model="customDateTo"
-                  type="date"
-                  dense
-                  outlined
+                  :label="lang.dashboard.admin.revenue.endDate"
                   @update:model-value="onCustomDateChange"
+                  :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
+                  :format="DATE_FORMAT"
                 />
               </div>
             </q-card-section>
             <q-card-section>
               <DashboardRevenueCards
-                :revenue-invoices="paidRevenue"
-                :revenue-bills="0"
+                :revenue-invoices="revenueInvoices"
+                :revenue-bills="revenueBills"
+                :revenue-receipts="revenueReceipts"
                 :date-label="dateLabel"
               />
               <div class="q-mt-md">
                 <DashboardRevenueChart
-                  :labels="[lang.dashboard.admin.revenue.invoices]"
-                  :datasets="[
-                    {
-                      label: lang.dashboard.admin.revenue.invoices,
-                      data: [paidRevenue ?? 0],
-                      backgroundColor: '#2196f3'
-                    }
-                  ]"
+                  :labels="revenueChartData.labels"
+                  :datasets="revenueChartData.datasets"
+                  :currency="lang.dashboard.admin.revenue.chart.currency"
                 />
               </div>
             </q-card-section>
           </q-card>
-        </div>
-      </div>
+        </section>
 
-      <div class="row q-col-gutter-md q-mb-md">
-        <div class="col-12 col-md-6">
-          <DashboardStatusChart
-            :labels="statusLabels"
-            :counts="statusCounts"
-            :total-amounts="statusTotalAmounts"
-          />
-        </div>
-        <div class="col-12 col-md-6">
-          <DashboardActionItems :items="actionItems" @navigate="onNavigate" />
-        </div>
-      </div>
+        <section class="col-span-12 grid grid-cols-12 gap-4">
+          <div class="col-span-12 md:col-span-6">
+            <DashboardStatusChart
+              :labels="statusLabels"
+              :counts="statusCounts"
+              :total-amounts="statusTotalAmounts"
+            />
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <DashboardActionItems :items="actionItems" @navigate="onNavigate" />
+          </div>
+        </section>
 
-      <div class="row q-col-gutter-md">
-        <div class="col-12">
+        <section class="col-span-12">
           <DashboardRecentActivity :entries="activityEntries" />
-        </div>
-      </div>
-
-      <div class="row q-col-gutter-md q-mt-md">
-        <div class="col-12">
-          <DashboardAdminMenuList />
-        </div>
-      </div>
-    </template>
+        </section>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -115,7 +104,10 @@
 import { computed, ref, watch } from 'vue'
 
 interface DashboardStatsResponse {
-  paidRevenue: number
+  paidRevenueSeries: {
+    labels: string[]
+    series: { status: InvoiceStatus; data: number[] }[]
+  }
   outstandingTotal: number
   statusCounts: {
     status: InvoiceStatus
@@ -129,7 +121,6 @@ interface DashboardStatsResponse {
   }[]
 }
 import { useRouter } from 'vue-router'
-import DashboardAdminMenuList from './DashboardAdminMenuList.vue'
 import DashboardRevenueCards from './DashboardRevenueCards.vue'
 import DashboardRevenueChart from './DashboardRevenueChart.vue'
 import DashboardStatusChart from './DashboardStatusChart.vue'
@@ -140,11 +131,20 @@ import DashboardRecentActivity, {
   type ActivityEntry
 } from './DashboardRecentActivity.vue'
 import { useAdminGetCompaniesQuery } from '../../queries/admin/companies.js'
-import { useAdminGetDashboardStatsQuery } from '../../queries/admin/dashboard.js'
+import {
+  useAdminGetDashboardActivityQuery,
+  useAdminGetDashboardStatsQuery,
+  type ActivityEventType
+} from '../../queries/admin/dashboard.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 import { useLang } from '../../lang/index.js'
 import { agingLabelForReminderCount } from '../../dashboard/aging.js'
+import { DateInput } from '@simsustech/quasar-components/form'
+import { configuration } from '../../configuration.js'
 
+const DATE_FORMAT = computed(
+  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
+)
 const lang = useLang()
 const router = useRouter()
 
@@ -248,24 +248,74 @@ const companyIdsArg = computed(() =>
     : undefined
 )
 
-const { stats, refresh: refreshStats } = useAdminGetDashboardStatsQuery()
-
-watch(
-  () => dateRange.value,
-  () => {
-    void refreshStats()
-  }
+const companyIdsFilter = computed(() =>
+  companyIdsArg.value ? companyIdsArg.value : []
 )
+const dateFromFilter = computed(() => dateRange.value.dateFrom)
+const dateToFilter = computed(() => dateRange.value.dateTo)
 
-watch(companyIdsArg, () => {
-  void refreshStats()
+const { stats } = useAdminGetDashboardStatsQuery({
+  companyIds: companyIdsFilter,
+  dateFrom: dateFromFilter,
+  dateTo: dateToFilter
 })
 
 const paidRevenue = computed(() => {
   const s = stats.value as DashboardStatsResponse | undefined
   if (!s) return null
-  return s.paidRevenue ?? 0
+  return s.paidRevenueSeries ?? null
 })
+
+// Sum a series' values to get the period total for each document type.
+const sumSeries = (data: number[] | undefined): number =>
+  (data ?? []).reduce((acc, value) => acc + (value ?? 0), 0)
+
+const revenueInvoices = computed(() =>
+  sumSeries(
+    paidRevenue.value?.series.find((s) => s.status === InvoiceStatus.PAID)?.data
+  )
+)
+const revenueBills = computed(() =>
+  sumSeries(
+    paidRevenue.value?.series.find((s) => s.status === InvoiceStatus.BILL)?.data
+  )
+)
+const revenueReceipts = computed(() =>
+  sumSeries(
+    paidRevenue.value?.series.find((s) => s.status === InvoiceStatus.RECEIPT)
+      ?.data
+  )
+)
+
+const revenueChartData = computed(() => ({
+  labels: paidRevenue.value?.labels ?? [],
+  datasets: [
+    {
+      label: lang.value.dashboard.admin.revenue.invoices,
+      data: (paidRevenue.value?.series.find(
+        (s) => s.status === InvoiceStatus.PAID
+      )?.data ?? []) as number[],
+      borderColor: '#4caf50',
+      backgroundColor: '#4caf50'
+    },
+    {
+      label: lang.value.dashboard.admin.revenue.bills,
+      data: (paidRevenue.value?.series.find(
+        (s) => s.status === InvoiceStatus.BILL
+      )?.data ?? []) as number[],
+      borderColor: '#2196f3',
+      backgroundColor: '#2196f3'
+    },
+    {
+      label: lang.value.dashboard.admin.revenue.receipts,
+      data: (paidRevenue.value?.series.find(
+        (s) => s.status === InvoiceStatus.RECEIPT
+      )?.data ?? []) as number[],
+      borderColor: '#ff9800',
+      backgroundColor: '#ff9800'
+    }
+  ]
+}))
 
 const statusLabels = computed(() => [
   lang.value.dashboard.admin.statusChart.status.concept,
@@ -355,12 +405,12 @@ const onNavigate = (type: string, label?: string) => {
   }
 }
 
-import { useAdminGetDashboardActivityQuery } from '../../queries/admin/dashboard.js'
-const { activity, refresh: refreshActivity } =
-  useAdminGetDashboardActivityQuery()
-
-watch(companyIdsArg, () => {
-  void refreshActivity()
+const eventTypesFilter = ref<ActivityEventType[]>([])
+const activityLimit = ref<number>(20)
+const { activity } = useAdminGetDashboardActivityQuery({
+  companyIds: companyIdsFilter,
+  eventTypes: eventTypesFilter,
+  limit: activityLimit
 })
 
 const activityEntries = computed<ActivityEntry[]>(() => {
@@ -370,10 +420,11 @@ const activityEntries = computed<ActivityEntry[]>(() => {
 </script>
 
 <style scoped>
-.empty-row {
-  padding: 24px;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.6);
-  font-style: italic;
+.dashboard-company-filter :deep(.q-field__control) {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 56px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 </style>

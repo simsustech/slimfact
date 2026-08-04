@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   dashboardDateRangeForPreset,
-  type DashboardDateRangePreset
+  type DashboardDateRangePreset,
+  pickGranularity
 } from '../../src/trpc/admin/dashboard.js'
 
 describe('dashboard.trpc.dashboardDateRangeForPreset', () => {
@@ -117,5 +118,21 @@ describe('dashboard.trpc.event-type-set', () => {
     ])
     const filtered = requested.filter((t) => allowed.has(t))
     expect(filtered).toEqual(['payment'])
+  })
+})
+
+describe('dashboard.trpc.pickGranularity', () => {
+  it('uses day for <=31d ranges', () => {
+    expect(pickGranularity('2025-01-01', '2025-01-31')).toBe('day')
+    expect(pickGranularity('2025-01-01', '2025-01-15')).toBe('day')
+  })
+
+  it('uses week for 32-84d ranges', () => {
+    expect(pickGranularity('2025-01-01', '2025-03-01')).toBe('week')
+  })
+
+  it('uses month for >84d ranges', () => {
+    expect(pickGranularity('2025-01-01', '2025-06-01')).toBe('month')
+    expect(pickGranularity('2025-01-01', '2026-01-01')).toBe('month')
   })
 })

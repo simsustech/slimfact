@@ -11,3 +11,4 @@ clients
 jwks
 .pnpm-store/
 .pi/fff/
+packages/api/_login-check.mjs

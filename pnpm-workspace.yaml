@@ -24,7 +24,9 @@ minimumReleaseAgeExclude:
   - vite
   - axios
   - cronstrue
-  - '@types/node'
+  - "@types/node"
+  - csv-parse@7.0.2
+  - fastify@5.11.2
   - cron-parser
   - pg-boss
   - stripe
@@ -34,7 +36,7 @@ minimumReleaseAgeExclude:
   - quasar
   - sharp
   - "@img/*"
-  - '@types/node'
+  - "@types/node"
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
@@ -46,7 +48,7 @@ onlyBuiltDependencies:
 minimumReleaseAgeIgnoreMissingTime: true
 
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   ejs: true
   esbuild: true
   sharp: true

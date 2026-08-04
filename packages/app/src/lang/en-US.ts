@@ -295,10 +295,15 @@ const lang: Language = {
         quarter: 'This quarter',
         year: 'This year',
         customRange: 'Custom range',
+        startDate: 'Start',
+        endDate: 'End',
         invoices: 'Invoices',
         bills: 'Bills',
+        receipts: 'Receipts',
         chart: {
-          title: 'Revenue by month'
+          title: 'Revenue over time',
+          currency: '€',
+          noData: 'No revenue in this period'
         }
       },
       statusChart: {

@@ -1,17 +1,20 @@
 import { db } from '../index.js'
-import type { Companies } from '../types.js'
+import type { Clients, Companies } from '../types.js'
 import type { Insertable } from 'kysely'
 import { c } from 'compress-tag'
 import {
   createInvoiceHandler,
-  InvoiceStatus
+  InvoiceStatus,
+  PaymentMethod,
+  PaymentStatus,
+  type RawInvoiceLine
 } from '@modular-api/fastify-checkout'
 import { fastify as createFastify } from 'fastify'
 import { readFileSync } from 'fs'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const chunk = (arr: any[], size: number) =>
-  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
     arr.slice(i * size, i * size + size)
   )
 
@@ -70,9 +73,23 @@ const invoiceHandler = createInvoiceHandler({
 })
 
 const seed = async () => {
-  const { companies, clients, invoiceLines } = JSON.parse(
-    readFileSync(new URL('./fake/data.json', import.meta.url).pathname, 'utf-8')
-  )
+  let fakeData: {
+    companies: Insertable<Companies>[]
+    clients: Insertable<Clients>[]
+    invoiceLines: RawInvoiceLine[]
+  }
+  try {
+    fakeData = JSON.parse(
+      readFileSync(
+        new URL('./fake/data.json', import.meta.url).pathname,
+        'utf-8'
+      )
+    )
+  } catch {
+    throw new Error('Failed to read fake seed data')
+  }
+
+  const { companies, clients, invoiceLines } = fakeData
 
   await db
     .insertInto('companies')
@@ -187,35 +204,89 @@ const seed = async () => {
     .where('id', '=', firstClient.id)
     .execute()
 
-  // Create invoices for the admin's linked client
-  const company =
+  // Create a realistic spread of invoices for the admin's linked client:
+  // ~3 per month over the past 12 months, mostly PAID with a few OPEN,
+  // BILL and RECEIPT, plus payments on the paid ones so the dashboard
+  // revenue chart shows a believable time series.
+  const adminClient = insertedClients[0]
+  const adminCompany =
     insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
-  const statuses = [
-    InvoiceStatus.BILL,
-    InvoiceStatus.BILL,
-    InvoiceStatus.BILL,
-    InvoiceStatus.OPEN,
-    InvoiceStatus.OPEN,
-    InvoiceStatus.PAID,
-    InvoiceStatus.PAID,
-    InvoiceStatus.RECEIPT
-  ]
-  for (const status of statuses) {
-    await invoiceHandler.createInvoice({
-      companyDetails: company,
-      clientDetails: insertedClients[0],
-      companyPrefix: company.prefix,
-      numberPrefixTemplate: numberPrefix.template,
-      currency: 'EUR',
-      lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
-      discounts: [],
-      surcharges: [],
-      paymentTermDays: 14,
-      locale: 'en-US',
-      status,
-      companyId: company.id,
-      clientId: insertedClients[0].id
-    })
+  const createdAdminInvoices: {
+    id: number
+    status: InvoiceStatus
+    totalIncludingTax: number
+  }[] = []
+  const now = new Date()
+  for (let month = 11; month >= 0; month--) {
+    const count = 2 + (Math.random() < 0.5 ? 1 : 0) // 2-3 invoices per month
+    for (let i = 0; i < count; i++) {
+      const roll = Math.random()
+      const status =
+        roll < 0.6
+          ? InvoiceStatus.PAID
+          : roll < 0.75
+            ? InvoiceStatus.OPEN
+            : roll < 0.9
+              ? InvoiceStatus.BILL
+              : InvoiceStatus.RECEIPT
+      const result = await invoiceHandler.createInvoice({
+        companyDetails: adminCompany,
+        clientDetails: adminClient,
+        companyPrefix: adminCompany.prefix,
+        numberPrefixTemplate: numberPrefix.template,
+        currency: 'EUR',
+        lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+        discounts: [],
+        surcharges: [],
+        paymentTermDays: 14,
+        locale: 'en-US',
+        status,
+        companyId: adminCompany.id,
+        clientId: adminClient.id
+      })
+      if (result.success) {
+        createdAdminInvoices.push({
+          id: result.invoice.id,
+          status,
+          totalIncludingTax: result.invoice.totalIncludingTax
+        })
+      }
+    }
+  }
+
+  // Payments for the PAID / BILL / RECEIPT invoices of the admin's client.
+  // Spread paidAt across the same 12 months so the chart shows a curve.
+  const statusToMethod: Record<string, PaymentMethod> = {
+    [InvoiceStatus.PAID]: PaymentMethod.banktransfer,
+    [InvoiceStatus.BILL]: PaymentMethod.cash,
+    [InvoiceStatus.RECEIPT]: PaymentMethod.cash
+  }
+  const paidAdminInvoices = createdAdminInvoices.filter((invoice) =>
+    [InvoiceStatus.PAID, InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+      invoice.status
+    )
+  )
+  for (let i = 0; i < paidAdminInvoices.length; i++) {
+    const paid = paidAdminInvoices[i]
+    const monthOffset = Math.floor((i * 12) / paidAdminInvoices.length)
+    const day = 1 + ((i * 7) % 28)
+    const paidAt = new Date(
+      now.getFullYear(),
+      now.getMonth() - 11 + monthOffset,
+      day
+    )
+    await db
+      .insertInto('checkout.payments')
+      .values({
+        invoiceId: paid.id,
+        description: 'Payment received',
+        method: statusToMethod[paid.status] ?? PaymentMethod.cash,
+        amount: paid.totalIncludingTax,
+        currency: 'EUR',
+        paidAt: paidAt.toISOString(),
+        status: PaymentStatus.PAID
+      })
+      .execute()
   }
 }
 

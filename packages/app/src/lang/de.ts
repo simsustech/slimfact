@@ -296,10 +296,15 @@ const lang: Language = {
         quarter: 'Dieses Quartal',
         year: 'Dieses Jahr',
         customRange: 'Benutzerdefinierter Bereich',
+        startDate: 'Start',
+        endDate: 'Ende',
         invoices: 'Rechnungen',
         bills: 'Belege',
+        receipts: 'Quittungen',
         chart: {
-          title: 'Umsatz pro Monat'
+          title: 'Umsatz im Zeitverlauf',
+          currency: '€',
+          noData: 'Kein Umsatz in diesem Zeitraum'
         }
       },
       statusChart: {

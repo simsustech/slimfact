@@ -20,7 +20,7 @@
 
       <q-timeline v-if="filteredEntries.length > 0" layout="dense">
         <q-timeline-entry
-          v-for="entry in filteredEntries"
+          v-for="entry in pagedEntries"
           :key="`${entry.type}-${entry.documentUuid}-${entry.timestamp}`"
           :icon="iconFor(entry.type)"
           :color="colorFor(entry.type)"
@@ -44,12 +44,36 @@
       <div v-else class="empty">
         {{ lang.dashboard.admin.empty.noData }}
       </div>
+
+      <div
+        v-if="filteredEntries.length > 0"
+        class="grid grid-cols-12 items-center gap-3 q-mt-md"
+      >
+        <div class="col-span-12 md:col-span-3">
+          <q-select
+            v-model="rowsPerPage"
+            :options="[5, 10, 15, 25, 50]"
+            :label="lang.rowsPerPage"
+            dense
+            outlined
+          />
+        </div>
+        <div class="col-span-12 md:col-span-6 flex justify-center">
+          <q-pagination
+            v-model="page"
+            :disable="!(filteredEntries.length && page && rowsPerPage)"
+            :max="Math.ceil(filteredEntries.length / rowsPerPage)"
+            :max-pages="5"
+            direction-links
+          />
+        </div>
+      </div>
     </q-card-section>
   </q-card>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import Price from '../Price.vue'
 import { useLang } from '../../lang/index.js'
 
@@ -103,6 +127,21 @@ const filterOptions = computed(() => [
 const filteredEntries = computed(() => {
   if (selectedEventType.value === 'all') return props.entries
   return props.entries.filter((e) => e.type === selectedEventType.value)
+})
+
+const page = ref(1)
+const rowsPerPage = ref(5)
+
+const pagedEntries = computed(() => {
+  const start = (page.value - 1) * rowsPerPage.value
+  return filteredEntries.value.slice(start, start + rowsPerPage.value)
+})
+
+watch(selectedEventType, () => {
+  page.value = 1
+})
+watch(rowsPerPage, () => {
+  page.value = 1
 })
 
 const iconFor = (type: string) => {

@@ -296,10 +296,15 @@ const lang: Language = {
         quarter: 'Dit kwartaal',
         year: 'Dit jaar',
         customRange: 'Aangepast bereik',
+        startDate: 'Start',
+        endDate: 'Einde',
         invoices: 'Facturen',
+        receipts: 'Bonnen',
         bills: 'Rekeningen',
         chart: {
-          title: 'Omzet per maand'
+          title: 'Omzet over tijd',
+          currency: '€',
+          noData: 'Geen omzet in deze periode'
         }
       },
       statusChart: {

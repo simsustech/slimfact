@@ -22,6 +22,7 @@ export interface Language {
   noResultsAvailable: string
   rowsPerPage: string
   add: string
+  darkMode: string
   account: {
     title: string
     accounts: string
@@ -313,10 +314,15 @@ export interface Language {
         quarter: string
         year: string
         customRange: string
+        startDate: string
+        endDate: string
         invoices: string
         bills: string
+        receipts: string
         chart: {
           title: string
+          currency: string
+          noData: string
         }
       }
       statusChart: {

@@ -16,6 +16,23 @@ import {
   getDashboardActivityInput
 } from '../../zod/dashboard.js'
 
+// Pick a time-bucket granularity based on the date-range span:
+// day for <=31d, week for <=12w (~84d), month otherwise.
+export const pickGranularity = (
+  dateFrom: string,
+  dateTo: string
+): 'day' | 'week' | 'month' => {
+  const from = new Date(dateFrom)
+  const to = new Date(dateTo)
+  const days = Math.max(
+    0,
+    Math.round((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24))
+  )
+  if (days <= 31) return 'day'
+  if (days <= 84) return 'week'
+  return 'month'
+}
+
 export const adminDashboardRoutes = ({
   fastify,
   procedure
@@ -55,22 +72,32 @@ export const adminDashboardRoutes = ({
           companyIds?: number[]
           dateFrom: string
           dateTo: string
-        }) => Promise<number>
+          granularity: 'day' | 'week' | 'month'
+        }) => Promise<{
+          labels: string[]
+          series: { status: InvoiceStatus; data: number[] }[]
+        }>
         getOutstandingTotal: (args: {
           statuses?: InvoiceStatus[]
           companyIds?: number[]
         }) => Promise<number>
       }
 
-      const [statusCounts, overdueAging, billedRevenue, outstandingTotal] =
+      const granularity = pickGranularity(dateFrom, dateTo)
+      const [statusCounts, overdueAging, paidRevenueSeries, outstandingTotal] =
         await Promise.all([
           handler.getInvoiceStatusCounts(companyIds && { companyIds }),
           handler.getInvoiceOverdueAging(companyIds && { companyIds }),
           handler.getPaidRevenue({
-            statuses: [InvoiceStatus.PAID],
+            statuses: [
+              InvoiceStatus.PAID,
+              InvoiceStatus.BILL,
+              InvoiceStatus.RECEIPT
+            ],
             ...(companyIds && { companyIds }),
             dateFrom,
-            dateTo
+            dateTo,
+            granularity
           }),
           handler.getOutstandingTotal({
             statuses: [InvoiceStatus.OPEN],
@@ -86,7 +113,7 @@ export const adminDashboardRoutes = ({
       return {
         statusCounts,
         overdueAging: overdueAgingLabeled,
-        paidRevenue: billedRevenue,
+        paidRevenueSeries,
         outstandingTotal
       }
     }),
@@ -131,6 +158,13 @@ export type DashboardDateRangePreset =
   | 'quarter'
   | 'year'
 
+const toIsoDate = (value: Date): string => {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export const dashboardDateRangeForPreset = (
   preset: DashboardDateRangePreset,
   now: Date = new Date()
@@ -160,11 +194,4 @@ export const dashboardDateRangeForPreset = (
     dateFrom: toIsoDate(start),
     dateTo: toIsoDate(endOfDay(now))
   }
-}
-
-const toIsoDate = (value: Date): string => {
-  const year = value.getFullYear()
-  const month = String(value.getMonth() + 1).padStart(2, '0')
-  const day = String(value.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
 }

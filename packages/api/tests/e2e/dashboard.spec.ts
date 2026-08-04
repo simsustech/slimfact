@@ -33,8 +33,16 @@ test.afterAll(async () => {
 })
 
 test.describe('Dashboard', () => {
-  test('dashboard-renders-sections', async () => {
+  test('admin-nav-lists-dashboard-entry', async () => {
     await page.goto('/admin')
+
+    await expect(page.getByText('Dashboard').first()).toBeVisible()
+    await expect(page.getByText('Clients').first()).toBeVisible()
+    await page.getByText('Dashboard').first().click()
+    await page.waitForURL(/.*admin\/dashboard/)
+  })
+  test('dashboard-renders-sections', async () => {
+    await page.goto('/admin/dashboard')
 
     await expect(page.getByText('Revenue').first()).toBeVisible()
     await expect(page.getByText('Invoices').first()).toBeVisible()
@@ -45,7 +53,7 @@ test.describe('Dashboard', () => {
   })
 
   test('company-filter', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
     const companySelector = page.getByLabel('Company filter')
     await expect(companySelector).toBeVisible()
@@ -66,7 +74,7 @@ test.describe('Dashboard', () => {
   })
 
   test('revenue-cards-period-preset', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
     await expect(page.getByText('Invoices').first()).toBeVisible()
 
@@ -78,10 +86,18 @@ test.describe('Dashboard', () => {
   })
 
   test('revenue-cards-custom-range', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
-    await page.locator('input[type="date"]').first().fill('2025-01-01')
-    await page.locator('input[type="date"]').nth(1).fill('2025-01-31')
+    const startField = page.locator('.date-input-field').first()
+    const endField = page.locator('.date-input-field').nth(1)
+    const startSegments = ['01', '01', '2025'] // DD-MM-YYYY
+    const endSegments = ['31', '01', '2025']
+    for (let i = 0; i < startSegments.length; i++) {
+      await startField.locator('input').nth(i).fill(startSegments[i])
+    }
+    for (let i = 0; i < endSegments.length; i++) {
+      await endField.locator('input').nth(i).fill(endSegments[i])
+    }
 
     // When there is no revenue in the custom range, the Price component
     // renders '-' rather than a formatted zero amount (0 is falsy).
@@ -89,7 +105,7 @@ test.describe('Dashboard', () => {
   })
 
   test('status-chart-renders', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
     await expect(page.getByText('Status overview').first()).toBeVisible()
 
@@ -98,38 +114,36 @@ test.describe('Dashboard', () => {
   })
 
   test('action-items-open-navigation', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
-    const openItem = page
-      .getByRole('listitem')
-      .filter({ hasText: 'Open' })
+    await page
+      .getByRole('button', { name: /Open invoices/ })
       .first()
-    await openItem.click()
+      .click()
 
     await page.waitForURL(/.*invoices/)
   })
 
   test('action-items-overdue-navigation', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
-    const needsReminder = page
-      .getByRole('listitem')
-      .filter({ hasText: 'Needs reminder' })
+    await page
+      .getByRole('button', { name: /Needs reminder/ })
       .first()
-    await needsReminder.click()
+      .click()
 
     await page.waitForURL(/.*invoices/)
   })
 
   test('recent-activity-renders', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
     await expect(page.getByText('Recent activity').first()).toBeVisible()
     await expect(page.getByText('All').first()).toBeVisible()
   })
 
   test('recent-activity-filter', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
     const filter = page.getByLabel('Activity filter')
     await filter.click()
@@ -139,7 +153,7 @@ test.describe('Dashboard', () => {
   })
 
   test('empty-state', async () => {
-    await page.goto('/admin')
+    await page.goto('/admin/dashboard')
 
     const empty = page
       .getByText('No data available')
