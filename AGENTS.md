@@ -90,9 +90,9 @@ For Docker-based dev stack (with Caddy + NetBird for webhook testing), use `dock
 
 The dev server runs on `https://localhost:3001`. NetBird provides a publicly reachable URL (`https://slimfact-dev.eu1.netbird.services`) for PSP webhook callbacks.
 
-| Scenario                | `VITE_API_HOST`  | `PLAYWRIGHT_BASE_URL`    | Notes                                                |
-| ----------------------- | ---------------- | ------------------------ | ---------------------------------------------------- |
-| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly                         |
+| Scenario                | `VITE_API_HOST`  | `PLAYWRIGHT_BASE_URL`    | Notes                                                  |
+| ----------------------- | ---------------- | ------------------------ | ------------------------------------------------------ |
+| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly                           |
 | Webhook testing         | NetBird URL      | NetBird URL              | NetBird routes 443 → local dev server :3001 via tunnel |
 
 To switch, edit `packages/api/.env.development.local` and restart the dev server.
@@ -235,11 +235,11 @@ PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-stripe.spec.ts --work
 
 ### Docker Test Configs
 
-| File                              | Purpose                                     |
-| --------------------------------- | ------------------------------------------- |
-| `docker-compose.test.yaml`        | Base test setup with DB, MailHog, NetBird   |
-| `docker-compose.test.mollie.yaml` | Routes iDEAL+creditcard → Mollie            |
-| `docker-compose.test.stripe.yaml` | Routes iDEAL+creditcard → Stripe            |
+| File                              | Purpose                                   |
+| --------------------------------- | ----------------------------------------- |
+| `docker-compose.test.yaml`        | Base test setup with DB, MailHog, NetBird |
+| `docker-compose.test.mollie.yaml` | Routes iDEAL+creditcard → Mollie          |
+| `docker-compose.test.stripe.yaml` | Routes iDEAL+creditcard → Stripe          |
 
 ## Quality Checks
 
