@@ -45,3 +45,26 @@ Made the admin dashboard revenue section a real time-series line chart (invoices
 - Docker image deploys `@modular-api/fastify-checkout@0.8.4` (local) — bundle contains `paidRevenueSeries`/`pickGranularity`.
 - Seed: 26 payments / 26 invoices, 2-3 payments per month over 12 months.
 - Dashboard E2E: 11/11 pass. Revenue cards render €979.78 / €3,185.60 (non-zero).
+
+## Follow-up (same day)
+
+### dev merge
+
+- Merged `dev` into `dashboard` (kept dashboard's newer deps: oxfmt 0.62,
+  oxlint 1.77, vue-chartjs/chart.js, fastify-checkout 0.8.1). Lockfile
+  regenerated via `pnpm install`, no hand-merged lockfile.
+
+### Revenue chart binning caption
+
+- Chart shows a caption explaining the time-bucketing (day/week/month)
+  from the API's `granularity` field; lang keys in en-US/de/nl.
+- Fixed future-dated seed payments: current-month payments capped at
+  today so the default month preset no longer renders an empty chart.
+
+### Test coverage (branch-wide audit)
+
+- Unit: dateRange (8), statusConfig (4), aging buckets (4), formatCurrency
+  cents->euros (5) in app; dashboard zod + pickGranularity (31) in api.
+- E2E (15): binning caption day->month, all four action-item buckets,
+  Receipts card, plus the earlier nav/filter/preset tests.
+- Hardened flaky QSelect interactions (force click after attach).
