@@ -122,6 +122,42 @@ test.describe('Dashboard', () => {
       .click()
 
     await page.waitForURL(/.*invoices/)
+
+    // The status filter must be applied from the route query: the status
+    // select in the search menu shows "Open".
+    // Open the search menu (the toolbar button with the search icon).
+    await page
+      .locator('.q-toolbar .q-btn')
+      .filter({ has: page.locator('.i-mdi-search') })
+      .first()
+      .click()
+    await expect(
+      page.locator('.q-menu').filter({ hasText: 'Open' }).first()
+    ).toBeVisible()
+  })
+
+  test('revenue-preset-populates-date-inputs', async () => {
+    await page.goto('/admin/dashboard')
+
+    const startField = page.locator('.date-input-field').first()
+    const endField = page.locator('.date-input-field').nth(1)
+
+    // Select the "This year" preset.
+    await page.getByRole('button', { name: 'This year' }).click()
+
+    // Start input should now show 01-01-<current year> (DD-MM-YYYY).
+    const startInputs = startField.locator('input')
+    await expect(startInputs.nth(0)).toHaveValue('01')
+    await expect(startInputs.nth(1)).toHaveValue('01')
+    const endInputs = endField.locator('input')
+    // End input should be today's date (DD-MM-YYYY).
+    const today = new Date()
+    const dd = String(today.getDate()).padStart(2, '0')
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const yyyy = String(today.getFullYear())
+    await expect(endInputs.nth(0)).toHaveValue(dd)
+    await expect(endInputs.nth(1)).toHaveValue(mm)
+    await expect(endInputs.nth(2)).toHaveValue(yyyy)
   })
 
   test('action-items-overdue-navigation', async () => {

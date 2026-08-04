@@ -303,7 +303,13 @@ const lang: Language = {
         chart: {
           title: 'Revenue over time',
           currency: '€',
-          noData: 'No revenue in this period'
+          noData: 'No revenue in this period',
+          bin: {
+            day: 'Binned by day: each point is the revenue paid on that date.',
+            week: 'Binned by week: each point is the revenue paid in that week.',
+            month:
+              'Binned by month: each point is the revenue paid in that month.'
+          }
         }
       },
       statusChart: {

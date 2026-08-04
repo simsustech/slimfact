@@ -323,6 +323,11 @@ export interface Language {
           title: string
           currency: string
           noData: string
+          bin: {
+            day: string
+            week: string
+            month: string
+          }
         }
       }
       statusChart: {

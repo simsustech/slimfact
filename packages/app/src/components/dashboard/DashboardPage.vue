@@ -38,7 +38,8 @@
                 {{ lang.dashboard.admin.revenue.title }}
               </div>
               <q-btn-toggle
-                v-model="activePreset"
+                :model-value="activePreset"
+                @update:model-value="onPresetChange"
                 :options="presetButtons"
                 no-caps
                 dense
@@ -73,6 +74,7 @@
                   :labels="revenueChartData.labels"
                   :datasets="revenueChartData.datasets"
                   :currency="lang.dashboard.admin.revenue.chart.currency"
+                  :bin-label="revenueBinLabel"
                 />
               </div>
             </q-card-section>
@@ -109,6 +111,7 @@ interface DashboardStatsResponse {
     series: { status: InvoiceStatus; data: number[] }[]
   }
   outstandingTotal: number
+  granularity: 'day' | 'week' | 'month'
   statusCounts: {
     status: InvoiceStatus
     count: number
@@ -170,8 +173,13 @@ const companyOptions = computed(() =>
     value: c.id
   }))
 )
+import { presetDateRange } from './dateRange.js'
+import {
+  DASHBOARD_STATUS_VALUES,
+  dashboardStatusLabelKey
+} from './statusConfig.js'
 
-type Preset = 'today' | 'week' | 'month' | 'quarter' | 'year'
+type Preset = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 
 const activePreset = ref<Preset>('month')
 const customDateFrom = ref<string>('')
@@ -185,58 +193,31 @@ const presetButtons = computed(() => [
   { label: lang.value.dashboard.admin.revenue.year, value: 'year' }
 ])
 
+// Selecting a preset populates the start/end date inputs with its range so
+// the user always sees which period the dashboard covers.
+const onPresetChange = (preset: Preset) => {
+  if (preset === 'custom') return
+  activePreset.value = preset
+  const range = presetDateRange(preset)
+  customDateFrom.value = range.dateFrom
+  customDateTo.value = range.dateTo
+}
+
+// Editing the date inputs switches the dashboard to a custom range.
 const onCustomDateChange = () => {
-  activePreset.value = 'month'
+  activePreset.value = 'custom'
 }
 
 const dateRange = computed(() => {
-  const now = new Date()
-  let dateFrom: Date
-  let dateTo = now
-  switch (activePreset.value) {
-    case 'today':
-      dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-      break
-    case 'week': {
-      const day = (now.getDay() + 6) % 7
-      dateFrom = new Date(now)
-      dateFrom.setDate(now.getDate() - day)
-      dateFrom.setHours(0, 0, 0, 0)
-      break
-    }
-    case 'month':
-      dateFrom = new Date(now.getFullYear(), now.getMonth(), 1)
-      break
-    case 'quarter': {
-      const q = Math.floor(now.getMonth() / 3) * 3
-      dateFrom = new Date(now.getFullYear(), q, 1)
-      break
-    }
-    case 'year':
-      dateFrom = new Date(now.getFullYear(), 0, 1)
-      break
-    default:
-      dateFrom = new Date(now.getFullYear(), now.getMonth(), 1)
-      break
-  }
   if (customDateFrom.value && customDateTo.value) {
     return {
       dateFrom: customDateFrom.value,
       dateTo: customDateTo.value
     }
   }
-  return {
-    dateFrom: toIso(dateFrom),
-    dateTo: toIso(dateTo)
-  }
+  const preset = activePreset.value === 'custom' ? 'month' : activePreset.value
+  return presetDateRange(preset)
 })
-
-const toIso = (value: Date) => {
-  const year = value.getFullYear()
-  const month = String(value.getMonth() + 1).padStart(2, '0')
-  const day = String(value.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
 
 const dateLabel = computed(() => {
   return `${dateRange.value.dateFrom} → ${dateRange.value.dateTo}`
@@ -264,6 +245,14 @@ const paidRevenue = computed(() => {
   const s = stats.value as DashboardStatsResponse | undefined
   if (!s) return null
   return s.paidRevenueSeries ?? null
+})
+
+// Explain how the chart is binned (day/week/month) so the user understands
+// what each point represents.
+const revenueBinLabel = computed(() => {
+  const s = stats.value as DashboardStatsResponse | undefined
+  const granularity = s?.granularity ?? 'month'
+  return lang.value.dashboard.admin.revenue.chart.bin[granularity]
 })
 
 // Sum a series' values to get the period total for each document type.
@@ -317,24 +306,16 @@ const revenueChartData = computed(() => ({
   ]
 }))
 
-const statusLabels = computed(() => [
-  lang.value.dashboard.admin.statusChart.status.concept,
-  lang.value.dashboard.admin.statusChart.status.open,
-  lang.value.dashboard.admin.statusChart.status.paid,
-  lang.value.dashboard.admin.statusChart.status.overdue,
-  lang.value.dashboard.admin.statusChart.status.canceled,
-  lang.value.dashboard.admin.statusChart.status.bill,
-  lang.value.dashboard.admin.statusChart.status.receipt
-])
+const statusLabels = computed(() =>
+  DASHBOARD_STATUS_VALUES.map(
+    (status) =>
+      lang.value.dashboard.admin.statusChart.status[
+        dashboardStatusLabelKey(status)
+      ]
+  )
+)
 
-const STATUS_VALUES = [
-  InvoiceStatus.CONCEPT,
-  InvoiceStatus.OPEN,
-  InvoiceStatus.PAID,
-  InvoiceStatus.CANCELED,
-  InvoiceStatus.BILL,
-  InvoiceStatus.RECEIPT
-] as const
+const STATUS_VALUES = DASHBOARD_STATUS_VALUES
 
 const statusRowsByStatus = computed(() => {
   type Row = { count: number; totalAmount: number }

@@ -180,14 +180,6 @@ const lang = useLang()
 
 const route = useRoute()
 
-onBeforeRouteUpdate((to) => {
-  if (to.params.uuids && Array.isArray(to.params.uuids)) {
-    uuids.value = to.params.uuids as string[]
-  } else {
-    uuids.value = undefined
-  }
-})
-
 const {
   invoices,
   companyId,
@@ -197,8 +189,31 @@ const {
   page,
   rowsPerPage,
   uuids,
+  paid,
   refetch: execute
 } = useAdminGetInvoicesQuery()
+
+const applyRouteFilters = (to: typeof route) => {
+  if (to.params.uuids && Array.isArray(to.params.uuids)) {
+    uuids.value = to.params.uuids as string[]
+  } else {
+    uuids.value = undefined
+  }
+  const queryStatus = to.query.status
+  if (typeof queryStatus === 'string') {
+    status.value = queryStatus as InvoiceStatus
+  }
+  const queryPaid = to.query.paid
+  if (typeof queryPaid === 'string') {
+    paid.value = queryPaid === 'true'
+  }
+}
+
+applyRouteFilters(route)
+
+onBeforeRouteUpdate((to) => {
+  applyRouteFilters(to)
+})
 
 const { invoiceIds, invoiceEvents } =
   useAdminGetInvoiceEventsByInvoiceIdsQuery()
@@ -210,10 +225,6 @@ watch(invoices, (newVal) => {
 watch(rowsPerPage, () => {
   page.value = 1
 })
-
-if (route.params.uuids && Array.isArray(route.params.uuids)) {
-  uuids.value = route.params.uuids as string[]
-}
 
 const total = computed(() => invoices.value?.at(0)?.total || 0)
 

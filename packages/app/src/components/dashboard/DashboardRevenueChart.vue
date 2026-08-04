@@ -4,6 +4,9 @@
     <div v-else class="empty-chart">
       {{ lang.dashboard.admin.revenue.chart.noData }}
     </div>
+    <div v-if="hasData && binLabel" class="chart-caption">
+      {{ binLabel }}
+    </div>
   </div>
 </template>
 
@@ -43,6 +46,7 @@ export interface Props {
     backgroundColor: string
   }[]
   currency?: string
+  binLabel?: string
 }
 
 const props = withDefaults(defineProps<Props>(), { currency: '€' })
@@ -74,7 +78,9 @@ const chartData = computed(() => ({
 const formatCurrency = (value: number | string): string => {
   const num = typeof value === 'number' ? value : Number(value)
   if (!Number.isFinite(num)) return ''
-  const fixed = Math.round(num * 100) / 100
+  // Amounts are stored in cents; convert to whole units for display.
+  const units = num / 100
+  const fixed = Math.round(units * 100) / 100
   const [intPart, decPart] = fixed.toFixed(2).split('.')
   const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return decPart
@@ -132,3 +138,5 @@ const chartOptions = computed(() => ({
   font-style: italic;
 }
 </style>
+.chart-caption { margin-top: 8px; text-align: center; color: rgba(0, 0, 0, 0.6);
+font-size: 0.85rem; font-style: italic; }

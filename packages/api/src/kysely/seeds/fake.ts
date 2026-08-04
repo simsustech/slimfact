@@ -288,6 +288,66 @@ const seed = async () => {
       })
       .execute()
   }
+
+  // Guarantee at least one invoice per status so the status overview chart
+  // always shows every slice (CONCEPT and CANCELED are not produced by the
+  // random loops above).
+  for (const status of [InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED]) {
+    await invoiceHandler.createInvoice({
+      companyDetails: adminCompany,
+      clientDetails: adminClient,
+      companyPrefix: adminCompany.prefix,
+      numberPrefixTemplate: numberPrefix.template,
+      currency: 'EUR',
+      lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+      discounts: [],
+      surcharges: [],
+      paymentTermDays: 14,
+      locale: 'en-US',
+      status,
+      companyId: adminCompany.id,
+      clientId: adminClient.id
+    })
+  }
+
+  // Guarantee one OPEN invoice per overdue-aging bucket (needsReminder,
+  // reminder1, reminder2, exhortation). The aging query requires status=OPEN,
+  // a dueDate in the past, and counts reminder_sent_dates entries (0..3+).
+  const reminderBucketSizes = [0, 1, 2, 3]
+  for (const reminderCount of reminderBucketSizes) {
+    const result = await invoiceHandler.createInvoice({
+      companyDetails: adminCompany,
+      clientDetails: adminClient,
+      companyPrefix: adminCompany.prefix,
+      numberPrefixTemplate: numberPrefix.template,
+      currency: 'EUR',
+      lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+      discounts: [],
+      surcharges: [],
+      paymentTermDays: 14,
+      locale: 'en-US',
+      status: InvoiceStatus.OPEN,
+      companyId: adminCompany.id,
+      clientId: adminClient.id
+    })
+    if (result.success) {
+      const overdueDate = new Date()
+      overdueDate.setDate(overdueDate.getDate() - 30)
+      const reminderDates = Array.from({ length: reminderCount }, (_, i) => {
+        const d = new Date()
+        d.setDate(d.getDate() - 60 + i * 10)
+        return d.toISOString().slice(0, 10)
+      })
+      await db
+        .updateTable('checkout.invoices')
+        .where('id', '=', result.invoice.id)
+        .set({
+          dueDate: overdueDate.toISOString().slice(0, 10),
+          reminderSentDates: JSON.stringify(reminderDates)
+        })
+        .execute()
+    }
+  }
 }
 
 await seed()

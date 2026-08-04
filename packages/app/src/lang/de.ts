@@ -23,6 +23,7 @@ const lang: Language = {
   noResultsAvailable: 'Keine Ergebnisse verfügbar.',
   rowsPerPage: 'Zeilen pro Seite',
   add: 'Hinzufügen',
+  darkMode: 'Dunkelmodus',
   account: {
     title: 'Konto',
     accounts: 'Konten',
@@ -304,7 +305,13 @@ const lang: Language = {
         chart: {
           title: 'Umsatz im Zeitverlauf',
           currency: '€',
-          noData: 'Kein Umsatz in diesem Zeitraum'
+          noData: 'Kein Umsatz in diesem Zeitraum',
+          bin: {
+            day: 'Nach Tag: jeder Punkt ist der an diesem Tag gezahlte Umsatz.',
+            week: 'Nach Woche: jeder Punkt ist der in dieser Woche gezahlte Umsatz.',
+            month:
+              'Nach Monat: jeder Punkt ist der in diesem Monat gezahlte Umsatz.'
+          }
         }
       },
       statusChart: {

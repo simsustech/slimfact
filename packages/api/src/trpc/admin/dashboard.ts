@@ -114,7 +114,8 @@ export const adminDashboardRoutes = ({
         statusCounts,
         overdueAging: overdueAgingLabeled,
         paidRevenueSeries,
-        outstandingTotal
+        outstandingTotal,
+        granularity
       }
     }),
 
