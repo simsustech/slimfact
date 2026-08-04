@@ -163,10 +163,12 @@ test.describe('Dashboard', () => {
   test('action-items-overdue-navigation', async () => {
     await page.goto('/admin/dashboard')
 
-    await page
+    const needsReminder = page
       .getByRole('button', { name: /Needs reminder/ })
       .first()
-      .click()
+    await needsReminder.waitFor({ state: 'attached' })
+    // force: the action list can re-render while the stats refetch.
+    await needsReminder.click({ force: true })
 
     await page.waitForURL(/.*invoices/)
   })
@@ -183,7 +185,11 @@ test.describe('Dashboard', () => {
 
     const filter = page.getByLabel('Activity filter')
     await filter.click()
-    await page.getByRole('option', { name: 'Payment' }).click()
+    const paymentOption = page.getByRole('option', { name: 'Payment' })
+    await paymentOption.waitFor({ state: 'attached' })
+    // force: the menu can re-render while the activity feed refetches, which
+    // makes the default stability wait time out.
+    await paymentOption.click({ force: true })
 
     await expect(page.getByText('Payment').first()).toBeVisible()
   })
@@ -195,5 +201,42 @@ test.describe('Dashboard', () => {
       .getByText('No data available')
       .or(page.getByText('Select a company to view stats'))
     await expect(empty.first()).toBeVisible()
+  })
+
+  test('revenue-chart-binning-caption', async () => {
+    await page.goto('/admin/dashboard')
+
+    // The chart explains how the data is binned. The default month preset
+    // spans at most 31 days so the API bins by day.
+    await expect(page.getByText(/Binned by day/).first()).toBeVisible()
+
+    // Selecting a wide preset (This year) switches to monthly bins.
+    await page.getByRole('button', { name: 'This year' }).click()
+    await expect(page.getByText(/Binned by month/).first()).toBeVisible()
+  })
+
+  test('action-items-show-all-buckets', async () => {
+    await page.goto('/admin/dashboard')
+
+    // The seed guarantees one OPEN overdue invoice per aging bucket, so all
+    // four action items should be present.
+    await expect(
+      page.getByRole('button', { name: /Needs reminder/ }).first()
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: /First reminder sent/ }).first()
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: /Second reminder sent/ }).first()
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: /Exhortation/ }).first()
+    ).toBeVisible()
+  })
+
+  test('revenue-cards-show-receipts', async () => {
+    await page.goto('/admin/dashboard')
+
+    await expect(page.getByText('Receipts').first()).toBeVisible()
   })
 })

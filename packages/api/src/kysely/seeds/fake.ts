@@ -269,12 +269,13 @@ const seed = async () => {
   for (let i = 0; i < paidAdminInvoices.length; i++) {
     const paid = paidAdminInvoices[i]
     const monthOffset = Math.floor((i * 12) / paidAdminInvoices.length)
-    const day = 1 + ((i * 7) % 28)
-    const paidAt = new Date(
-      now.getFullYear(),
-      now.getMonth() - 11 + monthOffset,
-      day
-    )
+    const targetMonth = now.getMonth() - 11 + monthOffset
+    let day = 1 + ((i * 7) % 28)
+    // Payments in the current month must not land in the future.
+    if (targetMonth === now.getMonth()) {
+      day = Math.min(day, now.getDate())
+    }
+    const paidAt = new Date(now.getFullYear(), targetMonth, day)
     await db
       .insertInto('checkout.payments')
       .values({

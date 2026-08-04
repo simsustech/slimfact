@@ -25,6 +25,7 @@ import {
   Filler
 } from 'chart.js'
 import { useLang } from '../../lang/index.js'
+import { formatCurrency as formatCents } from './formatCurrency.js'
 
 ChartJS.register(
   Title,
@@ -75,18 +76,9 @@ const chartData = computed(() => ({
   }))
 }))
 
-const formatCurrency = (value: number | string): string => {
-  const num = typeof value === 'number' ? value : Number(value)
-  if (!Number.isFinite(num)) return ''
-  // Amounts are stored in cents; convert to whole units for display.
-  const units = num / 100
-  const fixed = Math.round(units * 100) / 100
-  const [intPart, decPart] = fixed.toFixed(2).split('.')
-  const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  return decPart
-    ? `${props.currency} ${withThousands}.${decPart}`
-    : `${props.currency} ${withThousands}`
-}
+// Amounts are stored in cents; convert to whole units for display.
+const formatCurrency = (value: number | string): string =>
+  formatCents(value, props.currency)
 
 const chartOptions = computed(() => ({
   responsive: true,
@@ -126,17 +118,21 @@ const chartOptions = computed(() => ({
 
 <style scoped>
 .dashboard-revenue-chart {
-  height: 280px;
   width: 100%;
 }
 .empty-chart {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 280px;
   color: rgba(0, 0, 0, 0.6);
   font-style: italic;
 }
+.chart-caption {
+  margin-top: 8px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.85rem;
+  font-style: italic;
+}
 </style>
-.chart-caption { margin-top: 8px; text-align: center; color: rgba(0, 0, 0, 0.6);
-font-size: 0.85rem; font-style: italic; }
