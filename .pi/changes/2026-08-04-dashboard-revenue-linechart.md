@@ -68,3 +68,16 @@ Made the admin dashboard revenue section a real time-series line chart (invoices
 - E2E (15): binning caption day->month, all four action-item buckets,
   Receipts card, plus the earlier nav/filter/preset tests.
 - Hardened flaky QSelect interactions (force click after attach).
+
+### Status overview → Outstanding (debtors) card
+- The doughnut was misleading: Postgres returns count/totalAmount as
+  strings, so `target.count += row.count` concatenated ('14'+'3'='143'),
+  making one bucket dominate visually ("only see canceled"/"only bill").
+  Coerced with Number().
+- Replaced the doughnut with an Outstanding card: per-company OPEN
+  amounts, Bills toggle (status='bill'), click → invoices filtered by
+  company+status. Removed DashboardStatusChart.vue + statusConfig.
+- Revenue chart: lines → grouped bars (3 per bucket).
+- InvoicesPage honors ?companyId=.
+- Tests: topDebtors unit (grouping/sort/status filter), E2E debtors
+  section, Bills toggle, row navigation. 17/17 dashboard E2E green.
