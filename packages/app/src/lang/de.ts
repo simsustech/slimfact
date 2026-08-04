@@ -335,6 +335,7 @@ const lang: Language = {
       },
       recentActivity: {
         title: 'Letzte Aktivitäten',
+        forInvoice: 'für Rechnung',
         filter: {
           label: 'Aktivitätsfilter',
           all: 'Alle',

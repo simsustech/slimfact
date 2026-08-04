@@ -3,7 +3,8 @@ import {
   colorForActivity,
   filterActivity,
   iconForActivity,
-  paginateEntries
+  paginateEntries,
+  paymentInvoiceText
 } from '../../src/components/dashboard/recentActivity.js'
 
 const entries = [
@@ -61,6 +62,35 @@ describe('dashboard.recentActivity.paginateEntries', () => {
   })
   it('handles empty input', () => {
     expect(paginateEntries([], 1, 5)).toEqual([])
+  })
+})
+
+describe('dashboard.recentActivity.paymentInvoiceText', () => {
+  it('builds the for-invoice suffix for a payment with a number', () => {
+    expect(
+      paymentInvoiceText(
+        { type: 'payment', documentNumber: 'FACT-2026-001' },
+        'for invoice'
+      )
+    ).toBe('for invoice #FACT-2026-001')
+  })
+
+  it('returns null for non-payment types', () => {
+    expect(
+      paymentInvoiceText(
+        { type: 'invoiceOpened', documentNumber: 'FACT-2026-001' },
+        'for invoice'
+      )
+    ).toBeNull()
+  })
+
+  it('returns null when the document number is missing', () => {
+    expect(
+      paymentInvoiceText(
+        { type: 'payment', documentNumber: null },
+        'for invoice'
+      )
+    ).toBeNull()
   })
 })
 

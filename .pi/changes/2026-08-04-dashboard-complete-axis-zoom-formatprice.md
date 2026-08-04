@@ -37,7 +37,7 @@ formatters into `@slimfact/tools`.
   `aggregateActionItems()` module.
 - `packages/app/src/components/dashboard/DashboardRevenueChart.vue` — `buckets` prop,
   `select` emit via chart.js `onClick` with `interaction: { mode: 'index', intersect:
-  false }` (whole category clickable), pointer cursor on hover, `data-chart-labels`
+false }` (whole category clickable), pointer cursor on hover, `data-chart-labels`
   attribute for E2E assertions; tooltip/y-axis use `formatPrice` from tools.
 - `packages/app/src/components/dashboard/actionItems.ts` (new) — multi-company
   aggregation for OPEN + overdue buckets (fixes `.find()`/assignment bugs that dropped
@@ -52,7 +52,7 @@ formatters into `@slimfact/tools`.
 ### Shared price formatting in @slimfact/tools
 
 - `packages/tools/src/index.ts` (new main entry) — `formatPrice({ value, locale,
-  currency = 'EUR', includeSymbol })`; amounts in cents; locale-aware; symbol optional.
+currency = 'EUR', includeSymbol })`; amounts in cents; locale-aware; symbol optional.
 - `packages/tools/src/digiboox/index.ts` — local `formatPrice` removed, imports from
   `../index.js` (output unchanged).
 - `packages/api/src/trpc/admin/invoices.ts` — local `formatPrice` removed, imports from
@@ -70,6 +70,22 @@ formatters into `@slimfact/tools`.
   axis (7 days for a week, 4 quarters for a year), click-a-quarter-bar zooms to
   `01-01 → 03-31` and re-bins to month; empty-state made deterministic (deselects
   companies via chip Remove buttons); year preset end = Dec 31. 20/20 pass.
+
+### Payment activity entries + date-input init
+
+- `packages/fastify-checkout/src/invoiceHandler.ts` — activity feed entries now
+  carry `documentNumber` (numberPrefix + number, null for unnumbered docs);
+  null-safe when the invoice has no number yet.
+- `packages/app/src/components/dashboard/DashboardRecentActivity.vue` — the body
+  slot was `#body`, but Quasar QTimelineEntry only has `default`/`title`/`subtitle`
+  slots, so the amount (and the new invoice reference) never rendered; now uses
+  `#default` and shows "for invoice #2026.31" on payment entries.
+- `recentActivity.ts` — new `paymentInvoiceText()` helper + unit tests.
+- Lang: `recentActivity.forInvoice` in en/de/nl.
+- `pages/admin/DashboardPage.vue` — date inputs are initialized with the default
+  month-preset range so they are filled on first render.
+- Seed: admin client invoices get a rendered numberPrefix + sequence so sent
+  documents carry real numbers.
 
 ## Fixed bugs
 

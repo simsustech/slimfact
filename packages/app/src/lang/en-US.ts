@@ -333,6 +333,7 @@ const lang: Language = {
       },
       recentActivity: {
         title: 'Recent activity',
+        forInvoice: 'for invoice',
         filter: {
           label: 'Activity filter',
           all: 'All',

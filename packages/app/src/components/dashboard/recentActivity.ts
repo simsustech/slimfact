@@ -49,6 +49,16 @@ export const iconForActivity = (type: string): string => {
   }
 }
 
+// For a payment entry, the "for invoice #N" suffix shown next to the
+// amount. Returns null for other entry types or when no number is present.
+export const paymentInvoiceText = (
+  entry: { type: string; documentNumber: string | null },
+  forInvoiceLabel: string
+): string | null =>
+  entry.type === 'payment' && entry.documentNumber
+    ? `${forInvoiceLabel} #${entry.documentNumber}`
+    : null
+
 export const colorForActivity = (type: string): string => {
   switch (type) {
     case 'invoiceOpened':

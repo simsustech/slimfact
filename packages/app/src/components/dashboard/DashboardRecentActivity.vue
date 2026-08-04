@@ -32,12 +32,18 @@
             {{ entry.clientName ?? '—' }} —
             {{ formatRelative(entry.timestamp) }}
           </template>
-          <template #body>
+          <template #default>
             <Price
               v-if="entry.amount > 0"
               :model-value="entry.amount"
               currency="EUR"
             />
+            <span
+              v-if="entry.type === 'payment' && entry.documentNumber"
+              class="q-ml-xs"
+            >
+              {{ forInvoiceLabel }} #{{ entry.documentNumber }}
+            </span>
           </template>
         </q-timeline-entry>
       </q-timeline>
@@ -86,6 +92,7 @@ import {
 export interface ActivityEntry {
   type: string
   documentUuid: string
+  documentNumber: string | null
   clientName: string | null
   amount: number
   timestamp: string
@@ -149,6 +156,10 @@ watch(rowsPerPage, () => {
 })
 const iconFor = iconForActivity
 const colorFor = colorForActivity
+const forInvoiceLabel = computed(
+  () => lang.value.dashboard.admin.recentActivity.forInvoice
+)
+
 const labelFor = (type: string) => {
   switch (type) {
     case 'invoiceOpened':

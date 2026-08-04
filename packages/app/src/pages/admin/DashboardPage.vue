@@ -192,8 +192,11 @@ import { aggregateActionItems } from '../../components/dashboard/actionItems.js'
 type Preset = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 
 const activePreset = ref<Preset>('month')
-const customDateFrom = ref<string>('')
-const customDateTo = ref<string>('')
+// Initialize the date inputs with the default (month) preset range so they
+// are filled on first render instead of showing empty placeholders.
+const initialRange = presetDateRange('month')
+const customDateFrom = ref<string>(initialRange.dateFrom)
+const customDateTo = ref<string>(initialRange.dateTo)
 
 const presetButtons = computed(() => [
   { label: lang.value.dashboard.admin.revenue.today, value: 'today' },

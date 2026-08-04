@@ -217,6 +217,13 @@ const seed = async () => {
     totalIncludingTax: number
   }[] = []
   const now = new Date()
+  // Sent documents carry a number; render the prefix template (e.g.
+  // "{{YYYY}}." -> "2026.") and assign a per-company sequence so the
+  // activity feed can show "invoice #2026.12".
+  const renderedNumberPrefix = numberPrefix.template
+    .replace('{{YYYY}}', String(now.getFullYear()))
+    .replace('{{MM}}', String(now.getMonth() + 1).padStart(2, '0'))
+  let invoiceSequence = 0
   for (let month = 11; month >= 0; month--) {
     const count = 2 + (Math.random() < 0.5 ? 1 : 0) // 2-3 invoices per month
     for (let i = 0; i < count; i++) {
@@ -245,6 +252,15 @@ const seed = async () => {
         clientId: adminClient.id
       })
       if (result.success) {
+        invoiceSequence++
+        await db
+          .updateTable('checkout.invoices')
+          .set({
+            numberPrefix: renderedNumberPrefix,
+            number: invoiceSequence
+          })
+          .where('id', '=', result.invoice.id)
+          .execute()
         createdAdminInvoices.push({
           id: result.invoice.id,
           status,

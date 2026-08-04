@@ -216,6 +216,10 @@ test.describe('Dashboard', () => {
     await paymentOption.click({ force: true })
 
     await expect(page.getByText('Payment').first()).toBeVisible()
+
+    // Payment entries must show the amount's invoice reference
+    // ("for invoice #FACT-..."): the seed guarantees paid payments.
+    await expect(page.getByText(/for invoice #/).first()).toBeVisible()
   })
 
   test('empty-state', async () => {

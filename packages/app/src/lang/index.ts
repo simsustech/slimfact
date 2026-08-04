@@ -350,6 +350,7 @@ export interface Language {
       }
       recentActivity: {
         title: string
+        forInvoice: string
         filter: {
           label: string
           all: string

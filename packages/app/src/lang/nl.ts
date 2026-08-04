@@ -333,6 +333,7 @@ const lang: Language = {
       },
       recentActivity: {
         title: 'Recente activiteit',
+        forInvoice: 'voor factuur',
         filter: {
           label: 'Activiteit filter',
           all: 'Alle',
