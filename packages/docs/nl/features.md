@@ -49,7 +49,7 @@ Stel het in en vergeet het. Terugkerende facturen draaien op cron-schema's terwi
 
 ## 📊 Admin-dashboard
 
-Een realtime overzicht van je factuurbedrijf, direct na het inloggen.
+Een realtime overzicht van je factuurbedrijf.
 
 - Omzetkaarten en een omzetgrafiek met inzoomen per bucket en granulariteit van dag/week/maand/kwartaal
 - Statusoverzicht en verouderingsbuckets voor vervallen facturen — herinnering nodig, herinnering verstuurd, tweede herinnering, aanmaning

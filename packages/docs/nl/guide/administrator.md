@@ -20,7 +20,7 @@ Als beheerder geeft je zijbalk toegang tot:
 
 ## Dashboard
 
-Het dashboard is je overzicht in één oogopslag: omzet, openstaand werk en recente activiteit op één plek. Het is de eerste pagina die je ziet na het inloggen.
+Het dashboard is je overzicht in één oogopslag: omzet, openstaand werk en recente activiteit op één plek. Open het vanuit de zijbalk (Dashboard).
 
 ![Admin dashboard](/screenshots/admin-dashboard.png)
 

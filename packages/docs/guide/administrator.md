@@ -20,7 +20,7 @@ As an administrator, your sidebar gives you access to:
 
 ## Dashboard
 
-The dashboard is your at-a-glance overview — revenue, outstanding work, and recent activity in one place. It is the first page you see after logging in.
+The dashboard is your at-a-glance overview — revenue, outstanding work, and recent activity in one place. Open it from the sidebar (Dashboard).
 
 ![Admin dashboard](/screenshots/admin-dashboard.png)
 

@@ -4,8 +4,8 @@
 "@slimfact/tools": patch
 ---
 
-Admin dashboard: replaces the old menu-list landing page with a full
-analytics dashboard.
+Admin dashboard: a full analytics dashboard at `/admin/dashboard` (the
+`/admin` menu-list landing page is unchanged).
 
 **Revenue section**
 

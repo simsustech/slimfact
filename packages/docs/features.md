@@ -49,7 +49,7 @@ Set it and forget it. Recurring invoices run on cron schedules while you focus o
 
 ## 📊 Admin Dashboard
 
-A real-time overview of your invoicing business, right after login.
+A real-time overview of your invoicing business.
 
 - Revenue cards and a click-to-zoom revenue chart with day/week/month/quarter granularity
 - Status overview and overdue aging buckets — needs reminder, reminder sent, second reminder, exhortation

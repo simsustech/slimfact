@@ -7,7 +7,8 @@ Single up-to-date recap of the admin dashboard feature. Supersedes
 
 ## Scope
 
-`/admin` landing replaced with a full analytics dashboard:
+New `/admin/dashboard` page with a full analytics dashboard (the
+`/admin` menu-list landing page is unchanged):
 
 - **Revenue cards** (Invoices / Bills / Receipts) for the selected period,
   with Today/Week/Month/Quarter/Year presets + custom date range (dates
