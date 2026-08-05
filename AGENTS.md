@@ -48,6 +48,7 @@ BILL → RECEIPT → INVOICE (convertible)
 - Use descriptive variable names
 - Follow existing patterns in the codebase
 - Extract complex conditions into meaningful boolean variables
+- **Prevent raw SQL — use Kysely methods whenever possible.** Do work in the DB via the Kysely query builder (`eb.fn`, `eb.val`, `eb.ref`, callback `.where((eb) => ...)`), not raw `sql\`...\`` fragments or JS reduce/sort/slice. Check the Kysely API docs (<https://kysely-org.github.io/kysely-apidoc/>) before reaching for raw SQL. Validate before data reaches the DB, not after it comes out.
 
 ## Conventions (.pi/skills/)
 

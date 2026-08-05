@@ -3,12 +3,20 @@ import { type FastifyInstance } from 'fastify'
 import { t } from '../index.js'
 import { agingLabelForReminderCount } from '../../dashboard/aging.js'
 import {
+  addDays,
+  addMonths,
+  addQuarters,
+  addWeeks,
+  endOfDay,
+  format,
+  getISOWeek,
+  getISOWeekYear,
+  parseISO,
   startOfDay,
-  startOfWeek,
   startOfMonth,
   startOfQuarter,
-  startOfYear,
-  endOfDay
+  startOfWeek,
+  startOfYear
 } from 'date-fns'
 import { InvoiceStatus } from '@modular-api/fastify-checkout'
 import {
@@ -36,6 +44,55 @@ export const pickGranularity = (
   if (days <= 45) return 'week'
   if (days <= 200) return 'month'
   return 'quarter'
+}
+
+// Every time-bucket start in [dateFrom, dateTo] for a granularity,
+// truncated to the bucket boundary (Monday for weeks, 1st for months,
+// quarter start), matching Postgres date_trunc so the revenue grouping
+// aligns exactly.
+export const bucketStarts = (
+  dateFrom: string,
+  dateTo: string,
+  granularity: RevenueGranularity
+): string[] => {
+  const from = parseISO(dateFrom)
+  const to = parseISO(dateTo)
+  let cursor =
+    granularity === 'day'
+      ? startOfDay(from)
+      : granularity === 'week'
+        ? startOfWeek(from, { weekStartsOn: 1 })
+        : granularity === 'month'
+          ? startOfMonth(from)
+          : startOfQuarter(from)
+  const step =
+    granularity === 'day'
+      ? addDays
+      : granularity === 'week'
+        ? addWeeks
+        : granularity === 'month'
+          ? addMonths
+          : addQuarters
+  const starts: string[] = []
+  while (cursor <= to) {
+    starts.push(format(cursor, 'yyyy-MM-dd'))
+    cursor = step(cursor, 1)
+  }
+  return starts
+}
+
+// Display label for a bucket start: YYYY-MM-DD, ISO week (2026-W32),
+// YYYY-MM or YYYY-Qn.
+export const bucketLabel = (
+  start: string,
+  granularity: RevenueGranularity
+): string => {
+  const date = parseISO(start)
+  if (granularity === 'day') return start
+  if (granularity === 'week')
+    return `${getISOWeekYear(date)}-W${String(getISOWeek(date)).padStart(2, '0')}`
+  if (granularity === 'month') return start.slice(0, 7)
+  return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
 }
 
 // Last day (inclusive) of a time bucket whose first day is `start`
@@ -89,7 +146,6 @@ export const adminDashboardRoutes = ({
         getInvoiceOverdueAging: (args?: { companyIds?: number[] }) => Promise<
           {
             companyId: number | null
-            companyName: string | null
             reminderCount: number
             count: number
             totalAmount: number
@@ -101,8 +157,8 @@ export const adminDashboardRoutes = ({
           dateFrom: string
           dateTo: string
           granularity: 'day' | 'week' | 'month' | 'quarter'
+          buckets: { start: string }[]
         }) => Promise<{
-          labels: string[]
           buckets: { start: string }[]
           series: { status: InvoiceStatus; data: number[] }[]
         }>
@@ -143,7 +199,10 @@ export const adminDashboardRoutes = ({
           ...(companyIds && { companyIds }),
           dateFrom,
           dateTo,
-          granularity
+          granularity,
+          buckets: bucketStarts(dateFrom, dateTo, granularity).map((start) => ({
+            start
+          }))
         }),
         handler.getUpcomingIncome(companyIds && { companyIds }),
         handler.getPaymentMethodSplit({
@@ -157,11 +216,15 @@ export const adminDashboardRoutes = ({
         ...row,
         label: agingLabelForReminderCount(row.reminderCount)
       }))
-      // Turn every bucket start into an inclusive {start, end} date range so
-      // the app can zoom into a clicked chart bucket.
+      // Compose the labels from the bucket starts, and turn every start into
+      // an inclusive {start, end} date range so the app can zoom into a
+      // clicked chart bucket.
       const paidRevenueSeriesWithRanges = paidRevenueSeries
         ? {
             ...paidRevenueSeries,
+            labels: paidRevenueSeries.buckets.map((bucket) =>
+              bucketLabel(bucket.start, granularity)
+            ),
             buckets: paidRevenueSeries.buckets.map((bucket) => ({
               start: bucket.start,
               end: bucketEndDate(bucket.start, granularity)

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   bucketEndDate,
+  bucketLabel,
+  bucketStarts,
   dashboardDateRangeForPreset,
   type DashboardDateRangePreset,
   pickGranularity
@@ -169,5 +171,64 @@ describe('dashboard.trpc.bucketEndDate', () => {
 
   it('handles a week spanning a month/year boundary', () => {
     expect(bucketEndDate('2025-12-29', 'week')).toBe('2026-01-04')
+  })
+})
+
+describe('dashboard.trpc.bucketStarts', () => {
+  it('lists every day for day granularity', () => {
+    expect(bucketStarts('2026-08-01', '2026-08-03', 'day')).toEqual([
+      '2026-08-01',
+      '2026-08-02',
+      '2026-08-03'
+    ])
+  })
+
+  it('starts weeks on Monday, including the Monday before dateFrom', () => {
+    // 2026-08-01 is a Saturday; the week starts Monday 2026-07-27.
+    expect(bucketStarts('2026-08-01', '2026-08-04', 'week')).toEqual([
+      '2026-07-27',
+      '2026-08-03'
+    ])
+  })
+
+  it('lists months starting on the 1st', () => {
+    expect(bucketStarts('2026-01-15', '2026-03-10', 'month')).toEqual([
+      '2026-01-01',
+      '2026-02-01',
+      '2026-03-01'
+    ])
+  })
+
+  it('lists quarters starting on quarter boundaries', () => {
+    expect(bucketStarts('2026-05-05', '2026-12-15', 'quarter')).toEqual([
+      '2026-04-01',
+      '2026-07-01',
+      '2026-10-01'
+    ])
+  })
+
+  it('covers a full year as 4 quarters', () => {
+    expect(bucketStarts('2026-01-01', '2026-12-31', 'quarter')).toHaveLength(4)
+  })
+})
+
+describe('dashboard.trpc.bucketLabel', () => {
+  it('labels days as YYYY-MM-DD', () => {
+    expect(bucketLabel('2026-08-04', 'day')).toBe('2026-08-04')
+  })
+
+  it('labels weeks with the ISO week number', () => {
+    expect(bucketLabel('2026-08-03', 'week')).toBe('2026-W32')
+    // ISO year boundary: 2025-12-29 is week 1 of 2026.
+    expect(bucketLabel('2025-12-29', 'week')).toBe('2026-W01')
+  })
+
+  it('labels months as YYYY-MM', () => {
+    expect(bucketLabel('2026-08-01', 'month')).toBe('2026-08')
+  })
+
+  it('labels quarters as YYYY-Qn', () => {
+    expect(bucketLabel('2026-01-01', 'quarter')).toBe('2026-Q1')
+    expect(bucketLabel('2026-10-01', 'quarter')).toBe('2026-Q4')
   })
 })

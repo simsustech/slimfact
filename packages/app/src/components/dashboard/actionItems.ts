@@ -32,7 +32,6 @@ export interface StatusCountRow {
 
 export interface OverdueAgingRow {
   companyId: number | null
-  companyName: string | null
   reminderCount: number
   count: number | string
   totalAmount: number | string
