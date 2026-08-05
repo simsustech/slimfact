@@ -8,12 +8,47 @@ This guide covers everything administrators can do — from creating your first 
 
 As an administrator, your sidebar gives you access to:
 
+- **Dashboard** — revenue, action items, and recent activity at a glance
 - **Invoices** — create and manage invoices
 - **Bills** — create and manage bills
 - **Receipts** — view and manage receipts
 - **Subscriptions** — set up recurring billing
 - **Clients** — manage your customer records
 - **Settings** — companies, number prefixes, exports, accounts
+
+---
+
+## Dashboard
+
+The dashboard is your at-a-glance overview — revenue, outstanding work, and recent activity in one place. It is the first page you see after logging in.
+
+![Admin dashboard](/screenshots/admin-dashboard.png)
+
+### Revenue
+
+- **Revenue cards** show the invoiced, paid, and outstanding totals for the selected period
+- **Revenue chart** plots paid revenue over time — pick a preset (today, week, month, quarter, year) or choose a custom date range
+- **Click a bucket** in the chart to zoom into that period; click again to zoom out
+- The chart adapts its granularity to the range: days, weeks, months, or quarters
+
+### Action items
+
+- **Status overview** counts invoices per status (concept, open, paid, canceled, bills, receipts)
+- **Debtors** lists clients with overdue invoices and how much they owe
+- **Overdue** groups unpaid invoices by aging bucket: needs reminder, reminder sent, second reminder, exhortation
+
+### Upcoming income
+
+- Expected cash inflow from open invoices that are not due yet
+- Toggle between **Upcoming** and **Overdue** to see what is coming in versus what is late
+
+### Payment methods
+
+- How much was paid per method (iDEAL, credit card, cash, bank transfer) in the selected period
+
+### Recent activity
+
+- A chronological feed of what happened: invoices sent, bills created, payments received, reminders and exhortations sent
 
 ---
 

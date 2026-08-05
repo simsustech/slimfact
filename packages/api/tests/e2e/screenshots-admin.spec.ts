@@ -2,6 +2,7 @@ import { test } from '@playwright/test'
 import { initializePage, login } from './setup'
 
 const PAGES: [string, string, number?][] = [
+  ['/admin/dashboard', 'admin-dashboard', 2500],
   ['/admin/invoices', 'admin-invoices', 2000],
   ['/admin/bills', 'admin-bills', 2000],
   ['/admin/subscriptions', 'admin-subscriptions', 2000],

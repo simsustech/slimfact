@@ -47,6 +47,15 @@ Set it and forget it. Recurring invoices run on cron schedules while you focus o
 
 ---
 
+## 📊 Admin Dashboard
+
+A real-time overview of your invoicing business, right after login.
+
+- Revenue cards and a click-to-zoom revenue chart with day/week/month/quarter granularity
+- Status overview and overdue aging buckets — needs reminder, reminder sent, second reminder, exhortation
+- Upcoming income and a payment-method breakdown per period
+- Recent activity feed of invoices, bills, payments, reminders, and exhortations
+
 ## 👤 Client Portal
 
 Your customers get their own space. They see what they owe, when it's due, and can pay right there.
