@@ -5,7 +5,7 @@
 // multi-company aggregation (a past bug used .find()/assignment and only
 // kept the FIRST company's row per bucket).
 
-import { agingLabelForReminderCount } from '../../dashboard/aging.js'
+import { agingLabelForReminderCount } from '@slimfact/tools/dashboard'
 
 export interface AggBucket {
   count: number

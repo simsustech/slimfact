@@ -3,7 +3,7 @@ import {
   AGING_LABELS,
   agingLabelForReminderCount,
   EXHORTATION_THRESHOLD
-} from '../../src/dashboard/aging.js'
+} from '@slimfact/tools/dashboard'
 
 describe('dashboard.aging.agingLabelForReminderCount', () => {
   it('maps reminder counts to the four action-item buckets', () => {

@@ -13,6 +13,10 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./dashboard": {
+      "types": "./dist/types/dashboard/index.d.ts",
+      "import": "./dist/dashboard/index.js"
+    },
     "./epc-qr": {
       "types": "./dist/types/epc-qr/index.d.ts",
       "import": "./dist/epc-qr/index.js"

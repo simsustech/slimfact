@@ -2,7 +2,7 @@ import { type FastifyInstance } from 'fastify'
 
 import { t } from '../index.js'
 import { db } from '../../kysely/index.js'
-import { agingLabelForReminderCount } from '../../dashboard/aging.js'
+import { agingLabelForReminderCount } from '@slimfact/tools/dashboard'
 import {
   addDays,
   addMonths,
@@ -55,10 +55,29 @@ export const pickGranularity = (
   return 'quarter'
 }
 
-// Every time-bucket start in [dateFrom, dateTo] for a granularity,
-// truncated to the bucket boundary (Monday for weeks, 1st for months,
-// quarter start), matching Postgres date_trunc so the revenue grouping
-// aligns exactly.
+// startOfWeek pinned to Monday (matching Postgres date_trunc('week')).
+const startOfWeekMonday = (date: Date): Date =>
+  startOfWeek(date, { weekStartsOn: 1 })
+
+// Bucket-boundary truncation + step functions per granularity, so the
+// revenue grouping aligns exactly with Postgres date_trunc.
+const bucketStartOf: Record<RevenueGranularity, (date: Date) => Date> = {
+  day: startOfDay,
+  week: startOfWeekMonday,
+  month: startOfMonth,
+  quarter: startOfQuarter
+}
+
+const bucketStep: Record<
+  RevenueGranularity,
+  (date: Date, amount: number) => Date
+> = {
+  day: addDays,
+  week: addWeeks,
+  month: addMonths,
+  quarter: addQuarters
+}
+
 export const bucketStarts = (
   dateFrom: string,
   dateTo: string,
@@ -66,26 +85,13 @@ export const bucketStarts = (
 ): string[] => {
   const from = parseISO(dateFrom)
   const to = parseISO(dateTo)
-  let cursor =
-    granularity === 'day'
-      ? startOfDay(from)
-      : granularity === 'week'
-        ? startOfWeek(from, { weekStartsOn: 1 })
-        : granularity === 'month'
-          ? startOfMonth(from)
-          : startOfQuarter(from)
-  const step =
-    granularity === 'day'
-      ? addDays
-      : granularity === 'week'
-        ? addWeeks
-        : granularity === 'month'
-          ? addMonths
-          : addQuarters
   const starts: string[] = []
-  while (cursor <= to) {
+  for (
+    let cursor = bucketStartOf[granularity](from);
+    cursor <= to;
+    cursor = bucketStep[granularity](cursor, 1)
+  ) {
     starts.push(format(cursor, 'yyyy-MM-dd'))
-    cursor = step(cursor, 1)
   }
   return starts
 }
