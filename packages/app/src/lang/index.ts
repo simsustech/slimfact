@@ -350,6 +350,7 @@ export interface Language {
       }
       upcomingIncome: {
         title: string
+        titleOverdue: string
         invoices: string
         due: string
         empty: string

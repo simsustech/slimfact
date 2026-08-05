@@ -3,7 +3,11 @@
     <q-card-section>
       <div class="row items-center justify-between">
         <div class="text-h6">
-          {{ lang.dashboard.admin.upcomingIncome.title }}
+          {{
+            mode === 'overdue'
+              ? lang.dashboard.admin.upcomingIncome.titleOverdue
+              : lang.dashboard.admin.upcomingIncome.title
+          }}
         </div>
         <q-btn-toggle
           v-model="mode"
@@ -32,9 +36,9 @@
             currency="EUR"
             class="q-mr-xs"
           />
-          <span class="text-grey-7">
+          <div class="text-grey-7">
             {{ count }} {{ lang.dashboard.admin.upcomingIncome.invoices }}
-          </span>
+          </div>
         </div>
 
         <q-list v-if="nextRows.length > 0" dense class="q-mt-sm">
@@ -82,10 +86,10 @@
             currency="EUR"
             class="q-mr-xs"
           />
-          <span class="text-grey-7">
+          <div class="text-grey-7">
             {{ overdueCount }}
             {{ lang.dashboard.admin.upcomingIncome.invoices }}
-          </span>
+          </div>
         </div>
 
         <q-list v-if="overdueRows.length > 0" dense class="q-mt-sm">

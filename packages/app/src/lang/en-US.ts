@@ -333,6 +333,7 @@ const lang: Language = {
       },
       upcomingIncome: {
         title: 'Upcoming income',
+        titleOverdue: 'Overdue income',
         invoices: 'open invoices',
         due: 'due',
         empty: 'No invoices due yet',

@@ -335,6 +335,7 @@ const lang: Language = {
       },
       upcomingIncome: {
         title: 'Kommende Einnahmen',
+        titleOverdue: 'Überfällige Einnahmen',
         invoices: 'offene Rechnungen',
         due: 'fällig am',
         empty: 'Noch keine Rechnungen fällig',

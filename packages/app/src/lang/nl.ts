@@ -333,6 +333,7 @@ const lang: Language = {
       },
       upcomingIncome: {
         title: 'Aanstaande inkomsten',
+        titleOverdue: 'Vervallen inkomsten',
         invoices: 'openstaande facturen',
         due: 'vervalt op',
         empty: 'Nog geen facturen vervallen',

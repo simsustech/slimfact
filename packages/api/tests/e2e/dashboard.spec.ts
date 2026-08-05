@@ -359,8 +359,10 @@ test.describe('Dashboard', () => {
     // action items card uses the same bucket labels).
     await page.goto('/admin/dashboard')
     await page.getByRole('button', { name: 'Overdue' }).click()
+    // The card title switches to "Overdue income" in overdue mode.
+    await expect(page.getByText('Overdue income').first()).toBeVisible()
     const overdueCard = page.locator('.q-card').filter({
-      hasText: 'Upcoming income'
+      hasText: 'Overdue income'
     })
     await expect(overdueCard.getByText('Needs reminder').first()).toBeVisible()
   })
