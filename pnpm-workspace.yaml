@@ -7,34 +7,19 @@ minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
   - browserslist
-  - caniuse-lite
-  - electron-to-chromium
-  - "@vitrify/*"
-  - vitrify
-  - "@simsustech/quasar-components"
-  - "@modular-api/*"
-  - "@quasar/*"
-  - vue-router
-  - unocss-preset-quasar
-  - oxfmt
-  - "@oxfmt/*"
-  - "@myriaddreamin/*"
-  - "@oxlint/*"
-  - oxlint
-  - vite
-  - axios
-  - cronstrue
-  - '@types/node'
-  - cron-parser
-  - pg-boss
-  - stripe
-  - "@unocss/*"
-  - unocss
-  - oidc-provider
-  - quasar
-  - sharp
-  - "@img/*"
-  - '@types/node'
+  - '@modular-api/fastify-checkout@0.9.0'
+  - '@types/pg@8.20.4'
+  - '@vue/compiler-core@3.5.41'
+  - '@vue/compiler-dom@3.5.41'
+  - '@vue/compiler-sfc@3.5.41'
+  - '@vue/compiler-ssr@3.5.41'
+  - '@vue/reactivity@3.5.41'
+  - '@vue/runtime-core@3.5.41'
+  - '@vue/runtime-dom@3.5.41'
+  - '@vue/server-renderer@3.5.41'
+  - '@vue/shared@3.5.41'
+  - quasar@2.24.0
+  - vue@3.5.41
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
@@ -46,7 +31,7 @@ onlyBuiltDependencies:
 minimumReleaseAgeIgnoreMissingTime: true
 
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   ejs: true
   esbuild: true
   sharp: true
