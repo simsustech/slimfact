@@ -175,24 +175,32 @@ const relativeTimeFormat = new Intl.RelativeTimeFormat('en-US', {
   numeric: 'auto'
 })
 
+interface RelativeTimeRange {
+  maxSeconds: number
+  divisor: number
+  unit: Intl.RelativeTimeFormatUnit
+}
+
+// Pick the coarsest unit whose range still fits: seconds < 1m, minutes <
+// 1h, hours < 1d, days < 30d, months < 365d, years beyond.
+const relativeTimeRanges: RelativeTimeRange[] = [
+  { maxSeconds: 60, divisor: 1, unit: 'second' },
+  { maxSeconds: 3_600, divisor: 60, unit: 'minute' },
+  { maxSeconds: 86_400, divisor: 3_600, unit: 'hour' },
+  { maxSeconds: 2_592_000, divisor: 86_400, unit: 'day' },
+  { maxSeconds: 31_536_000, divisor: 2_592_000, unit: 'month' },
+  { maxSeconds: Number.POSITIVE_INFINITY, divisor: 31_536_000, unit: 'year' }
+]
+
 const formatRelative = (timestamp: string) => {
   const date = new Date(timestamp)
   if (Number.isNaN(date.getTime())) return timestamp
   const diffSeconds = Math.round((date.getTime() - Date.now()) / 1000)
-  const absSeconds = Math.abs(diffSeconds)
-  if (absSeconds < 60) return relativeTimeFormat.format(diffSeconds, 'second')
-  if (absSeconds < 3600)
-    return relativeTimeFormat.format(Math.round(diffSeconds / 60), 'minute')
-  if (absSeconds < 86_400)
-    return relativeTimeFormat.format(Math.round(diffSeconds / 3600), 'hour')
-  if (absSeconds < 2_592_000)
-    return relativeTimeFormat.format(Math.round(diffSeconds / 86_400), 'day')
-  if (absSeconds < 31_536_000)
-    return relativeTimeFormat.format(
-      Math.round(diffSeconds / 2_592_000),
-      'month'
-    )
-  return relativeTimeFormat.format(Math.round(diffSeconds / 31_536_000), 'year')
+  const { divisor, unit } =
+    relativeTimeRanges.find(
+      (range) => Math.abs(diffSeconds) < range.maxSeconds
+    ) ?? relativeTimeRanges[relativeTimeRanges.length - 1]
+  return relativeTimeFormat.format(Math.round(diffSeconds / divisor), unit)
 }
 </script>
 
