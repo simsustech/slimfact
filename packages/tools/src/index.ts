@@ -29,3 +29,18 @@ export const formatPrice = ({
     .format(value / 100)
     .replaceAll(currency, '')
     .trim()
+
+/**
+ * Format an ISO date (YYYY-MM-DD) using a token format such as
+ * "DD-MM-YYYY" or "MM/DD/YYYY". Unknown tokens are left as-is; invalid
+ * input is returned unchanged.
+ */
+export const formatDate = (isoDate: string, format: string): string => {
+  const [year, month, day] = isoDate.split('-')
+  if (!year || !month || !day) return isoDate
+  return format
+    .replaceAll('YYYY', year)
+    .replaceAll('YY', year.slice(2))
+    .replaceAll('MM', month)
+    .replaceAll('DD', day)
+}

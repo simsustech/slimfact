@@ -32,6 +32,11 @@ export const withPercentages = (
     .sort((a, b) => b.totalAmount - a.totalAmount)
 }
 
+// Map a PaymentMethod enum value to its lang key. Only banktransfer
+// differs (camelCase bankTransfer in the lang files); the rest match.
+export const methodLabelKey = (method: string): string =>
+  method === 'banktransfer' ? 'bankTransfer' : method
+
 // Attach lang labels; unknown methods fall back to the raw method string.
 export const labelPaymentMethods = (
   rows: DisplayMethodRow[],
@@ -39,5 +44,5 @@ export const labelPaymentMethods = (
 ): DisplayMethodRow[] =>
   rows.map((row) => ({
     ...row,
-    label: labels[row.method] ?? row.method
+    label: labels[methodLabelKey(row.method)] ?? row.method
   }))

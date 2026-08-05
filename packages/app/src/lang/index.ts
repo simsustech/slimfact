@@ -353,6 +353,11 @@ export interface Language {
         invoices: string
         due: string
         empty: string
+        emptyOverdue: string
+        toggle: {
+          upcoming: string
+          overdue: string
+        }
       }
       paymentMethods: {
         title: string

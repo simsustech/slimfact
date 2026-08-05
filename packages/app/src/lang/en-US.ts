@@ -335,7 +335,12 @@ const lang: Language = {
         title: 'Upcoming income',
         invoices: 'open invoices',
         due: 'due',
-        empty: 'No invoices due yet'
+        empty: 'No invoices due yet',
+        emptyOverdue: 'No overdue invoices',
+        toggle: {
+          upcoming: 'Upcoming',
+          overdue: 'Overdue'
+        }
       },
       paymentMethods: {
         title: 'Paid by payment method'

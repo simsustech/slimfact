@@ -46,10 +46,11 @@
                   dense
                   unelevated
                 />
-                <div class="col-12 row q-gutter-md items-center">
+                <div class="col-12 grid grid-cols-12 gap-4 items-center">
                   <DateInput
                     v-model="customDateFrom"
                     :label="lang.dashboard.admin.revenue.startDate"
+                    class="col-span-12 md:col-span-6"
                     @update:model-value="onCustomDateChange"
                     :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
                     :format="DATE_FORMAT"
@@ -57,6 +58,7 @@
                   <DateInput
                     v-model="customDateTo"
                     :label="lang.dashboard.admin.revenue.endDate"
+                    class="col-span-12 md:col-span-6"
                     @update:model-value="onCustomDateChange"
                     :icons="{
                       event: 'i-mdi-calendar-end',
@@ -107,6 +109,7 @@
                 :count="upcomingIncome?.count ?? 0"
                 :total-amount="upcomingIncome?.totalAmount ?? 0"
                 :next="upcomingIncome?.next ?? []"
+                :overdue="actionItems.overdue"
               />
             </div>
             <div class="col-span-12 md:col-span-6">
@@ -219,6 +222,7 @@ import {
   topDebtorsFromStatusCounts
 } from '../../components/dashboard/topDebtors.js'
 import { aggregateActionItems } from '../../components/dashboard/actionItems.js'
+import { formatDate } from '@slimfact/tools'
 
 type Preset = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 
@@ -272,7 +276,9 @@ const dateRange = computed(() => {
 })
 
 const dateLabel = computed(() => {
-  return `${dateRange.value.dateFrom} → ${dateRange.value.dateTo}`
+  // Format the selected period with the configured DATE_FORMAT (the raw
+  // ISO values would be hard to read, e.g. 01-08-2026 instead of 2026-08-01).
+  return `${formatDate(dateRange.value.dateFrom, DATE_FORMAT.value)} → ${formatDate(dateRange.value.dateTo, DATE_FORMAT.value)}`
 })
 
 const companyIdsArg = computed(() =>

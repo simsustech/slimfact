@@ -76,3 +76,20 @@ export const aggregateActionItems = (
   open: sumStatus(statusCounts, 'open'),
   overdue: sumAging(overdueAging)
 })
+
+// Combined overdue total (all four reminder buckets) so the dashboard can
+// show "upcoming + overdue = outstanding".
+export const sumOverdueBuckets = (
+  overdue: ActionItemsData['overdue']
+): AggBucket => ({
+  count:
+    overdue.needsReminder.count +
+    overdue.reminder1.count +
+    overdue.reminder2.count +
+    overdue.exhortation.count,
+  totalAmount:
+    overdue.needsReminder.totalAmount +
+    overdue.reminder1.totalAmount +
+    overdue.reminder2.totalAmount +
+    overdue.exhortation.totalAmount
+})

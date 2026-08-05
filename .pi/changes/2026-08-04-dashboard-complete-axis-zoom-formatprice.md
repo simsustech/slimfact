@@ -106,6 +106,23 @@ currency = 'EUR', includeSymbol })`; amounts in cents; locale-aware; symbol opti
   `createdAt` is backdated across 12 months so the activity feed is not
   flooded with "created now" events. Bills/receipts stay unnumbered (drafts).
 
+### Upcoming/Overdue toggle + formatted dates + method labels
+
+- `DashboardUpcomingIncome.vue` — Upcoming | Overdue toggle (same pattern as
+  the debtors card). Upcoming tab: not-yet-due OPEN invoices. Overdue tab:
+  total + count + the four aging buckets (labels from actionItems lang).
+  `upcoming + overdue = action items' open total`, matching the others'
+  Outstanding/Overdue split (InvoiceNinja tiles, WeFact te-herinneren flags).
+- `actionItems.ts` — `sumOverdueBuckets()` helper + unit tests.
+- `@slimfact/tools` — new `formatDate(isoDate, format)` (YYYY-MM-DD ->
+  DD-MM-YYYY etc.) + unit tests; the Revenue card caption now shows the
+  configured DATE_FORMAT instead of raw ISO.
+- `paymentMethods.ts` — `methodLabelKey()` normalizes `banktransfer` ->
+  `bankTransfer` so the paid-by-method card uses the frontend lang labels.
+- Date inputs in the revenue toolbar: `col-span-12 md:col-span-6` (side by
+  side on large screens, stacked on small).
+- E2E: overdue toggle, formatted date label, method labels.
+
 ## Fixed bugs
 
 - Action items "Open invoices" only summed the FIRST company's row (`.find()`); overdue

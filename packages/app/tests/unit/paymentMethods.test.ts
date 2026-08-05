@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   labelPaymentMethods,
+  methodLabelKey,
   withPercentages
 } from '../../src/components/dashboard/paymentMethods.js'
 
@@ -62,8 +63,27 @@ describe('dashboard.paymentMethods.labelPaymentMethods', () => {
       }
     ]
     const result = labelPaymentMethods(rows, {
-      banktransfer: 'Bank transfer',
+      bankTransfer: 'Bank transfer',
       cash: 'Cash'
+    })
+    expect(result[0].label).toBe('Bank transfer')
+  })
+
+  it('normalizes banktransfer to the camelCase lang key', () => {
+    expect(methodLabelKey('banktransfer')).toBe('bankTransfer')
+    expect(methodLabelKey('cash')).toBe('cash')
+    expect(methodLabelKey('wero')).toBe('wero')
+    const rows = [
+      {
+        method: 'banktransfer',
+        label: '',
+        totalAmount: 100,
+        count: 1,
+        percent: 100
+      }
+    ]
+    const result = labelPaymentMethods(rows, {
+      bankTransfer: 'Bank transfer'
     })
     expect(result[0].label).toBe('Bank transfer')
   })

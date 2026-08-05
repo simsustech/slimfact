@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   aggregateActionItems,
+  sumOverdueBuckets,
   type OverdueAgingRow,
   type StatusCountRow
 } from '../../src/components/dashboard/actionItems.js'
@@ -66,6 +67,29 @@ describe('dashboard.aggregateActionItems', () => {
     expect(result.overdue.reminder1).toEqual({ count: 4, totalAmount: 400 })
     expect(result.overdue.reminder2).toEqual({ count: 0, totalAmount: 0 })
     expect(result.overdue.exhortation).toEqual({ count: 5, totalAmount: 500 })
+  })
+
+  it('sums all four overdue buckets into a single overdue total', () => {
+    const overdue = {
+      needsReminder: { count: 2, totalAmount: 300 },
+      reminder1: { count: 4, totalAmount: 400 },
+      reminder2: { count: 6, totalAmount: 500 },
+      exhortation: { count: 8, totalAmount: 600 }
+    }
+    expect(sumOverdueBuckets(overdue)).toEqual({
+      count: 20,
+      totalAmount: 1800
+    })
+  })
+
+  it('sumOverdueBuckets handles empty buckets', () => {
+    const overdue = {
+      needsReminder: { count: 0, totalAmount: 0 },
+      reminder1: { count: 0, totalAmount: 0 },
+      reminder2: { count: 0, totalAmount: 0 },
+      exhortation: { count: 0, totalAmount: 0 }
+    }
+    expect(sumOverdueBuckets(overdue)).toEqual({ count: 0, totalAmount: 0 })
   })
 
   it('returns zeroed buckets for empty input', () => {

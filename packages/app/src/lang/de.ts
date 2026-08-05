@@ -337,7 +337,12 @@ const lang: Language = {
         title: 'Kommende Einnahmen',
         invoices: 'offene Rechnungen',
         due: 'fällig am',
-        empty: 'Noch keine Rechnungen fällig'
+        empty: 'Noch keine Rechnungen fällig',
+        emptyOverdue: 'Keine überfälligen Rechnungen',
+        toggle: {
+          upcoming: 'Kommend',
+          overdue: 'Überfällig'
+        }
       },
       paymentMethods: {
         title: 'Bezahlt nach Zahlungsart'

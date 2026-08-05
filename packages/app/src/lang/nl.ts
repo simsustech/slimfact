@@ -335,7 +335,12 @@ const lang: Language = {
         title: 'Aanstaande inkomsten',
         invoices: 'openstaande facturen',
         due: 'vervalt op',
-        empty: 'Nog geen facturen vervallen'
+        empty: 'Nog geen facturen vervallen',
+        emptyOverdue: 'Geen vervallen facturen',
+        toggle: {
+          upcoming: 'Aanstaand',
+          overdue: 'Vervallen'
+        }
       },
       paymentMethods: {
         title: 'Betaald per betaalmethode'

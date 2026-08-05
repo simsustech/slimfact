@@ -99,9 +99,9 @@ test.describe('Dashboard', () => {
       await endField.locator('input').nth(i).fill(endSegments[i])
     }
 
-    // When there is no revenue in the custom range, the Price component
-    // renders '-' rather than a formatted zero amount (0 is falsy).
-    await expect(page.getByText('2025-01-01 → 2025-01-31')).toBeVisible()
+    // The Revenue caption formats the selected range with DATE_FORMAT
+    // (DD-MM-YYYY by default) instead of raw ISO dates.
+    await expect(page.getByText('01-01-2025 → 31-01-2025')).toBeVisible()
   })
 
   test('debtors-section-renders', async () => {
@@ -345,15 +345,24 @@ test.describe('Dashboard', () => {
     // shows a total, a count and at least one row with a due date.
     await expect(page.getByText('Upcoming income').first()).toBeVisible()
     await expect(page.getByText(/open invoices/).first()).toBeVisible()
+    const card = page.locator('.q-card').filter({
+      hasText: 'Upcoming income'
+    })
     // Rows link to the admin invoices list filtered to that document.
-    const firstRow = page
-      .getByText('Upcoming income')
-      .locator('..')
-      .locator('.q-item')
-      .first()
+    const firstRow = card.locator('.q-item').first()
     await expect(firstRow).toBeAttached()
     await firstRow.click({ force: true })
     await expect(page).toHaveURL(/\/admin\/invoices\//)
+
+    // The Overdue toggle shows the aging buckets; the seed guarantees one
+    // OPEN overdue invoice per bucket (scoped to this card, since the
+    // action items card uses the same bucket labels).
+    await page.goto('/admin/dashboard')
+    await page.getByRole('button', { name: 'Overdue' }).click()
+    const overdueCard = page.locator('.q-card').filter({
+      hasText: 'Upcoming income'
+    })
+    await expect(overdueCard.getByText('Needs reminder').first()).toBeVisible()
   })
 
   test('payment-methods-split-card', async () => {
