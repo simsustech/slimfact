@@ -1,6 +1,7 @@
 import { type FastifyInstance } from 'fastify'
 
 import { t } from '../index.js'
+import { db } from '../../kysely/index.js'
 import { agingLabelForReminderCount } from '../../dashboard/aging.js'
 import {
   addDays,
@@ -19,6 +20,14 @@ import {
   startOfYear
 } from 'date-fns'
 import { InvoiceStatus } from '@modular-api/fastify-checkout'
+import {
+  getActivityFeed,
+  getInvoiceOverdueAging,
+  getInvoiceStatusCounts,
+  getPaidRevenue,
+  getPaymentMethodSplit,
+  getUpcomingIncome
+} from '@modular-api/fastify-checkout/analytics'
 import {
   getDashboardStatsInput,
   getDashboardActivityInput
@@ -119,7 +128,6 @@ export const bucketEndDate = (
 }
 
 export const adminDashboardRoutes = ({
-  fastify,
   procedure
 }: {
   fastify: FastifyInstance
@@ -129,57 +137,6 @@ export const adminDashboardRoutes = ({
     .input(getDashboardStatsInput)
     .query(async ({ input }) => {
       const { companyIds, dateFrom, dateTo } = input
-      if (!fastify.checkout?.invoiceHandler) {
-        throw new Error('No invoice handler')
-      }
-
-      const handler = fastify.checkout.invoiceHandler as unknown as {
-        getInvoiceStatusCounts: (args?: { companyIds?: number[] }) => Promise<
-          {
-            companyId: number | null
-            companyName: string | null
-            status: InvoiceStatus
-            count: number
-            totalAmount: number
-          }[]
-        >
-        getInvoiceOverdueAging: (args?: { companyIds?: number[] }) => Promise<
-          {
-            companyId: number | null
-            reminderCount: number
-            count: number
-            totalAmount: number
-          }[]
-        >
-        getPaidRevenue: (args: {
-          statuses?: InvoiceStatus[]
-          companyIds?: number[]
-          dateFrom: string
-          dateTo: string
-          granularity: 'day' | 'week' | 'month' | 'quarter'
-          buckets: { start: string }[]
-        }) => Promise<{
-          buckets: { start: string }[]
-          series: { status: InvoiceStatus; data: number[] }[]
-        }>
-        getUpcomingIncome: (args: { companyIds?: number[] }) => Promise<{
-          count: number
-          totalAmount: number
-          next: {
-            documentUuid: string
-            documentNumber: string | null
-            clientName: string | null
-            amount: number
-            dueDate: string | null
-          }[]
-        }>
-        getPaymentMethodSplit: (args: {
-          companyIds?: number[]
-          dateFrom: string
-          dateTo: string
-        }) => Promise<{ method: string; totalAmount: number; count: number }[]>
-      }
-
       const granularity = pickGranularity(dateFrom, dateTo)
       const [
         statusCounts,
@@ -188,9 +145,16 @@ export const adminDashboardRoutes = ({
         upcomingIncome,
         paymentMethodSplit
       ] = await Promise.all([
-        handler.getInvoiceStatusCounts(companyIds && { companyIds }),
-        handler.getInvoiceOverdueAging(companyIds && { companyIds }),
-        handler.getPaidRevenue({
+        getInvoiceStatusCounts({
+          kysely: db,
+          ...(companyIds && { companyIds })
+        }),
+        getInvoiceOverdueAging({
+          kysely: db,
+          ...(companyIds && { companyIds })
+        }),
+        getPaidRevenue({
+          kysely: db,
           statuses: [
             InvoiceStatus.PAID,
             InvoiceStatus.BILL,
@@ -204,8 +168,9 @@ export const adminDashboardRoutes = ({
             start
           }))
         }),
-        handler.getUpcomingIncome(companyIds && { companyIds }),
-        handler.getPaymentMethodSplit({
+        getUpcomingIncome({ kysely: db, ...(companyIds && { companyIds }) }),
+        getPaymentMethodSplit({
+          kysely: db,
           ...(companyIds && { companyIds }),
           dateFrom,
           dateTo
@@ -246,27 +211,8 @@ export const adminDashboardRoutes = ({
     .input(getDashboardActivityInput)
     .query(async ({ input }) => {
       const { companyIds, eventTypes, limit } = input
-      if (!fastify.checkout?.invoiceHandler) {
-        throw new Error('No invoice handler')
-      }
-
-      const handler = fastify.checkout.invoiceHandler as unknown as {
-        getActivityFeed: (args: {
-          companyIds?: number[]
-          eventTypes?: string[]
-          limit?: number
-        }) => Promise<
-          {
-            type: string
-            documentUuid: string
-            clientName: string | null
-            amount: number
-            timestamp: string
-          }[]
-        >
-      }
-
-      const entries = await handler.getActivityFeed({
+      const entries = await getActivityFeed({
+        kysely: db,
         ...(companyIds && { companyIds }),
         ...(eventTypes && { eventTypes }),
         limit
