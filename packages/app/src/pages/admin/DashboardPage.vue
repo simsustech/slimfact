@@ -135,7 +135,6 @@ interface DashboardStatsResponse {
     buckets: { start: string; end: string }[]
     series: { status: InvoiceStatus; data: number[] }[]
   }
-  outstandingTotal: number
   granularity: 'day' | 'week' | 'month' | 'quarter'
   statusCounts: {
     status: InvoiceStatus
@@ -184,7 +183,6 @@ import {
 } from '../../queries/admin/dashboard.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 import { useLang } from '../../lang/index.js'
-import { agingLabelForReminderCount } from '../../dashboard/aging.js'
 import { DateInput } from '@simsustech/quasar-components/form'
 import { configuration } from '../../configuration.js'
 
@@ -222,6 +220,10 @@ import {
   topDebtorsFromStatusCounts
 } from '../../components/dashboard/topDebtors.js'
 import { aggregateActionItems } from '../../components/dashboard/actionItems.js'
+import {
+  buildRevenueChartDatasets,
+  revenueForStatus
+} from '../../components/dashboard/revenueSeries.js'
 import { formatDate } from '@slimfact/tools'
 
 type Preset = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
@@ -320,56 +322,24 @@ const revenueBinLabel = computed(() => {
   return lang.value.dashboard.admin.revenue.chart.bin[granularity]
 })
 
-// Sum a series' values to get the period total for each document type.
-const sumSeries = (data: number[] | undefined): number =>
-  (data ?? []).reduce((acc, value) => acc + (value ?? 0), 0)
-
+// Period totals per document type, and the grouped-bar chart data.
 const revenueInvoices = computed(() =>
-  sumSeries(
-    paidRevenue.value?.series.find((s) => s.status === InvoiceStatus.PAID)?.data
-  )
+  revenueForStatus(paidRevenue.value, InvoiceStatus.PAID)
 )
 const revenueBills = computed(() =>
-  sumSeries(
-    paidRevenue.value?.series.find((s) => s.status === InvoiceStatus.BILL)?.data
-  )
+  revenueForStatus(paidRevenue.value, InvoiceStatus.BILL)
 )
 const revenueReceipts = computed(() =>
-  sumSeries(
-    paidRevenue.value?.series.find((s) => s.status === InvoiceStatus.RECEIPT)
-      ?.data
-  )
+  revenueForStatus(paidRevenue.value, InvoiceStatus.RECEIPT)
 )
 
-const revenueChartData = computed(() => ({
-  labels: paidRevenue.value?.labels ?? [],
-  datasets: [
-    {
-      label: lang.value.dashboard.admin.revenue.invoices,
-      data: (paidRevenue.value?.series.find(
-        (s) => s.status === InvoiceStatus.PAID
-      )?.data ?? []) as number[],
-      borderColor: '#4caf50',
-      backgroundColor: '#4caf50'
-    },
-    {
-      label: lang.value.dashboard.admin.revenue.bills,
-      data: (paidRevenue.value?.series.find(
-        (s) => s.status === InvoiceStatus.BILL
-      )?.data ?? []) as number[],
-      borderColor: '#2196f3',
-      backgroundColor: '#2196f3'
-    },
-    {
-      label: lang.value.dashboard.admin.revenue.receipts,
-      data: (paidRevenue.value?.series.find(
-        (s) => s.status === InvoiceStatus.RECEIPT
-      )?.data ?? []) as number[],
-      borderColor: '#ff9800',
-      backgroundColor: '#ff9800'
-    }
-  ]
-}))
+const revenueChartData = computed(() =>
+  buildRevenueChartDatasets(paidRevenue.value, {
+    invoices: lang.value.dashboard.admin.revenue.invoices,
+    bills: lang.value.dashboard.admin.revenue.bills,
+    receipts: lang.value.dashboard.admin.revenue.receipts
+  })
+)
 
 const statusCountRows = computed(
   () => (stats.value as DashboardStatsResponse | undefined)?.statusCounts ?? []

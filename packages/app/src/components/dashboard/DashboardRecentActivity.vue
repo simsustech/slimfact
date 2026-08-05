@@ -39,10 +39,10 @@
               currency="EUR"
             />
             <span
-              v-if="entry.type === 'payment' && entry.documentNumber"
+              v-if="paymentInvoiceText(entry, forInvoiceLabel)"
               class="q-ml-xs"
             >
-              {{ forInvoiceLabel }} #{{ entry.documentNumber }}
+              {{ paymentInvoiceText(entry, forInvoiceLabel) }}
             </span>
           </template>
         </q-timeline-entry>
@@ -86,7 +86,8 @@ import {
   colorForActivity,
   filterActivity,
   iconForActivity,
-  paginateEntries
+  paginateEntries,
+  paymentInvoiceText
 } from './recentActivity.js'
 
 export interface ActivityEntry {
@@ -97,13 +98,6 @@ export interface ActivityEntry {
   amount: number
   timestamp: string
 }
-
-export type ActivityType =
-  | 'invoiceOpened'
-  | 'billCreated'
-  | 'payment'
-  | 'reminder'
-  | 'exhortation'
 
 const props = defineProps<{
   entries: ActivityEntry[]

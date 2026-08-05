@@ -122,10 +122,6 @@ export const adminDashboardRoutes = ({
           dateFrom: string
           dateTo: string
         }) => Promise<{ method: string; totalAmount: number; count: number }[]>
-        getOutstandingTotal: (args: {
-          statuses?: InvoiceStatus[]
-          companyIds?: number[]
-        }) => Promise<number>
       }
 
       const granularity = pickGranularity(dateFrom, dateTo)
@@ -133,7 +129,6 @@ export const adminDashboardRoutes = ({
         statusCounts,
         overdueAging,
         paidRevenueSeries,
-        outstandingTotal,
         upcomingIncome,
         paymentMethodSplit
       ] = await Promise.all([
@@ -149,10 +144,6 @@ export const adminDashboardRoutes = ({
           dateFrom,
           dateTo,
           granularity
-        }),
-        handler.getOutstandingTotal({
-          statuses: [InvoiceStatus.OPEN],
-          ...(companyIds && { companyIds })
         }),
         handler.getUpcomingIncome(companyIds && { companyIds }),
         handler.getPaymentMethodSplit({
@@ -182,7 +173,6 @@ export const adminDashboardRoutes = ({
         statusCounts,
         overdueAging: overdueAgingLabeled,
         paidRevenueSeries: paidRevenueSeriesWithRanges,
-        outstandingTotal,
         upcomingIncome,
         paymentMethodSplit,
         granularity

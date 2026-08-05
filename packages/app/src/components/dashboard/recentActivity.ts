@@ -8,13 +8,6 @@ export interface ActivityEntryLike {
   [key: string]: unknown
 }
 
-export type ActivityEventType =
-  | 'invoiceOpened'
-  | 'billCreated'
-  | 'payment'
-  | 'reminder'
-  | 'exhortation'
-
 export const filterActivity = <T extends ActivityEntryLike>(
   entries: T[],
   eventType: string
