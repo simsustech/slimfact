@@ -27,3 +27,15 @@
 - modular-api: `tsc --noEmit` clean (PI_RTK_BYPASS=1)
 - slimfact api unit 52/52, app unit 73/73
 - Dashboard E2E 22/22 (`dashboard.spec.ts`, workers=1, nosetup config)
+
+## Follow-up: analytics extraction (commits modular-api c713eaf, slimfact d6301e43)
+
+The six read-only statistics methods (getInvoiceStatusCounts, getInvoiceOverdueAging,
+getPaidRevenue, getUpcomingIncome, getPaymentMethodSplit, getActivityFeed) moved out of
+invoiceHandler.ts into src/analytics.ts as pure functions taking `kysely` per call (no
+handler instance). Exposed via the `@modular-api/fastify-checkout/analytics` subpath; the
+dashboard trpc imports them directly, passing the shared `db` instance, and drops the
+`as unknown as` casts + no-invoice-handler guards. Gotcha: the dashboard-trpc unit test now
+imports kysely → config, so api unit tests need `POSTGRES_PASSWORD` + `POSTGRES_DB` env
+vars; and any `pnpm exec` in packages/api reverts the fastify-checkout symlink to the
+stale registry copy (re-link before `pnpm test`).
