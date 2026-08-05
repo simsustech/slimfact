@@ -98,17 +98,23 @@ export const bucketStarts = (
 
 // Display label for a bucket start: YYYY-MM-DD, ISO week (2026-W32),
 // YYYY-MM or YYYY-Qn.
+const bucketLabelFor: Record<RevenueGranularity, (start: string) => string> = {
+  day: (start) => start,
+  week: (start) => {
+    const date = parseISO(start)
+    return `${getISOWeekYear(date)}-W${String(getISOWeek(date)).padStart(2, '0')}`
+  },
+  month: (start) => start.slice(0, 7),
+  quarter: (start) => {
+    const date = parseISO(start)
+    return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
+  }
+}
+
 export const bucketLabel = (
   start: string,
   granularity: RevenueGranularity
-): string => {
-  const date = parseISO(start)
-  if (granularity === 'day') return start
-  if (granularity === 'week')
-    return `${getISOWeekYear(date)}-W${String(getISOWeek(date)).padStart(2, '0')}`
-  if (granularity === 'month') return start.slice(0, 7)
-  return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
-}
+): string => bucketLabelFor[granularity](start)
 
 // Last day (inclusive) of a time bucket whose first day is `start`
 // (YYYY-MM-DD). Used to turn a clicked chart bucket into a date range.
