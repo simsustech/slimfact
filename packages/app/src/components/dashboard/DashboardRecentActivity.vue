@@ -171,10 +171,6 @@ const labelFor = (type: string) => {
   }
 }
 
-const relativeTimeFormat = new Intl.RelativeTimeFormat('en-US', {
-  numeric: 'auto'
-})
-
 interface RelativeTimeRange {
   maxSeconds: number
   divisor: number
@@ -200,7 +196,10 @@ const formatRelative = (timestamp: string) => {
     relativeTimeRanges.find(
       (range) => Math.abs(diffSeconds) < range.maxSeconds
     ) ?? relativeTimeRanges[relativeTimeRanges.length - 1]
-  return relativeTimeFormat.format(Math.round(diffSeconds / divisor), unit)
+  // Create per call so the formatter follows the active UI language.
+  return new Intl.RelativeTimeFormat(lang.value.isoName, {
+    numeric: 'auto'
+  }).format(Math.round(diffSeconds / divisor), unit)
 }
 </script>
 

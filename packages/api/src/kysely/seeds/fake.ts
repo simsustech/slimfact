@@ -323,6 +323,21 @@ const seed = async () => {
       invoice.status
     )
   )
+  // The most recent (current-month) payment must land on a numbered PAID
+  // invoice: the activity-feed E2E asserts a payment entry references an
+  // invoice number, and unnumbered BILL/RECEIPT drafts would make that
+  // assertion seed-dependent. Swap a PAID invoice into the last slot.
+  const lastPaidInvoice = paidAdminInvoices[paidAdminInvoices.length - 1]
+  if (lastPaidInvoice && lastPaidInvoice.status !== InvoiceStatus.PAID) {
+    const numberedPaid = paidAdminInvoices.find(
+      (invoice) => invoice.status === InvoiceStatus.PAID
+    )
+    if (numberedPaid) {
+      const numberedIndex = paidAdminInvoices.indexOf(numberedPaid)
+      paidAdminInvoices[numberedIndex] = lastPaidInvoice
+      paidAdminInvoices[paidAdminInvoices.length - 1] = numberedPaid
+    }
+  }
   for (let i = 0; i < paidAdminInvoices.length; i++) {
     const paid = paidAdminInvoices[i]
     const monthOffset = Math.floor((i * 12) / paidAdminInvoices.length)

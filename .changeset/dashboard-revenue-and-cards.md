@@ -12,7 +12,7 @@ analytics dashboard.
 - Three summary cards (Invoices / Bills / Receipts) for the selected period
   with Today / Week / Month / Quarter / Year presets plus a custom date
   picker (dates formatted with the new `DATE_FORMAT` env config).
-- Grouped bar chart (one bar per document type per time bucket) with a
+- Grouped revenue chart (one series per invoice status per time bucket) with a
   COMPLETE, zero-filled axis: the whole selected period is always covered,
   binned by day (<=10d), week (ISO week numbers, <=45d), month (<=200d) or
   quarter (`YYYY-Qn`, beyond). Presets span the full calendar period
@@ -48,16 +48,23 @@ analytics dashboard.
 - Extracted testable modules (`dateRange`, `actionItems`, `recentActivity`,
   `revenueSeries`, `paymentMethods`, `topDebtors`) with unit tests.
 
-**Backend (`@modular-api/fastify-checkout` invoice handler)**
+**Backend (`@modular-api/fastify-checkout`)**
 
-- `getInvoiceStatusCounts`, `getInvoiceOverdueAging`, `getOutstandingTotal`.
-- `getPaidRevenue`: full bucket series via `generate_series`
-  (day/week/month/quarter), zero-filled, `{ labels, buckets, series }`.
-- `getUpcomingIncome` (count/total + soonest 3, aggregated in SQL),
-  `getPaymentMethodSplit` (paid revenue by method in a date range).
-- `getActivityFeed` entries carry `documentNumber` (null for drafts).
-- New tRPC routes `admin.getDashboardStats` / `admin.getDashboardActivity`
-  feed the page.
+- Dashboard statistics ship as pure functions in the new
+  `@modular-api/fastify-checkout/analytics` subpath:
+  `getInvoiceStatusCounts`, `getInvoiceOverdueAging`, `getPaidRevenue`,
+  `getUpcomingIncome`, `getPaymentMethodSplit`, `getActivityFeed` — each
+  takes the Kysely instance per call. Leaf helpers (e.g.
+  `buildReminderSentDates`) live in the new
+  `@modular-api/fastify-checkout/helpers` subpath.
+- The api imports both subpaths; the tRPC routes
+  `admin.getDashboardStats` / `admin.getDashboardActivity` feed the page.
+- `@slimfact/tools` gains a `./dashboard` subpath with the aging-bucket
+  mapping (`agingLabelForReminderCount`, `AGING_LABELS`,
+  `EXHORTATION_THRESHOLD`) as the single source of truth, replacing the
+  duplicated api/app copies.
+- Bump the `@modular-api/fastify-checkout` dependency to the version that
+  ships the `./analytics` and `./helpers` subpaths.
 
 **Seed**: realistic 12-month spread of payments, OPEN/PAID invoices go
 through the real `openInvoice()` flow (numbers + due dates), `createdAt`
