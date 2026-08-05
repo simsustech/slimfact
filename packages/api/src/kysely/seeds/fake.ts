@@ -7,9 +7,9 @@ import {
   InvoiceStatus,
   PaymentMethod,
   PaymentStatus,
-  type RawInvoiceLine,
-  buildReminderSentDates
+  type RawInvoiceLine
 } from '@modular-api/fastify-checkout'
+import { buildReminderSentDates } from '@modular-api/fastify-checkout/helpers'
 import { fastify as createFastify } from 'fastify'
 import { readFileSync } from 'fs'
 

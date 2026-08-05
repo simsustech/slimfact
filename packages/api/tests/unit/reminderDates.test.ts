@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildReminderSentDates } from '@modular-api/fastify-checkout'
+import { buildReminderSentDates } from '@modular-api/fastify-checkout/helpers'
 
 describe('fastify-checkout.buildReminderSentDates', () => {
   it('accepts valid YYYY-MM-DD date strings', () => {
