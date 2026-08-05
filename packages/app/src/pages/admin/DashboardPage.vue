@@ -101,6 +101,19 @@
             </div>
           </section>
 
+          <section class="col-span-12 grid grid-cols-12 gap-4">
+            <div class="col-span-12 md:col-span-6">
+              <DashboardUpcomingIncome
+                :count="upcomingIncome?.count ?? 0"
+                :total-amount="upcomingIncome?.totalAmount ?? 0"
+                :next="upcomingIncome?.next ?? []"
+              />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+              <DashboardPaymentMethods :rows="paymentMethodSplit ?? []" />
+            </div>
+          </section>
+
           <section class="col-span-12">
             <DashboardRecentActivity :entries="activityEntries" />
           </section>
@@ -131,11 +144,29 @@ interface DashboardStatsResponse {
     count: number
     totalAmount: number
   }[]
+  upcomingIncome: {
+    count: number
+    totalAmount: number
+    next: {
+      documentUuid: string
+      documentNumber: string | null
+      clientName: string | null
+      amount: number
+      dueDate: string | null
+    }[]
+  }
+  paymentMethodSplit: {
+    method: string
+    totalAmount: number
+    count: number
+  }[]
 }
 import { useRouter } from 'vue-router'
 import DashboardRevenueCards from '../../components/dashboard/DashboardRevenueCards.vue'
 import DashboardRevenueChart from '../../components/dashboard/DashboardRevenueChart.vue'
 import DashboardDebtors from '../../components/dashboard/DashboardDebtors.vue'
+import DashboardUpcomingIncome from '../../components/dashboard/DashboardUpcomingIncome.vue'
+import DashboardPaymentMethods from '../../components/dashboard/DashboardPaymentMethods.vue'
 import DashboardActionItems, {
   type ActionItemsProps
 } from '../../components/dashboard/DashboardActionItems.vue'
@@ -336,6 +367,16 @@ const revenueChartData = computed(() => ({
 
 const statusCountRows = computed(
   () => (stats.value as DashboardStatsResponse | undefined)?.statusCounts ?? []
+)
+
+const upcomingIncome = computed(
+  () => (stats.value as DashboardStatsResponse | undefined)?.upcomingIncome
+)
+
+const paymentMethodSplit = computed(
+  () =>
+    (stats.value as DashboardStatsResponse | undefined)?.paymentMethodSplit ??
+    []
 )
 
 const debtorInvoices = computed(() =>

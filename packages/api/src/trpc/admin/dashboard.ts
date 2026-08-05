@@ -106,6 +106,22 @@ export const adminDashboardRoutes = ({
           buckets: { start: string }[]
           series: { status: InvoiceStatus; data: number[] }[]
         }>
+        getUpcomingIncome: (args: { companyIds?: number[] }) => Promise<{
+          count: number
+          totalAmount: number
+          next: {
+            documentUuid: string
+            documentNumber: string | null
+            clientName: string | null
+            amount: number
+            dueDate: string | null
+          }[]
+        }>
+        getPaymentMethodSplit: (args: {
+          companyIds?: number[]
+          dateFrom: string
+          dateTo: string
+        }) => Promise<{ method: string; totalAmount: number; count: number }[]>
         getOutstandingTotal: (args: {
           statuses?: InvoiceStatus[]
           companyIds?: number[]
@@ -113,26 +129,38 @@ export const adminDashboardRoutes = ({
       }
 
       const granularity = pickGranularity(dateFrom, dateTo)
-      const [statusCounts, overdueAging, paidRevenueSeries, outstandingTotal] =
-        await Promise.all([
-          handler.getInvoiceStatusCounts(companyIds && { companyIds }),
-          handler.getInvoiceOverdueAging(companyIds && { companyIds }),
-          handler.getPaidRevenue({
-            statuses: [
-              InvoiceStatus.PAID,
-              InvoiceStatus.BILL,
-              InvoiceStatus.RECEIPT
-            ],
-            ...(companyIds && { companyIds }),
-            dateFrom,
-            dateTo,
-            granularity
-          }),
-          handler.getOutstandingTotal({
-            statuses: [InvoiceStatus.OPEN],
-            ...(companyIds && { companyIds })
-          })
-        ])
+      const [
+        statusCounts,
+        overdueAging,
+        paidRevenueSeries,
+        outstandingTotal,
+        upcomingIncome,
+        paymentMethodSplit
+      ] = await Promise.all([
+        handler.getInvoiceStatusCounts(companyIds && { companyIds }),
+        handler.getInvoiceOverdueAging(companyIds && { companyIds }),
+        handler.getPaidRevenue({
+          statuses: [
+            InvoiceStatus.PAID,
+            InvoiceStatus.BILL,
+            InvoiceStatus.RECEIPT
+          ],
+          ...(companyIds && { companyIds }),
+          dateFrom,
+          dateTo,
+          granularity
+        }),
+        handler.getOutstandingTotal({
+          statuses: [InvoiceStatus.OPEN],
+          ...(companyIds && { companyIds })
+        }),
+        handler.getUpcomingIncome(companyIds && { companyIds }),
+        handler.getPaymentMethodSplit({
+          ...(companyIds && { companyIds }),
+          dateFrom,
+          dateTo
+        })
+      ])
 
       const overdueAgingLabeled = overdueAging.map((row) => ({
         ...row,
@@ -155,6 +183,8 @@ export const adminDashboardRoutes = ({
         overdueAging: overdueAgingLabeled,
         paidRevenueSeries: paidRevenueSeriesWithRanges,
         outstandingTotal,
+        upcomingIncome,
+        paymentMethodSplit,
         granularity
       }
     }),

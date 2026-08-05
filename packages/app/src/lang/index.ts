@@ -348,6 +348,15 @@ export interface Language {
           exhortation: string
         }
       }
+      upcomingIncome: {
+        title: string
+        invoices: string
+        due: string
+        empty: string
+      }
+      paymentMethods: {
+        title: string
+      }
       recentActivity: {
         title: string
         forInvoice: string

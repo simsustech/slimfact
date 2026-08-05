@@ -331,6 +331,15 @@ const lang: Language = {
           exhortation: 'Exhortation'
         }
       },
+      upcomingIncome: {
+        title: 'Upcoming income',
+        invoices: 'open invoices',
+        due: 'due',
+        empty: 'No invoices due yet'
+      },
+      paymentMethods: {
+        title: 'Paid by payment method'
+      },
       recentActivity: {
         title: 'Recent activity',
         forInvoice: 'for invoice',

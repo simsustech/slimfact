@@ -115,12 +115,13 @@ const seed = async () => {
     .selectAll()
     .executeTakeFirstOrThrow()
 
+  const now = new Date()
   for (const client of insertedClients) {
     const company =
       insertedCompanies[Math.floor(Math.random() * companies.length)]
 
     for (let i = 0; i < Math.floor(Math.random() * 10); i++) {
-      await invoiceHandler.createInvoice({
+      const created = await invoiceHandler.createInvoice({
         companyDetails: company,
         clientDetails: client,
         companyPrefix: company.prefix,
@@ -135,6 +136,21 @@ const seed = async () => {
         companyId: company.id,
         clientId: client.id
       })
+      // Backdate creation so the activity feed is not flooded with
+      // "created now" events: spread over the past 12 months.
+      if (created.success) {
+        const backdated = new Date(
+          now.getFullYear(),
+          now.getMonth() - Math.floor(Math.random() * 12),
+          1 + Math.floor(Math.random() * 27),
+          10 + Math.floor(Math.random() * 8)
+        )
+        await db
+          .updateTable('checkout.invoices')
+          .set({ createdAt: backdated.toISOString() })
+          .where('id', '=', created.invoice.id)
+          .execute()
+      }
     }
   }
 
@@ -216,26 +232,22 @@ const seed = async () => {
     status: InvoiceStatus
     totalIncludingTax: number
   }[] = []
-  const now = new Date()
-  // Sent documents carry a number; render the prefix template (e.g.
-  // "{{YYYY}}." -> "2026.") and assign a per-company sequence so the
-  // activity feed can show "invoice #2026.12".
+  // Sent/open documents get their number, prefix and due date via the
+  // handler's openInvoice() (same as the real "send" flow), so OPEN invoices
+  // always carry a future due date and a document number.
   const renderedNumberPrefix = numberPrefix.template
     .replace('{{YYYY}}', String(now.getFullYear()))
     .replace('{{MM}}', String(now.getMonth() + 1).padStart(2, '0'))
-  let invoiceSequence = 0
   for (let month = 11; month >= 0; month--) {
     const count = 2 + (Math.random() < 0.5 ? 1 : 0) // 2-3 invoices per month
     for (let i = 0; i < count; i++) {
       const roll = Math.random()
-      const status =
-        roll < 0.6
-          ? InvoiceStatus.PAID
-          : roll < 0.75
-            ? InvoiceStatus.OPEN
-            : roll < 0.9
-              ? InvoiceStatus.BILL
-              : InvoiceStatus.RECEIPT
+      const openDocument = roll < 0.75 // PAID (60%) or OPEN (15%)
+      const status = openDocument
+        ? undefined // opened below via openInvoice()
+        : roll < 0.9
+          ? InvoiceStatus.BILL
+          : InvoiceStatus.RECEIPT
       const result = await invoiceHandler.createInvoice({
         companyDetails: adminCompany,
         clientDetails: adminClient,
@@ -251,22 +263,50 @@ const seed = async () => {
         companyId: adminCompany.id,
         clientId: adminClient.id
       })
-      if (result.success) {
-        invoiceSequence++
-        await db
-          .updateTable('checkout.invoices')
-          .set({
-            numberPrefix: renderedNumberPrefix,
-            number: invoiceSequence
-          })
-          .where('id', '=', result.invoice.id)
-          .execute()
+      if (!result.success) continue
+      if (!openDocument) {
         createdAdminInvoices.push({
           id: result.invoice.id,
-          status,
+          status: status as InvoiceStatus,
           totalIncludingTax: result.invoice.totalIncludingTax
         })
+        continue
       }
+      // Open (number + due date + OPEN status). openInvoice() sets status
+      // OPEN because a fresh invoice has an amount due.
+      const opened = await invoiceHandler.openInvoice({
+        id: result.invoice.id,
+        numberPrefix: renderedNumberPrefix
+      })
+      if (!opened.success) continue
+      const finalStatus = roll < 0.6 ? InvoiceStatus.PAID : InvoiceStatus.OPEN
+      if (finalStatus === InvoiceStatus.PAID) {
+        // The payment recorded below settles the invoice; flip status now
+        // so the revenue chart buckets it as a paid invoice.
+        await db
+          .updateTable('checkout.invoices')
+          .set({ status: InvoiceStatus.PAID })
+          .where('id', '=', result.invoice.id)
+          .execute()
+      }
+      createdAdminInvoices.push({
+        id: result.invoice.id,
+        status: finalStatus,
+        totalIncludingTax: result.invoice.totalIncludingTax
+      })
+      // Backdate creation to the invoice's month so the activity feed
+      // shows a realistic spread instead of "created now" floods.
+      const backdated = new Date(
+        now.getFullYear(),
+        now.getMonth() - month,
+        1 + ((i * 9) % 27),
+        10 + (i % 8)
+      )
+      await db
+        .updateTable('checkout.invoices')
+        .set({ createdAt: backdated.toISOString() })
+        .where('id', '=', result.invoice.id)
+        .execute()
     }
   }
 
@@ -310,7 +350,7 @@ const seed = async () => {
   // always shows every slice (CONCEPT and CANCELED are not produced by the
   // random loops above).
   for (const status of [InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED]) {
-    await invoiceHandler.createInvoice({
+    const created = await invoiceHandler.createInvoice({
       companyDetails: adminCompany,
       clientDetails: adminClient,
       companyPrefix: adminCompany.prefix,
@@ -325,6 +365,15 @@ const seed = async () => {
       companyId: adminCompany.id,
       clientId: adminClient.id
     })
+    if (created.success) {
+      const backdated = new Date()
+      backdated.setDate(backdated.getDate() - 20)
+      await db
+        .updateTable('checkout.invoices')
+        .set({ createdAt: backdated.toISOString() })
+        .where('id', '=', created.invoice.id)
+        .execute()
+    }
   }
 
   // Guarantee one OPEN invoice per overdue-aging bucket (needsReminder,
@@ -355,10 +404,13 @@ const seed = async () => {
         d.setDate(d.getDate() - 60 + i * 10)
         return d.toISOString().slice(0, 10)
       })
+      const backdated = new Date()
+      backdated.setDate(backdated.getDate() - 60)
       await db
         .updateTable('checkout.invoices')
         .where('id', '=', result.invoice.id)
         .set({
+          createdAt: backdated.toISOString(),
           dueDate: overdueDate.toISOString().slice(0, 10),
           reminderSentDates: JSON.stringify(reminderDates)
         })

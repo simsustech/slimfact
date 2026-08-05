@@ -331,6 +331,15 @@ const lang: Language = {
           exhortation: 'Aanmaning'
         }
       },
+      upcomingIncome: {
+        title: 'Aanstaande inkomsten',
+        invoices: 'openstaande facturen',
+        due: 'vervalt op',
+        empty: 'Nog geen facturen vervallen'
+      },
+      paymentMethods: {
+        title: 'Betaald per betaalmethode'
+      },
       recentActivity: {
         title: 'Recente activiteit',
         forInvoice: 'voor factuur',

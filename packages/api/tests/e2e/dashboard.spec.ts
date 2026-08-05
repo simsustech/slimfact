@@ -218,7 +218,12 @@ test.describe('Dashboard', () => {
     await expect(page.getByText('Payment').first()).toBeVisible()
 
     // Payment entries must show the amount's invoice reference
-    // ("for invoice #FACT-..."): the seed guarantees paid payments.
+    // ("for invoice #2026.N") for numbered documents. The most recent cash
+    // payments on bills/receipts have no number, so show all entries by
+    // raising rows per page before asserting.
+    const rowsPerPage = page.getByLabel('Rows per page')
+    await rowsPerPage.click()
+    await page.getByRole('option', { name: '50' }).click({ force: true })
     await expect(page.getByText(/for invoice #/).first()).toBeVisible()
   })
 
@@ -331,6 +336,40 @@ test.describe('Dashboard', () => {
     await expect(
       page.getByRole('button', { name: /Exhortation/ }).first()
     ).toBeVisible()
+  })
+
+  test('upcoming-income-card', async () => {
+    await page.goto('/admin/dashboard')
+
+    // The seed guarantees OPEN invoices with future due dates, so the card
+    // shows a total, a count and at least one row with a due date.
+    await expect(page.getByText('Upcoming income').first()).toBeVisible()
+    await expect(page.getByText(/open invoices/).first()).toBeVisible()
+    // Rows link to the admin invoices list filtered to that document.
+    const firstRow = page
+      .getByText('Upcoming income')
+      .locator('..')
+      .locator('.q-item')
+      .first()
+    await expect(firstRow).toBeAttached()
+    await firstRow.click({ force: true })
+    await expect(page).toHaveURL(/\/admin\/invoices\//)
+  })
+
+  test('payment-methods-split-card', async () => {
+    await page.goto('/admin/dashboard')
+
+    // Paid revenue in the selected period is grouped by payment method.
+    // Which methods appear depends on the seed's random per-month spread,
+    // so assert the card renders with a percentage bar, not a specific
+    // method label.
+    await expect(page.getByText('Paid by payment method').first()).toBeVisible()
+    await expect(page.locator('.payment-method-bar').first()).toBeVisible()
+
+    // The split respects the selected period: switching to This week still
+    // renders the card (with whatever methods were paid that week).
+    await page.getByRole('button', { name: 'This week' }).click()
+    await expect(page.getByText('Paid by payment method').first()).toBeVisible()
   })
 
   test('revenue-cards-show-receipts', async () => {

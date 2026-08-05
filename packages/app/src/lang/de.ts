@@ -333,6 +333,15 @@ const lang: Language = {
           exhortation: 'Mahnung'
         }
       },
+      upcomingIncome: {
+        title: 'Kommende Einnahmen',
+        invoices: 'offene Rechnungen',
+        due: 'fällig am',
+        empty: 'Noch keine Rechnungen fällig'
+      },
+      paymentMethods: {
+        title: 'Bezahlt nach Zahlungsart'
+      },
       recentActivity: {
         title: 'Letzte Aktivitäten',
         forInvoice: 'für Rechnung',

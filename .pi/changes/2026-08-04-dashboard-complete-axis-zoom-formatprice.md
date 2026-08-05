@@ -87,6 +87,25 @@ currency = 'EUR', includeSymbol })`; amounts in cents; locale-aware; symbol opti
 - Seed: admin client invoices get a rendered numberPrefix + sequence so sent
   documents carry real numbers.
 
+### Upcoming income + payment-methods cards
+
+- `packages/fastify-checkout/src/invoiceHandler.ts` — new `getUpcomingIncome`
+  (count/total + soonest 3 OPEN-not-overdue invoices, aggregated in SQL via
+  `eb.fn.countAll`/`sum` + `.limit(3)`) and `getPaymentMethodSplit` (paid
+  revenue in the date range grouped by method, ordered by amount in SQL).
+- `packages/api/src/trpc/admin/dashboard.ts` — both wired into
+  `getDashboardStats` (respect the company filter; the split also respects
+  the selected date period) and returned in the response.
+- App: `DashboardUpcomingIncome.vue` (total, count, next-3 rows with due
+  dates; clicking a row opens `/admin/invoices/{uuid}`) and
+  `DashboardPaymentMethods.vue` (horizontal % bars, labels from
+  `payment.methods` lang, fallback to raw method). `paymentMethods.ts` pure
+  helpers + unit tests. Lang keys en/de/nl.
+- Seed: invoices destined for OPEN/PAID now go through `openInvoice()` (the
+  real send flow), giving them number + rendered prefix + a future due date;
+  `createdAt` is backdated across 12 months so the activity feed is not
+  flooded with "created now" events. Bills/receipts stay unnumbered (drafts).
+
 ## Fixed bugs
 
 - Action items "Open invoices" only summed the FIRST company's row (`.find()`); overdue
