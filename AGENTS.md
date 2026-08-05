@@ -206,6 +206,13 @@ Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, us
 
 **Debug helper**: `tests/e2e/helpers.ts` exports `dumpPage(page, label)` — logs URL, buttons, inputs, and body text.
 
+**Known TLS error in `screenshots-customer.spec.ts`**: the spec downloads the
+invoice PDF via Node `fetch`, which rejects the self-signed local stack
+certificate with `TypeError: fetch failed` / `unable to get local issuer
+certificate` (all 4 variants: en/nl × desktop/mobile). This is pre-existing
+and unrelated to app changes — run it with
+`NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm exec playwright test tests/e2e/screenshots-customer.spec.ts`.
+
 ### Base Test Stack (no PSP)
 
 ```bash
