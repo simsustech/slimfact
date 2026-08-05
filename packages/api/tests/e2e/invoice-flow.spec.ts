@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { fillComboboxes, moreBtn } from './helpers'
+import { clickLinesAdd, fillComboboxes, moreBtn } from './helpers'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -31,11 +31,7 @@ async function createInvoice(status?: string): Promise<number> {
   await page.locator('#fabAdd').click()
   await fillComboboxes(page)
 
-  await page
-    .getByRole('list')
-    .filter({ hasText: 'Lines Add' })
-    .getByRole('listitem')
-    .click()
+  await clickLinesAdd(page)
   await page.getByRole('textbox', { name: 'Description' }).fill('Flow test')
   await page.getByRole('spinbutton', { name: 'Unit price' }).fill('100.00')
   await page.getByRole('button', { name: 'Done' }).click()
@@ -100,7 +96,10 @@ test.describe('Invoice Lifecycle \u2014 Valid Transitions', () => {
     const cancelBtn = page.getByText('Cancel').first()
     await expect(cancelBtn).toBeVisible({ timeout: 3000 })
     await cancelBtn.click()
-    await page.getByRole('button', { name: /cancel/i }).click({ timeout: 3000 })
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: /cancel/i })
+      .click({ timeout: 3000 })
 
     await expect(page.getByRole('dialog')).not.toBeAttached({
       timeout: 5000
@@ -114,11 +113,7 @@ test.describe('Bill Lifecycle', () => {
     await page.waitForLoadState('networkidle')
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).fill('Bill test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('50.00')
     await page.getByRole('button', { name: 'Done' }).click()
@@ -196,11 +191,7 @@ test.describe('Invoice Lifecycle \u2014 Blocked Transitions', () => {
     await page.waitForLoadState('networkidle')
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page
       .getByRole('textbox', { name: 'Description' })
       .fill('Blocked bill')

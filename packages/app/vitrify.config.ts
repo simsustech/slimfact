@@ -3,7 +3,7 @@ import {
   QuasarPlugin,
   type QuasarPluginOptions,
   PiniaPlugin,
-  PiniaPluginOptions
+  type PiniaPluginOptions
 } from 'vitrify/plugins'
 import { QuasarPreset } from 'unocss-preset-quasar'
 import { MaterialDesign3 } from 'unocss-preset-quasar/styles'
@@ -169,6 +169,10 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
   const env = loadEnv(mode, process.cwd(), '')
 
   const config: VitrifyConfig = {
+    test: {
+      include: ['tests/unit/**/*.test.ts', 'src/**/*.test.ts'],
+      environment: 'happy-dom'
+    },
     plugins: [QuasarComponentsPlugin(), ModularApiQuasarComponentsPlugin()],
     vitrify: {
       plugins: [

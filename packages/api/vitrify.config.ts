@@ -12,6 +12,10 @@ export default async function ({
   const env = loadEnv(mode, process.cwd(), '')
 
   const config: VitrifyConfig = {
+    test: {
+      include: ['tests/unit/**/*.test.ts'],
+      environment: 'happy-dom'
+    },
     vitrify: {
       lang: env.VITE_LANG,
       hooks: {

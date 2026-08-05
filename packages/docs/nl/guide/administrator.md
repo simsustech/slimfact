@@ -8,12 +8,47 @@ Deze handleiding behandelt alles wat beheerders kunnen doen — van het aanmaken
 
 Als beheerder geeft je zijbalk toegang tot:
 
+- **Dashboard** — omzet, actiepunten en recente activiteit in één oogopslag
 - **Facturen** — facturen aanmaken en beheren
 - **Rekeningen** — rekeningen aanmaken en beheren
 - **Bonnen** — bonnen bekijken en beheren
 - **Abonnementen** — terugkerende facturatie instellen
 - **Klanten** — je klantgegevens beheren
 - **Instellingen** — bedrijven, nummerprefixen, exports, accounts
+
+---
+
+## Dashboard
+
+Het dashboard is je overzicht in één oogopslag: omzet, openstaand werk en recente activiteit op één plek. Open het vanuit de zijbalk (Dashboard).
+
+![Admin dashboard](/screenshots/admin-dashboard.png)
+
+### Omzet
+
+- **Omzetkaarten** tonen het gefactureerde, betaalde en openstaande totaal voor de geselecteerde periode
+- **Omzetgrafiek** zet betaalde omzet uit in de tijd — kies een preset (vandaag, week, maand, kwartaal, jaar) of een eigen datumbereik
+- **Klik op een bucket** in de grafiek om in te zoomen op die periode; klik opnieuw om uit te zoomen
+- De grafiek past de granulariteit aan het bereik aan: dagen, weken, maanden of kwartalen
+
+### Actiepunten
+
+- **Statusoverzicht** telt facturen per status (concept, open, betaald, geannuleerd, rekeningen, bonnen)
+- **Debiteuren** toont klanten met vervallen facturen en hoeveel ze verschuldigd zijn
+- **Vervallen** groepeert onbetaalde facturen per verouderingsbucket: herinnering nodig, herinnering verstuurd, tweede herinnering, aanmaning
+
+### Verwachte inkomsten
+
+- Verwachte kasinstroom van open facturen die nog niet vervallen zijn
+- Schakel tussen **Verwacht** en **Vervallen** om te zien wat er aankomt versus wat te laat is
+
+### Betaalmethoden
+
+- Hoeveel er per methode is betaald (iDEAL, creditcard, contant, bankoverschrijving) in de geselecteerde periode
+
+### Recente activiteit
+
+- Een chronologische feed van wat er is gebeurd: verstuurde facturen, aangemaakte rekeningen, ontvangen betalingen, verstuurde herinneringen en aanmaningen
 
 ---
 

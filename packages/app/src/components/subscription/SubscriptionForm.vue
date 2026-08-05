@@ -74,7 +74,7 @@
         <date-input
           v-model="modelValue.startDate"
           :label="lang.subscription.fields.startDate"
-          format="DD-MM-YYYY"
+          :format="DATE_FORMAT"
           clearable
           required
           class="md:col-span-4 col-span-12"
@@ -92,7 +92,7 @@
         <date-input
           v-model="modelValue.endDate"
           :label="lang.subscription.fields.endDate"
-          format="DD-MM-YYYY"
+          :format="DATE_FORMAT"
           clearable
           class="md:col-span-4 col-span-12"
           :date="{
@@ -201,9 +201,9 @@ import {
   CronScheduleInput
 } from '@simsustech/quasar-components/form'
 import { useLang } from '../../lang/index.js'
+import { configuration } from '../../configuration.js'
 import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
-import ClientSelect from '../client/ClientSelect.vue'
 import {
   InvoiceLineItem,
   InvoiceLineDialog
@@ -285,6 +285,9 @@ const initialValue: Subscription = {
 const modelValue = ref<Subscription>(initialValue)
 
 const lang = useLang()
+const DATE_FORMAT = computed(
+  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
+)
 
 const filterCompanies: InstanceType<
   typeof CompanySelect

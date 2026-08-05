@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { faker } from '@faker-js/faker'
-import { fillComboboxes } from './helpers'
+import { clickLinesAdd, fillComboboxes } from './helpers'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -140,11 +140,7 @@ test.describe('Administrator', async () => {
     await page.waitForSelector('[role="combobox"]')
     await fillComboboxes(page)
 
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('123.00')
@@ -160,11 +156,7 @@ test.describe('Administrator', async () => {
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
 
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('123.00')
@@ -180,11 +172,7 @@ test.describe('Administrator', async () => {
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
 
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('123.00')

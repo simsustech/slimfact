@@ -48,6 +48,7 @@ BILL → RECEIPT → INVOICE (convertible)
 - Use descriptive variable names
 - Follow existing patterns in the codebase
 - Extract complex conditions into meaningful boolean variables
+- **Prevent raw SQL — use Kysely methods whenever possible.** Do work in the DB via the Kysely query builder (`eb.fn`, `eb.val`, `eb.ref`, callback `.where((eb) => ...)`), not raw `sql\`...\`` fragments or JS reduce/sort/slice. Check the Kysely API docs (<https://kysely-org.github.io/kysely-apidoc/>) before reaching for raw SQL. Validate before data reaches the DB, not after it comes out.
 
 ## Conventions (.pi/skills/)
 
@@ -100,6 +101,19 @@ To switch, edit `packages/api/.env.development.local` and restart the dev server
 **Why VITE_API_HOST matters**: The OIDC issuer URL is built from `VITE_API_HOST`. If set to the NetBird URL but you browse to localhost, OIDC will error with "Incorrect issuer in meta data" because the issuer doesn't match the page origin.
 
 **Gotcha: stale POSTGRES_HOST**: If you previously ran Docker, `POSTGRES_HOST=database` may linger in your shell env. Unset it: `unset POSTGRES_HOST`.
+
+**Gotcha: one-shot test recipe**: Always start a fresh test run with `down --volumes` so the API re-seeds from scratch, then `build --no-cache api` (so any linked local package overlay is picked up), then `up -d --wait` (so containers are healthy before tests run). `up -d api` without `--wait` returns immediately and the API then crashes on a missing DB if its container was recreated against a stale volume. The one-shot recipe:
+
+```bash
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+docker compose -f docker-compose.test.yaml up -d --wait
+cd packages/api && pnpm exec playwright test --workers=1 --config=playwright.nosetup.config.ts
+```
+
+`--volumes` drops the DB so the API re-runs migrations + `seed:test` from scratch. `build --no-cache api` rebuilds the image with any local fastify-checkout overlay. `up -d --wait` blocks until every container's healthcheck passes, so the API is ready before Playwright starts.
 
 ## Docker Test Stack with Linked Local Packages
 
@@ -191,6 +205,13 @@ Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, us
 **Shared page state**: Prefer `browser.newPage()` + `login()` for each test that creates/modifies data.
 
 **Debug helper**: `tests/e2e/helpers.ts` exports `dumpPage(page, label)` — logs URL, buttons, inputs, and body text.
+
+**Known TLS error in `screenshots-customer.spec.ts`**: the spec downloads the
+invoice PDF via Node `fetch`, which rejects the self-signed local stack
+certificate with `TypeError: fetch failed` / `unable to get local issuer
+certificate` (all 4 variants: en/nl × desktop/mobile). This is pre-existing
+and unrelated to app changes — run it with
+`NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm exec playwright test tests/e2e/screenshots-customer.spec.ts`.
 
 ### Base Test Stack (no PSP)
 

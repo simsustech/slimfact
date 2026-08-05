@@ -41,6 +41,7 @@ export const appConfig = {
 
   rateLimitPerMinute: read('RATE_LIMIT_PER_MINUTE') || '1000000',
   debug: read('DEBUG'),
+  dateFormat: read('DATE_FORMAT') || 'DD-MM-YYYY',
 
   oidcApiClientIds: read('OIDC_API_CLIENT_IDS')
 } as const
