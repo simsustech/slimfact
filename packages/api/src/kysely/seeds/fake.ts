@@ -7,7 +7,8 @@ import {
   InvoiceStatus,
   PaymentMethod,
   PaymentStatus,
-  type RawInvoiceLine
+  type RawInvoiceLine,
+  buildReminderSentDates
 } from '@modular-api/fastify-checkout'
 import { fastify as createFastify } from 'fastify'
 import { readFileSync } from 'fs'
@@ -412,7 +413,9 @@ const seed = async () => {
         .set({
           createdAt: backdated.toISOString(),
           dueDate: overdueDate.toISOString().slice(0, 10),
-          reminderSentDates: JSON.stringify(reminderDates)
+          reminderSentDates: JSON.stringify(
+            buildReminderSentDates(reminderDates)
+          )
         })
         .execute()
     }
