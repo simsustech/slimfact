@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { faker } from '@faker-js/faker'
-import { fillComboboxes } from './helpers'
+import { clickLinesAdd, fillComboboxes } from './helpers'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -96,7 +96,8 @@ test.describe('Administrator', async () => {
     await page.goto('/admin/clients')
 
     await page.locator('#fabAdd').click()
-    await page.waitForSelector('[role="combobox"]')
+    await page.waitForSelector('.q-dialog', { timeout: 15000 })
+
     await page
       .getByRole('textbox', { name: 'Company name' })
       .fill(faker.company.name())
@@ -113,7 +114,7 @@ test.describe('Administrator', async () => {
       .getByRole('textbox', { name: 'City*' })
       .fill(faker.location.city())
 
-    await page.getByRole('combobox', { name: 'Country' }).click()
+    await page.getByLabel('Country').click()
     await expect(page.getByRole('listbox').first()).toBeVisible()
     await page.getByRole('option').first().click()
 
@@ -139,11 +140,7 @@ test.describe('Administrator', async () => {
     await page.waitForSelector('[role="combobox"]')
     await fillComboboxes(page)
 
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('123.00')
@@ -159,11 +156,7 @@ test.describe('Administrator', async () => {
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
 
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('123.00')
@@ -179,11 +172,7 @@ test.describe('Administrator', async () => {
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
 
-    await page
-      .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
-      .click()
+    await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('123.00')

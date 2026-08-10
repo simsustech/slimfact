@@ -1,0 +1,13 @@
+include:
+  - docker-compose.test.yaml
+
+services:
+  api:
+    environment:
+      MODULARAPI_ADMIN_PASSWORD: Sif5uEG5hcTH
+    command:
+      [
+        'sh',
+        '-c',
+        'npm run migrate:latest && npm run seed:data && npm run seed:fake && npm run start'
+      ]

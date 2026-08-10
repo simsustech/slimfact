@@ -54,9 +54,14 @@ jobs:
         env:
           SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
 
-      - name: Run Playwright tests
+      - name: Run Playwright tests (main)
         run: |
           pnpm run test:e2e
+
+      - name: Run Playwright guards
+        run: |
+          cd packages/api
+          pnpm exec playwright test --config=playwright.guards.config.ts
 
       - name: Remove .npmrc
         run: rm ~/.npmrc

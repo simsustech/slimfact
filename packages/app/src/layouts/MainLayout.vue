@@ -33,8 +33,10 @@
               is-item
             />
             <q-item>
-              <q-item-section label>
-                {{ lang.darkMode }}
+              <q-item-section>
+                <q-item-label>
+                  {{ lang.darkMode }}
+                </q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-toggle

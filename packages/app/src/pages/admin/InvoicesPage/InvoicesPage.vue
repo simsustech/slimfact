@@ -2,7 +2,7 @@
   <q-page padding>
     <q-toolbar>
       <q-space />
-      <q-btn>
+      <q-btn rounded>
         <q-icon name="i-mdi-search" />
         <q-icon
           v-if="activeSearch"
@@ -48,14 +48,25 @@
         </q-item>
       </q-list>
     </div>
-    <div class="flex flex-center q-mt-md">
-      <q-pagination
-        v-model="page"
-        :disable="!(total && page && rowsPerPage)"
-        :max="Math.ceil(total / rowsPerPage)"
-        :max-pages="5"
-        direction-links
-      />
+    <div class="grid grid-cols-12 items-center gap-3 q-mt-md">
+      <div class="col-span-12 md:col-span-3">
+        <q-select
+          v-model="rowsPerPage"
+          :options="[5, 10, 15, 25, 50]"
+          :label="lang.rowsPerPage"
+          dense
+          outlined
+        />
+      </div>
+      <div class="col-span-12 md:col-span-6 flex justify-center">
+        <q-pagination
+          v-model="page"
+          :disable="!(total && page && rowsPerPage)"
+          :max="Math.ceil(total / rowsPerPage)"
+          :max-pages="5"
+          direction-links
+        />
+      </div>
     </div>
   </q-page>
 
@@ -169,14 +180,6 @@ const lang = useLang()
 
 const route = useRoute()
 
-onBeforeRouteUpdate((to) => {
-  if (to.params.uuids && Array.isArray(to.params.uuids)) {
-    uuids.value = to.params.uuids as string[]
-  } else {
-    uuids.value = undefined
-  }
-})
-
 const {
   invoices,
   companyId,
@@ -186,8 +189,41 @@ const {
   page,
   rowsPerPage,
   uuids,
+  paid,
   refetch: execute
 } = useAdminGetInvoicesQuery()
+
+const applyRouteFilters = (to: typeof route) => {
+  if (to.params.uuids && Array.isArray(to.params.uuids)) {
+    uuids.value = to.params.uuids as string[]
+  } else {
+    uuids.value = undefined
+  }
+  const queryStatus = to.query.status
+  if (typeof queryStatus === 'string') {
+    status.value = queryStatus as InvoiceStatus
+  }
+  const queryPaid = to.query.paid
+  if (typeof queryPaid === 'string') {
+    paid.value = queryPaid === 'true'
+  }
+  const queryCompanyId = to.query.companyId
+  if (
+    typeof queryCompanyId === 'string' &&
+    queryCompanyId !== '' &&
+    !Number.isNaN(Number(queryCompanyId))
+  ) {
+    companyId.value = Number(queryCompanyId)
+  } else {
+    companyId.value = NaN
+  }
+}
+
+applyRouteFilters(route)
+
+onBeforeRouteUpdate((to) => {
+  applyRouteFilters(to)
+})
 
 const { invoiceIds, invoiceEvents } =
   useAdminGetInvoiceEventsByInvoiceIdsQuery()
@@ -196,9 +232,9 @@ watch(invoices, (newVal) => {
   if (newVal) invoiceIds.value = newVal.map((invoice) => invoice.id)
 })
 
-if (route.params.uuids && Array.isArray(route.params.uuids)) {
-  uuids.value = route.params.uuids as string[]
-}
+watch(rowsPerPage, () => {
+  page.value = 1
+})
 
 const total = computed(() => invoices.value?.at(0)?.total || 0)
 
@@ -507,17 +543,17 @@ const openAddPinPaymentDialog: InstanceType<
     })
 }
 
-const openAddIdealPaymentDialog: InstanceType<
+const openAddWeroPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onAddPaymentIdeal'] = async ({ data, done }) => {
+>['$props']['onAddPaymentWero'] = async ({ data, done }) => {
   try {
     const result = await addPaymentToInvoiceMutation({
       id: data.id,
       payment: {
         amount: data.amountDue || data.totalIncludingTax,
         currency: data.currency,
-        description: `iDEAL payment ${new Date().toISOString().slice(0, 10)}`,
-        method: PaymentMethod.ideal
+        description: `Wero payment ${new Date().toISOString().slice(0, 10)}`,
+        method: PaymentMethod.wero
       }
     })
     if (result?.checkoutUrl) {
@@ -611,8 +647,8 @@ const invoiceExpansionItemHandlers = computed(() => ({
   addPaymentBankTransfer: configuration.value.PAYMENT_HANDLERS.bankTransfer
     ? openAddBankTransferPaymentDialog
     : undefined,
-  addPaymentIdeal: configuration.value.PAYMENT_HANDLERS.ideal
-    ? openAddIdealPaymentDialog
+  addPaymentWero: configuration.value.PAYMENT_HANDLERS.wero
+    ? openAddWeroPaymentDialog
     : undefined,
   addPaymentCreditcard: configuration.value.PAYMENT_HANDLERS.creditcard
     ? openAddCreditcardPaymentDialog

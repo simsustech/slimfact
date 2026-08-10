@@ -1,0 +1,109 @@
+name: Version and create GitHub Release
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  version-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ secrets.GH_RELEASE_TOKEN }}
+
+      - name: Creating .npmrc
+        run: |
+          cat > ~/.npmrc << EOF
+            //npm.simsus.tech/:_authToken=$SIMSUSTECH_NPM_TOKEN
+          EOF
+        env:
+          SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Check for pending changesets
+        id: check-changesets
+        run: |
+          if npx changeset status --output=changesets.json 2>/dev/null; then
+            echo "has_changesets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changesets=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Version packages
+        if: steps.check-changesets.outputs.has_changesets == 'true'
+        run: npx changeset version
+
+      - name: Read new version
+        if: steps.check-changesets.outputs.has_changesets == 'true'
+        id: version
+        run: |
+          NEW_VERSION=$(node -p "require('./packages/api/package.json').version")
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Extract release notes
+        if: steps.check-changesets.outputs.has_changesets == 'true'
+        run: |
+          node -e "
+            const fs = require('fs');
+            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const lines = content.split('\n');
+            let start = -1, end = -1;
+            for (let i = 0; i < lines.length; i++) {
+              if (/^## \[/.test(lines[i])) {
+                if (start === -1) start = i;
+                else { end = i; break; }
+              }
+            }
+            const notes = lines.slice(start, end === -1 ? lines.length : end).join('\n').trim();
+            fs.writeFileSync('RELEASE_NOTES.md', notes || 'No release notes');
+          "
+
+      - name: Commit version bump
+        if: steps.check-changesets.outputs.has_changesets == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: bump to v${{ steps.version.outputs.version }} [skip ci]"
+          git push
+
+      - name: Create git tag
+        if: steps.check-changesets.outputs.has_changesets == 'true'
+        run: |
+          git tag v${{ steps.version.outputs.version }}
+          git push origin v${{ steps.version.outputs.version }}
+
+      - name: Create GitHub Release
+        if: steps.check-changesets.outputs.has_changesets == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove .npmrc
+        if: always()
+        run: rm -f ~/.npmrc
+
+      - name: Cleanup changeset status
+        if: always()
+        run: rm -f changesets.json RELEASE_NOTES.md

@@ -1,10 +1,10 @@
 import { useMutation } from '@pinia/colada'
 import { trpc } from '../../trpc.js'
 
-export const usePublicPayWithIdealMutation = () => {
+export const usePublicPayWithWeroMutation = () => {
   const { ...rest } = useMutation({
     mutation: (uuid: string) =>
-      trpc.public.payWithIdeal.mutate({
+      trpc.public.payWithWero.mutate({
         uuid
       })
   })
@@ -25,10 +25,10 @@ export const usePublicPayWithCreditcardMutation = () => {
   }
 }
 
-export const usePublicPayDownPaymentWithIdealMutation = () => {
+export const usePublicPayDownPaymentWithWeroMutation = () => {
   const { ...rest } = useMutation({
     mutation: (uuid: string) =>
-      trpc.public.payDownPaymentWithIdeal.mutate({
+      trpc.public.payDownPaymentWithWero.mutate({
         uuid
       })
   })

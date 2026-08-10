@@ -109,11 +109,11 @@ export const publicInvoiceRoutes = ({
       }
     }),
 
-  payWithIdeal: procedure
+  payWithWero: procedure
     .input(z.object({ uuid: z.string() }))
     .mutation(async ({ input }) => {
       try {
-        return await createPayment(fastify, input.uuid, PaymentMethod.ideal)
+        return await createPayment(fastify, input.uuid, PaymentMethod.wero)
       } catch (e) {
         fastify.log.error(e)
         throw new TRPCError({
@@ -141,7 +141,7 @@ export const publicInvoiceRoutes = ({
       }
     }),
 
-  payDownPaymentWithIdeal: procedure
+  payDownPaymentWithWero: procedure
     .input(z.object({ uuid: z.string() }))
     .mutation(async ({ input }) => {
       try {
@@ -161,7 +161,7 @@ export const publicInvoiceRoutes = ({
         return await createPayment(
           fastify,
           input.uuid,
-          PaymentMethod.ideal,
+          PaymentMethod.wero,
           invoice.requiredDownPaymentAmount
         )
       } catch (e) {

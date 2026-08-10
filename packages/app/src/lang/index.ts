@@ -20,7 +20,9 @@ export interface Language {
   name: string
   overview: string
   noResultsAvailable: string
+  rowsPerPage: string
   add: string
+  darkMode: string
   account: {
     title: string
     accounts: string
@@ -270,7 +272,7 @@ export interface Language {
     methods: {
       cash: string
       bankTransfer: string
-      ideal: string
+      wero: string
       pin: string
       creditcard: string
     }
@@ -295,6 +297,88 @@ export interface Language {
         bills: string
         receipts: string
         invoices: string
+      }
+    }
+    admin: {
+      title: string
+      companyFilter: {
+        label: string
+        allSelected: string
+        noneSelected: string
+      }
+      revenue: {
+        title: string
+        today: string
+        week: string
+        month: string
+        quarter: string
+        year: string
+        customRange: string
+        startDate: string
+        endDate: string
+        invoices: string
+        bills: string
+        receipts: string
+        chart: {
+          title: string
+          noData: string
+          bin: {
+            day: string
+            week: string
+            month: string
+            quarter: string
+          }
+        }
+      }
+      debtors: {
+        title: string
+        toggle: {
+          invoices: string
+          bills: string
+        }
+        empty: string
+      }
+      actionItems: {
+        title: string
+        open: string
+        overdue: {
+          needsReminder: string
+          reminder1: string
+          reminder2: string
+          exhortation: string
+        }
+      }
+      upcomingIncome: {
+        title: string
+        titleOverdue: string
+        invoices: string
+        due: string
+        empty: string
+        emptyOverdue: string
+        toggle: {
+          upcoming: string
+          overdue: string
+        }
+      }
+      paymentMethods: {
+        title: string
+      }
+      recentActivity: {
+        title: string
+        forInvoice: string
+        filter: {
+          label: string
+          all: string
+          invoiceOpened: string
+          billCreated: string
+          payment: string
+          reminder: string
+          exhortation: string
+        }
+      }
+      empty: {
+        noData: string
+        noCompanySelected: string
       }
     }
   }

@@ -1,7 +1,7 @@
-import { Ref, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import { Loading } from 'quasar'
 import { useLang } from './lang/index.js'
-import { Locales } from '@simsustech/quasar-components/form'
+import type { Locales } from '@simsustech/quasar-components/form'
 
 const lang = useLang()
 
@@ -11,6 +11,7 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
   LANG: string
   COUNTRY: string
   TITLE?: string
+  DATE_FORMAT: string
   CURRENCY: '€' | '$'
   HIDE_BRANDING: boolean
   SASS_VARIABLES?: {
@@ -26,22 +27,26 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
   PAYMENT_HANDLERS: {
     cash: boolean
     pin: boolean
-    ideal: boolean
+    wero: boolean
     bankTransfer: boolean
     creditcard: boolean
   }
 }
 
 export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
+  API_HOST: import.meta.env.VITE_API_HOST || 'localhost:3001',
   LANG: import.meta.env.VITE_LANG || 'en-US',
   COUNTRY: import.meta.env.VITE_COUNTRY || 'NL',
   TITLE: import.meta.env.VITE_TITLE || 'SlimFact',
+  DATE_FORMAT: import.meta.env.VITE_DATE_FORMAT || 'DD-MM-YYYY',
   CURRENCY: '€',
   HIDE_BRANDING: false,
   PAYMENT_HANDLERS: {
     cash: false,
-    ideal: false,
-    bankTransfer: false
+    pin: false,
+    wero: false,
+    bankTransfer: false,
+    creditcard: false
   }
 })
 
@@ -92,6 +97,7 @@ export const INVOICE_ICON = 'i-mdi-invoice'
 export const CLIENT_ICON = 'i-mdi-person'
 export const SUBSCRIPTION_ICON = 'i-mdi-subscriptions'
 export const SETTINGS_ICON = 'i-mdi-account-settings'
+export const DASHBOARD_ICON = 'i-mdi-view-dashboard-outline'
 export const EXPORT_ICON = 'i-mdi-download'
 
 export const languageLocales = ref([

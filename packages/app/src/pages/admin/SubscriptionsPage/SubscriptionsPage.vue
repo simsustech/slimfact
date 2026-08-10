@@ -107,7 +107,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, watch } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import SubscriptionForm from '../../../components/subscription/SubscriptionForm.vue'
 import { useLang } from '../../../lang/index.js'
@@ -151,6 +151,10 @@ const {
   refetch: execute
 } = useAdminGetSubscriptionsQuery()
 const total = computed(() => subscriptions.value?.at(0)?.total || 0)
+
+watch(rowsPerPage, () => {
+  page.value = 1
+})
 
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
