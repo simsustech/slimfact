@@ -26,16 +26,22 @@ const lang = useLang()
 <style scoped>
 .navigation-rail:deep(.q-tab__content) {
   min-width: 52px;
+  justify-content: flex-start !important;
 }
+
 .navigation-rail:deep(.q-tab__indicator) {
   color: var(--light-secondary-container);
   position: absolute;
   width: 52px;
-  left: calc(50% - 26px);
   border-radius: 16px;
   height: 32px;
-  top: calc(50% - 23px);
   min-height: unset;
+  left: calc(50% - 26px);
+  top: calc(50% - 35px);
+}
+
+.navigation-rail:deep(.q-tabs--vertical .q-tab__indicator) {
+  top: calc(50% - 23px);
 }
 
 .body--dark .navigation-rail:deep(.q-tab__indicator) {

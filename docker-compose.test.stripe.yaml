@@ -1,7 +1,7 @@
 services:
   api:
     environment:
-      IDEAL_PAYMENT_HANDLER: stripe
+      WERO_PAYMENT_HANDLER: stripe
       CREDITCARD_PAYMENT_HANDLER: stripe
       STRIPE_API_KEY: /run/secrets/STRIPE_API_KEY
     secrets:

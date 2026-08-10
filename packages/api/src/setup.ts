@@ -163,7 +163,7 @@ export default async function (fastify: FastifyInstance) {
   }
 
   const paymentMethodRouting = {
-    ideal: config.idealPaymentHandler as 'mollie' | 'stripe' | undefined,
+    wero: config.weroPaymentHandler as 'mollie' | 'stripe' | undefined,
     creditcard: config.creditcardPaymentHandler as
       | 'mollie'
       | 'stripe'
@@ -299,13 +299,14 @@ export default async function (fastify: FastifyInstance) {
       LANG: config.lang,
       COUNTRY: config.country,
       TITLE: config.title,
+      DATE_FORMAT: config.dateFormat,
       SASS_VARIABLES: {},
       PAYMENT_HANDLERS: {
         cash: cashPaymentHandler !== void 0,
         pin: pinPaymentHandler !== void 0,
         bankTransfer: bankTransferPaymentHandler !== void 0,
-        ideal: !!molliePaymentHandler || !!stripePaymentHandler,
-        creditcard: !!stripePaymentHandler || !!molliePaymentHandler
+        wero: !!paymentMethodRouting.wero,
+        creditcard: !!paymentMethodRouting.creditcard
       },
       PAYMENT_METHOD_ROUTING: paymentMethodRouting
     }),

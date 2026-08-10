@@ -31,14 +31,25 @@
       </q-item>
     </q-list>
 
-    <div class="flex flex-center q-mt-md">
-      <q-pagination
-        v-model="page"
-        :disable="!(total && page && rowsPerPage)"
-        :max="Math.ceil(total / rowsPerPage)"
-        :max-pages="5"
-        direction-links
-      />
+    <div class="grid grid-cols-12 items-center gap-3 q-mt-md">
+      <div class="col-span-12 md:col-span-3">
+        <q-select
+          v-model="rowsPerPage"
+          :options="[5, 10, 15, 25, 50]"
+          :label="lang.rowsPerPage"
+          dense
+          outlined
+        />
+      </div>
+      <div class="col-span-12 md:col-span-6 flex justify-center">
+        <q-pagination
+          v-model="page"
+          :disable="!(total && page && rowsPerPage)"
+          :max="Math.ceil(total / rowsPerPage)"
+          :max-pages="5"
+          direction-links
+        />
+      </div>
     </div>
     <!-- <div class="row" v-if="ready">
       <client-card
@@ -87,7 +98,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, watch } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import ClientForm from '../../../components/client/ClientForm.vue'
 import ClientItem from '../../../components/client/ClientItem.vue'
@@ -121,6 +132,10 @@ const {
   rowsPerPage
 } = useAdminSearchClientsQuery()
 const total = computed(() => clients.value?.at(0)?.total || 0)
+
+watch(rowsPerPage, () => {
+  page.value = 1
+})
 
 // const { data, execute } = useQuery('admin.searchClients', {
 //   args: reactive({

@@ -1,17 +1,21 @@
 import { db } from '../index.js'
-import type { Companies } from '../types.js'
+import type { Clients, Companies } from '../types.js'
 import type { Insertable } from 'kysely'
 import { c } from 'compress-tag'
 import {
   createInvoiceHandler,
-  InvoiceStatus
+  InvoiceStatus,
+  PaymentMethod,
+  PaymentStatus,
+  type RawInvoiceLine
 } from '@modular-api/fastify-checkout'
+import { buildReminderSentDates } from '@modular-api/fastify-checkout/helpers'
 import { fastify as createFastify } from 'fastify'
 import { readFileSync } from 'fs'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const chunk = (arr: any[], size: number) =>
-  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
     arr.slice(i * size, i * size + size)
   )
 
@@ -70,9 +74,23 @@ const invoiceHandler = createInvoiceHandler({
 })
 
 const seed = async () => {
-  const { companies, clients, invoiceLines } = JSON.parse(
-    readFileSync(new URL('./fake/data.json', import.meta.url).pathname, 'utf-8')
-  )
+  let fakeData: {
+    companies: Insertable<Companies>[]
+    clients: Insertable<Clients>[]
+    invoiceLines: RawInvoiceLine[]
+  }
+  try {
+    fakeData = JSON.parse(
+      readFileSync(
+        new URL('./fake/data.json', import.meta.url).pathname,
+        'utf-8'
+      )
+    )
+  } catch {
+    throw new Error('Failed to read fake seed data')
+  }
+
+  const { companies, clients, invoiceLines } = fakeData
 
   await db
     .insertInto('companies')
@@ -98,12 +116,13 @@ const seed = async () => {
     .selectAll()
     .executeTakeFirstOrThrow()
 
+  const now = new Date()
   for (const client of insertedClients) {
     const company =
       insertedCompanies[Math.floor(Math.random() * companies.length)]
 
     for (let i = 0; i < Math.floor(Math.random() * 10); i++) {
-      await invoiceHandler.createInvoice({
+      const created = await invoiceHandler.createInvoice({
         companyDetails: company,
         clientDetails: client,
         companyPrefix: company.prefix,
@@ -118,7 +137,310 @@ const seed = async () => {
         companyId: company.id,
         clientId: client.id
       })
+      // Backdate creation so the activity feed is not flooded with
+      // "created now" events: spread over the past 12 months.
+      if (created.success) {
+        const backdated = new Date(
+          now.getFullYear(),
+          now.getMonth() - Math.floor(Math.random() * 12),
+          1 + Math.floor(Math.random() * 27),
+          10 + Math.floor(Math.random() * 8)
+        )
+        await db
+          .updateTable('checkout.invoices')
+          .set({ createdAt: backdated.toISOString() })
+          .where('id', '=', created.invoice.id)
+          .execute()
+      }
     }
+  }
+
+  // Seed subscriptions
+  for (let i = 0; i < 5; i++) {
+    const company =
+      insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
+    const client =
+      insertedClients[Math.floor(Math.random() * insertedClients.length)]
+
+    await db
+      .insertInto('subscriptions')
+      .values({
+        name: [
+          'Monthly retainer',
+          'Quarterly service',
+          'Annual support',
+          'Weekly cleaning',
+          'Bi-weekly maintenance'
+        ][i],
+        active: true,
+        companyId: company.id,
+        clientId: client.id,
+        numberPrefixTemplate: numberPrefix.template,
+        locale: 'en-US',
+        currency: 'EUR',
+        lines: JSON.stringify([
+          {
+            description: 'Subscription service',
+            listPrice: Math.round(Math.random() * 50000) + 5000,
+            listPriceIncludesTax: true,
+            quantity: 1,
+            taxRate: 21,
+            discount: 0
+          }
+        ]),
+        discounts: JSON.stringify([]),
+        surcharges: JSON.stringify([]),
+        paymentTermDays: 14,
+        startDate: new Date().toISOString().split('T')[0],
+        cronSchedule: [
+          '0 0 1 * *',
+          '0 0 1 */3 *',
+          '0 0 1 1 *',
+          '0 0 * * 1',
+          '0 0 1,15 * *'
+        ][i],
+        type: i % 2 === 0 ? 'invoice' : 'bill'
+      })
+      .execute()
+  }
+
+  // Link first client to the admin account for demo screenshots
+  const admin = await db
+    .selectFrom('accounts')
+    .where('email', '=', 'admin@slimfact.app')
+    .selectAll()
+    .executeTakeFirstOrThrow()
+  const firstClient = await db
+    .selectFrom('clients')
+    .select('id')
+    .limit(1)
+    .executeTakeFirstOrThrow()
+  await db
+    .updateTable('clients')
+    .set({ accountId: admin.id })
+    .where('id', '=', firstClient.id)
+    .execute()
+
+  // Create a realistic spread of invoices for the admin's linked client:
+  // ~3 per month over the past 12 months, mostly PAID with a few OPEN,
+  // BILL and RECEIPT, plus payments on the paid ones so the dashboard
+  // revenue chart shows a believable time series.
+  const adminClient = insertedClients[0]
+  const adminCompany =
+    insertedCompanies[Math.floor(Math.random() * insertedCompanies.length)]
+  const createdAdminInvoices: {
+    id: number
+    status: InvoiceStatus
+    totalIncludingTax: number
+  }[] = []
+  // Sent/open documents get their number, prefix and due date via the
+  // handler's openInvoice() (same as the real "send" flow), so OPEN invoices
+  // always carry a future due date and a document number.
+  const renderedNumberPrefix = numberPrefix.template
+    .replace('{{YYYY}}', String(now.getFullYear()))
+    .replace('{{MM}}', String(now.getMonth() + 1).padStart(2, '0'))
+  for (let month = 11; month >= 0; month--) {
+    const count = 2 + (Math.random() < 0.5 ? 1 : 0) // 2-3 invoices per month
+    for (let i = 0; i < count; i++) {
+      const roll = Math.random()
+      const openDocument = roll < 0.75 // PAID (60%) or OPEN (15%)
+      const status = openDocument
+        ? undefined // opened below via openInvoice()
+        : roll < 0.9
+          ? InvoiceStatus.BILL
+          : InvoiceStatus.RECEIPT
+      const result = await invoiceHandler.createInvoice({
+        companyDetails: adminCompany,
+        clientDetails: adminClient,
+        companyPrefix: adminCompany.prefix,
+        numberPrefixTemplate: numberPrefix.template,
+        currency: 'EUR',
+        lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+        discounts: [],
+        surcharges: [],
+        paymentTermDays: 14,
+        locale: 'en-US',
+        status,
+        companyId: adminCompany.id,
+        clientId: adminClient.id
+      })
+      if (!result.success) continue
+      if (!openDocument) {
+        createdAdminInvoices.push({
+          id: result.invoice.id,
+          status: status as InvoiceStatus,
+          totalIncludingTax: result.invoice.totalIncludingTax
+        })
+        continue
+      }
+      // Open (number + due date + OPEN status). openInvoice() sets status
+      // OPEN because a fresh invoice has an amount due.
+      const opened = await invoiceHandler.openInvoice({
+        id: result.invoice.id,
+        numberPrefix: renderedNumberPrefix
+      })
+      if (!opened.success) continue
+      const finalStatus = roll < 0.6 ? InvoiceStatus.PAID : InvoiceStatus.OPEN
+      if (finalStatus === InvoiceStatus.PAID) {
+        // The payment recorded below settles the invoice; flip status now
+        // so the revenue chart buckets it as a paid invoice.
+        await db
+          .updateTable('checkout.invoices')
+          .set({ status: InvoiceStatus.PAID })
+          .where('id', '=', result.invoice.id)
+          .execute()
+      }
+      createdAdminInvoices.push({
+        id: result.invoice.id,
+        status: finalStatus,
+        totalIncludingTax: result.invoice.totalIncludingTax
+      })
+      // Backdate creation to the invoice's month so the activity feed
+      // shows a realistic spread instead of "created now" floods.
+      const backdated = new Date(
+        now.getFullYear(),
+        now.getMonth() - month,
+        1 + ((i * 9) % 27),
+        10 + (i % 8)
+      )
+      await db
+        .updateTable('checkout.invoices')
+        .set({ createdAt: backdated.toISOString() })
+        .where('id', '=', result.invoice.id)
+        .execute()
+    }
+  }
+
+  // Payments for the PAID / BILL / RECEIPT invoices of the admin's client.
+  // Spread paidAt across the same 12 months so the chart shows a curve.
+  const statusToMethod: Record<string, PaymentMethod> = {
+    [InvoiceStatus.PAID]: PaymentMethod.banktransfer,
+    [InvoiceStatus.BILL]: PaymentMethod.cash,
+    [InvoiceStatus.RECEIPT]: PaymentMethod.cash
+  }
+  const paidAdminInvoices = createdAdminInvoices.filter((invoice) =>
+    [InvoiceStatus.PAID, InvoiceStatus.BILL, InvoiceStatus.RECEIPT].includes(
+      invoice.status
+    )
+  )
+  // The most recent (current-month) payment must land on a numbered PAID
+  // invoice: the activity-feed E2E asserts a payment entry references an
+  // invoice number, and unnumbered BILL/RECEIPT drafts would make that
+  // assertion seed-dependent. Swap a PAID invoice into the last slot.
+  const lastPaidInvoice = paidAdminInvoices[paidAdminInvoices.length - 1]
+  if (lastPaidInvoice && lastPaidInvoice.status !== InvoiceStatus.PAID) {
+    const numberedPaid = paidAdminInvoices.find(
+      (invoice) => invoice.status === InvoiceStatus.PAID
+    )
+    if (numberedPaid) {
+      const numberedIndex = paidAdminInvoices.indexOf(numberedPaid)
+      paidAdminInvoices[numberedIndex] = lastPaidInvoice
+      paidAdminInvoices[paidAdminInvoices.length - 1] = numberedPaid
+    }
+  }
+  for (let i = 0; i < paidAdminInvoices.length; i++) {
+    const paid = paidAdminInvoices[i]
+    const monthOffset = Math.floor((i * 12) / paidAdminInvoices.length)
+    const targetMonth = now.getMonth() - 11 + monthOffset
+    let day = 1 + ((i * 7) % 28)
+    // Payments in the current month must not land in the future.
+    if (targetMonth === now.getMonth()) {
+      day = Math.min(day, now.getDate())
+    }
+    const paidAt = new Date(now.getFullYear(), targetMonth, day)
+    await db
+      .insertInto('checkout.payments')
+      .values({
+        invoiceId: paid.id,
+        description: 'Payment received',
+        method: statusToMethod[paid.status] ?? PaymentMethod.cash,
+        amount: paid.totalIncludingTax,
+        currency: 'EUR',
+        paidAt: paidAt.toISOString(),
+        status: PaymentStatus.PAID
+      })
+      .execute()
+  }
+
+  // Guarantee at least one invoice per status so the status overview chart
+  // always shows every slice (CONCEPT and CANCELED are not produced by the
+  // random loops above).
+  for (const status of [InvoiceStatus.CONCEPT, InvoiceStatus.CANCELED]) {
+    const created = await invoiceHandler.createInvoice({
+      companyDetails: adminCompany,
+      clientDetails: adminClient,
+      companyPrefix: adminCompany.prefix,
+      numberPrefixTemplate: numberPrefix.template,
+      currency: 'EUR',
+      lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+      discounts: [],
+      surcharges: [],
+      paymentTermDays: 14,
+      locale: 'en-US',
+      status,
+      companyId: adminCompany.id,
+      clientId: adminClient.id
+    })
+    if (created.success) {
+      const backdated = new Date()
+      backdated.setDate(backdated.getDate() - 20)
+      await db
+        .updateTable('checkout.invoices')
+        .set({ createdAt: backdated.toISOString() })
+        .where('id', '=', created.invoice.id)
+        .execute()
+    }
+  }
+
+  // Guarantee one OPEN invoice per overdue-aging bucket (needsReminder,
+  // reminder1, reminder2, exhortation). The aging query requires status=OPEN,
+  // a dueDate in the past, and counts reminder_sent_dates entries (0..3+).
+  // Open each one through the handler like a real "send": an OPEN invoice in
+  // the app is only ever reachable via openInvoice(), which always assigns the
+  // document number and invoice date. Seeding OPEN directly would leave those
+  // fields NULL and the PDF download filename would read "null ... nullnull.pdf".
+  const reminderBucketSizes = [0, 1, 2, 3]
+  for (const reminderCount of reminderBucketSizes) {
+    const result = await invoiceHandler.createInvoice({
+      companyDetails: adminCompany,
+      clientDetails: adminClient,
+      companyPrefix: adminCompany.prefix,
+      numberPrefixTemplate: numberPrefix.template,
+      currency: 'EUR',
+      lines: [invoiceLines[Math.floor(Math.random() * invoiceLines.length)]],
+      discounts: [],
+      surcharges: [],
+      paymentTermDays: 14,
+      locale: 'en-US',
+      companyId: adminCompany.id,
+      clientId: adminClient.id
+    })
+    if (!result.success) continue
+    // Open (number + prefix + invoice date + due date + OPEN status), then
+    // age the due date below so the invoice lands in the overdue buckets.
+    const opened = await invoiceHandler.openInvoice({
+      id: result.invoice.id,
+      numberPrefix: renderedNumberPrefix
+    })
+    if (!opened.success) continue
+    const overdueDate = new Date()
+    overdueDate.setDate(overdueDate.getDate() - 30)
+    const reminderDates = Array.from({ length: reminderCount }, (_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - 60 + i * 10)
+      return d.toISOString().slice(0, 10)
+    })
+    const backdated = new Date()
+    backdated.setDate(backdated.getDate() - 60)
+    await db
+      .updateTable('checkout.invoices')
+      .where('id', '=', result.invoice.id)
+      .set({
+        createdAt: backdated.toISOString(),
+        dueDate: overdueDate.toISOString().slice(0, 10),
+        reminderSentDates: JSON.stringify(buildReminderSentDates(reminderDates))
+      })
+      .execute()
   }
 }
 

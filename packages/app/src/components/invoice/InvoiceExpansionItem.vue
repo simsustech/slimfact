@@ -142,6 +142,7 @@
               <q-item
                 v-if="
                   modelValue.status === 'open' &&
+                  lastReminderDate &&
                   getFutureDate(lastReminderDate, { days: 7 }) < currentDate
                 "
                 v-close-popup
@@ -226,7 +227,7 @@
                   (onAddPaymentCash ||
                     onAddPaymentBankTransfer ||
                     onAddPaymentPin ||
-                    onAddPaymentIdeal ||
+                    onAddPaymentWero ||
                     onAddPaymentCreditcard)
                 "
                 clickable
@@ -290,17 +291,17 @@
                       </q-item-section>
                     </q-item>
                     <q-item
-                      v-if="onAddPaymentIdeal"
+                      v-if="onAddPaymentWero"
                       v-close-popup
                       clickable
-                      @click="addPaymentIdeal(modelValue)"
+                      @click="addPaymentWero(modelValue)"
                     >
                       <q-item-section avatar>
-                        <q-icon name="i-fa6-brands-ideal"></q-icon>
+                        <q-icon name="i-arcticons-wero"></q-icon>
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>
-                          {{ lang.payment.methods.ideal }}
+                          {{ lang.payment.methods.wero }}
                         </q-item-label>
                       </q-item-section>
                     </q-item>
@@ -506,7 +507,7 @@ export interface Props {
   onAddPaymentPin?: unknown
   onAddPaymentCash?: unknown
   onAddPaymentBankTransfer?: unknown
-  onAddPaymentIdeal?: unknown
+  onAddPaymentWero?: unknown
   onAddPaymentCreditcard?: unknown
   onSend?: unknown
   invoiceEvents?: InvoiceEvent[]
@@ -585,7 +586,7 @@ const emit = defineEmits<{
     }
   ): void
   (
-    e: 'addPaymentIdeal',
+    e: 'addPaymentWero',
     {
       data,
       done
@@ -690,11 +691,11 @@ const addPaymentBankTransfer = (data: Invoice) => {
   }
   emit('addPaymentBankTransfer', { data: data, done })
 }
-const addPaymentIdeal = (data: Invoice) => {
+const addPaymentWero = (data: Invoice) => {
   function done() {
     //
   }
-  emit('addPaymentIdeal', { data: data, done })
+  emit('addPaymentWero', { data: data, done })
 }
 const addPaymentCreditcard = (data: Invoice) => {
   function done() {
@@ -758,3 +759,4 @@ const lastReminderDate = computed(() => {
 const getFutureDate = (date: string, { days }: { days: number }) =>
   dateUtil.addToDate(new Date(date), { days }).toISOString().slice(0, 10)
 </script>
+t>

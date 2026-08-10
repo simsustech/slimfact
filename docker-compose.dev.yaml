@@ -33,6 +33,16 @@ services:
         - SIMSUSTECH_NPM_TOKEN
       dockerfile: Dockerfile
       target: api
+      additional_contexts:
+        linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
+        linked-unocss-preset-quasar: ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
+        linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
+        linked-modular-api-fastify-oidc:  ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
+        linked-modular-api-fastify-checkout:  ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
+      args:
+        - DEBUG=${DEBUG}
     labels:
       caddy: ${HOST}.local
       caddy.reverse_proxy: "{{upstreams 80}}"

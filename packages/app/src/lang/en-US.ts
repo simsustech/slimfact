@@ -21,7 +21,9 @@ const lang: Language = {
   name: 'Name',
   overview: 'Overview',
   noResultsAvailable: 'No results available.',
+  rowsPerPage: 'Rows per page',
   add: 'Add',
+  darkMode: 'Dark mode',
   account: {
     title: 'Account',
     accounts: 'Accounts',
@@ -249,7 +251,7 @@ const lang: Language = {
     methods: {
       cash: 'Cash',
       bankTransfer: 'Bank transfer',
-      ideal: 'iDEAL',
+      wero: 'Wero | iDEAL',
       pin: 'PIN',
       creditcard: 'Credit card'
     },
@@ -276,6 +278,90 @@ const lang: Language = {
         bills: 'View my bills.',
         receipts: 'View my receipts.',
         invoices: 'View my invoices.'
+      }
+    },
+    admin: {
+      title: 'Dashboard',
+      companyFilter: {
+        label: 'Company filter',
+        allSelected: 'All companies',
+        noneSelected: 'No companies selected'
+      },
+      revenue: {
+        title: 'Revenue',
+        today: 'Today',
+        week: 'This week',
+        month: 'This month',
+        quarter: 'This quarter',
+        year: 'This year',
+        customRange: 'Custom range',
+        startDate: 'Start',
+        endDate: 'End',
+        invoices: 'Invoices',
+        bills: 'Bills',
+        receipts: 'Receipts',
+        chart: {
+          title: 'Revenue over time',
+          noData: 'No revenue in this period',
+          bin: {
+            day: 'Binned by day: each point is the revenue paid on that date.',
+            week: 'Binned by week: each point is the revenue paid in that week.',
+            month:
+              'Binned by month: each point is the revenue paid in that month.',
+            quarter:
+              'Binned by quarter: each point is the revenue paid in that quarter.'
+          }
+        }
+      },
+      debtors: {
+        title: 'Outstanding',
+        toggle: {
+          invoices: 'Invoices',
+          bills: 'Bills'
+        },
+        empty: 'No outstanding invoices'
+      },
+      actionItems: {
+        title: 'Action items',
+        open: 'Open invoices',
+        overdue: {
+          needsReminder: 'Needs reminder',
+          reminder1: 'First reminder sent',
+          reminder2: 'Second reminder sent',
+          exhortation: 'Exhortation'
+        }
+      },
+      upcomingIncome: {
+        title: 'Upcoming income',
+        titleOverdue: 'Overdue income',
+        invoices: 'open invoices',
+        due: 'due',
+        empty: 'No invoices due yet',
+        emptyOverdue: 'No overdue invoices',
+        toggle: {
+          upcoming: 'Upcoming',
+          overdue: 'Overdue'
+        }
+      },
+      paymentMethods: {
+        title: 'Paid by payment method'
+      },
+      recentActivity: {
+        title: 'Recent activity',
+        forInvoice: 'for invoice',
+        filter: {
+          label: 'Activity filter',
+          all: 'All',
+          invoiceOpened: 'Invoice opened',
+          billCreated: 'Bill created',
+          payment: 'Payment received',
+          reminder: 'Reminder sent',
+          exhortation: 'Exhortation sent'
+        }
+      },
+      empty: {
+        noData: 'No data available',
+        noCompanySelected: 'Select a company to view stats'
       }
     }
   },

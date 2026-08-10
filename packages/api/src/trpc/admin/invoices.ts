@@ -4,6 +4,7 @@ import * as z from 'zod'
 import type { FastifyInstance } from 'fastify'
 import { invoice as invoiceValidation } from '../../zod/invoice.js'
 import { db } from '../../kysely/index.js'
+import { formatPrice } from '@slimfact/tools'
 import handlebars from 'handlebars'
 import env from '@vitrify/tools/env'
 import { Invoice } from '@modular-api/fastify-checkout'
@@ -42,21 +43,6 @@ const formatDateShort = ({
   const date = new Date(dateString)
   return shortDateFormatter.format(date)
 }
-const formatPrice = ({
-  currency,
-  value,
-  locale
-}: {
-  currency: string
-  value: number
-  locale: string
-}) =>
-  Intl.NumberFormat(locale, {
-    maximumFractionDigits: 2,
-    style: 'currency',
-    currency: currency
-  }).format(value / 100)
-
 const composeEmail = ({
   invoice,
   emailSubject,
@@ -199,6 +185,34 @@ export const adminInvoiceRoutes = ({
       }
       throw new TRPCError({
         code: 'BAD_REQUEST'
+      })
+    }),
+  syncRefund: procedure
+    .input(
+      z.object({
+        invoiceId: z.number()
+      })
+    )
+    .query(async ({ input }) => {
+      const { invoiceId } = input
+      if (fastify.checkout?.paymentHandlers?.mollie) {
+        const invoice = await fastify.checkout.invoiceHandler.getInvoice({
+          id: invoiceId,
+          options: { withPayments: true }
+        })
+        const payment = invoice?.payments?.find(
+          (p) => p.paymentServiceProvider === 'mollie'
+        )
+        if (payment?.id) {
+          const result = await fastify.checkout.paymentHandlers
+            .mollie()
+            .getRefund({ id: payment.id })
+          if (result.success) return result.refund
+        }
+      }
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Unable to sync refund'
       })
     }),
   updateInvoice: procedure
@@ -765,7 +779,8 @@ export const adminInvoiceRoutes = ({
             totalIncludingTax: formatPrice({
               currency: invoice.currency,
               value: invoice.totalIncludingTax,
-              locale: invoice.locale
+              locale: invoice.locale,
+              includeSymbol: true
             })
           })
           const body = handlebars.compile(bodyTemplate)({
@@ -781,7 +796,8 @@ export const adminInvoiceRoutes = ({
             totalIncludingTax: formatPrice({
               currency: invoice.currency,
               value: invoice.totalIncludingTax,
-              locale: invoice.locale
+              locale: invoice.locale,
+              includeSymbol: true
             }),
             paid: invoice.amountPaid
               ? invoice.amountPaid >= invoice.totalIncludingTax
@@ -789,7 +805,8 @@ export const adminInvoiceRoutes = ({
             amountDue: formatPrice({
               currency: invoice.currency,
               value: invoice.amountDue || invoice.totalIncludingTax,
-              locale: invoice.locale
+              locale: invoice.locale,
+              includeSymbol: true
             })
           })
           return { subject, body }
@@ -885,11 +902,16 @@ export const adminInvoiceRoutes = ({
     .mutation(async ({ input }) => {
       const { id, status } = input
       if (fastify.checkout?.invoiceHandler) {
-        fastify.checkout.invoiceHandler.setInvoiceStatus({
+        const result = await fastify.checkout.invoiceHandler.setInvoiceStatus({
           id,
           status
         })
+        return result
       }
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invoice handler not available'
+      })
     }),
   refundInvoice: procedure
     .input(

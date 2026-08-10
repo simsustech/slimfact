@@ -31,15 +31,15 @@
           >
             <q-list>
               <q-item
-                v-if="paymentHandlersAvailable.ideal"
+                v-if="paymentHandlersAvailable.wero"
                 clickable
-                @click="payWithIdeal"
+                @click="payWithWero"
               >
                 <q-item-section avatar>
-                  <q-icon name="i-fa6-brands-ideal" />
+                  <q-icon name="i-arcticons-wero" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label> iDEAL </q-item-label>
+                  <q-item-label> Wero | iDEAL </q-item-label>
                 </q-item-section>
               </q-item>
               <q-item
@@ -86,15 +86,15 @@
           >
             <q-list>
               <q-item
-                v-if="configuration.PAYMENT_HANDLERS.ideal"
+                v-if="configuration.PAYMENT_HANDLERS.wero"
                 clickable
-                @click="payDownPaymentWithIdeal"
+                @click="payDownPaymentWithWero"
               >
                 <q-item-section avatar>
-                  <q-icon name="i-fa6-brands-ideal" />
+                  <q-icon name="i-arcticons-wero" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label> iDEAL </q-item-label>
+                  <q-item-label> Wero | iDEAL </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -280,8 +280,8 @@ import { useOAuthClient, user, oAuthClient } from '../oauth.js'
 import { useQuery } from '@pinia/colada'
 import { initializeTRPCClient, trpc } from '../trpc.js'
 import {
-  usePublicPayDownPaymentWithIdealMutation,
-  usePublicPayWithIdealMutation,
+  usePublicPayDownPaymentWithWeroMutation,
+  usePublicPayWithWeroMutation,
   usePublicPayWithCreditcardMutation
 } from '../queries/public/invoices.js'
 import { useAdminRefundInvoiceMutation } from '../queries/admin/invoices.js'
@@ -405,16 +405,16 @@ const qrSvg = computed(() => {
 
 // const invoiceRef = ref()
 
-const { mutateAsync: payWithIdealMutation } = usePublicPayWithIdealMutation()
+const { mutateAsync: payWithWeroMutation } = usePublicPayWithWeroMutation()
 const { mutateAsync: payWithCreditcardMutation } =
   usePublicPayWithCreditcardMutation()
-const { mutateAsync: payDownPaymentWithIdealMutation } =
-  usePublicPayDownPaymentWithIdealMutation()
+const { mutateAsync: payDownPaymentWithWeroMutation } =
+  usePublicPayDownPaymentWithWeroMutation()
 const { mutateAsync: refundInvoiceMutation } = useAdminRefundInvoiceMutation()
 
-const payWithIdeal = async () => {
+const payWithWero = async () => {
   try {
-    const result = await payWithIdealMutation(uuid.value)
+    const result = await payWithWeroMutation(uuid.value)
 
     if (result) window.location.href = result
   } catch (e) {
@@ -432,9 +432,9 @@ const payWithCreditcard = async () => {
   }
 }
 
-const payDownPaymentWithIdeal = async () => {
+const payDownPaymentWithWero = async () => {
   try {
-    const result = await payDownPaymentWithIdealMutation(uuid.value)
+    const result = await payDownPaymentWithWeroMutation(uuid.value)
 
     if (result) window.location.href = result
   } catch (e) {
@@ -511,7 +511,7 @@ const downloadUbl = () => {
 }
 
 const paymentHandlersAvailable = computed(() => ({
-  ideal: configuration.value.PAYMENT_HANDLERS.ideal && invoice.value?.currency,
+  wero: configuration.value.PAYMENT_HANDLERS.wero && invoice.value?.currency,
   creditcard:
     configuration.value.PAYMENT_HANDLERS.creditcard && invoice.value?.currency,
   bankTransfer:

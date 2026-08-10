@@ -1,5 +1,7 @@
 # Memory
 
+> **How to use this file**: AGENTS.md is your primary reference for the SlimFact project — read it before starting work. It covers architecture, workflows, test patterns, and conventions. Additional project-specific conventions are auto-loaded from `.pi/skills/` by Pi when relevant. After making significant changes, save a dated recap to `.pi/changes/`.
+
 ## Project Overview
 
 **SlimFact** is a streamlined invoicing solution built as a monorepo with three main packages. It focuses on immutable invoices, flexible billing (bills → receipts → invoices), and client payment processing.
@@ -29,61 +31,36 @@
 - **Invoices**: Core invoice entity (immutable once opened) - supports invoices, bills, receipts
 - **Subscriptions**: Recurring invoice generation with cron schedules
 - **Number Prefixes**: Configurable invoice numbering templates
-- **Email Templates**: Localized email content
 
 ### Invoice Status Flow
 
 ```
-DRAFT → OPEN → PAID/CANCELLED
+CONCEPT → OPEN → PAID/CANCELLED
 BILL → RECEIPT → INVOICE (convertible)
 ```
 
-### Payment Features
-
-- Mollie online payments (multiple profiles)
-- Stripe online payments via Stripe SDK (multiple profiles)
-- Payment method routing: env vars `IDEAL_PAYMENT_HANDLER` and `CREDITCARD_PAYMENT_HANDLER`
-- Down payment support
-- Cash/bank transaction tracking
-- Refund processing
-
 ### Export Formats
 
-- PDF (Typst-rendered)
-- UBL XML (e-invoicing standard)
-- Peppol XML
-- Digiboox format
-- CSV
-
-## Existing Features
-
-### Implemented
-
-- [x] OIDC authentication (headless API capable)
-- [x] Invoice/bill/receipt lifecycle
-- [x] Subscription billing with cron scheduling
-- [x] Multi-language invoices (locale per invoice)
-- [x] Tax rate per line (inclusive/exclusive)
-- [x] Decimal quantity support
-- [x] Mollie payment integration (multi-profile: company-specific API keys via `MOLLIE_API_KEY_<PREFIX>`)
-- [x] Stripe payment integration via `stripe` npm SDK (multi-profile: `STRIPE_API_KEY_<PREFIX>`)
-- [x] Payment method routing: env vars `IDEAL_PAYMENT_HANDLER=mollie|stripe` and `CREDITCARD_PAYMENT_HANDLER=mollie|stripe` control which PSP handles each method (default: ideal → mollie, creditcard → stripe)
-- [x] Email templating with Handlebars
-- [x] Email open tracking (pixel)
-- [x] EPC QR codes for bank transfers
-- [x] Company/client management
-- [x] Number prefix templates
-- [x] Digiboox, UBL, Peppol exports
+- PDF (Typst-rendered), UBL XML, Peppol XML, Digiboox, CSV
 
 ## Code Style Guidelines
 
 - Use descriptive variable names
 - Follow existing patterns in the codebase
 - Extract complex conditions into meaningful boolean variables
+- **Prevent raw SQL — use Kysely methods whenever possible.** Do work in the DB via the Kysely query builder (`eb.fn`, `eb.val`, `eb.ref`, callback `.where((eb) => ...)`), not raw `sql\`...\`` fragments or JS reduce/sort/slice. Check the Kysely API docs (<https://kysely-org.github.io/kysely-apidoc/>) before reaching for raw SQL. Validate before data reaches the DB, not after it comes out.
 
-## Common Workflows
+## Conventions (.pi/skills/)
 
-### Development Setup
+Pi auto-loads project-specific conventions from `.pi/skills/` when the task matches. These contain detailed rules covering:
+
+- **code-style**: Type assertions, object map lookups, factory param naming, simplicity
+- **dates**: Date-fns usage, UTC date iteration, holiday surcharge logic
+- **docker**: Build workflow, test stack, local package overlay in Docker
+- **env**: Config patterns, `env.read()`, VITE\_ prefix, default placement
+- **workflow**: Planning, change tracking, quality checks, documentation, security, Vue conventions
+
+## Development Setup
 
 ```bash
 pnpm i
@@ -95,6 +72,7 @@ pnpm run dev
 ```
 
 Fresh start each dev session:
+
 ```bash
 docker compose -f docker-compose.dev.yaml down --volumes
 docker compose -f docker-compose.dev.yaml up --force-recreate -d
@@ -105,153 +83,60 @@ POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact POSTGRES_PORT=5433 M
 NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm exec vitrify dev -m fastify --host --port 3001
 ```
 
-Use `seed:test` for E2E test data, `seed:fake` for development exploration. `seed:data` creates production-like data with invoices but requires `MODULARAPI_ADMIN_PASSWORD` env var. For E2E tests, run `seed:data` + `seed:fake` to get invoices in the system.
+Use `seed:test` for E2E test data, `seed:fake` for development exploration. `seed:data` creates production-like data with invoices but requires `MODULARAPI_ADMIN_PASSWORD`. For E2E tests, run `seed:data` + `seed:fake` to get invoices.
 
 For Docker-based dev stack (with Caddy + NetBird for webhook testing), use `docker-compose.test.yaml` instead.
 
 ### Dev Server & NetBird Tunnel
 
-The dev server runs on `https://localhost:3001` via vitrify. For webhook callbacks (Mollie/Stripe), external services need a publicly reachable URL — NetBird provides this via a dedicated subdomain on port 443 (NetBird routes 443 → local dev server).
+The dev server runs on `https://localhost:3001`. NetBird provides a publicly reachable URL (`https://slimfact-dev.eu1.netbird.services`) for PSP webhook callbacks.
 
-| Scenario | `VITE_API_HOST` | `PLAYWRIGHT_BASE_URL` | Notes |
-|----------|----------------|----------------------|-------|
-| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly |
-| Webhook testing | NetBird URL | NetBird URL | NetBird routes 443 → local dev server :3001 via tunnel |
+| Scenario                | `VITE_API_HOST`  | `PLAYWRIGHT_BASE_URL`    | Notes                                                  |
+| ----------------------- | ---------------- | ------------------------ | ------------------------------------------------------ |
+| Local dev (no webhooks) | `localhost:3001` | `https://localhost:3001` | Browse to localhost directly                           |
+| Webhook testing         | NetBird URL      | NetBird URL              | NetBird routes 443 → local dev server :3001 via tunnel |
 
 To switch, edit `packages/api/.env.development.local` and restart the dev server.
 
-**Why VITE_API_HOST matters**: The OIDC issuer URL is built from `VITE_API_HOST`. If set to the NetBird URL but you browse to localhost, OIDC will error with "Incorrect issuer in meta data" because the issuer doesn't match the page origin. For local dev, use `localhost:3001`. For webhook testing, use the NetBird URL.
+**Why VITE_API_HOST matters**: The OIDC issuer URL is built from `VITE_API_HOST`. If set to the NetBird URL but you browse to localhost, OIDC will error with "Incorrect issuer in meta data" because the issuer doesn't match the page origin.
 
-**Gotcha: stale POSTGRES_HOST**: If you previously ran Docker, `POSTGRES_HOST=database` may linger in your shell env. The dev server will then try to resolve `database` as a hostname and fail. Unset it: `unset POSTGRES_HOST`.
+**Gotcha: stale POSTGRES_HOST**: If you previously ran Docker, `POSTGRES_HOST=database` may linger in your shell env. Unset it: `unset POSTGRES_HOST`.
 
-E2E tests default to `https://localhost:3000`. Override `PLAYWRIGHT_BASE_URL` when needed:
-
-- **Cash/UI tests**: localhost works fine, no override needed
-- **PSP tests** (Mollie/Stripe): need NetBird URL for webhook callbacks
-
-```bash
-# Cash / UI tests (localhost):
-cd packages/api && pnpm run test:e2e
-
-# PSP tests (need NetBird for webhooks):
-PLAYWRIGHT_BASE_URL=https://<NETBIRD_URL> pnpm run test:e2e
-```
-
-> The Docker stack's Caddy reverse proxy listens on both localhost:3000 and the NetBird tunnel. Only PSP tests need the tunnel — login, admin, cash, and bill tests work against localhost.
-
-## Docker Test Stack with Linked Local Packages
-
-### Architecture
-
-The Docker build supports overlaying local packages on top of npm-installed ones via BuildKit `additional_contexts`. This lets you develop the `@modular-api/fastify-checkout` (and other linked packages) locally and test them in the full Docker stack.
-
-### How the Overlay Works
-
-1. `docker-compose.test.yaml` defines `additional_contexts` whose paths are controlled by env vars (e.g., `LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH`)
-2. When set, the Dockerfile's `COPY --from=linked-modular-api-fastify-checkout ./ /build/packages/modular-api-fastify-checkout/` copies the local package into the workspace
-3. The Dockerfile injects a `link:` override into `pnpm-workspace.yaml` pointing to the local package directory
-4. `pnpm install --no-frozen-lockfile` resolves the workspace, picking up the local copy via the `link:` override
-5. `pnpm --filter ./packages/modular-api-fastify-checkout run build` builds the linked package inside Docker — no pre-building needed locally
-6. The rest of the monorepo build (`pnpm run build`) uses the locally-built package via workspace resolution
-
-### Full Workflow
-
-**1. Set the linked package path**
-
-```bash
-export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
-```
-
-Any linked package context that is unset defaults to `.docker/empty` (an empty directory that contributes nothing to the build). The Dockerfile copies the entire package directory into the workspace and builds it internally via `pnpm --filter` — no pre-building needed locally.
-
-**2. Clean Docker state and rebuild**
-
-> **Important:** `SIMSUSTECH_NPM_TOKEN` must be `export`ed before any `docker compose` command, not just set:
-> ```bash
-> export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
-> ```
-
-```bash
-docker compose -f docker-compose.test.yaml down --volumes
-docker compose -f docker-compose.test.yaml build --no-cache api
-```
-
-`down --volumes` ensures a clean database. `build --no-cache` forces a fresh build with the latest package overlays (use `build` without `--build` on the up command per taste preference).
-
-**3. Start the stack**
-
-```bash
-docker compose -f docker-compose.test.yaml up -d api
-```
-
-The API container runs migrations, seeds test data (`seed:test`), and starts the server. Healthcheck polls every 10s with a 15s start period and 10 retries.
-
-**4. Verify the stack is healthy**
-
-The Caddy reverse proxy sits in front of the API and exposes it on port 443 via NetBird tunnel and on port 3000 locally. Browse to `https://slimfact-dev.eu1.netbird.services` to verify.
-
-```bash
-cd packages/api
-pnpm run test:e2e                        # cash/UI: localhost works
-PLAYWRIGHT_BASE_URL=<NETBIRD_URL> pnpm run test:e2e  # PSP: needs webhook URL
-```
-
-Most tests run fine against localhost. Only Mollie/Stripe PSP tests need the NetBird tunnel for webhook callbacks.
-
-### PSP-Specific Test Configs
-
-To route iDEAL and credit card payments through a specific PSP, combine compose files:
-
-```bash
-# Route all online payments through Mollie
-docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml build --no-cache api
-docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml up -d api
-
-# Route all online payments through Stripe
-docker compose -f docker-compose.test.yaml -f docker-compose.test.stripe.yaml build --no-cache api
-docker compose -f docker-compose.test.yaml -f docker-compose.test.stripe.yaml up -d api
-```
-
-The override files set `IDEAL_PAYMENT_HANDLER` and `CREDITCARD_PAYMENT_HANDLER` env vars which control the routing in `setup.ts`.
-
-Run PSP-specific tests:
-
-```bash
-# Mollie tests (iDEAL + creditcard via Mollie)
-cd packages/api && PLAYWRIGHT_BASE_URL=https://<NETBIRD_URL> npx playwright test tests/e2e/payments-mollie.spec.ts
-
-# Stripe tests (iDEAL + creditcard via Stripe)
-cd packages/api && PLAYWRIGHT_BASE_URL=https://<NETBIRD_URL> npx playwright test tests/e2e/payments-stripe.spec.ts
-```
-
-### Local Dev with pnpm link (No Docker)
-
-For local development (vitrify dev server), use `pnpm link` to link modular-api packages:
-
-```bash
-cd ~/Projects/modular-api/packages/fastify-checkout && pnpm run build
-cd ~/Projects/slimfact && pnpm link ~/Projects/modular-api/packages/fastify-checkout
-pnpm install --no-frozen-lockfile
-pnpm run dev
-```
-
-### Required Secrets
-
-Before any Docker command, export secrets from `env/*` files:
+**Gotcha: one-shot test recipe**: Always start a fresh test run with `down --volumes` so the API re-seeds from scratch, then `build --no-cache api` (so any linked local package overlay is picked up), then `up -d --wait` (so containers are healthy before tests run). `up -d api` without `--wait` returns immediately and the API then crashes on a missing DB if its container was recreated against a stale volume. The one-shot recipe:
 
 ```bash
 export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
-export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)
-export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
+export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+docker compose -f docker-compose.test.yaml up -d --wait
+cd packages/api && pnpm exec playwright test --workers=1 --config=playwright.nosetup.config.ts
 ```
 
-| Secret | File | Purpose |
-|--------|------|---------|
-| `SIMSUSTECH_NPM_TOKEN` | `env/SIMSUSTECH_NPM_TOKEN` | Private npm registry auth for `@modular-api/*` packages |
-| `MOLLIE_API_KEY` | `env/MOLLIE_API_KEY` | Mollie API key (test mode) |
-| `STRIPE_API_KEY` | `env/STRIPE_API_KEY` | Stripe API key (test mode) |
+`--volumes` drops the DB so the API re-runs migrations + `seed:test` from scratch. `build --no-cache api` rebuilds the image with any local fastify-checkout overlay. `up -d --wait` blocks until every container's healthcheck passes, so the API is ready before Playwright starts.
 
-`SIMSUSTECH_NPM_TOKEN` is needed for all builds. `MOLLIE_API_KEY`/`STRIPE_API_KEY` are only needed when using PSP override files (`-f docker-compose.test.mollie.yaml` or `-f docker-compose.test.stripe.yaml`).
+## Docker Test Stack with Linked Local Packages
+
+The Docker build supports overlaying local packages on top of npm-installed ones via BuildKit `additional_contexts`. Set `LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH` (or other `LINKED_*` vars) to point at your local copy. The Dockerfile copies, injects a `link:` override into `pnpm-workspace.yaml`, and builds inside Docker — no pre-building needed locally. Unset paths default to `.docker/empty`.
+
+### Full Workflow
+
+```bash
+# Set the linked package path
+export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
+
+# Export npm token (required before any docker compose command)
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+
+# Clean build
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+
+# Start
+docker compose -f docker-compose.test.yaml up -d api
+```
+
+The API container runs migrations, seeds `seed:test`, and starts the server. Healthcheck polls every 10s with a 15s start period.
 
 ### Build
 
@@ -259,34 +144,9 @@ export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
 pnpm run build  # Builds tools → app → api
 ```
 
-### Docker Secrets
-
-Secrets use Docker Compose `secrets:` with `environment:` source — not `file:` (which breaks in CI):
-1. Export secrets as env vars: `export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)`
-2. Compose declares: `secrets: { MOLLIE_API_KEY: { environment: MOLLIE_API_KEY } }`
-3. Service mounts them: `secrets: [MOLLIE_API_KEY]` → file at `/run/secrets/MOLLIE_API_KEY`
-4. `@vitrify/tools/env` reads `/run/secrets/<NAME>` automatically
-5. `SIMSUSTECH_NPM_TOKEN` is wired in `docker-compose.test.yaml`. `MOLLIE_API_KEY`/`STRIPE_API_KEY` are in the PSP override files only (`test.mollie.yaml` / `test.stripe.yaml`).
-
 ## Payment Flow
 
-### Architecture
-
-Payment handler code lives in `@modular-api/fastify-checkout` (external npm package). For development, the Docker build links a local copy via `linked-modular-api-fastify-checkout` additional context in `docker-compose.test.yaml` to test changes before publishing. Set `LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH` env var to your local path.
-
-### Payment Handler Factory Pattern
-
-Each PSP implements a factory function that returns a `FastifyCheckoutPaymentHandler`:
-
-| Handler | Factory | Config |
-|---------|---------|--------|
-| Mollie | `createMolliePaymentHandler({ fastify, kysely, options })` | `apiKey` (required), `host` (required for webhook) |
-| Stripe | `createStripePaymentHandler({ fastify, kysely, options })` | `apiKey` (required) |
-| Cash | `createCashPaymentHandler(...)` | None (offline) |
-| Bank transfer | `createBankTransferPaymentHandler(...)` | None (offline) |
-| PIN | `createPinPaymentHandler(...)` | None (offline) |
-
-Each handler provides: `createPayment`, `getPayment`, `getPayments`, `settlePayment`, `cancelPayment`, `refundPayment`, `getRefund`.
+Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, use `pnpm link` or the Docker linked-package overlay.
 
 ### Full Payment Lifecycle
 
@@ -297,111 +157,117 @@ Each handler provides: `createPayment`, `getPayment`, `getPayments`, `settlePaym
   ↓ Clicks Pay → selects method
 [invoiceHandler.addPaymentToInvoice()] routes to correct PSP handler
   ↓ createPayment() stores row in checkout.payments, returns checkoutUrl
-[Customer] Redirected to PSP (mollie.com/checkout or checkout.stripe.com)
+[Customer] Redirected to PSP
   ↓ Completes payment
 [PSP] POST /{psp}/webhook → settlePayment() → updates payment row
   ↓ Checks amountPaid >= totalIncludingTax
 [invoiceHandler] setInvoiceStatus({ status: PAID })
-  ↓ Optionally
-[invoiceHandler] fetchWebhookUrl() notifies external system
 ```
 
 ### Payment Method Routing
 
-In `invoiceHandler.addPaymentToInvoice()`:
-
-| Method | Default PSP | Env override |
-|--------|------------|--------------|
-| `ideal` | Mollie | `IDEAL_PAYMENT_HANDLER=mollie\|stripe` |
-| `creditcard` | Stripe | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
-| `cash` | Cash (offline) | — |
-| `bankTransfer` | Bank transfer (offline) | — |
-| `pin` | PIN (offline) | — |
-
-### Multi-Company Profiles
-
-Both Mollie and Stripe use a profiles map with a `default` fallback:
-
-```typescript
-mollie: {
-  profiles: {
-    default: <handler>,
-    [companyPrefix]: <handler>  // Company-specific API key
-  }
-}
-```
-
-Resolved via `(companyPrefix?) => handler` — returns company-specific profile if one exists, otherwise `default`.
+| Method         | Default PSP             | Env override                                |
+| -------------- | ----------------------- | ------------------------------------------- |
+| `ideal`        | Mollie                  | `IDEAL_PAYMENT_HANDLER=mollie\|stripe`      |
+| `creditcard`   | Stripe                  | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
+| `cash`         | Cash (offline)          | —                                           |
+| `bankTransfer` | Bank transfer (offline) | —                                           |
+| `pin`          | PIN (offline)           | —                                           |
 
 ### Webhook Handling
 
-**Mollie** (`POST /mollie/webhook`):
-- Receives `{ id: molliePaymentId }` from Mollie API
-- Looks up payment in `checkout.payments` by `externalId`
-- Calls `settlePayment()` to fetch/update payment status from Mollie
-- If `amountPaid >= totalIncludingTax` and status is `OPEN` → sets invoice to `PAID`
-- Calls `fetchWebhookUrl()` for external system notification
-
-**Stripe** (`POST /stripe/webhook`):
-- Receives full Stripe event, filters for `checkout.session.completed`
-- Same settle + status flow as Mollie
-- `webhookSecret` config accepted but verification not yet wired
+- **Mollie** (`POST /mollie/webhook`): receives `{ id }`, looks up payment by `externalId`, calls `settlePayment()`. If `amountPaid >= totalIncludingTax` and OPEN → PAID.
+- **Stripe** (`POST /stripe/webhook`): receives full event, filters for `checkout.session.completed`, same settle + PAID flow. `webhookSecret` accepted but verification not yet wired.
 
 ### Refund Flow
 
-1. `invoiceHandler.refundInvoice()` finds highest-paid PSP payment on the invoice
+1. `invoiceHandler.refundInvoice()` finds highest-paid PSP payment
 2. Calls `refundPayment()` on matching handler (Mollie or Stripe)
 3. Handler creates refund via PSP API, stores in `checkout.refunds`
-4. `getRefund()` syncs refund status from PSP on subsequent calls
 
 ### Test Mode Interactions
 
-**Mollie**: After redirect to mollie.com/checkout → select a test bank → click Pay → on test status page select "Paid" → click Continue → wait for webhook (up to 15s) → verify invoice shows "paid"/"betaald"
+- **Mollie**: redirect → select test bank → Pay → select "Paid" → Continue → wait webhook (≤15s)
+- **Stripe**: redirect → fill email/name → Submit → authorize if prompted → wait redirect → wait webhook (≤60s)
 
-**Stripe**: After redirect to checkout.stripe.com → fill email/name (card pre-filled for credit card, bank selection for iDEAL) → click Submit → authorize if prompted (iDEAL may show "Authorize Test Payment" button, credit card auto-completes) → wait for redirect back → wait for webhook (up to 60s) → verify invoice shows "paid"
+## E2E Testing
 
-**Test environment separation (strict)**:
+### Test Patterns
 
-| Environment | Command | Tests |
-|---|---|---|
-| **Local** (default routing) | `PLAYWRIGHT_BASE_URL=https://slimfact.localhost npx playwright test --grep-invert="payments-mollie\|payments-stripe" --workers=1` | All non-PSP: administrator, account, invoice-line-types, payments |
-| **Mollie** (both PSP→Mollie) | `SLIMFACT_PSP=mollie API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-mollie.spec.ts --workers=1` | Mollie PSP only: iDEAL, Creditcard |
-| **Stripe** (both PSP→Stripe) | `SLIMFACT_PSP=stripe API_HOST=<NETBIRD_URL> PLAYWRIGHT_BASE_URL=<NETBIRD_URL> npx playwright test payments-stripe.spec.ts --workers=1` | Stripe PSP only: iDEAL, Creditcard, Refunds |
+**Combobox (Quasar QSelect)**: Use `fillComboboxes()` from `helpers.ts` which clicks via `getByLabel()` and picks the first option. Never use `role="combobox"` — custom QSelect wrappers (CountrySelect, AccountSelect) don't expose it.
 
-**Never mix**: PSP tests need `API_HOST` set to NetBird URL (for OIDC issuer match). Non-PSP tests use `slimfact.localhost`. Use `--workers=1` to avoid parallel DB conflicts.
+**mkInvoice / mkBill**: After submitting a form, navigate to `/admin/invoices` and `waitForLoadState('networkidle')` before clicking `.q-expansion-item__toggle-icon`.first() — otherwise parallel tests' invoices pollute the list.
 
-### Test patterns
+**Cash payments**: Cash is admin-side (POS) only, NOT available on the public invoice page. Tests must go through `/admin/invoices` → expand → More → "Add payment" → Cash.
 
-**Combobox (Quasar QSelect)**: Never use `expect(locator).toBeVisible()` on a listbox after clicking a combobox — the Quasar QSelect popup can be unreliable. Use the `fillComboboxes()` helper from `helpers.ts` which clicks the combobox, presses ArrowDown as fallback, and waits for `[role="listbox"] [role="option"]` with 15s timeout.
+**Stripe `completeStripePayment`**: The `#authorize-test-payment` button only appears for iDEAL flow (5s timeout). Credit card auto-redirects after submit.
 
-**mkInvoice / mkBill**: After submitting an invoice/bill form, navigate to `/admin/invoices` and `waitForLoadState('networkidle')` before clicking `.q-expansion-item__toggle-icon'.first()` — otherwise parallel tests' invoices pollute the list and `.first()` selects the wrong item.
+**Shared page state**: Prefer `browser.newPage()` + `login()` for each test that creates/modifies data.
 
-**Cash payments**: Cash is an admin-side (POS) payment method, NOT available on the public invoice page. Tests must go through `/admin/invoices` → expand invoice → More → "Add payment" → Cash.
+**Debug helper**: `tests/e2e/helpers.ts` exports `dumpPage(page, label)` — logs URL, buttons, inputs, and body text.
 
-**Stripe `completeStripePayment`**: The `#authorize-test-payment` button only appears for iDEAL flow. Use short timeout (5s) on its click attempt, not 60s. For credit card payments, Stripe auto-redirects after submit — no confirm button needed.
+**Known TLS error in `screenshots-customer.spec.ts`**: the spec downloads the
+invoice PDF via Node `fetch`, which rejects the self-signed local stack
+certificate with `TypeError: fetch failed` / `unable to get local issuer
+certificate` (all 4 variants: en/nl × desktop/mobile). This is pre-existing
+and unrelated to app changes — run it with
+`NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm exec playwright test tests/e2e/screenshots-customer.spec.ts`.
 
-**Shared page state**: Tests sharing a `page` variable (serial mode) must be careful about leftover state from prior tests. Prefer `browser.newPage()` + `login()` for each test that creates/modifies data.
-Run with: `cd packages/api && npx playwright test tests/e2e/payments.spec.ts`
-
-### Docker Test Configs
-
-| File | Purpose |
-|------|---------|
-| `docker-compose.test.yaml` | Base test setup with DB, MailHog, NetBird |
-| `docker-compose.test.mollie.yaml` | Overrides: routes iDEAL+creditcard → Mollie |
-| `docker-compose.test.stripe.yaml` | Overrides: routes iDEAL+creditcard → Stripe |
-
-Usage: `docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml up -d api` (build separately with `build --no-cache` first)
-
-### Quality Checks (run after every change)
-
-> **Note:** `PI_RTK_BYPASS=1` must be set when running `pnpm run build` inside a Pi session to bypass RTK output compression that hides TypeScript errors. All secrets must be `export`ed (not just set) before any Docker command.
+### Base Test Stack (no PSP)
 
 ```bash
-# Export all needed secrets (once per shell)
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+docker compose -f docker-compose.test.yaml up -d api
+cd packages/api && pnpm run test:e2e
+```
+
+### PSP Test Workflow
+
+```bash
+# Prerequisites
 export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
 export MOLLIE_API_KEY=$(cat ./env/MOLLIE_API_KEY)
 export STRIPE_API_KEY=$(cat ./env/STRIPE_API_KEY)
+export STRIPE_WEBHOOK_SECRET=$(cat ./env/STRIPE_WEBHOOK_SECRET)
+export NETBIRD_SETUP_KEY=$(cat ./env/NETBIRD_SETUP_KEY)
+
+# CRITICAL: API_HOST must be the NetBird URL — the OIDC issuer is set from this at startup
+export API_HOST=slimfact-dev.eu1.netbird.services
+
+# Mollie tests
+docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml down --volumes
+docker compose -f docker-compose.test.yaml -f docker-compose.test.mollie.yaml up -d --wait
+cd packages/api
+unset STRIPE_API_KEY  # ensures only Mollie spec runs
+PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-mollie.spec.ts --workers=1 --config=playwright.nosetup.config.ts
+
+# Stripe tests
+docker compose -f docker-compose.test.yaml -f docker-compose.test.stripe.yaml down --volumes
+docker compose -f docker-compose.test.yaml -f docker-compose.test.stripe.yaml up -d --wait
+unset MOLLIE_API_KEY
+PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-stripe.spec.ts --workers=1 --config=playwright.nosetup.config.ts
+```
+
+> **Why `--config=playwright.nosetup.config.ts`**: The default config's `globalSetup` runs `docker compose down --volumes && build && up -d --wait`. Use nosetup when the stack is already running to avoid a redundant rebuild.
+>
+> **Why `API_HOST` before `up`**: The OIDC issuer is set at server startup from `API_HOST`. If it defaults to `slimfact.localhost`, the discovery endpoint advertises the wrong issuer, causing `Incorrect issuer in meta data` via the NetBird URL.
+
+### Docker Test Configs
+
+| File                              | Purpose                                   |
+| --------------------------------- | ----------------------------------------- |
+| `docker-compose.test.yaml`        | Base test setup with DB, MailHog, NetBird |
+| `docker-compose.test.mollie.yaml` | Routes iDEAL+creditcard → Mollie          |
+| `docker-compose.test.stripe.yaml` | Routes iDEAL+creditcard → Stripe          |
+
+## Quality Checks
+
+> `PI_RTK_BYPASS=1` must be set when running `pnpm run build` inside a Pi session to bypass RTK output compression that hides TypeScript errors.
+
+```bash
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
 
 pnpm run lint
 pnpm run format:check || pnpm run format:write
@@ -412,21 +278,24 @@ docker compose -f docker-compose.test.yaml down --volumes
 docker compose -f docker-compose.test.yaml build --no-cache api
 docker compose -f docker-compose.test.yaml up -d api
 cd packages/api && pnpm run test:e2e
-
-# PSP tests need NetBird URL + the right override file:
-# PLAYWRIGHT_BASE_URL=<NETBIRD_URL> pnpm run test:e2e
 ```
 
-### Database
+## Database
 
 - Migrations: `packages/api/src/kysely/migrations/`
 - Seeds: `packages/api/src/kysely/seeds/`
 - Types: Generated from DB schema in `types.ts`
 
-### E2E Testing
+## Change Recaps (.pi/changes/)
 
-- **Login flow**: Use the pattern from `administrator.spec.ts` — navigate, click Login, `waitForLoadState('networkidle')`, expect URL, fill form, click submit, wait for user URL.
-- **Debug helper**: `tets/e2e/helpers.ts` exports `dumpPage(page, label)` which logs URL, buttons, inputs, and body text — useful for probing pages during test development.
-- **Service workers**: Blocked in `playwright.config.ts` (`serviceWorkers: 'block'`) to prevent hydration warnings.
-- **Base URL**: Set via `PLAYWRIGHT_BASE_URL` env var. Defaults to `https://localhost:3000`. Only PSP payment tests (Mollie/Stripe) need the NetBird URL for webhook callbacks.
-- **PSP overrides**: Use `-f docker-compose.test.mollie.yaml` or `-f docker-compose.test.stripe.yaml` to route payment methods through a specific PSP.
+After significant changes, save a recap to `.pi/changes/YYYY-MM-DD-short-topic.md` listing files changed, what changed, and why.
+
+## Screenshots & Invoice PDF
+
+```bash
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+cd packages/api && pnpm exec playwright test tests/e2e/screenshots-customer.spec.ts --project=chromium
+cd packages/api && pnpm exec playwright test tests/e2e/screenshots-admin.spec.ts --project=chromium
+```
+
+Output: `packages/docs/public/screenshots/` — invoice page screenshots, PDFs, admin/customer pages.

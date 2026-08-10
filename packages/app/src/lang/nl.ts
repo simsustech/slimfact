@@ -21,7 +21,9 @@ const lang: Language = {
   name: 'Naam',
   overview: 'Overzicht',
   noResultsAvailable: 'Geen resultaten beschikbaar.',
+  rowsPerPage: 'Regels per pagina',
   add: 'Toevoegen',
+  darkMode: 'Donkere modus',
   account: {
     title: 'Account',
     accounts: 'Accounts',
@@ -250,7 +252,7 @@ const lang: Language = {
     methods: {
       cash: 'Contant',
       bankTransfer: 'Bank overschrijving',
-      ideal: 'iDEAL',
+      wero: 'Wero | iDEAL',
       pin: 'PIN',
       creditcard: 'Creditcard'
     },
@@ -277,6 +279,89 @@ const lang: Language = {
         bills: 'Bekijk mijn rekeningen.',
         receipts: 'Bekijk mijn kwitanties.',
         invoices: 'Bekijk mijn facturen.'
+      }
+    },
+    admin: {
+      title: 'Dashboard',
+      companyFilter: {
+        label: 'Bedrijfsfilter',
+        allSelected: 'Alle bedrijven',
+        noneSelected: 'Geen bedrijven geselecteerd'
+      },
+      revenue: {
+        title: 'Omzet',
+        today: 'Vandaag',
+        week: 'Deze week',
+        month: 'Deze maand',
+        quarter: 'Dit kwartaal',
+        year: 'Dit jaar',
+        customRange: 'Aangepast bereik',
+        startDate: 'Start',
+        endDate: 'Einde',
+        invoices: 'Facturen',
+        receipts: 'Bonnen',
+        bills: 'Rekeningen',
+        chart: {
+          title: 'Omzet over tijd',
+          noData: 'Geen omzet in deze periode',
+          bin: {
+            day: 'Per dag: elk punt is de omzet betaald op die datum.',
+            week: 'Per week: elk punt is de omzet betaald in die week.',
+            month: 'Per maand: elk punt is de omzet betaald in die maand.',
+            quarter:
+              'Per kwartaal: elk punt is de omzet betaald in dat kwartaal.'
+          }
+        }
+      },
+      debtors: {
+        title: 'Openstaand',
+        toggle: {
+          invoices: 'Facturen',
+          bills: 'Rekeningen'
+        },
+        empty: 'Geen openstaande facturen'
+      },
+      actionItems: {
+        title: 'Actiepunten',
+        open: 'Open facturen',
+        overdue: {
+          needsReminder: 'Herinnering nodig',
+          reminder1: 'Eerste herinnering verstuurd',
+          reminder2: 'Tweede herinnering verstuurd',
+          exhortation: 'Aanmaning'
+        }
+      },
+      upcomingIncome: {
+        title: 'Aanstaande inkomsten',
+        titleOverdue: 'Vervallen inkomsten',
+        invoices: 'openstaande facturen',
+        due: 'vervalt op',
+        empty: 'Nog geen facturen vervallen',
+        emptyOverdue: 'Geen vervallen facturen',
+        toggle: {
+          upcoming: 'Aanstaand',
+          overdue: 'Vervallen'
+        }
+      },
+      paymentMethods: {
+        title: 'Betaald per betaalmethode'
+      },
+      recentActivity: {
+        title: 'Recente activiteit',
+        forInvoice: 'voor factuur',
+        filter: {
+          label: 'Activiteit filter',
+          all: 'Alle',
+          invoiceOpened: 'Factuur geopend',
+          billCreated: 'Rekening aangemaakt',
+          payment: 'Betaling ontvangen',
+          reminder: 'Herinnering verstuurd',
+          exhortation: 'Aanmaning verstuurd'
+        }
+      },
+      empty: {
+        noData: 'Geen gegevens beschikbaar',
+        noCompanySelected: 'Selecteer een bedrijf om statistieken te zien'
       }
     }
   },

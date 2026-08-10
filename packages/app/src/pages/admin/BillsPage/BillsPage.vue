@@ -47,14 +47,25 @@
         </q-item>
       </q-list>
     </div>
-    <div class="flex flex-center q-mt-md">
-      <q-pagination
-        v-model="page"
-        :disable="!(total && page && rowsPerPage)"
-        :max="Math.ceil(total / rowsPerPage)"
-        :max-pages="5"
-        direction-links
-      />
+    <div class="grid grid-cols-12 items-center gap-3 q-mt-md">
+      <div class="col-span-12 md:col-span-3">
+        <q-select
+          v-model="rowsPerPage"
+          :options="[5, 10, 15, 25, 50]"
+          :label="lang.rowsPerPage"
+          dense
+          outlined
+        />
+      </div>
+      <div class="col-span-12 md:col-span-6 flex justify-center">
+        <q-pagination
+          v-model="page"
+          :disable="!(total && page && rowsPerPage)"
+          :max="Math.ceil(total / rowsPerPage)"
+          :max-pages="5"
+          direction-links
+        />
+      </div>
     </div>
   </q-page>
   <responsive-dialog
@@ -420,17 +431,17 @@ const openAddPinPaymentDialog: InstanceType<
     })
 }
 
-const openAddIdealPaymentDialog: InstanceType<
+const openAddWeroPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onAddPaymentIdeal'] = async ({ data, done }) => {
+>['$props']['onAddPaymentWero'] = async ({ data, done }) => {
   try {
     const result = await addPaymentToInvoiceMutation({
       id: data.id,
       payment: {
         amount: data.amountDue || data.totalIncludingTax,
         currency: data.currency,
-        description: `iDEAL payment ${new Date().toISOString().slice(0, 10)}`,
-        method: PaymentMethod.ideal
+        description: `Wero payment ${new Date().toISOString().slice(0, 10)}`,
+        method: PaymentMethod.wero
       }
     })
     if (result?.checkoutUrl) {
@@ -576,6 +587,10 @@ watch(clientId, (newVal) => {
   if (newVal) clientDetails.value.name = null
 })
 
+watch(rowsPerPage, () => {
+  page.value = 1
+})
+
 const invoiceExpansionItemHandlers = computed(() => ({
   send: openSendEmailDialog('bill'),
   update: openUpdateDialog,
@@ -589,8 +604,8 @@ const invoiceExpansionItemHandlers = computed(() => ({
   addPaymentBankTransfer: configuration.value.PAYMENT_HANDLERS.bankTransfer
     ? openAddBankTransferPaymentDialog
     : undefined,
-  addPaymentIdeal: configuration.value.PAYMENT_HANDLERS.ideal
-    ? openAddIdealPaymentDialog
+  addPaymentWero: configuration.value.PAYMENT_HANDLERS.wero
+    ? openAddWeroPaymentDialog
     : undefined,
   addPaymentCreditcard: configuration.value.PAYMENT_HANDLERS.creditcard
     ? openAddCreditcardPaymentDialog
