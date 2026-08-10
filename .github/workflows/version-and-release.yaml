@@ -63,11 +63,11 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
-            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const content = fs.readFileSync('packages/api/CHANGELOG.md', 'utf8');
             const lines = content.split('\n');
             let start = -1, end = -1;
             for (let i = 0; i < lines.length; i++) {
-              if (/^## \[/.test(lines[i])) {
+              if (/^## v?\d+\.\d+\.\d+/.test(lines[i])) {
                 if (start === -1) start = i;
                 else { end = i; break; }
               }
