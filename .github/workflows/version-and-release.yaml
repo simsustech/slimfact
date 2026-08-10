@@ -62,7 +62,7 @@ jobs:
         run: |
           VERSION=$(node -p "require('./packages/api/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          if git ls-remote --tags origin "refs/tags/v$VERSION" | grep -q .; then
             echo "tagged=true" >> "$GITHUB_OUTPUT"
           else
             echo "tagged=false" >> "$GITHUB_OUTPUT"
