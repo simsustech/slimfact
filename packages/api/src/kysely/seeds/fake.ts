@@ -395,6 +395,10 @@ const seed = async () => {
   // Guarantee one OPEN invoice per overdue-aging bucket (needsReminder,
   // reminder1, reminder2, exhortation). The aging query requires status=OPEN,
   // a dueDate in the past, and counts reminder_sent_dates entries (0..3+).
+  // Open each one through the handler like a real "send": an OPEN invoice in
+  // the app is only ever reachable via openInvoice(), which always assigns the
+  // document number and invoice date. Seeding OPEN directly would leave those
+  // fields NULL and the PDF download filename would read "null ... nullnull.pdf".
   const reminderBucketSizes = [0, 1, 2, 3]
   for (const reminderCount of reminderBucketSizes) {
     const result = await invoiceHandler.createInvoice({
@@ -408,32 +412,35 @@ const seed = async () => {
       surcharges: [],
       paymentTermDays: 14,
       locale: 'en-US',
-      status: InvoiceStatus.OPEN,
       companyId: adminCompany.id,
       clientId: adminClient.id
     })
-    if (result.success) {
-      const overdueDate = new Date()
-      overdueDate.setDate(overdueDate.getDate() - 30)
-      const reminderDates = Array.from({ length: reminderCount }, (_, i) => {
-        const d = new Date()
-        d.setDate(d.getDate() - 60 + i * 10)
-        return d.toISOString().slice(0, 10)
+    if (!result.success) continue
+    // Open (number + prefix + invoice date + due date + OPEN status), then
+    // age the due date below so the invoice lands in the overdue buckets.
+    const opened = await invoiceHandler.openInvoice({
+      id: result.invoice.id,
+      numberPrefix: renderedNumberPrefix
+    })
+    if (!opened.success) continue
+    const overdueDate = new Date()
+    overdueDate.setDate(overdueDate.getDate() - 30)
+    const reminderDates = Array.from({ length: reminderCount }, (_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - 60 + i * 10)
+      return d.toISOString().slice(0, 10)
+    })
+    const backdated = new Date()
+    backdated.setDate(backdated.getDate() - 60)
+    await db
+      .updateTable('checkout.invoices')
+      .where('id', '=', result.invoice.id)
+      .set({
+        createdAt: backdated.toISOString(),
+        dueDate: overdueDate.toISOString().slice(0, 10),
+        reminderSentDates: JSON.stringify(buildReminderSentDates(reminderDates))
       })
-      const backdated = new Date()
-      backdated.setDate(backdated.getDate() - 60)
-      await db
-        .updateTable('checkout.invoices')
-        .where('id', '=', result.invoice.id)
-        .set({
-          createdAt: backdated.toISOString(),
-          dueDate: overdueDate.toISOString().slice(0, 10),
-          reminderSentDates: JSON.stringify(
-            buildReminderSentDates(reminderDates)
-          )
-        })
-        .execute()
-    }
+      .execute()
   }
 }
 
