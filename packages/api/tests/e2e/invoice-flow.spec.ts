@@ -134,15 +134,14 @@ test.describe('Bill Lifecycle', () => {
     const addPaymentBtn = page.getByText('Add payment').first()
     if (await addPaymentBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await addPaymentBtn.click()
-      await page.getByRole('combobox').first().click()
+      // Menu opens with individual payment method items — click Cash
       await page
-        .getByRole('option', { name: /cash/i })
+        .getByText('Cash', { exact: false })
         .first()
         .click({ timeout: 3000 })
+      // AddPaymentDialog opens with amount field
       await page.getByRole('spinbutton').fill('50.00')
-      await page
-        .getByRole('button', { name: /submit/i })
-        .click({ timeout: 3000 })
+      await page.getByRole('button', { name: /ok/i }).click({ timeout: 3000 })
       await page
         .locator('.q-notification')
         .first()
