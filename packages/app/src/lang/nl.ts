@@ -148,6 +148,10 @@ const lang: Language = {
         'Gebruik de downloadknop om de PDF op te halen en print deze vanuit uw PDF-viewer.',
       openReference: 'Open referentie'
     },
+    filters: {
+      startDate: 'Startdatum',
+      endDate: 'Einddatum'
+    },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>
         `Weet u zeker dat u de factuur aan ${

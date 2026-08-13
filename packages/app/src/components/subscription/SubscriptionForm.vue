@@ -201,7 +201,7 @@ import {
   CronScheduleInput
 } from '@simsustech/quasar-components/form'
 import { useLang } from '../../lang/index.js'
-import { configuration } from '../../configuration.js'
+import { DATE_FORMAT } from '../../configuration.js'
 import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
 import {
@@ -285,9 +285,6 @@ const initialValue: Subscription = {
 const modelValue = ref<Subscription>(initialValue)
 
 const lang = useLang()
-const DATE_FORMAT = computed(
-  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
-)
 
 const filterCompanies: InstanceType<
   typeof CompanySelect

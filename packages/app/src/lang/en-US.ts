@@ -148,6 +148,10 @@ const lang: Language = {
         'Please use the Download button to get the PDF, then print from your PDF viewer.',
       openReference: 'Open reference'
     },
+    filters: {
+      startDate: 'Start date',
+      endDate: 'End date'
+    },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>
         `Are you sure you want to mark the invoice to ${
