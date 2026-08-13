@@ -184,11 +184,8 @@ import {
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 import { useLang } from '../../lang/index.js'
 import { DateInput } from '@simsustech/quasar-components/form'
-import { configuration } from '../../configuration.js'
+import { DATE_FORMAT } from '../../configuration.js'
 
-const DATE_FORMAT = computed(
-  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
-)
 const lang = useLang()
 const router = useRouter()
 

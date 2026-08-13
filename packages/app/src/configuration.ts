@@ -1,4 +1,4 @@
-import { type Ref, ref } from 'vue'
+import { computed, type Ref, ref } from 'vue'
 import { Loading } from 'quasar'
 import { useLang } from './lang/index.js'
 import type { Locales } from '@simsustech/quasar-components/form'
@@ -51,6 +51,10 @@ export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
 })
 
 export const useConfiguration = () => configuration
+
+export const DATE_FORMAT = computed(
+  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
+)
 
 export const loadConfiguration = async (locale: Ref<string>) => {
   Loading.show({

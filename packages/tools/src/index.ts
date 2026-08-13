@@ -44,3 +44,22 @@ export const formatDate = (isoDate: string, format: string): string => {
     .replaceAll('MM', month)
     .replaceAll('DD', day)
 }
+/**
+ * Strict YYYY-MM-DD check. DateInput emits `_`-padded partials while typing
+ * (e.g. "2026-0_-__"); they must never reach the handler as date params, so
+ * invalid values are stripped to undefined.
+ */
+export const validIsoDate = (v: string | null | undefined) =>
+  v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined
+
+/**
+ * Read a single date query param from a vue-router LocationQuery-like object.
+ * Non-string values (arrays, undefined) fall back to null.
+ */
+export const dateQueryParam = (
+  query: Record<string, unknown>,
+  key: string
+): string | null => {
+  const value = query[key]
+  return typeof value === 'string' ? (validIsoDate(value) ?? null) : null
+}

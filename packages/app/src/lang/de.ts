@@ -149,6 +149,10 @@ const lang: Language = {
         'Bitte nutzen Sie den Download-Button, um das PDF zu erhalten, und drucken Sie es aus Ihrem PDF-Viewer.',
       openReference: 'Referenz öffnen'
     },
+    filters: {
+      startDate: 'Startdatum',
+      endDate: 'Enddatum'
+    },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>
         `Sind Sie sicher, dass Sie die Rechnung an ${

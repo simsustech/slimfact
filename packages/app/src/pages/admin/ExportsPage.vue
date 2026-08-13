@@ -64,12 +64,9 @@ import { useQuery } from '@pinia/colada'
 import { trpc } from '../../trpc.js'
 import { useAdminSearchCompaniesQuery } from '../../queries/admin/companies.js'
 import { useLang } from '../../lang/index.js'
-import { configuration } from '../../configuration.js'
+import { DATE_FORMAT } from '../../configuration.js'
 
 const lang = useLang()
-const DATE_FORMAT = computed(
-  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
-)
 const companyId = ref<number>()
 const endDate = ref(new Date().toISOString().slice(0, 10))
 const startDate = ref(

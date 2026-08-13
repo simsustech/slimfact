@@ -196,7 +196,7 @@ export const adminInvoiceRoutes = ({
     .query(async ({ input }) => {
       const { invoiceId } = input
       if (fastify.checkout?.paymentHandlers?.mollie) {
-        const invoice = await fastify.checkout.invoiceHandler.getInvoice({
+        const invoice = await fastify.checkout.invoiceHandler?.getInvoice({
           id: invoiceId,
           options: { withPayments: true }
         })
@@ -314,7 +314,9 @@ export const adminInvoiceRoutes = ({
               descending: z.boolean()
             })
             .optional(),
-          paid: z.boolean().optional()
+          paid: z.boolean().optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional()
         })
         .optional()
     )
@@ -327,7 +329,9 @@ export const adminInvoiceRoutes = ({
         status,
         statuses,
         pagination,
-        paid
+        paid,
+        startDate,
+        endDate
       } = input || {}
       if (fastify.checkout?.invoiceHandler) {
         const invoices = await fastify.checkout.invoiceHandler.getInvoices({
@@ -345,7 +349,9 @@ export const adminInvoiceRoutes = ({
             withAmountRefunded: true
           },
           pagination,
-          paid
+          paid,
+          startDate,
+          endDate
         })
         return invoices
       }
@@ -846,7 +852,7 @@ export const adminInvoiceRoutes = ({
           currency: z.union([z.literal('EUR'), z.literal('USD')]),
           method: z.nativeEnum(PaymentMethod),
           redirectUrl: z.string().url().nullable().optional(),
-          transactionReference: z.string().nullable().optional()
+          transactionReference: z.string().optional()
         })
       })
     )

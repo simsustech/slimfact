@@ -28,6 +28,18 @@
             @filter="onFilterClients"
             @new-value="onNewValueClients"
           />
+          <date-input
+            v-model="startDate"
+            :label="lang.invoice.filters.startDate"
+            :format="DATE_FORMAT"
+            clearable
+          />
+          <date-input
+            v-model="endDate"
+            :label="lang.invoice.filters.endDate"
+            :format="DATE_FORMAT"
+            clearable
+          />
           <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
@@ -130,7 +142,8 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import { EmailInput } from '@simsustech/quasar-components/form'
+import { EmailInput, DateInput } from '@simsustech/quasar-components/form'
+import { dateQueryParam } from '@slimfact/tools'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
@@ -143,7 +156,7 @@ import ClientSelect from '../../../components/client/ClientSelect.vue'
 import InvoiceStatusSelect from '../../../components/invoice/InvoiceStatusSelect.vue'
 import AddPaymentDialog from '../../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
-import { useConfiguration } from '../../../configuration.js'
+import { useConfiguration, DATE_FORMAT } from '../../../configuration.js'
 
 import { EventBus } from 'quasar'
 import {
@@ -190,6 +203,8 @@ const {
   rowsPerPage,
   uuids,
   paid,
+  startDate,
+  endDate,
   refetch: execute
 } = useAdminGetInvoicesQuery()
 
@@ -217,6 +232,8 @@ const applyRouteFilters = (to: typeof route) => {
   } else {
     companyId.value = NaN
   }
+  startDate.value = dateQueryParam(to.query, 'startDate')
+  endDate.value = dateQueryParam(to.query, 'endDate')
 }
 
 applyRouteFilters(route)
@@ -660,12 +677,16 @@ const activeSearch = computed(
   () =>
     !Number.isNaN(companyId.value) ||
     !Number.isNaN(clientId.value) ||
-    status.value !== null
+    status.value !== null ||
+    startDate.value !== null ||
+    endDate.value !== null
 )
 const clearSearchResults = () => {
   companyId.value = NaN
   clientId.value = NaN
   status.value = null
+  startDate.value = null
+  endDate.value = null
 }
 
 const ready = ref<boolean>(false)
