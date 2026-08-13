@@ -32,12 +32,14 @@
             v-model="startDate"
             :label="lang.invoice.filters.startDate"
             :format="DATE_FORMAT"
+            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
             clearable
           />
           <date-input
             v-model="endDate"
             :label="lang.invoice.filters.endDate"
             :format="DATE_FORMAT"
+            :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
             clearable
           />
           <!-- <invoice-status-select v-model="status" /> -->
