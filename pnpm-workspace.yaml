@@ -20,7 +20,11 @@ minimumReleaseAgeExclude:
   - "@vue/shared@3.5.41"
   - quasar@2.24.0
   - vue@3.5.41
-  - unocss-preset-quasar@0.5.0 || 0.5.1
+  - unocss-preset-quasar@0.5.0 || 0.5.1 || 0.5.3
+  - '@quasar/quasar-ui-qcalendar@5.2.2'
+  - '@timestamp-js/core@1.0.0'
+  - pinia@4.0.3
+  - vitrify@0.27.0
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
@@ -37,3 +41,6 @@ allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: true
+
+overrides:
+  typesript: '6.0.3'

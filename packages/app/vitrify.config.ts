@@ -165,7 +165,11 @@ const quasarConf: QuasarPluginOptions = {
   disableSass: true
 }
 
-export default async function ({ mode, command }): Promise<VitrifyConfig> {
+export default async function ({
+  mode
+}: {
+  mode: string
+}): Promise<VitrifyConfig> {
   const env = loadEnv(mode, process.cwd(), '')
 
   const config: VitrifyConfig = {
@@ -195,7 +199,17 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
       ssr: {
         serverModules: []
       },
-      manualChunks: ['zod'],
+      chunks: {
+        typst: ['@myriaddreamin/typst'],
+        trpc: ['@trpc/client', '@trpc/server'],
+        zod: ['zod'],
+        chart: ['chart.js', 'vue-chartjs'],
+        uqr: ['uqr'],
+        workbox: ['workbox-window'],
+        lionelOauth: ['@stefanvh/lionel-oauth-client'],
+        simsustechQuasarComponents: ['@simsustech/quasar-components'],
+        modularApiQuasarComponents: ['@modular-api/quasar-components']
+      },
       unocss: {
         presets: [
           QuasarPreset({

@@ -61,11 +61,11 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0",
     "@myriaddreamin/typst.ts": "0.7.0",
     "@types/iban": "0.0.35",
-    "@types/node": "26.1.2",
+    "@types/node": "26.2.0",
     "csv-parse": "7.0.2",
-    "kysely": "0.29.4",
-    "oxfmt": "0.62.0",
-    "oxlint": "1.77.0",
-    "typescript": "6.0.3"
+    "kysely": "0.29.5",
+    "oxfmt": "0.63.0",
+    "oxlint": "1.78.0",
+    "typescript": "7.0.2"
   }
 }
