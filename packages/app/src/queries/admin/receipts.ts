@@ -1,4 +1,5 @@
 import { defineQuery, useQuery } from '@pinia/colada'
+import { validIsoDate } from '@slimfact/tools'
 import { ref, computed } from 'vue'
 import { trpc } from '../../trpc.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
@@ -13,6 +14,8 @@ export const useAdminGetReceiptsQuery = defineQuery(() => {
   const rowsPerPage = ref(5)
   const uuids = ref<string[] | undefined>()
   const paid = ref()
+  const startDate = ref<string | null>(null)
+  const endDate = ref<string | null>(null)
   const pagination = computed<{
     limit: number
     offset: number
@@ -33,6 +36,8 @@ export const useAdminGetReceiptsQuery = defineQuery(() => {
       companyId.value,
       clientDetails.value,
       paid.value,
+      validIsoDate(startDate.value),
+      validIsoDate(endDate.value),
       pagination.value,
       {
         uuids:
@@ -49,6 +54,8 @@ export const useAdminGetReceiptsQuery = defineQuery(() => {
         status: InvoiceStatus.RECEIPT,
         pagination: pagination.value,
         paid: paid.value,
+        startDate: validIsoDate(startDate.value),
+        endDate: validIsoDate(endDate.value),
         uuids:
           companyId.value || clientId.value || clientDetails.value.name
             ? undefined
@@ -64,6 +71,8 @@ export const useAdminGetReceiptsQuery = defineQuery(() => {
     rowsPerPage,
     uuids,
     paid,
+    startDate,
+    endDate,
     ...rest
   }
 })

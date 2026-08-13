@@ -145,6 +145,10 @@ export interface Language {
       downloadPdfToPrint: string
       openReference: string
     }
+    filters: {
+      startDate: string
+      endDate: string
+    }
     messages: {
       markPaid: ({
         clientDetails,

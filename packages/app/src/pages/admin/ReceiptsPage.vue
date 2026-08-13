@@ -26,6 +26,18 @@
             @filter="onFilterClients"
             @new-value="onNewValueClients"
           />
+          <date-input
+            v-model="startDate"
+            :label="lang.invoice.filters.startDate"
+            :format="DATE_FORMAT"
+            clearable
+          />
+          <date-input
+            v-model="endDate"
+            :label="lang.invoice.filters.endDate"
+            :format="DATE_FORMAT"
+            clearable
+          />
           <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
@@ -90,7 +102,8 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
-import { EmailInput } from '@simsustech/quasar-components/form'
+import { EmailInput, DateInput } from '@simsustech/quasar-components/form'
+import { dateQueryParam } from '@slimfact/tools'
 import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../components/invoice/InvoiceExpansionItem.vue'
 
@@ -99,6 +112,7 @@ import ClientSelect from '../../components/client/ClientSelect.vue'
 import { QSelect } from 'quasar'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useLang } from '../../lang/index.js'
+import { DATE_FORMAT } from '../../configuration.js'
 
 import { useAdminGetReceiptsQuery } from '../../queries/admin/receipts.js'
 import { useAdminSearchCompaniesQuery } from '../../queries/admin/companies.js'
@@ -117,6 +131,8 @@ onBeforeRouteUpdate((to) => {
   } else {
     uuids.value = undefined
   }
+  startDate.value = dateQueryParam(to.query, 'startDate')
+  endDate.value = dateQueryParam(to.query, 'endDate')
 })
 
 const {
@@ -127,12 +143,16 @@ const {
   page,
   rowsPerPage,
   uuids,
+  startDate,
+  endDate,
   refetch: execute
 } = useAdminGetReceiptsQuery()
 
 if (route.params.uuids && Array.isArray(route.params.uuids)) {
   uuids.value = route.params.uuids as string[]
 }
+startDate.value = dateQueryParam(route.query, 'startDate')
+endDate.value = dateQueryParam(route.query, 'endDate')
 
 const lang = useLang()
 const total = computed(() => receipts.value?.at(0)?.total || 0)
@@ -248,11 +268,17 @@ const invoiceExpansionItemHandlers = computed(() => ({
 }))
 
 const activeSearch = computed(
-  () => !Number.isNaN(companyId.value) || !Number.isNaN(clientId.value)
+  () =>
+    !Number.isNaN(companyId.value) ||
+    !Number.isNaN(clientId.value) ||
+    startDate.value !== null ||
+    endDate.value !== null
 )
 const clearSearchResults = () => {
   companyId.value = NaN
   clientId.value = NaN
+  startDate.value = null
+  endDate.value = null
 }
 
 const ready = ref<boolean>(false)
