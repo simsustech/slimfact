@@ -16,7 +16,7 @@
     </template>
     <template #no-option>
       <q-item>
-        <q-item-section class="text-italic text-grey">
+        <q-item-section class="text-italic text-gray">
           {{ lang.noResultsAvailable }}
           <router-link to="/admin/clients">{{
             lang.client.messages.addClient

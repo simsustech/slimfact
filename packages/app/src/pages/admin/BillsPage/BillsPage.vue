@@ -640,15 +640,15 @@ const invoiceExpansionItemHandlers = computed(() => ({
 
 const activeSearch = computed(
   () =>
-    !Number.isNaN(companyId.value) ||
-    !Number.isNaN(clientId.value) ||
+    companyId.value != null ||
+    clientId.value != null ||
     paid.value !== void 0 ||
     startDate.value !== null ||
     endDate.value !== null
 )
 const clearSearchResults = () => {
-  companyId.value = NaN
-  clientId.value = NaN
+  companyId.value = null
+  clientId.value = null
   paid.value = undefined
   startDate.value = null
   endDate.value = null

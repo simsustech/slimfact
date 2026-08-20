@@ -195,7 +195,7 @@ Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, us
 
 ### Test Patterns
 
-**Combobox (Quasar QSelect)**: Use `fillComboboxes()` from `helpers.ts` which clicks via `getByLabel()` and picks the first option. Never use `role="combobox"` — custom QSelect wrappers (CountrySelect, AccountSelect) don't expose it.
+**Combobox (Quasar QSelect)**: Use `fillComboboxes()` from `helpers.ts` which clicks via `getByLabel()` and picks the first option. `role="combobox"` IS exposed on the QSelect input (Quasar 2.25.1 renders `<input role="combobox" aria-label="...">`), so `getByRole('combobox', { name: '...' })` works — but prefer `getByLabel()` for stability across Quasar versions.
 
 **mkInvoice / mkBill**: After submitting a form, navigate to `/admin/invoices` and `waitForLoadState('networkidle')` before clicking `.q-expansion-item__toggle-icon`.first() — otherwise parallel tests' invoices pollute the list.
 
