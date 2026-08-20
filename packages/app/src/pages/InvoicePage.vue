@@ -511,9 +511,8 @@ const downloadUbl = () => {
 }
 
 const paymentHandlersAvailable = computed(() => ({
-  wero: configuration.value.PAYMENT_HANDLERS.wero && invoice.value?.currency,
-  creditcard:
-    configuration.value.PAYMENT_HANDLERS.creditcard && invoice.value?.currency,
+  wero: configuration.value.PAYMENT_HANDLERS.wero,
+  creditcard: configuration.value.PAYMENT_HANDLERS.creditcard,
   bankTransfer:
     configuration.value.PAYMENT_HANDLERS?.bankTransfer &&
     invoice.value?.status === InvoiceStatus.OPEN &&
