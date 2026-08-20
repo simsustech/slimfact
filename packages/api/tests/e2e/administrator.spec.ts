@@ -138,6 +138,9 @@ test.describe('Administrator', async () => {
 
     await page.locator('#fabAdd').click()
     await page.waitForSelector('[role="combobox"]')
+    await expect(
+      page.getByRole('combobox', { name: 'Company*' })
+    ).not.toHaveValue('NaN')
     await fillComboboxes(page)
 
     await clickLinesAdd(page)

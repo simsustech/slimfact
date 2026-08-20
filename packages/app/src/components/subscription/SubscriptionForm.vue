@@ -17,12 +17,7 @@
         @filter="filterClients"
       />
     </div>
-    <div
-      v-show="
-        !Number.isNaN(modelValue.companyId) &&
-        !Number.isNaN(modelValue.clientId)
-      "
-    >
+    <div v-show="modelValue.companyId != null && modelValue.clientId != null">
       <div class="grid grid-cols-12 gap-3">
         <q-select
           v-model="modelValue.type"
@@ -267,8 +262,8 @@ const { filteredCompanies, filteredClients } = toRefs(props)
 
 const initialValue: Subscription = {
   name: '',
-  companyId: NaN,
-  clientId: NaN,
+  companyId: null,
+  clientId: null,
   numberPrefixTemplate: '',
   currency: 'EUR',
   locale: 'en-US',

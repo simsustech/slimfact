@@ -232,7 +232,7 @@ const applyRouteFilters = (to: typeof route) => {
   ) {
     companyId.value = Number(queryCompanyId)
   } else {
-    companyId.value = NaN
+    companyId.value = null
   }
   startDate.value = dateQueryParam(to.query, 'startDate')
   endDate.value = dateQueryParam(to.query, 'endDate')
@@ -677,8 +677,8 @@ const invoiceExpansionItemHandlers = computed(() => ({
 
 const activeSearch = computed(
   () =>
-    !Number.isNaN(companyId.value) ||
-    !Number.isNaN(clientId.value) ||
+    companyId.value != null ||
+    clientId.value != null ||
     status.value !== null ||
     startDate.value !== null ||
     endDate.value !== null

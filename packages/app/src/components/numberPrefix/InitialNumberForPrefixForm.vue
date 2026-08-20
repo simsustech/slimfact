@@ -81,7 +81,7 @@ const emit = defineEmits<{
 
 const initialValue: InitialNumberForPrefix = {
   numberPrefix: '',
-  companyId: NaN,
+  companyId: null,
   initialNumber: 1
 }
 
