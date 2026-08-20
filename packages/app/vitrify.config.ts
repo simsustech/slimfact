@@ -228,7 +228,14 @@ export default async function ({
             include: [
               'src/**/configuration.ts',
               /@simsustech\/quasar-components/,
-              /@modular-api\/quasar-components/
+              /@modular-api\/quasar-components/,
+              // Linked/overlay installs resolve @simsustech/quasar-components to a
+              // local path (e.g. /build/packages/quasar-components or a pnpm-linked
+              // checkout) whose path does NOT contain the scoped package name, so it
+              // would be skipped by the regexes above — classes rendered only inside
+              // quasar-components (q-drawer, i-mdi-menu, …) would miss their preset
+              // shortcuts. Match any path containing the package dir name too.
+              /quasar-components\//
             ]
           }
         }
