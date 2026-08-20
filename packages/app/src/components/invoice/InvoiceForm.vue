@@ -32,12 +32,7 @@
         </template>
       </client-select>
     </div>
-    <div
-      v-show="
-        !Number.isNaN(modelValue.companyId) &&
-        !Number.isNaN(modelValue.clientId)
-      "
-    >
+    <div v-show="modelValue.companyId != null && modelValue.clientId != null">
       <div class="grid grid-cols-12 gap-3">
         <number-prefix-select
           v-model="modelValue.numberPrefixTemplate"
@@ -291,8 +286,8 @@ const emit = defineEmits<{
 const $q = useQuasar()
 
 const initialValue: Invoice = {
-  companyId: NaN,
-  clientId: NaN,
+  companyId: null,
+  clientId: null,
   companyPrefix: '',
   numberPrefixTemplate: '',
   currency: 'EUR',
@@ -381,7 +376,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
 }
 const setValue = (newValue: RawNewInvoice) => {
   modelValue.value = extend(true, {}, initialValue, newValue)
-  if (newValue.companyId && !Number.isNaN(newValue.companyId)) {
+  if (newValue.companyId != null) {
     modelValue.value.companyId = newValue.companyId
   } else if (
     newValue.companyDetails.id &&
@@ -389,7 +384,7 @@ const setValue = (newValue: RawNewInvoice) => {
   ) {
     modelValue.value.companyId = newValue.companyDetails.id
   }
-  if (newValue.clientId && !Number.isNaN(newValue.clientId)) {
+  if (newValue.clientId != null) {
     modelValue.value.clientId = newValue.clientId
   } else if (
     newValue.clientDetails.id &&
