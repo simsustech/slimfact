@@ -58,6 +58,11 @@
         <navigation-tabs vertical dense />
       </div>
     </template>
+    <template #drawer-header>
+      <span class="text-subtitle1 text-weight-medium q-ml-xs ellipsis">
+        {{ title }}
+      </span>
+    </template>
 
     <template #drawer>
       <q-scroll-area class="fit">
