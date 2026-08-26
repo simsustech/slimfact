@@ -144,7 +144,13 @@ test.describe('Bill Lifecycle', () => {
       await addPaymentBtn.click()
       // "Add payment" opens a method sub-menu (Cash / Bank transfer / PIN) —
       // no combobox. Same pattern as payments.spec.ts.
-      await page.getByText('Cash').first().click()
+      // Click the q-item itself, not its overline label — the label div is
+      // visually hidden (overline styling) and intermittently unclickable.
+      await page
+        .locator('.q-menu .q-item')
+        .filter({ hasText: 'Cash' })
+        .first()
+        .click()
       await page
         .getByRole('dialog')
         .first()

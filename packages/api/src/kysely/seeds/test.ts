@@ -387,7 +387,10 @@ const seed = async () => {
         paymentServiceProvider: 'mollie',
         amount: 4200,
         currency: 'EUR',
-        status: PaymentStatus.PAID
+        status: PaymentStatus.PAID,
+        // Paid PSP rows must carry paidAt — the dashboard activity feed
+        // filters payments on it.
+        paidAt: new Date().toISOString()
       })
       .onConflict((conflict) => conflict.doNothing())
       .execute()

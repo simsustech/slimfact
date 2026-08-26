@@ -90,6 +90,19 @@ export const seedFake = async (): Promise<void> => {
       .executeTakeFirst()) || {}
 
   // Create invoices in fixture order (numbered first, then unnumbered).
+  // Each invoice gets a deterministic creation date staggered ~30 days apart
+  // so the dashboard revenue chart has bars in every quarter of the year and
+  // the activity feed spreads across periods.
+  const DAY_MS = 24 * 60 * 60 * 1000
+  // Spread across ~400 days so the current year has revenue in every quarter.
+  const SPAN_DAYS = 400
+  const STEP_MS = (SPAN_DAYS / invoices.length) * DAY_MS
+  const invoiceDates = new Map<number, string>(
+    invoices.map((_, i) => [
+      i,
+      new Date(Date.now() - (invoices.length - i) * STEP_MS).toISOString()
+    ])
+  )
   const createdIds = new Map<number, number>()
   for (let i = 0; i < invoices.length; i++) {
     const inv = invoices[i]
@@ -142,9 +155,35 @@ export const seedFake = async (): Promise<void> => {
     }
   }
 
+  // Backdate created_at AND shift due dates along with it, so the seeded
+  // world has overdue invoices across all aging buckets plus upcoming ones
+  // — exactly what the dashboard action-items and income cards expect from
+  // a long-running business.
+  for (const [idx, date] of invoiceDates) {
+    const inv = invoices[idx]
+    const due = new Date(
+      new Date(date).getTime() + inv.paymentTermDays * DAY_MS
+    ).toISOString()
+    await db
+      .updateTable('checkout.invoices')
+      .where('id', '=', createdIds.get(idx)!)
+      .set({ createdAt: date, dueDate: due })
+      .execute()
+  }
+
   // Apply payments. PSP-linked payments are raw-inserted (they carry
   // externalId/settlementId); bank-transfer payments go through the app flow.
-  for (const payment of payments) {
+  // Two passes: app-flow payments first, raw PSP inserts last. Payment
+  // activity sorts by paid_at; numbered-invoice PSP payments must be the
+  // NEWEST entries so they land inside the dashboard feed's fetch limit
+  // (bill/receipt payments have no document number to show).
+  const appFlowPayments = payments.filter(
+    (payment) => payment.externalId === null || payment.settlementId === null
+  )
+  const pspPayments = payments.filter(
+    (payment) => payment.externalId !== null && payment.settlementId !== null
+  )
+  for (const payment of [...appFlowPayments, ...pspPayments]) {
     const invoiceId = createdIds.get(payment.invoiceIndex)!
     const inv = invoices[payment.invoiceIndex]
     if (payment.externalId !== null && payment.settlementId !== null) {
@@ -159,6 +198,12 @@ export const seedFake = async (): Promise<void> => {
           amount: payment.amountCents,
           currency: 'EUR',
           status: PaymentStatus.PAID,
+          // A paid PSP payment must carry paidAt — the dashboard activity
+          // feed, revenue chart and payments overview all filter on it.
+          paidAt: new Date(
+            new Date(invoiceDates.get(payment.invoiceIndex)!).getTime() +
+              2 * DAY_MS
+          ).toISOString(),
           description: payment.description
         })
         .execute()
@@ -169,7 +214,8 @@ export const seedFake = async (): Promise<void> => {
           amount: payment.amountCents,
           currency: 'EUR',
           description: payment.description,
-          method: payment.method as PaymentMethod
+          method: payment.method as PaymentMethod,
+          date: invoiceDates.get(payment.invoiceIndex)
         }
       })
       if (!paid.success) throw new Error(paid.errorMessage)

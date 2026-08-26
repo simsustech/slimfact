@@ -289,8 +289,8 @@ const $q = useQuasar()
 // in place, and a module-level initialValue would leak state from one dialog
 // open into the next.
 const getInitialValue = (): Invoice => ({
-  companyId: NaN,
-  clientId: NaN,
+  companyId: null,
+  clientId: null,
   companyPrefix: '',
   numberPrefixTemplate: '',
   currency: 'EUR',
@@ -379,7 +379,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
 }
 const setValue = (newValue: RawNewInvoice) => {
   modelValue.value = extend(true, {}, getInitialValue(), newValue)
-  if (newValue.companyId && !Number.isNaN(newValue.companyId)) {
+  if (newValue.companyId != null) {
     modelValue.value.companyId = newValue.companyId
   } else if (
     newValue.companyDetails.id &&
