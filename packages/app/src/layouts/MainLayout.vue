@@ -156,6 +156,14 @@
                   <q-item-label> {{ lang.invoice.title }} </q-item-label>
                 </q-item-section>
               </q-item>
+              <q-item to="/admin/payments">
+                <q-item-section avatar>
+                  <q-icon name="i-mdi-cash-multiple" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.payment.payments }} </q-item-label>
+                </q-item-section>
+              </q-item>
               <q-item to="/admin/subscriptions">
                 <q-item-section avatar>
                   <q-icon name="i-mdi-subscriptions" />
@@ -216,6 +224,11 @@
                 <q-item to="/admin/settings/exports">
                   <q-item-section>
                     <q-item-label> {{ lang.exports.title }} </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item to="/admin/settings/banking">
+                  <q-item-section>
+                    <q-item-label> {{ lang.bank.title }} </q-item-label>
                   </q-item-section>
                 </q-item>
               </q-expansion-item>

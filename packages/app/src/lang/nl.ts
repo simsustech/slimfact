@@ -130,7 +130,8 @@ const lang: Language = {
       paid: 'Betaald',
       receipt: 'Kwitantie',
       canceled: 'Geannuleerd',
-      bill: 'Rekening'
+      bill: 'Rekening',
+      overdue: 'Vervallen'
     },
     labels: {
       open: 'Openen',
@@ -139,6 +140,8 @@ const lang: Language = {
       send: 'Versturen',
       sendInvoice: 'Verstuur factuur',
       sendReceipt: 'Verstuur kwitantie',
+
+      dueBy: (date: string) => `Vervalt op ${date}`,
       sendReminder: 'Verstuur herinnering',
       sendExhortation: 'Verstuur aanmaning',
       markPaid: 'Markeer betaald',
@@ -241,12 +244,24 @@ const lang: Language = {
     payments: 'Betalingen',
     pay: 'Betaal',
     addPayment: 'Betaling toevoegen',
+
+    confirmDeletePayment: ({
+      method,
+      number,
+      amount
+    }: {
+      method: string
+      number: string
+      amount: string
+    }) =>
+      `Weet u zeker dat u de ${method} voor factuur ${number} met een bedrag van ${amount} wilt verwijderen?`,
     amountDue: 'Te betalen',
     amountPaid: 'Betaald',
     amountRefunded: 'Terugbetaald',
     downPayment: 'Aanbetaling',
     fields: {
       transactionReference: 'Transactie referentie',
+      date: 'Datum',
       description: 'Omschrijving'
     },
     methods: {
@@ -256,9 +271,51 @@ const lang: Language = {
       pin: 'PIN',
       creditcard: 'Creditcard'
     },
+    descriptions: {
+      cashPayment: 'Contante betaling',
+      bankTransferPayment: 'Bankoverschrijving',
+      pinPayment: 'PIN-betaling'
+    },
     messages: {
       scanQrOrUseInformationBelow:
         'Scan de QR code als uw bank dit ondersteunt of gebruik de informatie zoals hieronder weergegeven.'
+    },
+    overview: {
+      title: 'Betalingen',
+      fromDate: 'Van',
+      toDate: 'Tot',
+      columns: {
+        date: 'Datum',
+        method: 'Methode',
+        description: 'Omschrijving',
+        invoice: 'Factuur',
+        client: 'Klant',
+        amount: 'Bedrag',
+        status: 'Status',
+        psp: 'PSP'
+      },
+      in: 'In',
+      refunded: 'Terugbetaald',
+      net: 'Netto',
+      count: 'Aantal',
+      unallocated: 'Niet-toegewezen bankontvangsten',
+      viaBankSync: 'via banksync',
+      needsReview: 'Bank · te controleren',
+      source: 'Bron',
+      sources: {
+        payments: 'Betalingen',
+        refunds: 'Terugbetalingen',
+        bankReview: 'Bankcontrole'
+      },
+      methods: 'Methoden',
+      statuses: 'Statussen',
+      psps: 'PSPs',
+      deletePayment: 'Betaling verwijderen',
+      search: 'Zoeken',
+      refresh: 'Vernieuwen',
+      export: 'CSV exporteren',
+      empty: 'Geen betalingen voldoen aan de huidige filters.',
+      truncated: 'Eerste 10.000 rijen getoond — verklein je bereik.'
     }
   },
   refund: {
@@ -285,10 +342,96 @@ const lang: Language = {
   settings: {
     title: 'Instellingen'
   },
+  bank: {
+    title: 'Bank',
+    pages: {
+      overview: 'Overzicht',
+      review: 'Review',
+      settings: 'Instellingen'
+    },
+    columns: {
+      date: 'Datum',
+      amount: 'Bedrag',
+      counterparty: 'Tegenpartij',
+      description: 'Omschrijving',
+      account: 'Rekening',
+      company: 'Bedrijf',
+      linked: 'Status',
+      match: 'Match'
+    },
+    actions: {
+      refresh: 'Verversen',
+      link: 'Koppelen',
+      view: 'Bekijken',
+      viewLinked: 'Gekoppelde facturen bekijken',
+      linkTransaction: 'Transactie koppelen',
+      syncNow: 'Nu synchroniseren',
+      linkCompanies: 'Bedrijven koppelen'
+    },
+    coverage: {
+      unlinked: 'Niet gekoppeld',
+      partial: 'Gedeeltelijk gekoppeld',
+      full: 'Gekoppeld',
+      settled: 'Voldaan'
+    },
+    settlementDetails: 'Verrekeningsdetails',
+    linkDialog: {
+      title: 'Bankbijschrijving koppelen',
+      confirm: 'Koppelen',
+      cancel: 'Annuleren',
+      pspSettlement: 'PSP-verrekening {id}',
+      pspPayments: 'PSP-betalingen',
+      splitRemaining:
+        '{amount} van {total} — de resterende {remaining} wordt gedekt door andere transactie(s)',
+      multiTotal: 'Totaal {amount}',
+      selectInvoices: 'Selecteer facturen',
+      noCandidates: 'Geen openstaande facturen om te koppelen',
+      selectedTotal: '{amount} geselecteerd',
+      matchComplete: 'Volledig bedrag gedekt',
+      matchDifference: '{amount} resterend',
+      matchOver: '{amount} teveel',
+      fee: 'Kosten {amount}'
+    },
+    linked: 'Gekoppeld',
+    suggested: 'Voorgesteld',
+    unlinked: 'Niet gekoppeld',
+    linkedTo: 'Gekoppeld aan {number}',
+    adopt: 'Koppel aan betaling op factuur {number} (al betaald via bank)',
+    allLinked: 'Alle',
+    onlySuggestions: 'Alleen suggesties',
+    adoptNote: 'Deze factuur is al betaald via overschrijving.',
+    linkedDocuments: 'Gekoppelde documenten',
+    unlinkedTransactions: 'Niet-gekoppelde transacties',
+    fromDate: 'Vanaf',
+    toDate: 'Tot',
+    syncing: 'Synchroniseren…',
+    syncRequested: 'Sync aangevraagd',
+    syncRunning: 'Synchroniseren…',
+    empty: 'Nog geen banktransacties.',
+    reviewEmpty:
+      'Niets te matchen — alle binnenkomende betalingen zijn verwerkt.',
+    notConfigured:
+      'Open-banking is niet geconfigureerd. Stel OPENBANKING_CREDENTIALS_JSON in om bankimport in te schakelen.',
+    connections: 'Verbindingen',
+    noConnections: 'Geen bankkoppelingen gevonden.',
+    validUntil: 'Geldig tot',
+    accounts: 'Rekeningen',
+    companyFilter: 'Bedrijven',
+    noAccounts: 'Nog geen rekeningen.',
+    requiresReauth: 'Opnieuw autoriseren vereist',
+    statusActive: 'Actief',
+    allCompanies: 'Alle bedrijven',
+    syncCompleted: 'Synchronisatie voltooid',
+    syncFailed: 'Synchronisatie mislukt',
+    actionFailed: 'Actie mislukt',
+    suggestionMulti: '{count} facturen',
+    partialCoverageLinked: '{linked} van {total} gekoppeld'
+  },
   invoiceEvents: {
     events: 'Gebeurtenissen',
     types: {
-      emailOpened: 'Factuur geopend vanuit email.'
+      emailOpened: 'Factuur geopend vanuit email.',
+      paymentDeleted: 'Betaling verwijderd.'
     }
   }
 }

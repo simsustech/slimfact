@@ -60,7 +60,7 @@
                 @click="openBankTransferDialog"
               >
                 <q-item-section avatar>
-                  <q-icon name="i-fa6-solid-money-bill-transfer" />
+                  <q-icon name="i-mdi-bank-transfer" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>

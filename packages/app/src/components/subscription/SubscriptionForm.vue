@@ -85,8 +85,8 @@
             firstDayOfWeek: '1'
           }"
           :icons="{
-            event: 'i-mdi-event',
-            clear: 'i-mdi-clear'
+            event: 'i-mdi-calendar',
+            clear: 'i-mdi-close'
           }"
         />
         <date-input
@@ -102,8 +102,8 @@
             firstDayOfWeek: '1'
           }"
           :icons="{
-            event: 'i-mdi-event',
-            clear: 'i-mdi-clear'
+            event: 'i-mdi-calendar',
+            clear: 'i-mdi-close'
           }"
         />
         <cron-schedule-input
@@ -265,7 +265,10 @@ const $q = useQuasar()
 
 const { filteredCompanies, filteredClients } = toRefs(props)
 
-const initialValue: Subscription = {
+// Factory (not a shared object): the form mutates lines/discounts/surcharges
+// in place, and a module-level initialValue would leak state from one dialog
+// open into the next (same fix as InvoiceForm).
+const getInitialValue = (): Subscription => ({
   name: '',
   companyId: NaN,
   clientId: NaN,
@@ -280,9 +283,9 @@ const initialValue: Subscription = {
   type: 'invoice',
   startDate: new Date().toISOString().slice(0, 10),
   endDate: null
-}
+})
 
-const modelValue = ref<Subscription>(initialValue)
+const modelValue = ref<Subscription>(getInitialValue())
 
 const lang = useLang()
 
@@ -355,7 +358,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   done(false)
 }
 const setValue = (newValue: Subscription) => {
-  modelValue.value = extend(true, {}, initialValue, newValue)
+  modelValue.value = extend(true, {}, getInitialValue(), newValue)
   modelValue.value.companyId = newValue.companyId
   modelValue.value.clientId = newValue.clientId
 }

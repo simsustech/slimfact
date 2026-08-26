@@ -75,7 +75,7 @@ export const adminClientRoutes = ({
       const { name, pagination } = input
       const clients = await searchClients({
         criteria: {
-          name
+          name: name ?? undefined
         },
         pagination
       })

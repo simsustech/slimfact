@@ -1,4 +1,4 @@
-import { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import { userRouteKey, redirectRouteKey } from '../oauth.js'
 const routes: RouteRecordRaw[] = [
   {
@@ -59,6 +59,37 @@ const routes: RouteRecordRaw[] = [
             component: () => import('../pages/admin/ReceiptsPage.vue')
           },
           {
+            path: 'bank',
+            children: [
+              {
+                path: '',
+                component: () => import('../pages/admin/BankPage/BankPage.vue')
+              },
+              {
+                path: 'overview',
+                components: {
+                  default: () =>
+                    import('../pages/admin/BankPage/BankOverviewPage.vue'),
+                  fabs: () => import('../pages/admin/BankPage/BankPageFabs.vue')
+                }
+              },
+              {
+                path: 'review',
+                redirect: '/admin/bank/overview'
+              },
+              {
+                // Transition: deep links land on the relocated settings page.
+                path: 'settings',
+                redirect: '/admin/settings/banking'
+              }
+            ]
+          },
+          {
+            path: 'payments',
+            component: () =>
+              import('../pages/admin/PaymentsPage/PaymentsPage.vue')
+          },
+          {
             path: 'bills/:uuids*',
             components: {
               default: () => import('../pages/admin/BillsPage/BillsPage.vue'),
@@ -107,6 +138,11 @@ const routes: RouteRecordRaw[] = [
               {
                 path: 'exports',
                 component: () => import('../pages/admin/ExportsPage.vue')
+              },
+              {
+                path: 'banking',
+                component: () =>
+                  import('../pages/admin/BankPage/BankSettingsPage.vue')
               }
             ]
           }

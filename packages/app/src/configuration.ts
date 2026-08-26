@@ -1,7 +1,7 @@
-import { Ref, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import { Loading } from 'quasar'
 import { useLang } from './lang/index.js'
-import { Locales } from '@simsustech/quasar-components/form'
+import type { Locales } from '@simsustech/quasar-components/form'
 
 const lang = useLang()
 
@@ -93,6 +93,8 @@ export const CLIENT_ICON = 'i-mdi-person'
 export const SUBSCRIPTION_ICON = 'i-mdi-subscriptions'
 export const SETTINGS_ICON = 'i-mdi-account-settings'
 export const EXPORT_ICON = 'i-mdi-download'
+export const BANK_ICON = 'i-mdi-bank'
+export const PAYMENTS_ICON = 'i-mdi-cash-multiple'
 
 export const languageLocales = ref([
   {

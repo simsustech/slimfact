@@ -89,16 +89,16 @@ Number prefixes control how your invoice numbers look.
 
 Once an invoice is expanded, the More menu gives you:
 
-| Action | When available |
-|--------|---------------|
-| **Edit** | Concept, Bill |
-| **Send** | Concept, Bill — emails the invoice to the customer |
-| **Open** | Any status except Canceled — opens the public invoice page |
-| **Cancel** | Concept, Bill (if no amount paid) |
-| **Add payment** | Open, Bill (if amount due) — cash, bank transfer, or online |
-| **Send receipt** | Bill (if fully paid) — converts to a receipt |
-| **Send reminder** | Open (after due date, with 7-day cooldown) |
-| **Send exhortation** | Open (after 2 reminders, with 7-day cooldown) |
+| Action               | When available                                              |
+| -------------------- | ----------------------------------------------------------- |
+| **Edit**             | Concept, Bill                                               |
+| **Send**             | Concept, Bill — emails the invoice to the customer          |
+| **Open**             | Any status except Canceled — opens the public invoice page  |
+| **Cancel**           | Concept, Bill (if no amount paid)                           |
+| **Add payment**      | Open, Bill (if amount due) — cash, bank transfer, or online |
+| **Send receipt**     | Bill (if fully paid) — converts to a receipt                |
+| **Send reminder**    | Open (after due date, with 7-day cooldown)                  |
+| **Send exhortation** | Open (after 2 reminders, with 7-day cooldown)               |
 
 ### Invoice Status Flow
 
@@ -200,10 +200,10 @@ Set `STRIPE_API_KEY`. Same multi-company pattern: `STRIPE_API_KEY_<PREFIX>`.
 
 Control which PSP handles which payment method:
 
-| Env variable | Default | Options |
-|-------------|---------|---------|
-| `IDEAL_PAYMENT_HANDLER` | Mollie | `mollie` or `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe | `mollie` or `stripe` |
+| Env variable                 | Default | Options              |
+| ---------------------------- | ------- | -------------------- |
+| `IDEAL_PAYMENT_HANDLER`      | Mollie  | `mollie` or `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | Stripe  | `mollie` or `stripe` |
 
 ### Cash & Bank Transfer
 
@@ -226,6 +226,27 @@ Go to **Settings → Exports** to access:
 - **Digiboox** — export invoices in Digiboox format. More formats available on request.
 
 > When sending an invoice by email, the PDF is attached automatically. If the invoice is OPEN or PAID, a UBL XML is also attached.
+
+---
+
+## Bank Import
+
+## Bank Import
+
+The **Bank** menu has three pages — **Overview**, **To match** and **Settings**
+(bank transactions come from open-banking.io via the banking-api proxy; the
+proxy keeps the complete history). **Settings → Sync now** triggers a refresh.
+Incoming credits are matched against open invoices: an exact match (amount,
+reference and date window, same currency) is applied automatically as a
+**bank-linked payment**; everything else lands in the review queue
+(**To match**), where you pick a suggested invoice and press **Apply**. If an
+invoice was already paid manually with a bank transfer of the exact amount,
+Apply **adopts** that payment (links the bank credit to it) instead of
+recording a second payment. The settings page shows connection status and
+warns when a bank consent needs to be re-established.
+
+> Known limitation: if a strict match auto-applies first and you later record
+> a manual bank transfer for the same invoice, two paid payments can exist.
 
 ---
 

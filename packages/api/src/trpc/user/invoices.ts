@@ -10,8 +10,9 @@ const paginationSchema = z
     offset: z.number(),
     sortBy: z.union([
       z.literal('id'),
-      z.literal('totalIncludingTax'),
-      z.literal('createdAt')
+      z.literal('companyId'),
+      z.literal('clientId'),
+      z.literal('totalIncludingTax')
     ]),
     descending: z.boolean()
   })

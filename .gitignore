@@ -1,6 +1,7 @@
 /node_modules
 /packages/**/node_modules
 /packages/**/dist
+/dump-*.sql
 /env
 .env
 .env.staging
@@ -11,3 +12,9 @@ clients
 jwks
 **/.pnpm-store/**
 .worktrees/**
+
+# Agent session artifacts (plans, handoffs, scratch state) — never commit.
+.pi/fff/
+.pi/continue/
+.pi/handoff/
+.pi/plans/

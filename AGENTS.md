@@ -14,6 +14,7 @@
 - **Authentication**: OpenID Connect (OIDC) via @modular-api/fastify-oidc
 - **Payments**: Mollie + Stripe PSP integrations with multi-profile support, configurable payment method routing (ideal → mollie|stripe, creditcard → mollie|stripe)
 - **Background Jobs**: pg-boss (PostgreSQL job queue)
+- **Banking**: open-banking.io integration for importing own bank transactions (Knab/Rabobank), matching incoming credits to open invoices, auto-apply strict matches. Single-tenant, own-accounts feature — not customer-facing.
 
 ### Package Structure
 
@@ -176,6 +177,110 @@ Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, us
 - **Mollie**: redirect → select test bank → Pay → select "Paid" → Continue → wait webhook (≤15s)
 - **Stripe**: redirect → fill email/name → Submit → authorize if prompted → wait redirect → wait webhook (≤60s)
 
+## Open Banking (Bank Transaction Import)
+
+The open-banking.io integration lives in the **banking-api proxy**
+(`packages/banking-api`, `@slimfact/banking-api`): it owns the credentials and
+its own pg-boss sync queue, and exposes data over tRPC with per-key API-key
+grants (`config.test.json` / `BANKING_API_CONFIG_PATH`). The proxy stores
+**complete history** in the shared `slimfact` database under the `open_banking`
+schema (incremental sync via `accounts.synced_at`; never deletes).
+
+SlimFact has **no local bank tables** (the create/drop migration pair was
+squashed away pre-release — no local bank schema ships): it reads bank data
+only through the
+proxy and records outcomes as `checkout.payments` rows with
+`transaction_reference = 'bank:<txid>'` (partial unique index
+`payments_bank_ref_invoice_unique` on `(transaction_reference, invoice_id)`,
+migration 14). The company → account mapping is **link-first,
+IBAN fallback**: explicit `bank_account_companies` rows (many-to-many — one
+company may own several accounts, one account may serve several companies) win;
+otherwise the account's IBAN is matched against `companies.iban`. The bank UI
+is **three routes** — `/admin/bank` (hub menu), `/admin/bank/overview`
+(merged review queue: coverage chips, `→` hints, Link dialog with
+single/multi/split/PSP proposals), `/admin/bank/settings` (connections,
+per-account company links, Sync now). `/admin/bank/review` redirects to the
+overview. The
+"Sync now"
+button pushes progress over the event bus.
+**Deterministic E2E (no manual DB writes in tests)**: the banking E2E specs
+(`banking-proxy`, `banking-link` — which also covers the company filter and
+drawer nav — and `banking-review`) assert against the
+**seeded demo world** — they never delete/truncate/insert/UPDATE the database.
+The seed (`packages/banking-api/src/seed/test.ts` + the demo block in
+`packages/api/src/kysely/seeds/test.ts`) provides everything they need:
+conn-knab parked in `RequiresReauth`, conn-rabobank `Active`, six demo
+invoices (`2026-0001..0006`: A open, B paid + manual banktransfer, C open, D
+open, E paid + linked to `bank:seed-credit-001` + Mollie-paid with
+`settlementId setl-seed-001`, F open) and eight transactions
+(`seed-credit-001..007` + noise, incl. a 80.00 multi covering D+F) plus
+`psp_settlements`/`psp_payments` fixtures. The test stack pins
+`BANKING_SYNC_CRON: disabled` so the ingest worker only runs
+on the "Sync now" button — no mid-run auto-apply race. A test run must start
+from a **fresh stack** (`down --volumes` + `up -d --wait`, or the default
+playwright config whose globalSetup does exactly that); re-runs without
+reseeding are not supported.
+
+> **Unit tests use a dedicated database**: the vitest unit specs (api +
+> banking-api) run against **`slimfact_unit`** (created by
+> `docker/initdb/01-create-unit-db.sql` on the postgres container's first
+> boot — run `down --volumes` once to pick it up). They can never touch a
+> running stack's `slimfact` data; no restart/re-seed needed after `pnpm test`.
+> First run against a fresh unit DB requires migrations:
+>
+> ```bash
+> # one-time per fresh slimfact_unit (api + banking-api schemas):
+> cd packages/api && POSTGRES_DB=slimfact_unit POSTGRES_PASSWORD="$POSTGRES_PASSWORD" pnpm run migrate:latest
+> cd packages/banking-api && POSTGRES_DB=slimfact_unit POSTGRES_PASSWORD="$POSTGRES_PASSWORD" pnpm run migrate:latest
+> # then run the units:
+> cd packages/api && TEST_DATABASE_URL="postgres://postgres:ufgouifdgjdfg@localhost:5433/slimfact_unit" \
+>   POSTGRES_DB=slimfact_unit POSTGRES_PASSWORD="$POSTGRES_PASSWORD" pnpm test
+> cd packages/banking-api && POSTGRES_DB=slimfact_unit POSTGRES_PASSWORD="$POSTGRES_PASSWORD" pnpm test
+> ```
+>
+> (The banking-api spec defaults target `slimfact_unit`; do not override
+> `POSTGRES_DB` back to `slimfact` for unit runs.)
+
+### SlimFact api env
+
+| Env Var                 | Default              | Description                                                   |
+| ----------------------- | -------------------- | ------------------------------------------------------------- |
+| `BANKING_API_URL`       | _(empty — disabled)_ | Proxy base URL (e.g. `http://banking-api` in the test stack). |
+| `BANKING_API_KEY`       | _(empty — disabled)_ | `obk_…` key granted read + sync scopes for the own accounts.  |
+| `BANKING_SYNC_WAIT_MS`  | `30000`              | Frontend fallback when no `bank.sync.finished` event arrives. |
+| `ADMIN_NOTIFICATION_EMAIL` | _(empty)_            | Admin "invoice paid" notification address; falls back to the invoice's `companyDetails.email`. |
+| `OPENBANKING_SYNC_CRON` | `0 */4 7-23 * * *`   | (proxy) cron schedule for automatic bank transaction sync.    |
+
+### banking-api proxy env
+
+| Env Var                                  | Default                        | Description                                                                                                                 |
+| ---------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `OPENBANKING_CREDENTIALS_JSON`           | _(empty — disabled)_           | Base64-encoded `credentials.json` bundle from open-banking.io (contains P-256 **decryption key** — treat like a password).  |
+| `OPENBANKING_API_BASE_URL`               | SDK default                    | Optional override for the open-banking.io API base URL.                                                                     |
+| `BANKING_API_CONFIG_PATH`                | `/etc/banking-api/config.json` | Mounted JSON file that is the source of truth for API keys + grants (fail-closed at boot).                                  |
+| `OPENBANKING_SYNC_COOLDOWN_SECONDS`      | `60`                           | Min seconds between sync runs (pg-boss singleton on send + work).                                                           |
+| `OPENBANKING_MIN_SYNC_INTERVAL_SECONDS`  | `60`                           | Per-account min interval between SDK syncs.                                                                                 |
+| `RATE_LIMIT_PER_MINUTE`                  | `600`                          | Proxy HTTP rate limit (requests/min per key). Garbage values fail at boot.                                                  |
+| `POSTGRES_SSL` / `POSTGRES_SSL_INSECURE` | _(off)_ / `false`              | TLS to Postgres; certificate verification is on by default — set `POSTGRES_SSL_INSECURE=true` only for self-signed dev DBs. |
+
+> The banking-api image is **test-only**: its entrypoint always runs the demo
+> seed (`seed:test`) on boot. Do not deploy it outside the test stack without
+> removing that first.
+
+> **Credentials warning**: `OPENBANKING_CREDENTIALS_JSON` holds a P-256 private key for decrypting bank data. Never commit it to git, never log/dump it. Rotate by regenerating the bundle in the open-banking.io dashboard.
+
+**Consent**: open-banking.io consents expire after 180 days. The settings tab shows a `RequiresReauth` warning when a connection needs re-consent. No partial application while lapsed.
+
+## Unit Tests
+
+- `packages/api` has a minimal vitest dev-config (`vitest.config.ts`) so `pnpm test`
+  (vitrify test) targets pure-TS unit specs in `packages/api/tests/unit/**` only.
+- Unit specs are DB-backed and run against the dedicated **`slimfact_unit`**
+  database (see the open-banking section above for the migrate + run recipe) —
+  they never touch the stack's `slimfact` data.
+- Playwright E2E specs live in `packages/api/tests/e2e/**` and run separately via
+  `pnpm run test:e2e` (never collected by the unit runner).
+
 ## E2E Testing
 
 ### Test Patterns
@@ -252,10 +357,18 @@ pnpm run lint
 pnpm run format:check || pnpm run format:write
 PI_RTK_BYPASS=1 pnpm run build
 
-# Base test stack (no PSP)
+# One-shot test recipe: export linked package paths + token,
+# then down → build → up. The linked packages (fastify-checkout, event-bus,
+# quasar-components) are needed: the first two because pnpm-workspace.yaml
+# pins local overrides, quasar-components because the npm 0.12.9 tarball has
+# broken QSelect menus inside dialogs (form E2Es fail without the link).
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
+export LINKED_MODULAR_API_EVENT_BUS_PATH=~/Projects/modular-api/packages/event-bus
+export LINKED_QUASAR_COMPONENTS_PATH=~/Projects/quasar-components/packages/components
 docker compose -f docker-compose.test.yaml down --volumes
 docker compose -f docker-compose.test.yaml build --no-cache api
-docker compose -f docker-compose.test.yaml up -d api
+docker compose -f docker-compose.test.yaml up -d --wait
 cd packages/api && pnpm run test:e2e
 ```
 

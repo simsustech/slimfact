@@ -107,6 +107,16 @@ export const useAdminAddPaymentToInvoiceMutation = () => {
   }
 }
 
+export const useAdminDeletePaymentFromInvoiceMutation = () => {
+  const { ...rest } = useMutation({
+    mutation: ({ id, paymentId }: { id: number; paymentId: number }) =>
+      trpc.admin.deletePaymentFromInvoice.mutate({ id, paymentId })
+  })
+  return {
+    ...rest
+  }
+}
+
 export const useAdminCancelInvoiceMutation = () => {
   const { ...rest } = useMutation({
     mutation: ({ id }: { id: number }) =>

@@ -25,6 +25,12 @@
               />
             </template>
           </q-input>
+          <date-input
+            v-model="date"
+            :label="lang.payment.fields.date"
+            format="DD-MM-YYYY"
+            required
+          />
           <q-input
             v-model="transactionReference"
             :label="lang.payment.fields.transactionReference"
@@ -42,6 +48,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { ref } from 'vue'
+import { DateInput } from '@simsustech/quasar-components/form'
 import { useLang } from '../lang/index.js'
 
 export interface Props {
@@ -51,11 +58,14 @@ export interface Props {
 }
 const amount = ref(0)
 const transactionReference = ref('')
+// Required booking date, defaulting to today.
+const date = ref(new Date().toISOString().slice(0, 10))
 
 defineProps<Props>()
 const lang = useLang()
 
 const rules = ref([(val: number) => !!val])
+const formRef = ref()
 
 defineEmits([
   // REQUIRED; need to specify some events that your
@@ -74,14 +84,15 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 // this is part of our example (so not required)
 function onOKClick() {
-  // on OK, it is REQUIRED to
-  // call onDialogOK (with optional payload)
-  onDialogOK({
-    amount: amount.value,
-    transactionReference: transactionReference.value
+  // Validate the form (required amount/date) before settling the dialog.
+  formRef.value?.validate().then((success: boolean) => {
+    if (!success) return
+    onDialogOK({
+      amount: amount.value,
+      transactionReference: transactionReference.value,
+      date: date.value
+    })
   })
-  // or with payload: onDialogOK({ ... })
-  // ...and it will also hide the dialog automatically
 }
 
 const currencySymbols = ref({

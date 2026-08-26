@@ -102,10 +102,15 @@ export const publicInvoiceRoutes = ({
     .mutation(async ({ input }) => {
       const { uuid } = input
       if (fastify.checkout?.invoiceHandler) {
-        await fastify.checkout.invoiceHandler.setInvoiceStatus({
-          id: uuid,
-          status: InvoiceStatus.OPEN
+        const invoice = await fastify.checkout.invoiceHandler.getInvoice({
+          uuid
         })
+        if (invoice?.id) {
+          await fastify.checkout.invoiceHandler.setInvoiceStatus({
+            id: invoice.id,
+            status: InvoiceStatus.OPEN
+          })
+        }
       }
     }),
 

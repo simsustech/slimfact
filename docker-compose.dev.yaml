@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: slimfact
     volumes:
       - slimfact-db-data:/var/lib/postgresql
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       dev:
         aliases:
@@ -38,8 +39,8 @@ services:
         linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
         linked-unocss-preset-quasar: ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
         linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
-        linked-modular-api-fastify-oidc:  ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
-        linked-modular-api-fastify-checkout:  ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
+        linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
         linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
       args:
         - DEBUG=${DEBUG}

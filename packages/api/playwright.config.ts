@@ -28,13 +28,17 @@ export default defineConfig({
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage'
+            '--disable-dev-shm-usage',
+            // Resolve slimfact.localhost without /etc/hosts (sandbox-friendly).
+            '--host-resolver-rules=MAP slimfact.localhost 127.0.0.1,EXCLUDE localhost'
           ]
         }
       },
       testIgnore: [
         'screenshots-*.spec.ts',
         'invoice-flow-guards.spec.ts',
+        // Requires real open-banking.io credentials; run on demand only.
+        '**/*.tmp.spec.ts',
         // Long-running (2h+) Mollie refund settlement test. Excluded from the
         // normal suite; run on demand with INCLUDE_LONGWAIT=1.
         ...(process.env.INCLUDE_LONGWAIT

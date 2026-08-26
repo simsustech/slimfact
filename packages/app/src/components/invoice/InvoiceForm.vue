@@ -290,7 +290,10 @@ const emit = defineEmits<{
 
 const $q = useQuasar()
 
-const initialValue: Invoice = {
+// Factory (not a shared object): the form mutates lines/discounts/surcharges
+// in place, and a module-level initialValue would leak state from one dialog
+// open into the next.
+const getInitialValue = (): Invoice => ({
   companyId: NaN,
   clientId: NaN,
   companyPrefix: '',
@@ -303,11 +306,11 @@ const initialValue: Invoice = {
   paymentTermDays: 14,
   projectId: null,
   requiredDownPaymentAmount: 0
-}
+})
 
 const { filteredCompanies, filteredClients } = toRefs(props)
 
-const modelValue = ref<Invoice>(initialValue)
+const modelValue = ref<Invoice>(getInitialValue())
 
 const lang = useLang()
 
@@ -380,7 +383,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   done(false)
 }
 const setValue = (newValue: RawNewInvoice) => {
-  modelValue.value = extend(true, {}, initialValue, newValue)
+  modelValue.value = extend(true, {}, getInitialValue(), newValue)
   if (newValue.companyId && !Number.isNaN(newValue.companyId)) {
     modelValue.value.companyId = newValue.companyId
   } else if (

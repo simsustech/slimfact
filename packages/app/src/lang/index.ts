@@ -1,6 +1,11 @@
 import type { ClientDetails } from '@modular-api/fastify-checkout'
 export interface Language {
   isoName: string
+  /** tRPC error-code → localized message factory (optional). */
+  errors?: Record<
+    string,
+    (args: { path?: unknown; expected?: unknown; received?: unknown }) => string
+  >
   edit: string
   cancel: string
   serverError: string
@@ -17,6 +22,7 @@ export interface Language {
   goHome: string
   updateAvailable: string
   refresh: string
+  darkMode: string
   name: string
   overview: string
   noResultsAvailable: string
@@ -301,6 +307,88 @@ export interface Language {
   }
   settings: {
     title: string
+  }
+  bank: {
+    title: string
+    pages: {
+      overview: string
+      review: string
+      settings: string
+    }
+    columns: {
+      date: string
+      amount: string
+      counterparty: string
+      description: string
+      account: string
+      company: string
+      linked: string
+      match: string
+    }
+    actions: {
+      refresh: string
+      link: string
+      view: string
+      viewLinked: string
+      linkTransaction: string
+      syncNow: string
+      linkCompanies: string
+    }
+    coverage: {
+      unlinked: string
+      partial: string
+      full: string
+      settled: string
+    }
+    settlementDetails: string
+    linkDialog: {
+      title: string
+      confirm: string
+      cancel: string
+      pspSettlement: string
+      pspPayments: string
+      splitRemaining: string
+      multiTotal: string
+      selectInvoices: string
+      noCandidates: string
+      selectedTotal: string
+      matchComplete: string
+      matchDifference: string
+      matchOver: string
+      fee: string
+    }
+    linked: string
+    suggested: string
+    unlinked: string
+    linkedTo: string
+    adopt: string
+    allLinked: string
+    onlySuggestions: string
+    adoptNote: string
+    linkedDocuments: string
+    unlinkedTransactions: string
+    fromDate: string
+    toDate: string
+    syncing: string
+    syncRequested: string
+    syncRunning: string
+    empty: string
+    reviewEmpty: string
+    notConfigured: string
+    noConnections: string
+    connections: string
+    validUntil: string
+    accounts: string
+    companyFilter: string
+    noAccounts: string
+    requiresReauth: string
+    statusActive: string
+    allCompanies: string
+    syncCompleted: string
+    syncFailed: string
+    actionFailed: string
+    suggestionMulti: string
+    partialCoverageLinked: string
   }
   invoiceEvents: {
     events: string

@@ -24,9 +24,19 @@ import {
   createStripePaymentHandler
 } from '@modular-api/fastify-checkout'
 import { initialize } from './pgboss.js'
+import { startRelay, createOidcAuthenticate } from './banking/events.js'
+import { createEventBusServer } from '@modular-api/event-bus'
+import { bankEventSchemas } from '@slimfact/banking-api/events'
+import websocketPlugin from '@fastify/websocket'
+import { SLIMFACT_ACCOUNT_ROLES } from './zod/account.js'
 import healthRoutes from './routes/health.js'
 import type { ClientMetadata } from 'oidc-provider'
 import { generateTheme } from 'unocss-preset-quasar/theme'
+import { createClient } from './banking/client.js'
+import {
+  sendInvoicePaidNotification,
+  type InvoicePaidNotificationDeps
+} from './notifications/invoicePaid.js'
 
 const theme = generateTheme(config.sourceColor)
 const OIDC_API_CLIENT_IDS = ['petboarding']
@@ -52,8 +62,8 @@ export default async function (fastify: FastifyInstance) {
     kysely,
     {
       OTP_SECRET: config.otpSecret,
-      OTP_VALIDITY_SECONDS: config.otpValiditySeconds,
-      EMAIL_FOOTER: config.emailFooter
+      OTP_VALIDITY_SECONDS: Number(config.otpValiditySeconds ?? '3600'),
+      EMAIL_FOOTER: config.emailFooter ?? ''
     },
     config.lang
   )
@@ -170,6 +180,23 @@ export default async function (fastify: FastifyInstance) {
       | undefined
   }
 
+  // Lazy getters: the nodemailer plugin decorates fastify.mailer only after
+  // registration completes, so it must be resolved at send time, not here.
+  const invoicePaidNotificationDeps: InvoicePaidNotificationDeps = {
+    get logger() {
+      return fastify.log
+    },
+    get mailer() {
+      return fastify.mailer
+    },
+    adminNotificationEmail: config.adminNotificationEmail,
+    host
+  }
+  if (!config.adminNotificationEmail) {
+    fastify.log.warn(
+      'ADMIN_NOTIFICATION_EMAIL not set — paid notifications fall back to companyDetails.email'
+    )
+  }
   const invoiceHandler = createInvoiceHandler({
     fastify,
     kysely,
@@ -178,13 +205,17 @@ export default async function (fastify: FastifyInstance) {
       cash: cashPaymentHandler,
       bankTransfer: bankTransferPaymentHandler,
       pin: pinPaymentHandler,
-      stripe: {
-        ...stripePaymentHandler,
-        webhookSecret: config.stripeWebhookSecret
-      }
+      stripe: stripePaymentHandler
+        ? {
+            ...stripePaymentHandler,
+            webhookSecret: config.stripeWebhookSecret
+          }
+        : undefined
     },
     options: {
-      paymentMethodRouting
+      paymentMethodRouting,
+      onInvoicePaid: (args) =>
+        sendInvoicePaidNotification(args, invoicePaidNotificationDeps)
     }
   })
 
@@ -228,7 +259,7 @@ export default async function (fastify: FastifyInstance) {
       createContext
     },
     oidc: {
-      issuerName: config.oidcIssuerName,
+      issuerName: config.oidcIssuerName ?? host,
       locale: config.lang,
       themeColors: theme['colors'],
       issuer: `https://${host}`,
@@ -255,7 +286,7 @@ export default async function (fastify: FastifyInstance) {
           email: ['email', 'email_verified'],
           api: ['roles']
         },
-        issueRefreshToken: async function (ctx, client, code) {
+        issueRefreshToken: async function (_ctx, client, code) {
           return (
             client.grantTypeAllowed('refresh_token') &&
             (OIDC_API_CLIENT_IDS.includes(client.clientId) ||
@@ -265,7 +296,7 @@ export default async function (fastify: FastifyInstance) {
         ttl: {
           Grant: 90 * 24 * 60 * 60,
           Session: 90 * 24 * 60 * 60,
-          RefreshToken: (ctx, token, client) => {
+          RefreshToken: (_ctx, _token, client) => {
             if (OIDC_API_CLIENT_IDS.includes(client.clientId)) {
               return 90 * 24 * 60 * 60
             }
@@ -274,10 +305,13 @@ export default async function (fastify: FastifyInstance) {
           }
         }
       },
-      defaultCredentials: {
-        email: config.modularapiDefaultEmail,
-        password: config.modularapiDefaultPassword
-      }
+      defaultCredentials:
+        config.modularapiDefaultEmail && config.modularapiDefaultPassword
+          ? {
+              email: config.modularapiDefaultEmail,
+              password: config.modularapiDefaultPassword
+            }
+          : undefined
     },
     nodemailer: {
       defaults: { from: config.mailFrom },
@@ -324,6 +358,39 @@ export default async function (fastify: FastifyInstance) {
     host,
     onAppRendered: hooks.onAppRendered,
     onTemplateRendered: hooks.onTemplateRendered
+  })
+
+  // Local event bus (tRPC WS): browsers subscribe with their OAuth token via
+  // connectionParams; the relay re-publishes proxy events here (D10/D13/D15).
+  const eventBus = createEventBusServer({
+    events: bankEventSchemas,
+    authenticate: createOidcAuthenticate(fastify),
+    canSubscribe: (identity, topic) =>
+      topic.startsWith('bank.') &&
+      Boolean(
+        (
+          identity as { account?: { roles?: string[] } }
+        ).account?.roles?.includes(SLIMFACT_ACCOUNT_ROLES.ADMINISTRATOR)
+      )
+  })
+  await fastify.register(websocketPlugin)
+  fastify.get('/ws', { websocket: true }, (socket, req) =>
+    eventBus.handleWS(socket, req)
+  )
+  fastify.decorate('eventBus', eventBus)
+
+  if (config.bankingApiKey && config.bankingApiUrl) {
+    await startRelay({ fastify })
+  }
+
+  fastify.decorate('banking', {
+    getClient: () => {
+      if (!config.bankingApiKey || !config.bankingApiUrl) return null
+      return createClient({
+        url: config.bankingApiUrl,
+        apiKey: config.bankingApiKey
+      })
+    }
   })
 
   const boss = await initialize({ fastify })

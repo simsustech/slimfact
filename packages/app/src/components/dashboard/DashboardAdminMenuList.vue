@@ -42,6 +42,14 @@
         <q-item-label> {{ lang.subscription.title }} </q-item-label>
       </q-item-section>
     </q-item>
+    <q-item to="/admin/payments">
+      <q-item-section avatar>
+        <q-icon :name="PAYMENTS_ICON" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>{{ lang.payment.payments }}</q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item to="/admin/settings">
       <q-item-section avatar>
         <q-icon :name="SETTINGS_ICON" />
@@ -60,6 +68,7 @@ import {
   BILL_ICON,
   CLIENT_ICON,
   INVOICE_ICON,
+  PAYMENTS_ICON,
   RECEIPT_ICON,
   SETTINGS_ICON,
   SUBSCRIPTION_ICON

@@ -23,6 +23,8 @@ services:
     environment:
       POSTGRES_PASSWORD: ufgouifdgjdfg
       POSTGRES_DB: slimfact
+    volumes:
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
@@ -67,6 +69,7 @@ services:
         linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
         linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
         linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-event-bus: ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
         linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
     ports:
       - "3001:80"
@@ -80,7 +83,7 @@ services:
     environment:
       # VITE_API_HOST: localhost:3000
       VITE_API_HOST: ${API_HOST:-slimfact.localhost}
-      API_HOST: \${API_HOST:-slimfact.localhost}
+      API_HOST: ${API_HOST:-slimfact.localhost}
       VITE_LICENSE_KEY: undefined
       VITE_TITLE: SlimFact
       VITE_SOURCE_COLOR: "#00a4e6"
@@ -97,7 +100,17 @@ services:
       OTP_SECRET: NNXHQ5TPNF2WK53POJUWU53MMVXHE===
       OTP_VALIDITY_SECONDS: 3600
       EMAIL_FOOTER: "SlimFact <info@slimfact.app>"
+      MODULARAPI_DEFAULT_EMAIL: admin@slimfact.app
+      MODULARAPI_DEFAULT_PASSWORD: Sif5uEG5hcTH
       MODULARAPI_ADMIN_PASSWORD: Sif5uEG5hcTH
+      BANKING_API_URL: http://banking-api
+      BANKING_API_KEY: obk_test_6xJo6yNf2Biim50gmr0yfOVyK2Slug4LryYFqWoT_vw
+      BANKING_SYNC_WAIT_MS: 5000
+      # The ingest worker only runs when the user clicks "Sync now" in tests:
+      # BANKING_SYNC_CRON: disabled skips the periodic schedule entirely, keeping
+      # the seeded review queue / auto-apply demo deterministic across the run.
+      BANKING_SYNC_CRON: disabled
+      BANKING_INGEST_DISABLED: "true"
 
     command:
       [
@@ -114,6 +127,58 @@ services:
     networks:
       staging:
       web:
+
+  banking-api:
+    build:
+      context: .
+      args:
+        DEBUG: "true"
+      secrets:
+        - SIMSUSTECH_NPM_TOKEN
+      dockerfile: Dockerfile
+      target: banking-api
+      network: "host"
+      additional_contexts:
+        linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
+        linked-unocss-preset-quasar: ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
+        linked-modular-api: ${LINKED_MODULAR_API_PATH:-.docker/empty}
+        linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
+        linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
+        linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-event-bus: ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
+        linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
+    depends_on:
+      database:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    environment:
+      API_HOST: banking-api
+      POSTGRES_HOST: database
+      POSTGRES_DB: slimfact
+      POSTGRES_PASSWORD: ufgouifdgjdfg
+      BANKING_API_CONFIG_PATH: /etc/banking-api/config.json
+      # Real-life sync: pass the base64 open-banking.io credentials bundle via
+      # the shell (env/credentials.json). Empty default keeps the test stack
+      # in tame mode otherwise.
+      OPENBANKING_CREDENTIALS_JSON: ${OPENBANKING_CREDENTIALS_JSON:-}
+    volumes:
+      - ./packages/banking-api/config.test.json:/etc/banking-api/config.json:ro
+    networks:
+      - staging
 
 secrets:
   SIMSUSTECH_NPM_TOKEN:

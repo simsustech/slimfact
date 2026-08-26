@@ -9,6 +9,8 @@ import env from '@vitrify/tools/env'
 import { Invoice } from '@modular-api/fastify-checkout'
 import { addDays } from 'date-fns'
 import { PaymentMethod, InvoiceStatus } from '@modular-api/fastify-checkout'
+import { INVOICE_EVENT_TYPE } from '../../kysely/types.js'
+import { createInvoiceEvent } from '../../repositories/invoiceEvent.js'
 import { emailTemplates } from '../../templates/email/index.js'
 import {
   type TypstInvoiceTemplates,
@@ -209,7 +211,10 @@ export const adminInvoiceRoutes = ({
     )
     .query(async ({ input }) => {
       const { invoiceId } = input
-      if (fastify.checkout?.paymentHandlers?.mollie) {
+      if (
+        fastify.checkout?.invoiceHandler &&
+        fastify.checkout?.paymentHandlers?.mollie
+      ) {
         const invoice = await fastify.checkout.invoiceHandler.getInvoice({
           id: invoiceId,
           options: { withPayments: true }
@@ -857,7 +862,8 @@ export const adminInvoiceRoutes = ({
           currency: z.union([z.literal('EUR'), z.literal('USD')]),
           method: z.nativeEnum(PaymentMethod),
           redirectUrl: z.string().url().nullable().optional(),
-          transactionReference: z.string().nullable().optional()
+          transactionReference: z.string().nullable().optional(),
+          date: z.string().date().nullable().optional()
         })
       })
     )
@@ -882,7 +888,8 @@ export const adminInvoiceRoutes = ({
                 redirectUrl:
                   payment.redirectUrl || `https://${host}/checkout/success`,
                 webhookUrl,
-                transactionReference: payment.transactionReference
+                transactionReference: payment.transactionReference ?? undefined,
+                date: payment.date ?? undefined
               }
             })
 
@@ -949,6 +956,43 @@ export const adminInvoiceRoutes = ({
       }
       throw new TRPCError({
         code: 'BAD_REQUEST'
+      })
+    }),
+  deletePaymentFromInvoice: procedure
+    .input(
+      z.object({
+        id: z.number(),
+        paymentId: z.number()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, paymentId } = input
+
+      if (fastify.checkout?.invoiceHandler) {
+        const result =
+          await fastify.checkout.invoiceHandler.deletePaymentFromInvoice({
+            id,
+            paymentId
+          })
+
+        if (result.success) {
+          // Audit trail: the payments row is gone, so record that a payment
+          // was deleted on this invoice (amount/method live in the server log).
+          await createInvoiceEvent({
+            invoiceId: id,
+            type: INVOICE_EVENT_TYPE.PAYMENT_DELETED
+          })
+          return result.updatedInvoice
+        } else {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: result.errorMessage
+          })
+        }
+      }
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invoice handler not available'
       })
     })
 })

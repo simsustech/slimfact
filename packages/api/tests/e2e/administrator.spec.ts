@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { faker } from '@faker-js/faker'
 import { fillComboboxes } from './helpers'
+import { login } from './setup'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -10,27 +11,15 @@ let page: Page
 
 test.describe.configure({ mode: 'serial' })
 
-test.beforeAll(async ({ browser }) => {
+// Fresh page per test: reusing one page across create-dialog flows breaks the
+// second dialog (see AGENTS.md "Shared page state").
+test.beforeEach(async ({ browser }) => {
   page = await browser.newPage()
-
-  await page.goto('/')
-
-  await page.click('text=Login')
-
-  await page.waitForLoadState('networkidle')
-
-  await expect(page).toHaveURL(/.*login/)
-
-  await page.locator('text="Email"').fill(email)
-  await page.locator('text="Password"').fill(password)
-
-  await page.locator('button >> text=Login').click()
-
-  await page.waitForURL(/.*user/)
+  await login({ page, email, password })
   await expect(page.getByText('Administrator').first()).toBeAttached()
 })
 
-test.afterAll(async () => {
+test.afterEach(async () => {
   await page.close()
 })
 test.describe('Settings', async () => {
@@ -142,8 +131,9 @@ test.describe('Administrator', async () => {
 
     await page
       .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
+      .filter({ hasText: 'Lines' })
+      .getByRole('button', { name: 'Add' })
+      .first()
       .click()
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
@@ -162,8 +152,9 @@ test.describe('Administrator', async () => {
 
     await page
       .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
+      .filter({ hasText: 'Lines' })
+      .getByRole('button', { name: 'Add' })
+      .first()
       .click()
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')
@@ -182,8 +173,9 @@ test.describe('Administrator', async () => {
 
     await page
       .getByRole('list')
-      .filter({ hasText: 'Lines Add' })
-      .getByRole('listitem')
+      .filter({ hasText: 'Lines' })
+      .getByRole('button', { name: 'Add' })
+      .first()
       .click()
     await page.getByRole('textbox', { name: 'Description' }).click()
     await page.getByRole('textbox', { name: 'Description' }).fill('test')

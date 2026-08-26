@@ -1,0 +1,72 @@
+{
+  "name": "@slimfact/banking-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SlimFact banking proxy — owns the open-banking.io sync and exposes granted bank data to machine clients over tRPC",
+  "author": "simsustech",
+  "type": "module",
+  "exports": {
+    "./trpc": {
+      "types": "./src/trpc/index.ts"
+    },
+    "./client": {
+      "types": "./src/client.ts",
+      "import": "./src/client.ts"
+    },
+    "./config": {
+      "types": "./src/config/index.ts",
+      "import": "./src/config/index.ts"
+    },
+    "./events": {
+      "types": "./src/events.ts",
+      "import": "./src/events.ts"
+    },
+    "./demo-data": {
+      "types": "./src/seed/demoData.ts",
+      "import": "./src/seed/demoData.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "start": "node ./dist/src/server.js",
+    "migrate:latest": "node ./dist/src/kysely/migrate.js",
+    "seed:test": "node ./dist/src/seed/test.js",
+    "check-schema": "node ./dist/scripts/check-schema.js",
+    "generate-key": "node ./dist/scripts/generate-key.js",
+    "list-accounts": "node ./dist/scripts/list-accounts.js",
+    "generate:demo": "node ./dist/scripts/generate-demo-data.js",
+    "seed:demo": "node ./dist/src/seed/demo.js",
+    "verify:real": "node ./dist/scripts/verify-real-data.js",
+    "lint": "oxlint src scripts",
+    "lint:fix": "oxlint src scripts --fix",
+    "format:check": "oxfmt --check .",
+    "format:write": "oxfmt --write ."
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/websocket": "^11.3.0",
+    "@modular-api/event-bus": "0.1.0",
+    "@mollie/api-client": "4.6.0",
+    "@open-banking-io/client": "1.0.0",
+    "@trpc/client": "11.18.0",
+    "@trpc/server": "11.18.0",
+    "@vitrify/tools": "0.5.3",
+    "fastify": "5.12.1",
+    "kysely": "0.29.5",
+    "pg": "8.23.0",
+    "pg-boss": "12.27.0",
+    "stripe": "^22.5.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/pg": "8.23.1",
+    "@types/ws": "^8.18.1",
+    "oxfmt": "0.64.0",
+    "oxlint": "1.79.0",
+    "typescript": "7.0.2",
+    "vitest": "^4.1.11",
+    "ws": "8.21.3"
+  }
+}

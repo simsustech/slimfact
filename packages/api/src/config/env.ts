@@ -42,7 +42,27 @@ export const appConfig = {
   rateLimitPerMinute: read('RATE_LIMIT_PER_MINUTE') || '1000000',
   debug: read('DEBUG'),
 
-  oidcApiClientIds: read('OIDC_API_CLIENT_IDS')
+  oidcApiClientIds: read('OIDC_API_CLIENT_IDS'),
+
+  bankingApiUrl: read('BANKING_API_URL'),
+  bankingApiKey: read('BANKING_API_KEY'),
+  bankingSyncCron: read('BANKING_SYNC_CRON') || '*/15 7-23 * * *',
+  bankingSyncWaitMs: Number(read('BANKING_SYNC_WAIT_MS') || '120000'),
+  bankingIngestDisabled: read('BANKING_INGEST_DISABLED') === 'true',
+
+  /**
+   * Admin "invoice paid" notification address. When empty, notifications fall
+   * back to the invoice's companyDetails.email.
+   */
+  adminNotificationEmail: read('ADMIN_NOTIFICATION_EMAIL')
 } as const
 
 export type AppConfig = typeof appConfig
+
+/**
+ * True when a banking-api proxy key AND url are configured. The banking module
+ * is inert (no cron, tame router results) until both are set — a key without a
+ * URL would otherwise start a cron worker that can never reach the proxy.
+ */
+export const bankingEnabled = (): boolean =>
+  !!appConfig.bankingApiKey && !!appConfig.bankingApiUrl

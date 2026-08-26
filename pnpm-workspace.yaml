@@ -2,6 +2,13 @@ injectWorkspacePackages: true
 
 packages:
   - packages/*
+overrides:
+  # Unpublished @modular-api/event-bus — local link until published to npm.simsus.tech.
+  # The Docker build injects the same link: override in-build (LINKED_MODULAR_API_EVENT_BUS_PATH).
+  "@modular-api/event-bus": "link:/home/stefan/Projects/modular-api/packages/event-bus"
+  # typescript@7 removed the ./lib/tsc subpath that vue-tsc@3.3.9 needs — pin
+  # the workspace to 6.0.3 so vue-tsc and the TS peer graph stay compatible.
+  typescript: 6.0.3
 
 minimumReleaseAge: 1440
 
@@ -24,7 +31,7 @@ minimumReleaseAgeExclude:
   - vite
   - axios
   - cronstrue
-  - '@types/node'
+  - "@types/node"
   - cron-parser
   - pg-boss
   - stripe
@@ -34,18 +41,19 @@ minimumReleaseAgeExclude:
   - quasar
   - sharp
   - "@img/*"
-  - '@pinia/colada@1.4.2'
-  - '@vue/compiler-core@3.5.40'
-  - '@vue/compiler-dom@3.5.40'
-  - '@vue/compiler-sfc@3.5.40'
-  - '@vue/compiler-ssr@3.5.40'
-  - '@vue/reactivity@3.5.40'
-  - '@vue/runtime-core@3.5.40'
-  - '@vue/runtime-dom@3.5.40'
-  - '@vue/server-renderer@3.5.40'
-  - '@vue/shared@3.5.40'
+  - "@pinia/colada@1.4.2"
+  - "@vue/compiler-core@3.5.40"
+  - "@vue/compiler-dom@3.5.40"
+  - "@vue/compiler-sfc@3.5.40"
+  - "@vue/compiler-ssr@3.5.40"
+  - "@vue/reactivity@3.5.40"
+  - "@vue/runtime-core@3.5.40"
+  - "@vue/runtime-dom@3.5.40"
+  - "@vue/server-renderer@3.5.40"
+  - "@vue/shared@3.5.40"
   - fast-xml-parser@5.10.1
   - vue@3.5.40
+  - pinia@4.0.3
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
@@ -57,8 +65,11 @@ onlyBuiltDependencies:
 minimumReleaseAgeIgnoreMissingTime: true
 
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   ejs: true
   esbuild: true
   sharp: true
   simple-git-hooks: true
+
+patchedDependencies:
+  vitrify@0.26.14: patches/vitrify@0.26.14.patch
