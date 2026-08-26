@@ -49,6 +49,8 @@ BILL → RECEIPT → INVOICE (convertible)
 - Use descriptive variable names
 - Follow existing patterns in the codebase
 - Extract complex conditions into meaningful boolean variables
+- **Prevent raw SQL — use Kysely methods whenever possible.** Do work in the DB via the Kysely query builder (`eb.fn`, `eb.val`, `eb.ref`, callback `.where((eb) => ...)`), not raw `sql\`...\`` fragments or JS reduce/sort/slice. Check the Kysely API docs (<https://kysely-org.github.io/kysely-apidoc/>) before reaching for raw SQL. Validate before data reaches the DB, not after it comes out.
+- **Drawer links**: When adding a new admin page or feature route, check if a corresponding drawer link should be added in `packages/app/src/layouts/MainLayout.vue`. The drawer is the primary navigation — new pages without drawer links are hidden from users.
 
 ## Conventions (.pi/skills/)
 
@@ -102,6 +104,22 @@ To switch, edit `packages/api/.env.development.local` and restart the dev server
 
 **Gotcha: stale POSTGRES_HOST**: If you previously ran Docker, `POSTGRES_HOST=database` may linger in your shell env. Unset it: `unset POSTGRES_HOST`.
 
+<<<<<<< HEAD
+=======
+**Gotcha: one-shot test recipe**: Always start a fresh test run with `down --volumes` so the API re-seeds from scratch, then `build --no-cache api` (so any linked local package overlay is picked up), then `up -d --wait` (so containers are healthy before tests run). `up -d api` without `--wait` returns immediately and the API then crashes on a missing DB if its container was recreated against a stale volume. The one-shot recipe:
+
+```bash
+export SIMSUSTECH_NPM_TOKEN=$(cat ./env/SIMSUSTECH_NPM_TOKEN)
+export LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH=~/Projects/modular-api/packages/fastify-checkout
+docker compose -f docker-compose.test.yaml down --volumes
+docker compose -f docker-compose.test.yaml build --no-cache api
+docker compose -f docker-compose.test.yaml up -d --wait
+cd packages/api && pnpm exec playwright test --workers=1 --config=playwright.nosetup.config.ts
+```
+
+`--volumes` drops the DB so the API re-runs migrations + `seed:test` from scratch. `build --no-cache api` rebuilds the image with any local fastify-checkout overlay. `up -d --wait` blocks until every container's healthcheck passes, so the API is ready before Playwright starts.
+
+>>>>>>> dev
 ## Docker Test Stack with Linked Local Packages
 
 The Docker build supports overlaying local packages on top of npm-installed ones via BuildKit `additional_contexts`. Set `LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH` (or other `LINKED_*` vars) to point at your local copy. The Dockerfile copies, injects a `link:` override into `pnpm-workspace.yaml`, and builds inside Docker — no pre-building needed locally. Unset paths default to `.docker/empty`.
@@ -285,7 +303,7 @@ reseeding are not supported.
 
 ### Test Patterns
 
-**Combobox (Quasar QSelect)**: Use `fillComboboxes()` from `helpers.ts` which clicks via `getByLabel()` and picks the first option. Never use `role="combobox"` — custom QSelect wrappers (CountrySelect, AccountSelect) don't expose it.
+**Combobox (Quasar QSelect)**: Use `fillComboboxes()` from `helpers.ts` which clicks via `getByLabel()` and picks the first option. `role="combobox"` IS exposed on the QSelect input (Quasar 2.25.1 renders `<input role="combobox" aria-label="...">`), so `getByRole('combobox', { name: '...' })` works — but prefer `getByLabel()` for stability across Quasar versions.
 
 **mkInvoice / mkBill**: After submitting a form, navigate to `/admin/invoices` and `waitForLoadState('networkidle')` before clicking `.q-expansion-item__toggle-icon`.first() — otherwise parallel tests' invoices pollute the list.
 
@@ -296,6 +314,13 @@ reseeding are not supported.
 **Shared page state**: Prefer `browser.newPage()` + `login()` for each test that creates/modifies data.
 
 **Debug helper**: `tests/e2e/helpers.ts` exports `dumpPage(page, label)` — logs URL, buttons, inputs, and body text.
+
+**Known TLS error in `screenshots-customer.spec.ts`**: the spec downloads the
+invoice PDF via Node `fetch`, which rejects the self-signed local stack
+certificate with `TypeError: fetch failed` / `unable to get local issuer
+certificate` (all 4 variants: en/nl × desktop/mobile). This is pre-existing
+and unrelated to app changes — run it with
+`NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm exec playwright test tests/e2e/screenshots-customer.spec.ts`.
 
 ### Base Test Stack (no PSP)
 

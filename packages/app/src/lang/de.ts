@@ -152,6 +152,10 @@ const lang: Language = {
         'Bitte nutzen Sie den Download-Button, um das PDF zu erhalten, und drucken Sie es aus Ihrem PDF-Viewer.',
       openReference: 'Referenz öffnen'
     },
+    filters: {
+      startDate: 'Startdatum',
+      endDate: 'Enddatum'
+    },
     messages: {
       markPaid: ({ clientDetails, totalIncludingTax }) =>
         `Sind Sie sicher, dass Sie die Rechnung an ${
@@ -337,6 +341,91 @@ const lang: Language = {
         bills: 'Meine Belege anzeigen.',
         receipts: 'Meine Quittungen anzeigen.',
         invoices: 'Meine Rechnungen anzeigen.'
+      }
+    },
+    admin: {
+      title: 'Dashboard',
+      companyFilter: {
+        label: 'Unternehmensfilter',
+        allSelected: 'Alle Unternehmen',
+        noneSelected: 'Keine Unternehmen ausgewählt'
+      },
+      revenue: {
+        title: 'Umsatz',
+        today: 'Heute',
+        week: 'Diese Woche',
+        month: 'Dieser Monat',
+        quarter: 'Dieses Quartal',
+        year: 'Dieses Jahr',
+        customRange: 'Benutzerdefinierter Bereich',
+        startDate: 'Start',
+        endDate: 'Ende',
+        invoices: 'Rechnungen',
+        bills: 'Belege',
+        receipts: 'Quittungen',
+        chart: {
+          title: 'Umsatz im Zeitverlauf',
+          noData: 'Kein Umsatz in diesem Zeitraum',
+          bin: {
+            day: 'Nach Tag: jeder Punkt ist der an diesem Tag gezahlte Umsatz.',
+            week: 'Nach Woche: jeder Punkt ist der in dieser Woche gezahlte Umsatz.',
+            month:
+              'Nach Monat: jeder Punkt ist der in diesem Monat gezahlte Umsatz.',
+            quarter:
+              'Nach Quartal: jeder Punkt ist der in diesem Quartal gezahlte Umsatz.'
+          }
+        }
+      },
+      debtors: {
+        title: 'Offen',
+        toggle: {
+          invoices: 'Rechnungen',
+          bills: 'Belege'
+        },
+        empty: 'Keine offenen Rechnungen'
+      },
+      actionItems: {
+        title: 'Aktionspunkte',
+        open: 'Offene Rechnungen',
+        overdue: {
+          needsReminder: 'Erinnerung nötig',
+          reminder1: 'Erste Erinnerung gesendet',
+          reminder2: 'Zweite Erinnerung gesendet',
+          exhortation: 'Mahnung'
+        }
+      },
+      upcomingIncome: {
+        title: 'Kommende Einnahmen',
+        titleOverdue: 'Überfällige Einnahmen',
+        invoices: 'offene Rechnungen',
+        due: 'fällig am',
+        empty: 'Noch keine Rechnungen fällig',
+        emptyOverdue: 'Keine überfälligen Rechnungen',
+        toggle: {
+          upcoming: 'Kommend',
+          overdue: 'Überfällig'
+        }
+      },
+      paymentMethods: {
+        title: 'Bezahlt nach Zahlungsart'
+      },
+      recentActivity: {
+        title: 'Letzte Aktivitäten',
+        forInvoice: 'für Rechnung',
+        filter: {
+          label: 'Aktivitätsfilter',
+          all: 'Alle',
+          invoiceOpened: 'Rechnung geöffnet',
+          billCreated: 'Beleg erstellt',
+          payment: 'Zahlung erhalten',
+          reminder: 'Erinnerung gesendet',
+          exhortation: 'Mahnung gesendet'
+        }
+      },
+      empty: {
+        noData: 'Keine Daten verfügbar',
+        noCompanySelected:
+          'Wählen Sie ein Unternehmen aus, um Statistiken zu sehen'
       }
     }
   },

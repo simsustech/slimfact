@@ -295,7 +295,9 @@ test.describe('Stripe Refunds', () => {
     await page.waitForTimeout(3000)
     await expect(
       page.getByRole('button', { name: /refund|terugbetalen/i }).first()
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible({
+      timeout: 10000
+    })
     await page
       .getByRole('button', { name: /refund|terugbetalen/i })
       .first()

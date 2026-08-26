@@ -1,11 +1,13 @@
 FROM node:lts AS install-stage
 RUN --mount=type=secret,id=SIMSUSTECH_NPM_TOKEN \
     echo "//npm.simsus.tech/:_authToken=$(cat /run/secrets/SIMSUSTECH_NPM_TOKEN)" >> ~/.npmrc
-
 WORKDIR /build
 RUN npm install -g pnpm
 COPY . .
 
+# Copy local packages inside the packages/* workspace glob so the workspace
+# install resolves their dependencies (kysely, fastify, etc.) and the app
+# build can import them.
 COPY --from=linked-quasar-components ./ /build/packages/quasar-components/
 COPY --from=linked-vitrify ./ /build/packages/vitrify/
 COPY --from=linked-unocss-preset-quasar ./ /build/packages/unocss-preset-quasar/
@@ -56,6 +58,8 @@ RUN if [ "$DEBUG" = "true" ]; then pnpm run build:debug; else pnpm run build; fi
 
 FROM build-stage AS api-deploy
 RUN pnpm --filter @slimfact/api deploy api --prod
+# force-legacy-deploy=true (in .npmrc) keeps the link: overrides intact in the
+# deployed node_modules, so the api package resolves the local packages.
 RUN rm ~/.npmrc
 WORKDIR "/build/app/dist/ssr/client"
 RUN find . ! -name 'logo.svg' -type f -exec gzip {} +

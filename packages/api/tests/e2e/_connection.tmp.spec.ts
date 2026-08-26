@@ -42,6 +42,8 @@ test.describe('open-banking.io connection (credentials check)', () => {
     // button.
     await expect(
       page.getByRole('button', { name: /sync now|syncing/i }).first()
-    ).toBeVisible({ timeout: 30_000 })
+    ).toBeVisible({
+      timeout: 30_000
+    })
   })
 })

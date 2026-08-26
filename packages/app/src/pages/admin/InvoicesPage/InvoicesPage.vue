@@ -28,6 +28,20 @@
             @filter="onFilterClients"
             @new-value="onNewValueClients"
           />
+          <date-input
+            v-model="startDate"
+            :label="lang.invoice.filters.startDate"
+            :format="DATE_FORMAT"
+            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+            clearable
+          />
+          <date-input
+            v-model="endDate"
+            :label="lang.invoice.filters.endDate"
+            :format="DATE_FORMAT"
+            :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
+            clearable
+          />
           <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
@@ -130,7 +144,8 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import { EmailInput } from '@simsustech/quasar-components/form'
+import { EmailInput, DateInput } from '@simsustech/quasar-components/form'
+import { dateQueryParam } from '@slimfact/tools'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
@@ -143,7 +158,7 @@ import ClientSelect from '../../../components/client/ClientSelect.vue'
 import InvoiceStatusSelect from '../../../components/invoice/InvoiceStatusSelect.vue'
 import AddPaymentDialog from '../../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
-import { useConfiguration } from '../../../configuration.js'
+import { useConfiguration, DATE_FORMAT } from '../../../configuration.js'
 
 import { EventBus } from 'quasar'
 import {
@@ -181,14 +196,6 @@ const lang = useLang()
 
 const route = useRoute()
 
-onBeforeRouteUpdate((to) => {
-  if (to.params.uuids && Array.isArray(to.params.uuids)) {
-    uuids.value = to.params.uuids as string[]
-  } else {
-    uuids.value = undefined
-  }
-})
-
 const {
   invoices,
   companyId,
@@ -198,8 +205,45 @@ const {
   page,
   rowsPerPage,
   uuids,
+  paid,
+  startDate,
+  endDate,
   refetch: execute
 } = useAdminGetInvoicesQuery()
+
+const applyRouteFilters = (to: typeof route) => {
+  if (to.params.uuids && Array.isArray(to.params.uuids)) {
+    uuids.value = to.params.uuids as string[]
+  } else {
+    uuids.value = undefined
+  }
+  const queryStatus = to.query.status
+  if (typeof queryStatus === 'string') {
+    status.value = queryStatus as InvoiceStatus
+  }
+  const queryPaid = to.query.paid
+  if (typeof queryPaid === 'string') {
+    paid.value = queryPaid === 'true'
+  }
+  const queryCompanyId = to.query.companyId
+  if (
+    typeof queryCompanyId === 'string' &&
+    queryCompanyId !== '' &&
+    !Number.isNaN(Number(queryCompanyId))
+  ) {
+    companyId.value = Number(queryCompanyId)
+  } else {
+    companyId.value = null
+  }
+  startDate.value = dateQueryParam(to.query, 'startDate')
+  endDate.value = dateQueryParam(to.query, 'endDate')
+}
+
+applyRouteFilters(route)
+
+onBeforeRouteUpdate((to) => {
+  applyRouteFilters(to)
+})
 
 const { invoiceIds, invoiceEvents } =
   useAdminGetInvoiceEventsByInvoiceIdsQuery()
@@ -693,14 +737,18 @@ const invoiceExpansionItemHandlers = computed(() => ({
 
 const activeSearch = computed(
   () =>
-    !Number.isNaN(companyId.value) ||
-    !Number.isNaN(clientId.value) ||
-    status.value !== null
+    companyId.value != null ||
+    clientId.value != null ||
+    status.value !== null ||
+    startDate.value !== null ||
+    endDate.value !== null
 )
 const clearSearchResults = () => {
   companyId.value = NaN
   clientId.value = NaN
   status.value = null
+  startDate.value = null
+  endDate.value = null
 }
 
 const ready = ref<boolean>(false)

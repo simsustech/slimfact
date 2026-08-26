@@ -59,7 +59,9 @@ test.describe('payments overview (seeded demo)', () => {
       .poll(
         async () =>
           await page.locator('a[href="/admin/payments"]:visible').count(),
-        { timeout: 10_000 }
+        {
+          timeout: 10_000
+        }
       )
       .toBeGreaterThanOrEqual(1)
     const adminMenu = page

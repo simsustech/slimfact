@@ -345,7 +345,10 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         total: 1
       }))
       const addPaymentToInvoice = vi.fn<InvoiceHandler['addPaymentToInvoice']>(
-        async () => ({ success: true, payment: { id: 4242 } })
+        async () => ({
+          success: true,
+          payment: { id: 4242 }
+        })
       )
 
       const caller = await loadCaller(addPaymentToInvoice)

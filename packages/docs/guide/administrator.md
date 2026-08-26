@@ -8,6 +8,7 @@ This guide covers everything administrators can do — from creating your first 
 
 As an administrator, your sidebar gives you access to:
 
+- **Dashboard** — revenue, action items, and recent activity at a glance
 - **Invoices** — create and manage invoices
 - **Bills** — create and manage bills
 - **Receipts** — view and manage receipts
@@ -17,6 +18,26 @@ As an administrator, your sidebar gives you access to:
 
 ---
 
+## Dashboard
+The dashboard is your at-a-glance overview — revenue, outstanding work, and recent activity in one place. Open it from the sidebar (Dashboard).
+![Admin dashboard](/screenshots/admin-dashboard.png)
+### Revenue
+- **Revenue cards** show the invoiced, paid, and outstanding totals for the selected period
+- **Revenue chart** plots paid revenue over time — pick a preset (today, week, month, quarter, year) or choose a custom date range
+- **Click a bucket** in the chart to zoom into that period; click again to zoom out
+- The chart adapts its granularity to the range: days, weeks, months, or quarters
+### Action items
+- **Status overview** counts invoices per status (concept, open, paid, canceled, bills, receipts)
+- **Debtors** lists clients with overdue invoices and how much they owe
+- **Overdue** groups unpaid invoices by aging bucket: needs reminder, reminder sent, second reminder, exhortation
+### Upcoming income
+- Expected cash inflow from open invoices that are not due yet
+- Toggle between **Upcoming** and **Overdue** to see what is coming in versus what is late
+### Payment methods
+- How much was paid per method (iDEAL, credit card, cash, bank transfer) in the selected period
+### Recent activity
+- A chronological feed of what happened: invoices sent, bills created, payments received, reminders and exhortations sent
+---
 ## Getting Started
 
 Before you create your first invoice, set up the basics:
@@ -99,6 +120,16 @@ Once an invoice is expanded, the More menu gives you:
 | **Send receipt**     | Bill (if fully paid) — converts to a receipt                |
 | **Send reminder**    | Open (after due date, with 7-day cooldown)                  |
 | **Send exhortation** | Open (after 2 reminders, with 7-day cooldown)               |
+| Action | When available |
+|--------|---------------|
+| **Edit** | Concept, Bill |
+| **Send** | Concept, Bill — emails the invoice to the customer |
+| **Open** | Any status except Canceled — opens the public invoice page |
+| **Cancel** | Concept, Bill (if no amount paid) |
+| **Add payment** | Open, Bill (if amount due) — cash, bank transfer, or online |
+| **Send receipt** | Bill (if fully paid) — converts to a receipt |
+| **Send reminder** | Open (after due date, with 7-day cooldown) |
+| **Send exhortation** | Open (after 2 reminders, with 7-day cooldown) |
 
 ### Invoice Status Flow
 
@@ -204,6 +235,10 @@ Control which PSP handles which payment method:
 | ---------------------------- | ------- | -------------------- |
 | `IDEAL_PAYMENT_HANDLER`      | Mollie  | `mollie` or `stripe` |
 | `CREDITCARD_PAYMENT_HANDLER` | Stripe  | `mollie` or `stripe` |
+| Env variable | Default | Options |
+|-------------|---------|---------|
+| `IDEAL_PAYMENT_HANDLER` | Mollie | `mollie` or `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | Stripe | `mollie` or `stripe` |
 
 ### Cash & Bank Transfer
 
@@ -230,9 +265,7 @@ Go to **Settings → Exports** to access:
 ---
 
 ## Bank Import
-
 ## Bank Import
-
 The **Bank** menu has three pages — **Overview**, **To match** and **Settings**
 (bank transactions come from open-banking.io via the banking-api proxy; the
 proxy keeps the complete history). **Settings → Sync now** triggers a refresh.
@@ -244,12 +277,9 @@ invoice was already paid manually with a bank transfer of the exact amount,
 Apply **adopts** that payment (links the bank credit to it) instead of
 recording a second payment. The settings page shows connection status and
 warns when a bank consent needs to be re-established.
-
 > Known limitation: if a strict match auto-applies first and you later record
 > a manual bank transfer for the same invoice, two paid payments can exist.
-
 ---
-
 ## Email Tracking
 
 When you send an invoice by email, the invoice link includes a `?eventType=emailOpened` query parameter. When the customer clicks the link to view their invoice, SlimFact records the event.

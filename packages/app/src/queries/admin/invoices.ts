@@ -1,8 +1,9 @@
 import { useMutation, defineQuery, useQuery } from '@pinia/colada'
+import { validIsoDate } from '@slimfact/tools'
 import { trpc } from '../../trpc.js'
 import type { NewPayment, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { ref, computed } from 'vue'
-import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
+import type { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 
 export const useAdminGetInvoicesQuery = defineQuery(() => {
   const companyId = ref(NaN)
@@ -14,6 +15,8 @@ export const useAdminGetInvoicesQuery = defineQuery(() => {
   const rowsPerPage = ref(5)
   const uuids = ref<string[] | undefined>()
   const paid = ref()
+  const startDate = ref<string | null>(null)
+  const endDate = ref<string | null>(null)
   const invoiceStatus = ref<
     | InvoiceStatus.OPEN
     | InvoiceStatus.PAID
@@ -41,6 +44,8 @@ export const useAdminGetInvoicesQuery = defineQuery(() => {
       clientDetails.value,
       invoiceStatus.value,
       paid.value,
+      validIsoDate(startDate.value),
+      validIsoDate(endDate.value),
       pagination.value,
       {
         uuids:
@@ -57,6 +62,8 @@ export const useAdminGetInvoicesQuery = defineQuery(() => {
         status: invoiceStatus.value,
         pagination: pagination.value,
         paid: paid.value,
+        startDate: validIsoDate(startDate.value),
+        endDate: validIsoDate(endDate.value),
         uuids:
           companyId.value || clientId.value || clientDetails.value.name
             ? undefined
@@ -73,6 +80,8 @@ export const useAdminGetInvoicesQuery = defineQuery(() => {
     rowsPerPage,
     uuids,
     paid,
+    startDate,
+    endDate,
     ...rest
   }
 })

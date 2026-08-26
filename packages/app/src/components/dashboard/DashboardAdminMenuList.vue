@@ -1,5 +1,13 @@
 <template>
   <q-list separator>
+    <q-item to="/admin/dashboard">
+      <q-item-section avatar>
+        <q-icon :name="DASHBOARD_ICON" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label> {{ lang.dashboard.admin.title }} </q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item to="/admin/clients">
       <q-item-section avatar>
         <q-icon :name="CLIENT_ICON" />
@@ -67,6 +75,7 @@
 import {
   BILL_ICON,
   CLIENT_ICON,
+  DASHBOARD_ICON,
   INVOICE_ICON,
   PAYMENTS_ICON,
   RECEIPT_ICON,

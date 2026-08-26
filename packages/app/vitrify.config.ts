@@ -3,7 +3,7 @@ import {
   QuasarPlugin,
   type QuasarPluginOptions,
   PiniaPlugin,
-  PiniaPluginOptions
+  type PiniaPluginOptions
 } from 'vitrify/plugins'
 import { QuasarPreset } from 'unocss-preset-quasar'
 import { MaterialDesign3 } from 'unocss-preset-quasar/styles'
@@ -165,10 +165,18 @@ const quasarConf: QuasarPluginOptions = {
   disableSass: true
 }
 
-export default async function ({ mode, command }): Promise<VitrifyConfig> {
+export default async function ({
+  mode
+}: {
+  mode: string
+}): Promise<VitrifyConfig> {
   const env = loadEnv(mode, process.cwd(), '')
 
   const config: VitrifyConfig = {
+    test: {
+      include: ['tests/unit/**/*.test.ts', 'src/**/*.test.ts'],
+      environment: 'happy-dom'
+    },
     plugins: [QuasarComponentsPlugin(), ModularApiQuasarComponentsPlugin()],
     vitrify: {
       plugins: [
@@ -191,7 +199,17 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
       ssr: {
         serverModules: []
       },
-      manualChunks: ['zod'],
+      chunks: {
+        typst: ['@myriaddreamin/typst'],
+        trpc: ['@trpc/client', '@trpc/server'],
+        zod: ['zod'],
+        chart: ['chart.js', 'vue-chartjs'],
+        uqr: ['uqr'],
+        workbox: ['workbox-window'],
+        lionelOauth: ['@stefanvh/lionel-oauth-client'],
+        simsustechQuasarComponents: ['@simsustech/quasar-components'],
+        modularApiQuasarComponents: ['@modular-api/quasar-components']
+      },
       unocss: {
         presets: [
           QuasarPreset({
@@ -211,6 +229,12 @@ export default async function ({ mode, command }): Promise<VitrifyConfig> {
               'src/**/configuration.ts',
               /@simsustech\/quasar-components/,
               /@modular-api\/quasar-components/,
+              // Linked/overlay installs resolve @simsustech/quasar-components to a
+              // local path (e.g. /build/packages/quasar-components or a pnpm-linked
+              // checkout) whose path does NOT contain the scoped package name, so it
+              // would be skipped by the regexes above — classes rendered only inside
+              // quasar-components (q-drawer, i-mdi-menu, …) would miss their preset
+              // shortcuts. Match any path containing the package dir name too.
               /quasar-components\//,
               /modular-api\//
             ]

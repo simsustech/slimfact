@@ -1,6 +1,6 @@
 {
   "name": "@slimfact/app",
-  "version": "0.1.0",
+  "version": "0.9.1",
   "private": true,
   "description": "SlimFact App",
   "author": "",
@@ -48,8 +48,10 @@
     "@fastify/middie": "9.3.3",
     "@fastify/static": "10.1.3",
     "@slimfact/tools": "workspace:*",
+    "chart.js": "^4.5.1",
     "cronstrue": "3.24.0",
-    "uqr": "0.1.3"
+    "uqr": "0.1.3",
+    "vue-chartjs": "^5.3.4"
   },
   "devDependencies": {
     "@iconify-json/arcticons": "1.2.57",

@@ -18,3 +18,9 @@ jwks
 .pi/continue/
 .pi/handoff/
 .pi/plans/
+.pnpm-store/
+.pi/fff/
+.pi/plans/
+packages/api/_login-check.mjs
+PR.md
+>>>>>>> dev

@@ -28,6 +28,10 @@ const routes: RouteRecordRaw[] = [
             component: () => import('../pages/AdminPage.vue')
           },
           {
+            path: 'dashboard',
+            component: () => import('../pages/admin/DashboardPage.vue')
+          },
+          {
             path: 'clients',
             components: {
               default: () =>

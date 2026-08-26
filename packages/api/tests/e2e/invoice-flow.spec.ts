@@ -232,7 +232,9 @@ test.describe('Invoice Lifecycle \u2014 Blocked Transitions', () => {
 
     await expect(page.locator('.q-expansion-item').first()).not.toContainText(
       'open',
-      { timeout: 3000 }
+      {
+        timeout: 3000
+      }
     )
     await page.keyboard.press('Escape')
   })

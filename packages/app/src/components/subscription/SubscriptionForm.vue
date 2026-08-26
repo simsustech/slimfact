@@ -17,12 +17,7 @@
         @filter="filterClients"
       />
     </div>
-    <div
-      v-show="
-        !Number.isNaN(modelValue.companyId) &&
-        !Number.isNaN(modelValue.clientId)
-      "
-    >
+    <div v-show="modelValue.companyId != null && modelValue.clientId != null">
       <div class="grid grid-cols-12 gap-3">
         <q-select
           v-model="modelValue.type"
@@ -74,7 +69,7 @@
         <date-input
           v-model="modelValue.startDate"
           :label="lang.subscription.fields.startDate"
-          format="DD-MM-YYYY"
+          :format="DATE_FORMAT"
           clearable
           required
           class="md:col-span-4 col-span-12"
@@ -92,7 +87,7 @@
         <date-input
           v-model="modelValue.endDate"
           :label="lang.subscription.fields.endDate"
-          format="DD-MM-YYYY"
+          :format="DATE_FORMAT"
           clearable
           class="md:col-span-4 col-span-12"
           :date="{
@@ -201,9 +196,9 @@ import {
   CronScheduleInput
 } from '@simsustech/quasar-components/form'
 import { useLang } from '../../lang/index.js'
+import { DATE_FORMAT } from '../../configuration.js'
 import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
-import ClientSelect from '../client/ClientSelect.vue'
 import {
   InvoiceLineItem,
   InvoiceLineDialog
@@ -270,8 +265,8 @@ const { filteredCompanies, filteredClients } = toRefs(props)
 // open into the next (same fix as InvoiceForm).
 const getInitialValue = (): Subscription => ({
   name: '',
-  companyId: NaN,
-  clientId: NaN,
+  companyId: null,
+  clientId: null,
   numberPrefixTemplate: '',
   currency: 'EUR',
   locale: 'en-US',

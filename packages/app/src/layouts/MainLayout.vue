@@ -58,6 +58,11 @@
         <navigation-tabs vertical dense />
       </div>
     </template>
+    <template #drawer-header>
+      <span class="text-subtitle1 text-weight-medium q-ml-xs ellipsis">
+        {{ title }}
+      </span>
+    </template>
 
     <template #drawer>
       <q-scroll-area class="fit">
@@ -122,6 +127,16 @@
                   <q-item-label> {{ lang.administrator }} </q-item-label>
                 </q-item-section>
               </template>
+              <q-item to="/admin/dashboard">
+                <q-item-section avatar>
+                  <q-icon name="i-mdi-view-dashboard" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    {{ lang.dashboard.admin.title }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
               <q-item to="/admin/clients">
                 <q-item-section avatar>
                   <q-icon name="i-mdi-person" />

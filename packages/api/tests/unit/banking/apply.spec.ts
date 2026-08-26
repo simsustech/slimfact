@@ -62,7 +62,9 @@ const makeFailingHandler = (): InvoiceHandler['addPaymentToInvoice'] =>
   vi.fn<InvoiceHandler['addPaymentToInvoice']>(async () => {
     throw Object.assign(
       new Error('duplicate key value violates unique constraint'),
-      { code: '23505' }
+      {
+        code: '23505'
+      }
     )
   }) as unknown as InvoiceHandler['addPaymentToInvoice']
 
@@ -476,7 +478,10 @@ describeDb('banking/apply', () => {
       .executeTakeFirstOrThrow()
 
     const addPaymentToInvoice = vi.fn<InvoiceHandler['addPaymentToInvoice']>(
-      async () => ({ success: true, payment: { id: 4242 } })
+      async () => ({
+        success: true,
+        payment: { id: 4242 }
+      })
     )
     const results = await linkBankCreditsToInvoices({
       db: testDb!,

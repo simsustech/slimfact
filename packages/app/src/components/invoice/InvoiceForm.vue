@@ -32,12 +32,7 @@
         </template>
       </client-select>
     </div>
-    <div
-      v-show="
-        !Number.isNaN(modelValue.companyId) &&
-        !Number.isNaN(modelValue.clientId)
-      "
-    >
+    <div v-show="modelValue.companyId != null && modelValue.clientId != null">
       <div class="grid grid-cols-12 gap-3">
         <number-prefix-select
           v-model="modelValue.numberPrefixTemplate"
@@ -392,7 +387,7 @@ const setValue = (newValue: RawNewInvoice) => {
   ) {
     modelValue.value.companyId = newValue.companyDetails.id
   }
-  if (newValue.clientId && !Number.isNaN(newValue.clientId)) {
+  if (newValue.clientId != null) {
     modelValue.value.clientId = newValue.clientId
   } else if (
     newValue.clientDetails.id &&

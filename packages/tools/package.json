@@ -1,6 +1,6 @@
 {
   "name": "@slimfact/tools",
-  "version": "0.1.0",
+  "version": "0.9.1",
   "author": "Stefan van Herwijnen",
   "files": [
     "dist",
@@ -16,6 +16,10 @@
     "./banking": {
       "types": "./dist/types/banking/types.d.ts",
       "import": "./dist/banking/types.js"
+    },
+    "./dashboard": {
+      "types": "./dist/types/dashboard/index.d.ts",
+      "import": "./dist/dashboard/index.js"
     },
     "./epc-qr": {
       "types": "./dist/types/epc-qr/index.d.ts",

@@ -12,7 +12,7 @@
       <date-input
         v-model="startDate"
         :label="lang.subscription.fields.startDate"
-        format="DD-MM-YYYY"
+        :format="DATE_FORMAT"
         clearable
         required
         class="md:col-span-4 col-span-12"
@@ -29,7 +29,7 @@
       <date-input
         v-model="endDate"
         :label="lang.subscription.fields.endDate"
-        format="DD-MM-YYYY"
+        :format="DATE_FORMAT"
         clearable
         class="md:col-span-4 col-span-12"
         :date="{
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { date as dateUtil, exportFile } from 'quasar'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import CompanySelect from '../../components/company/CompanySelect.vue'
 import InvoiceForm from '../../components/invoice/InvoiceForm.vue'
 import { DateInput } from '@simsustech/quasar-components/form'
@@ -64,6 +64,7 @@ import { useQuery } from '@pinia/colada'
 import { trpc } from '../../trpc.js'
 import { useAdminSearchCompaniesQuery } from '../../queries/admin/companies.js'
 import { useLang } from '../../lang/index.js'
+import { DATE_FORMAT } from '../../configuration.js'
 
 const lang = useLang()
 const companyId = ref<number>()

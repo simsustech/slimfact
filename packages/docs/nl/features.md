@@ -47,6 +47,12 @@ Stel het in en vergeet het. Terugkerende facturen draaien op cron-schema's terwi
 
 ---
 
+## 📊 Admin-dashboard
+Een realtime overzicht van je factuurbedrijf.
+- Omzetkaarten en een omzetgrafiek met inzoomen per bucket en granulariteit van dag/week/maand/kwartaal
+- Statusoverzicht en verouderingsbuckets voor vervallen facturen — herinnering nodig, herinnering verstuurd, tweede herinnering, aanmaning
+- Verwachte inkomsten en een uitsplitsing per betaalmethode per periode
+- Recente activiteitenfeed van facturen, rekeningen, betalingen, herinneringen en aanmaningen
 ## 👤 Klantenportaal
 
 Je klanten krijgen hun eigen omgeving. Ze zien wat ze verschuldigd zijn, wanneer het vervalt en kunnen meteen betalen.

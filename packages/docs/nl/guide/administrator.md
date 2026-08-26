@@ -8,6 +8,7 @@ Deze handleiding behandelt alles wat beheerders kunnen doen — van het aanmaken
 
 Als beheerder geeft je zijbalk toegang tot:
 
+- **Dashboard** — omzet, actiepunten en recente activiteit in één oogopslag
 - **Facturen** — facturen aanmaken en beheren
 - **Rekeningen** — rekeningen aanmaken en beheren
 - **Bonnen** — bonnen bekijken en beheren
@@ -17,6 +18,26 @@ Als beheerder geeft je zijbalk toegang tot:
 
 ---
 
+## Dashboard
+Het dashboard is je overzicht in één oogopslag: omzet, openstaand werk en recente activiteit op één plek. Open het vanuit de zijbalk (Dashboard).
+![Admin dashboard](/screenshots/admin-dashboard.png)
+### Omzet
+- **Omzetkaarten** tonen het gefactureerde, betaalde en openstaande totaal voor de geselecteerde periode
+- **Omzetgrafiek** zet betaalde omzet uit in de tijd — kies een preset (vandaag, week, maand, kwartaal, jaar) of een eigen datumbereik
+- **Klik op een bucket** in de grafiek om in te zoomen op die periode; klik opnieuw om uit te zoomen
+- De grafiek past de granulariteit aan het bereik aan: dagen, weken, maanden of kwartalen
+### Actiepunten
+- **Statusoverzicht** telt facturen per status (concept, open, betaald, geannuleerd, rekeningen, bonnen)
+- **Debiteuren** toont klanten met vervallen facturen en hoeveel ze verschuldigd zijn
+- **Vervallen** groepeert onbetaalde facturen per verouderingsbucket: herinnering nodig, herinnering verstuurd, tweede herinnering, aanmaning
+### Verwachte inkomsten
+- Verwachte kasinstroom van open facturen die nog niet vervallen zijn
+- Schakel tussen **Verwacht** en **Vervallen** om te zien wat er aankomt versus wat te laat is
+### Betaalmethoden
+- Hoeveel er per methode is betaald (iDEAL, creditcard, contant, bankoverschrijving) in de geselecteerde periode
+### Recente activiteit
+- Een chronologische feed van wat er is gebeurd: verstuurde facturen, aangemaakte rekeningen, ontvangen betalingen, verstuurde herinneringen en aanmaningen
+---
 ## Aan de slag
 
 Voordat je je eerste factuur maakt, stel je de basis in:
@@ -99,6 +120,16 @@ Zodra een factuur is uitgevouwen, geeft het Meer-menu je:
 | **Bon versturen**      | Rekening (als volledig betaald) — converteert naar een bon           |
 | **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd)                         |
 | **Aanmaning sturen**   | Open (na 2 herinneringen, met 7 dagen wachttijd)                     |
+| Actie | Wanneer beschikbaar |
+|-------|-------------------|
+| **Bewerken** | Concept, Rekening |
+| **Versturen** | Concept, Rekening — e-mailt de factuur naar de klant |
+| **Openen** | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
+| **Annuleren** | Concept, Rekening (als er geen bedrag is betaald) |
+| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is) |
+| **Bon versturen** | Rekening (als volledig betaald) — converteert naar een bon |
+| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd) |
+| **Aanmaning sturen** | Open (na 2 herinneringen, met 7 dagen wachttijd) |
 
 ### Factuurstatusverloop
 
@@ -110,7 +141,6 @@ CONCEPT → OPEN → BETAALD / GEANNULEERD
 - **Open** — verstuurd naar klant, wachtend op betaling (onwijzigbaar)
 - **Betaald** — betaling ontvangen
 - **Geannuleerd** — niet langer geldig
-
 ### Herinneringen & Aanmaningen
 
 Wanneer een factuur achterstallig is, kun je betalingsherinneringen versturen:
@@ -204,6 +234,10 @@ Bepaal welke PSP welke betaalmethode afhandelt:
 | ---------------------------- | --------- | -------------------- |
 | `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` of `stripe` |
 | `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` of `stripe` |
+| Env-variabele | Standaard | Opties |
+|-------------|---------|---------|
+| `IDEAL_PAYMENT_HANDLER` | Mollie | `mollie` of `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | Stripe | `mollie` of `stripe` |
 
 ### Contant & bankoverschrijving
 
@@ -228,7 +262,6 @@ Ga naar **Instellingen → Exports** voor toegang tot:
 - **Digiboox** — exporteer facturen in Digiboox-formaat. Meer formaten op verzoek beschikbaar.
 
 ## Bankimport
-
 De pagina **Bank** heeft drie onderdelen — **Overzicht**, **Te matchen** en
 **Instellingen** (banktransacties komen uit open-banking.io via de banking-api
 proxy; de proxy bewaart de volledige historie). **Instellingen → Sync nu**
@@ -241,13 +274,10 @@ bankoverschrijving van het exacte bedrag is betaald, **adopteert** Toepassen
 die betaling (koppelt het banktegoed eraan) in plaats van een tweede betaling
 te registreren. De instellingenpagina toont de verbindingsstatus en waarschuwt
 wanneer een bankmachtiging opnieuw moet worden ingesteld.
-
 > Bekende beperking: als een strikte match eerst automatisch is toegepast en
 > je later handmatig een bankoverschrijving registreert voor dezelfde factuur,
 > kunnen er twee betaalde betalingen bestaan.
-
 ---
-
 ## E-mailtracking
 
 Wanneer je een factuur per e-mail verstuurt, wordt er een `?eventType=emailOpened` queryparameter aan de factuurlink toegevoegd. Wanneer de klant op de link klikt om de factuur te bekijken, registreert SlimFact de gebeurtenis.

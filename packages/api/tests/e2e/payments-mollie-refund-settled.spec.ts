@@ -167,7 +167,9 @@ test('Refund via Mollie (wait for settlement)', async ({ request }) => {
   await page.goto(`/invoice/${uuid}`)
   await expect(
     page.getByRole('button', { name: /refund|terugbetalen/i }).first()
-  ).toBeVisible({ timeout: 10000 })
+  ).toBeVisible({
+    timeout: 10000
+  })
   await page
     .getByRole('button', { name: /refund|terugbetalen/i })
     .first()
@@ -190,9 +192,7 @@ test('Refund via Mollie (wait for settlement)', async ({ request }) => {
     return b64key ? localStorage.getItem(b64key) || '' : ''
   })
   const inv = await page.request.get(
-    `/trpc/admin.getInvoice?input=${encodeURIComponent(
-      JSON.stringify({ uuid })
-    )}`,
+    `/trpc/admin.getInvoice?input=${encodeURIComponent(JSON.stringify({ uuid }))}`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
   const invJson = await inv.json()
@@ -204,9 +204,7 @@ test('Refund via Mollie (wait for settlement)', async ({ request }) => {
   // 2+ hours). This verifies the end-to-end refund webhook/sync path.
   await expect(async () => {
     const r = await page.request.get(
-      `/trpc/admin.syncRefund?input=${encodeURIComponent(
-        JSON.stringify({ invoiceId })
-      )}`,
+      `/trpc/admin.syncRefund?input=${encodeURIComponent(JSON.stringify({ invoiceId }))}`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
     const j = await r.json()

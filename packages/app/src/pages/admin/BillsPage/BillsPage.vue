@@ -28,6 +28,20 @@
             @new-value="onNewValueClients"
           />
           <boolean-select v-model="paid" :label="lang.invoice.status.paid" />
+          <date-input
+            v-model="startDate"
+            :label="lang.invoice.filters.startDate"
+            :format="DATE_FORMAT"
+            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+            clearable
+          />
+          <date-input
+            v-model="endDate"
+            :label="lang.invoice.filters.endDate"
+            :format="DATE_FORMAT"
+            :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
+            clearable
+          />
           <!-- <invoice-status-select v-model="status" /> -->
         </q-menu>
       </q-btn>
@@ -128,7 +142,12 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, inject } from 'vue'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
-import { EmailInput, BooleanSelect } from '@simsustech/quasar-components/form'
+import {
+  EmailInput,
+  BooleanSelect,
+  DateInput
+} from '@simsustech/quasar-components/form'
+import { dateQueryParam } from '@slimfact/tools'
 import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
@@ -143,7 +162,7 @@ import CompanySelect from '../../../components/company/CompanySelect.vue'
 import ClientSelect from '../../../components/client/ClientSelect.vue'
 import AddPaymentDialog from '../../../components/AddPaymentDialog.vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
-import { useConfiguration } from '../../../configuration.js'
+import { useConfiguration, DATE_FORMAT } from '../../../configuration.js'
 import { EventBus } from 'quasar'
 import { useAdminGetBillsQuery } from '../../../queries/admin/bills.js'
 import { useAdminGetNumberPrefixesQuery } from '../../../queries/admin/numberPrefixes.js'
@@ -184,6 +203,8 @@ onBeforeRouteUpdate((to) => {
   } else {
     uuids.value = undefined
   }
+  startDate.value = dateQueryParam(to.query, 'startDate')
+  endDate.value = dateQueryParam(to.query, 'endDate')
 })
 
 const {
@@ -195,12 +216,16 @@ const {
   page,
   rowsPerPage,
   paid,
+  startDate,
+  endDate,
   refetch: execute
 } = useAdminGetBillsQuery()
 
 if (route.params.uuids && Array.isArray(route.params.uuids)) {
   uuids.value = route.params.uuids as string[]
 }
+startDate.value = dateQueryParam(route.query, 'startDate')
+endDate.value = dateQueryParam(route.query, 'endDate')
 
 const total = computed(() => invoices.value?.at(0)?.total || 0)
 
@@ -671,14 +696,18 @@ const invoiceExpansionItemHandlers = computed(() => ({
 
 const activeSearch = computed(
   () =>
-    !Number.isNaN(companyId.value) ||
-    !Number.isNaN(clientId.value) ||
-    paid.value !== void 0
+    companyId.value != null ||
+    clientId.value != null ||
+    paid.value !== void 0 ||
+    startDate.value !== null ||
+    endDate.value !== null
 )
 const clearSearchResults = () => {
-  companyId.value = NaN
-  clientId.value = NaN
+  companyId.value = null
+  clientId.value = null
   paid.value = undefined
+  startDate.value = null
+  endDate.value = null
 }
 
 const ready = ref<boolean>(false)

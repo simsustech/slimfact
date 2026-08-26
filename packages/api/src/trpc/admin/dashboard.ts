@@ -1,0 +1,279 @@
+import { type FastifyInstance } from 'fastify'
+
+import { t } from '../index.js'
+import { db } from '../../kysely/index.js'
+import { agingLabelForReminderCount } from '@slimfact/tools/dashboard'
+import {
+  addDays,
+  addMonths,
+  addQuarters,
+  addWeeks,
+  endOfDay,
+  format,
+  getISOWeek,
+  getISOWeekYear,
+  parseISO,
+  startOfDay,
+  startOfMonth,
+  startOfQuarter,
+  startOfWeek,
+  startOfYear
+} from 'date-fns'
+import { InvoiceStatus } from '@modular-api/fastify-checkout'
+import {
+  getActivityFeed,
+  getInvoiceOverdueAging,
+  getInvoiceStatusCounts,
+  getPaidRevenue,
+  getPaymentMethodSplit,
+  getUpcomingIncome
+} from '@modular-api/fastify-checkout/analytics'
+import {
+  getDashboardStatsInput,
+  getDashboardActivityInput
+} from '../../zod/dashboard.js'
+
+// Pick a time-bucket granularity based on the date-range span so the axis
+// always shows the whole period with a sensible number of points:
+// day for <=10d (week view), week (numbers) for <=45d (month view),
+// month for <=200d (quarter view), quarter otherwise (year view).
+export type RevenueGranularity = 'day' | 'week' | 'month' | 'quarter'
+
+export const pickGranularity = (
+  dateFrom: string,
+  dateTo: string
+): RevenueGranularity => {
+  const from = new Date(dateFrom)
+  const to = new Date(dateTo)
+  const days = Math.max(
+    0,
+    Math.round((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24))
+  )
+  if (days <= 10) return 'day'
+  if (days <= 45) return 'week'
+  if (days <= 200) return 'month'
+  return 'quarter'
+}
+
+// startOfWeek pinned to Monday (matching Postgres date_trunc('week')).
+const startOfWeekMonday = (date: Date): Date =>
+  startOfWeek(date, { weekStartsOn: 1 })
+
+// Bucket-boundary truncation + step functions per granularity, so the
+// revenue grouping aligns exactly with Postgres date_trunc.
+const bucketStartOf: Record<RevenueGranularity, (date: Date) => Date> = {
+  day: startOfDay,
+  week: startOfWeekMonday,
+  month: startOfMonth,
+  quarter: startOfQuarter
+}
+
+const bucketStep: Record<
+  RevenueGranularity,
+  (date: Date, amount: number) => Date
+> = {
+  day: addDays,
+  week: addWeeks,
+  month: addMonths,
+  quarter: addQuarters
+}
+
+export const bucketStarts = (
+  dateFrom: string,
+  dateTo: string,
+  granularity: RevenueGranularity
+): string[] => {
+  const from = parseISO(dateFrom)
+  const to = parseISO(dateTo)
+  const starts: string[] = []
+  for (
+    let cursor = bucketStartOf[granularity](from);
+    cursor <= to;
+    cursor = bucketStep[granularity](cursor, 1)
+  ) {
+    starts.push(format(cursor, 'yyyy-MM-dd'))
+  }
+  return starts
+}
+
+// Display label for a bucket start: YYYY-MM-DD, ISO week (2026-W32),
+// YYYY-MM or YYYY-Qn.
+const bucketLabelFor: Record<RevenueGranularity, (start: string) => string> = {
+  day: (start) => start,
+  week: (start) => {
+    const date = parseISO(start)
+    return `${getISOWeekYear(date)}-W${String(getISOWeek(date)).padStart(2, '0')}`
+  },
+  month: (start) => start.slice(0, 7),
+  quarter: (start) => {
+    const date = parseISO(start)
+    return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
+  }
+}
+
+export const bucketLabel = (
+  start: string,
+  granularity: RevenueGranularity
+): string => bucketLabelFor[granularity](start)
+
+// Last day (inclusive) of a time bucket whose first day is `start`
+// (YYYY-MM-DD). Used to turn a clicked chart bucket into a date range.
+export const bucketEndDate = (
+  start: string,
+  granularity: RevenueGranularity
+): string => {
+  const [year, month, day] = start.split('-').map(Number)
+  switch (granularity) {
+    case 'day':
+      return start
+    case 'week':
+      return toIsoDate(new Date(Date.UTC(year, month - 1, day + 6)))
+    case 'month':
+      // Day 0 of the month AFTER the bucket month = last day of the month.
+      return toIsoDate(new Date(Date.UTC(year, month, 0)))
+    case 'quarter': {
+      // `month` is the first month of the quarter (1, 4, 7 or 10); day 0 of
+      // the month after the third month = last day of the quarter.
+      return toIsoDate(new Date(Date.UTC(year, month + 2, 0)))
+    }
+  }
+}
+
+export const adminDashboardRoutes = ({
+  procedure
+}: {
+  fastify: FastifyInstance
+  procedure: typeof t.procedure
+}) => ({
+  getDashboardStats: procedure
+    .input(getDashboardStatsInput)
+    .query(async ({ input }) => {
+      const { companyIds, dateFrom, dateTo } = input
+      const granularity = pickGranularity(dateFrom, dateTo)
+      const [
+        statusCounts,
+        overdueAging,
+        paidRevenueSeries,
+        upcomingIncome,
+        paymentMethodSplit
+      ] = await Promise.all([
+        getInvoiceStatusCounts({
+          kysely: db,
+          ...(companyIds && { companyIds })
+        }),
+        getInvoiceOverdueAging({
+          kysely: db,
+          ...(companyIds && { companyIds })
+        }),
+        getPaidRevenue({
+          kysely: db,
+          statuses: [
+            InvoiceStatus.PAID,
+            InvoiceStatus.BILL,
+            InvoiceStatus.RECEIPT
+          ],
+          ...(companyIds && { companyIds }),
+          dateFrom,
+          dateTo,
+          granularity,
+          buckets: bucketStarts(dateFrom, dateTo, granularity).map((start) => ({
+            start
+          }))
+        }),
+        getUpcomingIncome({ kysely: db, ...(companyIds && { companyIds }) }),
+        getPaymentMethodSplit({
+          kysely: db,
+          ...(companyIds && { companyIds }),
+          dateFrom,
+          dateTo
+        })
+      ])
+
+      const overdueAgingLabeled = overdueAging.map((row) => ({
+        ...row,
+        label: agingLabelForReminderCount(row.reminderCount)
+      }))
+      // Compose the labels from the bucket starts, and turn every start into
+      // an inclusive {start, end} date range so the app can zoom into a
+      // clicked chart bucket.
+      const paidRevenueSeriesWithRanges = paidRevenueSeries
+        ? {
+            ...paidRevenueSeries,
+            labels: paidRevenueSeries.buckets.map((bucket) =>
+              bucketLabel(bucket.start, granularity)
+            ),
+            buckets: paidRevenueSeries.buckets.map((bucket) => ({
+              start: bucket.start,
+              end: bucketEndDate(bucket.start, granularity)
+            }))
+          }
+        : paidRevenueSeries
+
+      return {
+        statusCounts,
+        overdueAging: overdueAgingLabeled,
+        paidRevenueSeries: paidRevenueSeriesWithRanges,
+        upcomingIncome,
+        paymentMethodSplit,
+        granularity
+      }
+    }),
+
+  getDashboardActivity: procedure
+    .input(getDashboardActivityInput)
+    .query(async ({ input }) => {
+      const { companyIds, eventTypes, limit } = input
+      const entries = await getActivityFeed({
+        kysely: db,
+        ...(companyIds && { companyIds }),
+        ...(eventTypes && { eventTypes }),
+        limit
+      })
+      return { entries }
+    })
+})
+
+export type DashboardDateRangePreset =
+  | 'today'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'year'
+
+const toIsoDate = (value: Date): string => {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+export const dashboardDateRangeForPreset = (
+  preset: DashboardDateRangePreset,
+  now: Date = new Date()
+): { dateFrom: string; dateTo: string } => {
+  let start: Date
+  switch (preset) {
+    case 'today':
+      start = startOfDay(now)
+      break
+    case 'week':
+      start = startOfWeek(now, { weekStartsOn: 1 })
+      break
+    case 'month':
+      start = startOfMonth(now)
+      break
+    case 'quarter':
+      start = startOfQuarter(now)
+      break
+    case 'year':
+      start = startOfYear(now)
+      break
+    default:
+      start = startOfDay(now)
+      break
+  }
+  return {
+    dateFrom: toIsoDate(start),
+    dateTo: toIsoDate(endOfDay(now))
+  }
+}

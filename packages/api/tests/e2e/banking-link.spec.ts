@@ -133,7 +133,9 @@ test.describe('bank overview + link dialog (seeded demo)', () => {
     await expect
       .poll(
         async () => await page.locator('a[href="/admin/payments"]').count(),
-        { timeout: 10_000 }
+        {
+          timeout: 10_000
+        }
       )
       .toBeGreaterThanOrEqual(1)
     await expect(page.locator('a[href="/admin/settings/banking"]')).toHaveCount(
@@ -468,7 +470,10 @@ test.describe('bank overview + link dialog (seeded demo)', () => {
             await invoiceStatus(db, invoiceD),
             await invoiceStatus(db, invoiceF)
           ],
-          { timeout: 30_000, intervals: [1000] }
+          {
+            timeout: 30_000,
+            intervals: [1000]
+          }
         )
         .toEqual(['paid', 'paid'])
       const rows = await db
@@ -548,7 +553,9 @@ test.describe('bank overview + link dialog (seeded demo)', () => {
       const details = page.locator('.q-dialog')
       await expect(
         details.getByText('PSP settlement setl-seed-202')
-      ).toBeVisible({ timeout: 10_000 })
+      ).toBeVisible({
+        timeout: 10_000
+      })
       // The mirrored payment (tr-202-1) renders by invoice number with its
       // uuid link; the unknown payments render in the unlinked section.
       await expect(details.getByText('→ 2026-00012')).toBeVisible()
@@ -597,7 +604,9 @@ test('explicit account link wins over the IBAN fallback (settings round-trip)', 
   // the in-flight request would abort it.
   await page.waitForResponse(
     (resp) => resp.url().includes('setAccountCompanies'),
-    { timeout: 15_000 }
+    {
+      timeout: 15_000
+    }
   )
 
   await page.goto('/admin/bank/overview')

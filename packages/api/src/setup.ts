@@ -333,6 +333,7 @@ export default async function (fastify: FastifyInstance) {
       LANG: config.lang,
       COUNTRY: config.country,
       TITLE: config.title,
+      DATE_FORMAT: config.dateFormat,
       SASS_VARIABLES: {},
       PAYMENT_HANDLERS: {
         cash: cashPaymentHandler !== void 0,
