@@ -46,7 +46,7 @@ features:
 
   - icon: 📧
     title: E-mailverzending
-    details: Verstuur facturen per e-mail met aanpasbare sjablonen. Open-tracking vertelt je wanneer een klant je factuur leest.
+    details: Verstuur facturen per e-mail met aanpasbare sjablonen. Link-tracking laat zien wanneer een klant de factuurlink opent.
 
   - icon: 📦
     title: Export in elk formaat

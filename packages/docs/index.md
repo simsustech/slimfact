@@ -46,7 +46,7 @@ features:
 
   - icon: 📧
     title: Email Delivery
-    details: Send invoices by email with customizable templates. Open tracking tells you when a customer reads your invoice.
+    details: Send invoices by email with customizable templates. Link tracking shows when a customer clicks the invoice link.
 
   - icon: 📦
     title: Export Any Format

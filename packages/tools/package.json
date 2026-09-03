@@ -51,9 +51,9 @@
   "dependencies": {
     "@modular-api/fastify-checkout": "0.9.1",
     "@myriaddreamin/typst-ts-renderer": "0.7.0",
-    "@rgrove/parse-xml": "4.2.3",
+    "@rgrove/parse-xml": "5.0.0",
     "export-to-csv": "1.5.0",
-    "fast-xml-parser": "5.11.0",
+    "fast-xml-parser": "5.11.1",
     "handlebars": "4.7.9",
     "ibantools": "4.5.4"
   },
@@ -61,11 +61,11 @@
     "@myriaddreamin/typst-ts-node-compiler": "0.7.0",
     "@myriaddreamin/typst.ts": "0.7.0",
     "@types/iban": "0.0.35",
-    "@types/node": "26.2.0",
+    "@types/node": "26.4.1",
     "csv-parse": "7.0.2",
     "kysely": "0.29.5",
-    "oxfmt": "0.64.0",
-    "oxlint": "1.79.0",
+    "oxfmt": "0.66.0",
+    "oxlint": "1.81.0",
     "typescript": "7.0.2"
   }
 }
