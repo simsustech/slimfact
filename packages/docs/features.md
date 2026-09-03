@@ -87,14 +87,15 @@ Run multiple businesses from one account. Each company gets its own identity.
 
 ## 📧 Email & Communication
 
-Send invoices by email. Know when they're read.
+Send invoices by email. Know when the link is clicked.
 
 - **Customizable email templates** — Handlebars-powered with per-locale variants
-- **Open tracking** — a URL query parameter tells you when a customer clicks the invoice link from their email
+- **Link tracking** — shows when a customer clicks the invoice link from their email
 - **Per-company email settings** — different sender addresses and BCC per company
 - **Send, resend, reply** — full email workflow from the invoice detail view
 
 ---
+
 ## 🎨 Typst Invoice Rendering
 
 SlimFact uses [Typst](https://typst.app) — a modern, open-source typesetting engine — to render invoices. Unlike traditional HTML-to-PDF converters, Typst produces crisp, perfectly aligned layouts with professional-grade typography.

@@ -5,7 +5,14 @@ export default defineConfig({
   head: [
     ["link", { rel: "icon", href: "/favicon.ico" }],
     ["meta", { property: "og:title", content: "SlimFact — Streamlined invoicing made easy" }],
-    ["meta", { property: "og:description", content: "Open-source, API-first invoicing engine. Self-host for free or Cloud at €15/month." }],
+    [
+      "meta",
+      {
+        property: "og:description",
+        content:
+          "Open-source, API-first invoicing engine. Self-host for free or Cloud at €15/month.",
+      },
+    ],
     ["meta", { property: "og:image", content: "/logo.svg" }],
   ],
   description: "Streamlined invoicing made easy.",
@@ -45,7 +52,7 @@ export default defineConfig({
           ],
         },
         footer: {
-          message: "Copyright © simsustech 2023-present",
+          message: 'Copyright © simsustech 2023-present · <a href="/privacy">Privacy Policy</a>',
           copyright: "ELv2 License",
         },
       },
@@ -84,7 +91,7 @@ export default defineConfig({
           ],
         },
         footer: {
-          message: "Copyright © simsustech 2023-heden",
+          message: 'Copyright © simsustech 2023-heden · <a href="/nl/privacy">Privacybeleid</a>',
           copyright: "ELv2 Licentie",
         },
       },
@@ -92,8 +99,6 @@ export default defineConfig({
   },
 
   themeConfig: {
-    socialLinks: [
-      { icon: "github", link: "https://github.com/simsustech/slimfact" },
-    ],
+    socialLinks: [{ icon: "github", link: "https://github.com/simsustech/slimfact" }],
   },
 });

@@ -87,14 +87,15 @@ Beheer meerdere bedrijven vanuit één account. Elk bedrijf krijgt zijn eigen id
 
 ## 📧 E-mail & communicatie
 
-Verstuur facturen per e-mail. Weet wanneer ze gelezen worden.
+Verstuur facturen per e-mail. Zie wanneer de link wordt geopend.
 
 - **Aanpasbare e-mailsjablonen** — Handlebars-aangedreven met varianten per taal
-- **Open-tracking** — een URL-queryparameter vertelt je wanneer een klant de factuurlink opent vanuit de e-mail
+- **Link-tracking** — zie wanneer een klant de factuurlink opent vanuit de e-mail
 - **E-mailinstellingen per bedrijf** — verschillende afzenderadressen en BCC per bedrijf
 - **Verstuur, verstuur opnieuw, beantwoord** — volledige e-mailworkflow vanuit het factuurdetail
 
 ---
+
 ## 🎨 Typst-factuurrendering
 
 SlimFact gebruikt [Typst](https://typst.app) — een moderne, open-source zetsysteem — om facturen te renderen. In tegenstelling tot traditionele HTML-naar-PDF-converters produceert Typst heldere, perfect uitgelijnde lay-outs met professionele typografie.

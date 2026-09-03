@@ -8,20 +8,20 @@ SlimFact is beschikbaar als een beheerde **Cloud**-abonnement of als een **Self-
 
 De gemakkelijkste manier om SlimFact te gebruiken. Wij hosten, onderhouden en beveiligen alles — jij maakt en verstuurt alleen facturen.
 
-| | |
-|---|---|
-| **Prijs** | **€15** per maand |
-| **Hosting** | Beheerd door ons — hoge beschikbaarheid, dagelijkse automatische back-ups, beveiligingsupdates |
-| **Alle functies inbegrepen** | Elke functie — facturen, online betalingen, abonnementen, klantenportaal, export en meer. Geen functieblokkering, geen opwaardeervoorstellen |
-| **Updates** | Altijd up-to-date — wij passen updates automatisch toe |
-| **Ondersteuning** | E-mailondersteuning met prioriteitsafhandeling |
-| **Gegevens** | Dagelijks geback-upt |
-| **Beveiliging** | SSL-certificaten, database-onderhoud en beveiligingspatches worden voor je geregeld |
-| **Bedrijven** | Onbeperkt aantal bedrijven onder één account |
-| **Klanten** | Onbeperkt aantal klanten |
-| **Facturen** | Onbeperkt aantal facturen |
-| **Opzegging** | Zeg op elk moment op, geen langlopende contracten |
-| **Fair Use Policy** | Redelijk gebruik is van toepassing — buitensporige API-aanroepen of opslag kunnen worden besproken om de stabiliteit van het platform voor alle gebruikers te waarborgen |
+|                              |                                                                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Prijs**                    | **€15** per maand                                                                                                                                                        |
+| **Hosting**                  | Beheerd door ons — hoge beschikbaarheid, dagelijkse automatische back-ups, beveiligingsupdates                                                                           |
+| **Alle functies inbegrepen** | Elke functie — facturen, online betalingen, abonnementen, klantenportaal, export en meer. Geen functieblokkering, geen opwaardeervoorstellen                             |
+| **Updates**                  | Altijd up-to-date — wij passen updates automatisch toe                                                                                                                   |
+| **Ondersteuning**            | E-mailondersteuning met prioriteitsafhandeling                                                                                                                           |
+| **Gegevens**                 | Dagelijks geback-upt                                                                                                                                                     |
+| **Beveiliging**              | SSL-certificaten, database-onderhoud en beveiligingspatches worden voor je geregeld                                                                                      |
+| **Bedrijven**                | Onbeperkt aantal bedrijven onder één account                                                                                                                             |
+| **Klanten**                  | Onbeperkt aantal klanten                                                                                                                                                 |
+| **Facturen**                 | Onbeperkt aantal facturen                                                                                                                                                |
+| **Opzegging**                | Zeg op elk moment op, geen langlopende contracten                                                                                                                        |
+| **Fair Use Policy**          | Redelijk gebruik is van toepassing — buitensporige API-aanroepen of opslag kunnen worden besproken om de stabiliteit van het platform voor alle gebruikers te waarborgen |
 
 Geen servers om te beheren. Geen back-ups om je zorgen over te maken. Geen SSL-certificaten om te vernieuwen. Gewoon een betrouwbaar facturatiesysteem dat altijd klaar is.
 
@@ -33,17 +33,17 @@ Geen servers om te beheren. Geen back-ups om je zorgen over te maken. Geen SSL-c
 
 SlimFact is gebouwd op open-source principes. Als je het liever op je eigen infrastructuur draait, is de volledige applicatie gratis beschikbaar — geen functiebeperkingen, geen proefperiode.
 
-| | |
-|---|---|
-| **Prijs** | **€0** — gratis |
-| **Licentie** | ELv2 — gebruik, wijzig en host vrij |
-| **Infrastructuur** | Je zorgt zelf voor een server en PostgreSQL-database |
-| **Alle functies inbegrepen** | Zelfde functies als Cloud |
-| **Updates** | Pull de nieuwste Docker-images handmatig |
-| **Meerdere bedrijven** | Onbeperkt |
-| **Klanten** | Onbeperkt |
-| **Facturen** | Onbeperkt |
-| **Ondersteuning** | Community-ondersteuning via GitHub |
+|                              |                                                      |
+| ---------------------------- | ---------------------------------------------------- |
+| **Prijs**                    | **€0** — gratis                                      |
+| **Licentie**                 | ELv2 — gebruik, wijzig en host vrij                  |
+| **Infrastructuur**           | Je zorgt zelf voor een server en PostgreSQL-database |
+| **Alle functies inbegrepen** | Zelfde functies als Cloud                            |
+| **Updates**                  | Pull de nieuwste Docker-images handmatig             |
+| **Meerdere bedrijven**       | Onbeperkt                                            |
+| **Klanten**                  | Onbeperkt                                            |
+| **Facturen**                 | Onbeperkt                                            |
+| **Ondersteuning**            | Community-ondersteuning via GitHub                   |
 
 Zie de [README op GitHub](https://github.com/simsustech/slimfact) voor installatie-instructies.
 
@@ -51,24 +51,24 @@ Zie de [README op GitHub](https://github.com/simsustech/slimfact) voor installat
 
 ## Functievergelijking
 
-| Functie | Self-Hosted | Cloud |
-|---|---|---|
-| Onbeperkte facturen, klanten en bedrijven | ✅ | ✅ |
-| Online betalingen (iDEAL, creditcards) | ✅ | ✅ |
-| Klantenportaal | ✅ | ✅ |
-| Abonnementsfacturatie | ✅ | ✅ |
-| Meertalig (EN / NL / DE) | ✅ | ✅ |
-| Typst PDF-rendering | ✅ | ✅ |
-| UBL / Peppol / Digiboox export | ✅ | ✅ |
-| E-mailbezorging met open-tracking | ✅ | ✅ |
-| OIDC-authenticatie | ✅ | ✅ |
-| Headless tRPC-API | ✅ | ✅ |
-| Multi-PSP-betalingroutering | ✅ | ✅ |
-| Beheerde hosting | ❌ | ✅ |
-| Automatische dagelijkse back-ups | ❌ | ✅ |
-| SSL- en beveiligingsupdates | ❌ | ✅ |
-| Prioritaire e-mailondersteuning | ❌ | ✅ |
-| Automatische updates | ❌ | ✅ |
+| Functie                                   | Self-Hosted | Cloud |
+| ----------------------------------------- | ----------- | ----- |
+| Onbeperkte facturen, klanten en bedrijven | ✅          | ✅    |
+| Online betalingen (iDEAL, creditcards)    | ✅          | ✅    |
+| Klantenportaal                            | ✅          | ✅    |
+| Abonnementsfacturatie                     | ✅          | ✅    |
+| Meertalig (EN / NL / DE)                  | ✅          | ✅    |
+| Typst PDF-rendering                       | ✅          | ✅    |
+| UBL / Peppol / Digiboox export            | ✅          | ✅    |
+| E-mailbezorging met link-tracking         | ✅          | ✅    |
+| OIDC-authenticatie                        | ✅          | ✅    |
+| Headless tRPC-API                         | ✅          | ✅    |
+| Multi-PSP-betalingroutering               | ✅          | ✅    |
+| Beheerde hosting                          | ❌          | ✅    |
+| Automatische dagelijkse back-ups          | ❌          | ✅    |
+| SSL- en beveiligingsupdates               | ❌          | ✅    |
+| Prioritaire e-mailondersteuning           | ❌          | ✅    |
+| Automatische updates                      | ❌          | ✅    |
 
 ---
 
