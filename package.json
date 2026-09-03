@@ -33,6 +33,7 @@
     "build:banking-api": "cd packages/banking-api && pnpm run build",
     "build:banking-api:debug": "cd packages/banking-api && pnpm run build"
   },
+  "dependencies": {},
   "devDependencies": {
     "@changesets/cli": "^3.0.1",
     "@commitlint/cli": "^21.2.2",
@@ -40,9 +41,9 @@
     "changesets": "^1.0.2",
     "git-conventional-commits": "^2.9.0",
     "npm-run-all": "^4.1.5",
-    "oxfmt": "^0.64.0",
-    "oxlint": "^1.79.0",
-    "simple-git-hooks": "^2.13.1"
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.81.0",
+    "simple-git-hooks": "^2.14.0"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm run lint && pnpm run format:check",
@@ -50,6 +51,5 @@
   },
   "engines": {
     "node": ">=24.0.0"
-  },
-  "dependencies": {}
+  }
 }

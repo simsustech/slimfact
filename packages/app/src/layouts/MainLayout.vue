@@ -67,8 +67,13 @@
     <template #drawer>
       <q-scroll-area class="fit">
         <div class="q-px-md">
-          <div class="text-overline">{{ title }}</div>
           <q-list>
+            <q-item to="/" clickable v-ripple>
+              <q-item-section avatar>
+                <q-icon name="i-mdi-home" />
+              </q-item-section>
+              <q-item-section> Home </q-item-section>
+            </q-item>
             <q-expansion-item
               v-if="user"
               ref="accountExpansionItemRef"
@@ -248,16 +253,6 @@
                 </q-item>
               </q-expansion-item>
             </q-expansion-item>
-
-            <q-item to="/" exact>
-              <q-item-section avatar>
-                <q-icon color="primary" name="i-mdi-home" />
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label> Home </q-item-label>
-              </q-item-section>
-            </q-item>
           </q-list>
         </div>
       </q-scroll-area>

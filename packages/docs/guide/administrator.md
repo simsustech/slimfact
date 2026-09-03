@@ -19,25 +19,38 @@ As an administrator, your sidebar gives you access to:
 ---
 
 ## Dashboard
+
 The dashboard is your at-a-glance overview — revenue, outstanding work, and recent activity in one place. Open it from the sidebar (Dashboard).
 ![Admin dashboard](/screenshots/admin-dashboard.png)
+
 ### Revenue
+
 - **Revenue cards** show the invoiced, paid, and outstanding totals for the selected period
 - **Revenue chart** plots paid revenue over time — pick a preset (today, week, month, quarter, year) or choose a custom date range
 - **Click a bucket** in the chart to zoom into that period; click again to zoom out
 - The chart adapts its granularity to the range: days, weeks, months, or quarters
+
 ### Action items
+
 - **Status overview** counts invoices per status (concept, open, paid, canceled, bills, receipts)
 - **Debtors** lists clients with overdue invoices and how much they owe
 - **Overdue** groups unpaid invoices by aging bucket: needs reminder, reminder sent, second reminder, exhortation
+
 ### Upcoming income
+
 - Expected cash inflow from open invoices that are not due yet
 - Toggle between **Upcoming** and **Overdue** to see what is coming in versus what is late
+
 ### Payment methods
+
 - How much was paid per method (iDEAL, credit card, cash, bank transfer) in the selected period
+
 ### Recent activity
+
 - A chronological feed of what happened: invoices sent, bills created, payments received, reminders and exhortations sent
+
 ---
+
 ## Getting Started
 
 Before you create your first invoice, set up the basics:
@@ -265,7 +278,9 @@ Go to **Settings → Exports** to access:
 ---
 
 ## Bank Import
+
 ## Bank Import
+
 The **Bank** menu has three pages — **Overview**, **To match** and **Settings**
 (bank transactions come from open-banking.io via the banking-api proxy; the
 proxy keeps the complete history). **Settings → Sync now** triggers a refresh.
@@ -280,6 +295,7 @@ warns when a bank consent needs to be re-established.
 > Known limitation: if a strict match auto-applies first and you later record
 > a manual bank transfer for the same invoice, two paid payments can exist.
 ---
+
 ## Email Tracking
 
 When you send an invoice by email, the invoice link includes a `?eventType=emailOpened` query parameter. When the customer clicks the link to view their invoice, SlimFact records the event.
