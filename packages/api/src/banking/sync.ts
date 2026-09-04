@@ -126,6 +126,7 @@ export const toMatchTransaction = (
     creditDebit: transaction.creditDebitIndicator,
     status: transaction.status,
     bookingDate: transaction.bookingDate,
+    transactionDate: transaction.transactionDate,
     description: transaction.note ?? null,
     remittanceInformation: transaction.remittanceInformation,
     referenceNumber: transaction.referenceNumber,

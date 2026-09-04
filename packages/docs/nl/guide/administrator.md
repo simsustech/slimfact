@@ -133,16 +133,16 @@ Zodra een factuur is uitgevouwen, geeft het Meer-menu je:
 | **Bon versturen**      | Rekening (als volledig betaald) — converteert naar een bon           |
 | **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd)                         |
 | **Aanmaning sturen**   | Open (na 2 herinneringen, met 7 dagen wachttijd)                     |
-| Actie | Wanneer beschikbaar |
-|-------|-------------------|
-| **Bewerken** | Concept, Rekening |
-| **Versturen** | Concept, Rekening — e-mailt de factuur naar de klant |
-| **Openen** | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
-| **Annuleren** | Concept, Rekening (als er geen bedrag is betaald) |
-| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is) |
-| **Bon versturen** | Rekening (als volledig betaald) — converteert naar een bon |
-| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd) |
-| **Aanmaning sturen** | Open (na 2 herinneringen, met 7 dagen wachttijd) |
+| Actie                  | Wanneer beschikbaar                                                  |
+| -------                | -------------------                                                  |
+| **Bewerken**           | Concept, Rekening                                                    |
+| **Versturen**          | Concept, Rekening — e-mailt de factuur naar de klant                 |
+| **Openen**             | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
+| **Annuleren**          | Concept, Rekening (als er geen bedrag is betaald)                    |
+| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is)                   |
+| **Bon versturen**      | Rekening (als volledig betaald) — converteert naar een bon           |
+| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd)                         |
+| **Aanmaning sturen**   | Open (na 2 herinneringen, met 7 dagen wachttijd)                     |
 
 ### Factuurstatusverloop
 
@@ -248,10 +248,10 @@ Bepaal welke PSP welke betaalmethode afhandelt:
 | ---------------------------- | --------- | -------------------- |
 | `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` of `stripe` |
 | `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` of `stripe` |
-| Env-variabele | Standaard | Opties |
-|-------------|---------|---------|
-| `IDEAL_PAYMENT_HANDLER` | Mollie | `mollie` of `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe | `mollie` of `stripe` |
+| Env-variabele                | Standaard | Opties               |
+| -------------                | --------- | ---------            |
+| `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` of `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` of `stripe` |
 
 ### Contant & bankoverschrijving
 
@@ -289,9 +289,11 @@ bankoverschrijving van het exacte bedrag is betaald, **adopteert** Toepassen
 die betaling (koppelt het banktegoed eraan) in plaats van een tweede betaling
 te registreren. De instellingenpagina toont de verbindingsstatus en waarschuwt
 wanneer een bankmachtiging opnieuw moet worden ingesteld.
+
 > Bekende beperking: als een strikte match eerst automatisch is toegepast en
 > je later handmatig een bankoverschrijving registreert voor dezelfde factuur,
 > kunnen er twee betaalde betalingen bestaan.
+
 ---
 
 ## E-mailtracking

@@ -84,7 +84,6 @@ test.describe('payments overview (seeded demo)', () => {
       await expect(
         table.locator('[data-testid="ledger-needs-review"]').first()
       ).toBeVisible()
-      await expect(page.getByTestId('agg-unallocated')).toBeVisible()
     }
 
     // Debit noise and read-time-recognized payouts never surface as

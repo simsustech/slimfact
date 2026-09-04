@@ -18,6 +18,14 @@
     },
     "./hooks": {
       "import": "./dist/ssr/server/virtual_vitrify-hooks.mjs"
+    },
+    "./src/composables/useBankSyncNow.js": {
+      "types": "./src/composables/useBankSyncNow.ts",
+      "import": "./src/composables/useBankSyncNow.ts"
+    },
+    "./src/trpcLinks.js": {
+      "types": "./src/trpcLinks.ts",
+      "import": "./src/trpcLinks.ts"
     }
   },
   "scripts": {
@@ -55,7 +63,8 @@
     "@iconify-json/fa6-solid": "1.2.4",
     "@iconify-json/flagpack": "1.2.8",
     "@iconify-json/mdi": "1.2.3",
-    "@modular-api/fastify-checkout": "0.9.1",
+    "@modular-api/event-bus": "0.2.1",
+    "@modular-api/fastify-checkout": "0.10.0",
     "@modular-api/quasar-components": "0.3.42",
     "@myriaddreamin/typst-ts-renderer": "0.7.0",
     "@myriaddreamin/typst-ts-web-compiler": "0.7.0",
@@ -94,7 +103,8 @@
     "unocss-preset-quasar": "0.5.6",
     "vite": "8.2.2",
     "vite-plugin-pwa": "1.3.0",
-    "vitrify": "0.27.1",
+    "vitest": "^5.0.0",
+    "vitrify": "0.28.1",
     "vue": "3.5.42",
     "vue-router": "5.3.1",
     "vue-tsc": "3.3.11",

@@ -1,58 +1,36 @@
 <template>
   <q-page padding>
     <!-- Aggregates header -->
-    <div class="row q-mb-md q-gutter-sm">
-      <q-card class="q-pa-sm col-2 min-card">
-        <q-card-section class="q-pa-xs">
+    <q-card class="q-pa-sm q-mb-md" style="max-width: 560px">
+      <q-card-section class="q-pa-xs row q-gutter-md">
+        <div>
           <div class="text-caption text-grey-7">
             {{ lang.payment.overview.in }}
           </div>
           <div class="text-h6 text-positive" data-testid="agg-in">
             {{ formatMoney(aggregates?.inCents ?? 0) }}
           </div>
-        </q-card-section>
-      </q-card>
-      <q-card class="q-pa-sm col-2 min-card">
-        <q-card-section class="q-pa-xs">
+        </div>
+        <div>
           <div class="text-caption text-grey-7">
             {{ lang.payment.overview.refunded }}
           </div>
           <div class="text-h6 text-negative" data-testid="agg-refunded">
             {{ formatMoney(aggregates?.refundedCents ?? 0) }}
           </div>
-        </q-card-section>
-      </q-card>
-      <q-card class="q-pa-sm col-2 min-card">
-        <q-card-section class="q-pa-xs">
+        </div>
+        <div>
           <div class="text-caption text-grey-7">
             {{ lang.payment.overview.net }}
           </div>
           <div class="text-h6" data-testid="agg-net">
             {{ formatMoney(aggregates?.netCents ?? 0) }}
           </div>
-        </q-card-section>
-      </q-card>
-      <q-card class="q-pa-sm col-2 min-card">
-        <q-card-section class="q-pa-xs">
-          <div class="text-caption text-grey-7">
-            {{ lang.payment.overview.count }}
-          </div>
-          <div class="text-h6">{{ payload?.total ?? 0 }}</div>
-        </q-card-section>
-      </q-card>
-      <q-card
-        v-if="(aggregates?.unallocatedCents ?? 0) > 0"
-        class="q-pa-sm col-2 min-card"
-      >
-        <q-card-section class="q-pa-xs">
-          <div class="text-caption text-grey-7">
-            {{ lang.payment.overview.unallocated }}
-          </div>
-          <div class="text-h6 text-amber-9" data-testid="agg-unallocated">
-            {{ formatMoney(aggregates?.unallocatedCents ?? 0) }}
-          </div>
-        </q-card-section>
-      </q-card>
+        </div>
+      </q-card-section>
+    </q-card>
+    <div v-if="filterSummary" class="text-caption text-grey-6 q-mb-md">
+      {{ filterSummary }}
     </div>
 
     <!-- Filters -->
@@ -143,7 +121,7 @@
     <q-table
       :rows="rows"
       :columns="columns"
-      row-key="rowKey"
+      :row-key="rowKey"
       flat
       bordered
       :loading="loading"
@@ -282,7 +260,9 @@ const payload = paymentsQuery.payload
 const loading = computed(() => paymentsQuery.status.value === 'pending')
 const rows = computed(() => paymentsQuery.payload.value?.rows ?? [])
 const aggregates = computed(() => paymentsQuery.payload.value?.aggregates)
-const truncated = computed(() => false)
+const truncated = computed(
+  () => paymentsQuery.payload.value?.truncated ?? false
+)
 
 const { mutateAsync: exportPaymentsMutation } = useAdminExportPaymentsMutation()
 
@@ -385,6 +365,21 @@ const sourceOptions = [
   }
 ]
 
+const filterSummary = computed(() => {
+  const parts: string[] = []
+  const f = filters.value
+  if (f.from) parts.push(`From ${f.from}`)
+  if (f.to) parts.push(`To ${f.to}`)
+  if (f.q) parts.push(`"${f.q}"`)
+  if (f.methods.length)
+    parts.push(`Methods: ${f.methods.map((m) => methodLabel(m)).join(', ')}`)
+  if (f.statuses.length) parts.push(`Statuses: ${f.statuses.join(', ')}`)
+  if (f.psps.length) parts.push(`PSPs: ${f.psps.join(', ')}`)
+  if (f.sources.length && f.sources.length < 3)
+    parts.push(`Sources: ${f.sources.join(', ')}`)
+  return parts.join(' · ')
+})
+
 // --- Table -----------------------------------------------------------------
 
 const columns = [
@@ -442,7 +437,6 @@ const columns = [
 
 const rowKey = (row: PaymentsLedgerRow): string =>
   `${row.kind}-${row.id ?? row.transactionReference ?? row.date}`
-void rowKey
 
 // --- Link dialog (bank review rows) ----------------------------------------
 

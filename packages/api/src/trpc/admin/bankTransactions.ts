@@ -48,7 +48,7 @@ const PAGE_SIZE = 100
 const MAX_FETCH = 500
 
 /** What makes up a settled PSP payout: the settlement + its payments. */
-interface PspPayoutDetail {
+export interface PspPayoutDetail {
   settlement: PspSettlement
   payments: Array<{
     paymentExternalId: string

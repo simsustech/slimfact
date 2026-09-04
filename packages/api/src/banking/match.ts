@@ -1,6 +1,8 @@
 import { differenceInCalendarDays } from 'date-fns'
 import { InvoiceStatus } from '@modular-api/fastify-checkout'
 import { containsInvoiceNumber, normalizeReference } from './normalize.js'
+import type { PspPayment, PspSettlement } from './client.js'
+import type { LinkProposal as SharedLinkProposal } from '@slimfact/tools/banking'
 
 export interface MatchTransaction {
   externalId: string
@@ -11,6 +13,7 @@ export interface MatchTransaction {
   creditDebit: string
   status: string | null
   bookingDate: string | null
+  transactionDate: string | null
   description: string | null
   remittanceInformation: string | null
   referenceNumber: string | null
@@ -319,8 +322,6 @@ export const suggestInvoiceCandidates = ({
     .slice(0, limit)
 }
 
-import type { PspPayment, PspSettlement } from './client.js'
-
 /**
  * A bank-credit → invoice link suggestion, discriminated by shape. `single`
  * is the strict exact match, `multi` a subset-sum of invoices the credit
@@ -340,7 +341,6 @@ export type LinkProposal =
     }
 // Compile-time guarantee: api proposals satisfy the shared wire contract in
 // @slimfact/tools/banking consumed by the app.
-import type { LinkProposal as SharedLinkProposal } from '@slimfact/tools/banking'
 /** Compile-time assertion: api proposals satisfy the shared wire contract. */
 export type LinkProposalSharedContractCheck =
   LinkProposal extends SharedLinkProposal ? true : never

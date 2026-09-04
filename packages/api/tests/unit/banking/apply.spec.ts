@@ -81,6 +81,7 @@ const credit = (
   creditDebit: 'CRDT',
   status: 'BOOK',
   bookingDate: '2026-06-30',
+  transactionDate: null,
   description: 'Factuur 2026-0001',
   remittanceInformation: null,
   referenceNumber: null,

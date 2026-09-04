@@ -71,7 +71,7 @@ export const adminPaymentsRoutes = ({
    */
   listPayments: procedure
     .input(inputSchema)
-    .query(({ input }) => runLedger(input, { fetchAll: false, fastify })),
+    .query(({ input }) => runLedger(input, { fastify })),
 
   /**
    * CSV source data for the client-side export: same filters as the ledger,
@@ -88,20 +88,20 @@ export const adminPaymentsRoutes = ({
     .query(async ({ input }) => {
       const now = new Date()
       const pad = (value: number) => String(value).padStart(2, '0')
-      const monthStart = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-01`
+      const yearStart = `${now.getUTCFullYear()}-01-01`
       const today = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(
         now.getUTCDate()
       )}`
       return runLedger(
-        { ...input, from: input.from ?? monthStart, to: input.to ?? today },
-        { fetchAll: true, fastify }
+        { ...input, from: input.from ?? yearStart, to: input.to ?? today },
+        { fastify }
       )
     })
 })
 
 const runLedger = async (
-  input: z.infer<typeof inputSchema>,
-  { fetchAll, fastify }: { fetchAll: boolean; fastify: FastifyInstance }
+  input: z.input<typeof inputSchema>,
+  { fastify }: { fastify: FastifyInstance }
 ): Promise<{
   rows: LedgerRow[]
   total: number
@@ -173,7 +173,7 @@ const runLedger = async (
         eb.ref('r.description').as('description'),
         eb.ref('rp.transactionReference').as('transactionReference'),
         eb.ref('r.externalId').as('externalId'),
-        eb.ref('r.paymentServiceProvider').as('psp'),
+        eb.ref('r.paymentServiceProvider').$castTo<string>().as('psp'),
         eb.ref('rp.settlementId').as('settlementId'),
         eb.ref('rp.invoiceId').as('invoiceId'),
         eb.ref('i.uuid').as('invoiceUuid'),
@@ -287,143 +287,69 @@ const runLedger = async (
         b.dateMs === a.dateMs ? (b.id ?? 0) - (a.id ?? 0) : b.dateMs - a.dateMs
       )
 
-    const paidCaseSum = (eb: ExpressionBuilder<any, any>) =>
-      eb.cast(
-        eb.fn.sum<number>(
-          eb
-            .case()
-            .when('l.status', '=', 'paid')
-            .then(eb.ref('l.amountCents'))
-            .else(0)
-            .end()
-        ),
-        'integer'
-      )
-
-    if (!wantBank) {
-      const [rawCount, rawRows, totalsRaw, byMethodRaw] = await Promise.all([
-        filteredBase()
-          .select((eb: ExpressionBuilder<any, any>) =>
-            eb.fn.countAll().as('count')
-          )
-          .execute(),
-        filteredBase()
-          .select(selectLedgerColumns)
-          .orderBy('l.date', 'desc')
-          .orderBy('l.id', 'desc')
-          .limit(fetchAll ? MAX_ROWS : input.limit)
-          .offset(fetchAll ? 0 : input.offset)
-          .execute(),
-        filteredBase()
-          .select((eb: ExpressionBuilder<any, any>) => [
-            paidCaseSum(eb).as('inCents'),
-            eb
-              .cast(
-                eb.fn.sum<number>(
-                  eb
-                    .case()
-                    .when('l.kind', '=', 'refund')
-                    .then(eb.ref('l.amountCents'))
-                    .else(0)
-                    .end()
-                ),
-                'integer'
-              )
-              .as('refundedCents')
-          ])
-          .executeTakeFirst(),
-        filteredBase()
-          .select((eb: ExpressionBuilder<any, any>) => [
-            eb.ref('l.method').as('method'),
-            paidCaseSum(eb).as('cents')
-          ])
-          .where('l.kind', '=', 'payment')
-          .groupBy('l.method')
-          .execute()
-      ])
-
-      const rows = (rawRows as unknown as Record<string, unknown>[]).map(
-        toLedgerRow
-      )
-      const totalCount = Number(
-        (rawCount[0] as unknown as { count: number | string } | undefined)
-          ?.count ?? 0
-      )
-      const inCents = Number(totalsRaw?.inCents ?? 0)
-      const refundedCents = Number(totalsRaw?.refundedCents ?? 0)
-
-      return {
-        rows,
-        total: totalCount,
-        truncated: fetchAll && totalCount > rows.length,
-        aggregates: {
-          inCents,
-          refundedCents,
-          netCents: inCents - refundedCents,
-          count: totalCount,
-          unallocatedCents: 0,
-          byMethod: byMethodRaw.map(
-            (entry: { method: string; cents: number | string }) => ({
-              method: entry.method,
-              cents: Number(entry.cents)
-            })
-          )
-        }
-      }
-    }
-
-    /* -------------------------------------------------------------- */
-    /* Banking enabled: route-layer merge (proxy is an external store) */
-    /* -------------------------------------------------------------- */
-
+    // SQL rows: filtered, newest-first, capped.
+    // SAFETY: Kysely returns arbitrary column types; toLedgerRow validates every field.
     const rawRows = (await filteredBase()
       .select(selectLedgerColumns)
+      .orderBy('l.date', 'desc')
+      .orderBy('l.id', 'desc')
       .limit(MAX_ROWS)
       .execute()) as unknown as Record<string, unknown>[]
     const sqlRows = rawRows.map(toLedgerRow)
 
+    // Bank review rows (only when banking is on): the proxy source sits
+    // outside the SQL wrapper, so the same filters are applied here —
+    // otherwise bank rows would ignore q/date/status.
     let bankRows: LedgerRow[] = []
-    try {
-      bankRows = await fetchUnmatchedCredits({
-        db,
-        client: client!,
-        from: input.from,
-        to: input.to
+    if (wantBank) {
+      try {
+        bankRows = await fetchUnmatchedCredits({
+          db,
+          client: client!,
+          from: input.from,
+          to: input.to
+        })
+      } catch (error) {
+        fastify.log.warn(
+          `payments ledger: bank branch unavailable: ${String(error)}`
+        )
+      }
+      const needle = input.q?.toLowerCase()
+      bankRows = bankRows.filter((row) => {
+        if (
+          needle &&
+          ![
+            row.description,
+            row.transactionReference ?? '',
+            row.clientName ?? ''
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(needle)
+        ) {
+          return false
+        }
+        if (input.from && row.date && row.date < input.from) return false
+        if (input.to && row.date && row.date > `${input.to}~`) return false
+        if (input.statuses?.length && !input.statuses.includes(row.status))
+          return false
+        // Bank review rows carry method='bank' and psp=null, so they never
+        // satisfy a method or PSP filter (mirrors the SQL IN clauses above).
+        if (input.psps?.length) return false
+        if (input.methods?.length) return false
+        return true
       })
-    } catch (error) {
-      fastify.log.warn(
-        `payments ledger: bank branch unavailable: ${String(error)}`
-      )
     }
 
-    // The proxy source sits outside the SQL wrapper, so the same filters
-    // are applied here — otherwise bank rows would ignore q/date/status.
-    const needle = input.q?.toLowerCase()
-    bankRows = bankRows.filter((row) => {
-      if (
-        needle &&
-        ![row.description, row.transactionReference ?? '', row.clientName ?? '']
-          .join(' ')
-          .toLowerCase()
-          .includes(needle)
-      ) {
-        return false
-      }
-      if (input.from && row.date && row.date < input.from) return false
-      if (input.to && row.date && row.date > `${input.to}~`) return false
-      if (input.statuses?.length && !input.statuses.includes(row.status))
-        return false
-      if (input.psps?.length) return false
-      if (input.methods?.length) return false
-      return true
-    })
-
     const merged = sortRows([...sqlRows, ...bankRows])
+
     // Export calls omit limit/offset entirely (undefined must not become NaN).
     const start = input.offset ?? 0
     const end = input.limit === undefined ? undefined : start + input.limit
     const page = merged.slice(start, end)
 
+    // Aggregates over the merged, in-memory rows (single implementation for
+    // both banking-on and banking-off — the only difference is bank rows).
     const paidIn = sqlRows
       .filter((row) => row.status === 'paid')
       .reduce((sum, row) => sum + row.amountCents, 0)
@@ -434,7 +360,6 @@ const runLedger = async (
       (sum, row) => sum + row.amountCents,
       0
     )
-
     const byMethodMap = new Map<string, number>()
     for (const row of sqlRows) {
       if (row.kind !== 'payment' || row.status !== 'paid') continue
@@ -447,7 +372,7 @@ const runLedger = async (
     return {
       rows: page,
       total: merged.length,
-      truncated: rawRows.length >= MAX_ROWS,
+      truncated: merged.length >= MAX_ROWS,
       aggregates: {
         inCents: paidIn,
         refundedCents: refunded,

@@ -3,78 +3,38 @@ injectWorkspacePackages: true
 packages:
   - packages/*
 overrides:
-  # Unpublished @modular-api/event-bus — local link until published to npm.simsus.tech.
-  # The Docker build injects the same link: override in-build (LINKED_MODULAR_API_EVENT_BUS_PATH).
-  "@modular-api/event-bus": "link:/home/stefan/Projects/modular-api/packages/event-bus"
-  # typescript@7 removed the ./lib/tsc subpath that vue-tsc@3.3.9 needs — pin
-  # the workspace to 6.0.3 so vue-tsc and the TS peer graph stay compatible.
   typescript: 6.0.3
 
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-  - browserslist
-  - caniuse-lite
-  - electron-to-chromium
-  - "@vitrify/*"
-  - vitrify
-  - "@simsustech/quasar-components"
-  - "@modular-api/*"
-  - "@quasar/*"
-  - vue-router
-  - unocss-preset-quasar
-  - oxfmt
-  - "@oxfmt/*"
-  - "@myriaddreamin/*"
-  - "@oxlint/*"
-  - oxlint
-  - vite
-  - axios
-  - cronstrue
-  - "@types/node"
-  - cron-parser
-  - pg-boss
-  - stripe
-  - "@unocss/*"
-  - unocss
-  - oidc-provider
-  - quasar
-  - sharp
-  - "@img/*"
-  - "@pinia/colada@1.4.2"
-  - "@vue/compiler-core@3.5.40"
-  - "@vue/compiler-dom@3.5.40"
-  - "@vue/compiler-sfc@3.5.40"
-  - "@vue/compiler-ssr@3.5.40"
-  - "@vue/reactivity@3.5.40"
-  - "@vue/runtime-core@3.5.40"
-  - "@vue/runtime-dom@3.5.40"
-  - "@vue/server-renderer@3.5.40"
-  - "@vue/shared@3.5.40"
-  - fast-xml-parser@5.10.1
-  - vue@3.5.40
-  - pinia@4.0.3
-  - "@modular-api/fastify-checkout@0.9.1"
-  - "@types/pg@8.20.4"
-  - "@vue/compiler-core@3.5.41"
-  - "@vue/compiler-dom@3.5.41"
-  - "@vue/compiler-sfc@3.5.41"
-  - "@vue/compiler-ssr@3.5.41"
-  - "@vue/reactivity@3.5.41"
-  - "@vue/runtime-core@3.5.41"
-  - "@vue/runtime-dom@3.5.41"
-  - "@vue/server-renderer@3.5.41"
-  - "@vue/shared@3.5.41"
-  - quasar@2.24.0
-  - vue@3.5.41
-  - unocss-preset-quasar@0.5.0 || 0.5.1 || 0.5.3 || 0.5.5
-  - '@quasar/quasar-ui-qcalendar@5.2.2'
-  - '@timestamp-js/core@1.0.0'
-  - vitrify@0.27.0
-  - export-to-csv@1.5.0
-  - vite@8.2.2
-  - '@types/oidc-provider@9.12.0'
+  - "@modular-api/event-bus@0.2.0 || 0.2.1"
+  - "@modular-api/fastify-checkout@0.10.0"
+  - "@rolldown/binding-android-arm-eabi@1.2.7"
+  - "@rolldown/binding-android-arm64@1.2.7"
+  - "@rolldown/binding-darwin-arm64@1.2.7"
+  - "@rolldown/binding-darwin-x64@1.2.7"
+  - "@rolldown/binding-freebsd-x64@1.2.7"
+  - "@rolldown/binding-linux-arm-gnueabihf@1.2.7"
+  - "@rolldown/binding-linux-arm64-gnu@1.2.7"
+  - "@rolldown/binding-linux-arm64-musl@1.2.7"
+  - "@rolldown/binding-linux-ppc64-gnu@1.2.7"
+  - "@rolldown/binding-linux-s390x-gnu@1.2.7"
+  - "@rolldown/binding-linux-x64-gnu@1.2.7"
+  - "@rolldown/binding-linux-x64-musl@1.2.7"
+  - "@rolldown/binding-openharmony-arm64@1.2.7"
+  - "@rolldown/binding-win32-arm64-msvc@1.2.7"
+  - "@rolldown/binding-win32-x64-msvc@1.2.7"
+  - "@types/oidc-provider@9.12.0"
+  - "@vitest/mocker@5.0.0"
+  - "@vitest/spy@5.0.0"
   - beasties@0.5.3
+  - happy-dom@20.13.2
+  - quasar@2.29.0
+  - rolldown@1.2.7
+  - vitest@5.0.0
+  - vitrify@0.27.2 || 0.28.0 || 0.28.1
+  - pg-boss@12.30.0
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
@@ -91,4 +51,3 @@ allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: true
-

@@ -22,7 +22,6 @@ export interface Language {
   goHome: string
   updateAvailable: string
   refresh: string
-  darkMode: string
   name: string
   overview: string
   noResultsAvailable: string
@@ -135,6 +134,7 @@ export interface Language {
       receipt: string
       canceled: string
       bill: string
+      overdue: string
     }
     labels: {
       open: string
@@ -150,6 +150,7 @@ export interface Language {
       print: string
       downloadPdfToPrint: string
       openReference: string
+      dueBy: (date: string) => string
     }
     filters: {
       startDate: string
@@ -271,12 +272,18 @@ export interface Language {
     payments: string
     pay: string
     addPayment: string
+    confirmDeletePayment: (args: {
+      method: string
+      number: string
+      amount: string
+    }) => string
     amountDue: string
     amountPaid: string
     amountRefunded: string
     downPayment: string
     fields: {
       transactionReference: string
+      date: string
       description: string
     }
     methods: {
@@ -286,8 +293,50 @@ export interface Language {
       pin: string
       creditcard: string
     }
+    descriptions: {
+      cashPayment: string
+      bankTransferPayment: string
+      pinPayment: string
+    }
     messages: {
       scanQrOrUseInformationBelow: string
+    }
+    overview: {
+      title: string
+      fromDate: string
+      toDate: string
+      columns: {
+        date: string
+        method: string
+        description: string
+        invoice: string
+        client: string
+        amount: string
+        status: string
+        psp: string
+      }
+      in: string
+      refunded: string
+      net: string
+      count: string
+      unallocated: string
+      viaBankSync: string
+      needsReview: string
+      source: string
+      sources: {
+        payments: string
+        refunds: string
+        bankReview: string
+      }
+      methods: string
+      statuses: string
+      psps: string
+      deletePayment: string
+      search: string
+      refresh: string
+      export: string
+      empty: string
+      truncated: string
     }
   }
   refund: {
@@ -481,6 +530,7 @@ export interface Language {
     events: string
     types: {
       emailOpened: string
+      paymentDeleted: string
     }
   }
 }

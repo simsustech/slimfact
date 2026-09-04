@@ -1,0 +1,37 @@
+# docker-compose.dump.yaml
+# ========================
+# Overlay that points the SlimFact stack at a restored `slimfact_dump` DB and
+# enables REAL bank sync via open-banking.io. Used for verifying bank-inbox
+# matching against a production dump and for manual testing.
+#
+# Usage (after the base test stack + slimfact_dump are set up):
+#   export SIMSUSTECH_NPM_TOKEN=$(cat env/SIMSUSTECH_NPM_TOKEN)
+#   export LINKED_MODULAR_API_EVENT_BUS_PATH=~/Projects/modular-api/packages/event-bus
+#   export OPENBANKING_CREDENTIALS_JSON=$(base64 -w0 env/credentials.json)
+#   export MOLLIE_API_KEY=$(cat env/MOLLIE_API_KEY)
+#   docker compose -f docker-compose.test.yaml -f docker-compose.dump.yaml \
+#     up -d --wait api banking-api
+#
+# See scripts/verify-slimfact-dump.sh for the full setup (restore, migrate,
+# admin password reset, sync, verify).
+
+services:
+  api:
+    environment:
+      POSTGRES_DB: slimfact_dump
+      # The dump's admin password was reset to the known value (see the script).
+      MODULARAPI_ADMIN_PASSWORD: Sif5uEG5hcTH
+      MODULARAPI_DEFAULT_PASSWORD: Sif5uEG5hcTH
+    # Do NOT seed the dump DB — it holds real production data.
+    command: ["sh", "-c", "npm run migrate:latest && npm run start"]
+
+  banking-api:
+    environment:
+      POSTGRES_DB: slimfact_dump
+      OPENBANKING_CREDENTIALS_JSON: ${OPENBANKING_CREDENTIALS_JSON:-}
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY:-}
+      BANKING_API_CONFIG_PATH: /etc/banking-api/config.dump.json
+    volumes:
+      - ./packages/banking-api/config.dump.json:/etc/banking-api/config.dump.json:ro
+    # Do NOT seed fake test accounts — sync the real ones via the credentials.
+    command: ["sh", "-c", "node dist/src/kysely/migrate.js && node dist/src/server.js"]

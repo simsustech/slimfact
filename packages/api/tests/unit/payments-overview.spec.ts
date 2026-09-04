@@ -28,7 +28,7 @@ pg.types.setTypeParser(1082, (value: string) => value)
 
 const databaseUrl =
   process.env.TEST_DATABASE_URL ??
-  'postgres://postgres:ufgouifdgjdfg@localhost:15433/slimfact_unit'
+  'postgres://postgres:ufgouifdgjdfg@localhost:5433/slimfact_unit'
 
 const testDb = new Kysely<DB>({
   dialect: new PostgresDialect({
@@ -40,7 +40,10 @@ const testDb = new Kysely<DB>({
 // The router uses its own db singleton — point it at the unit database via
 // env BEFORE importing any module that builds appConfig / the pool.
 process.env.POSTGRES_HOST = 'localhost'
-process.env.POSTGRES_PORT = '15433'
+const envPort = process.env.TEST_DATABASE_URL
+  ? new URL(process.env.TEST_DATABASE_URL).port
+  : '5433'
+process.env.POSTGRES_PORT = envPort
 process.env.POSTGRES_PASSWORD = 'ufgouifdgjdfg'
 process.env.POSTGRES_DB = 'slimfact_unit'
 process.env.API_HOST = 'slimfact.test'
@@ -236,7 +239,7 @@ const mkRefund = async (
     amount: number
     status: RefundStatus
     createdAt: string
-    paymentServiceProvider: string | null
+    paymentServiceProvider: 'mollie' | 'stripe' | null
     externalId: string
     description: string
   }> = {}

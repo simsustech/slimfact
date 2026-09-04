@@ -214,8 +214,9 @@ export default async function (fastify: FastifyInstance) {
     },
     options: {
       paymentMethodRouting,
-      onInvoicePaid: (args) =>
-        sendInvoicePaidNotification(args, invoicePaidNotificationDeps)
+      onInvoicePaid: async (args) => {
+        await sendInvoicePaidNotification(args, invoicePaidNotificationDeps)
+      }
     }
   })
 

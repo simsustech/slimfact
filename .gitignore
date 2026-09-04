@@ -21,6 +21,4 @@ jwks
 .pnpm-store/
 .pi/fff/
 .pi/plans/
-packages/api/_login-check.mjs
 PR.md
->>>>>>> dev

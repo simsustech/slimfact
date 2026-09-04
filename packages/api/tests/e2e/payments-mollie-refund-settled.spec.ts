@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { mkInvoice, mkBill, moreBtn } from './helpers'
 
 const EMAIL = 'admin@slimfact.app'
 const PASSWORD = 'Sif5uEG5hcTH'
-let page
+let page: Page
 
 test.describe.configure({ mode: 'serial' })
 
@@ -106,7 +107,9 @@ test('Refund via Mollie (wait for settlement)', async ({ request }) => {
   if ((await cont.count()) > 0) await cont.first().click({ force: true })
   try {
     await page.waitForURL(/slimfact/, { timeout: 20000 })
-  } catch {}
+  } catch {
+    // Best-effort: the redirect may have already completed.
+  }
   await expect(async () => {
     await page.goto(`/invoice/${uuid}`)
     await expect(page.getByText(/paid|betaald/i).first()).toBeVisible({

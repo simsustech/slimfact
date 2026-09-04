@@ -209,6 +209,7 @@ const mkTx = (overrides: Partial<MatchTransaction>): MatchTransaction => ({
   creditDebit: 'CRDT',
   status: 'BOOK',
   bookingDate: '2026-06-30',
+  transactionDate: null,
   description: null,
   remittanceInformation: null,
   referenceNumber: null,

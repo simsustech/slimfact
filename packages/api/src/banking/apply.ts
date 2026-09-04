@@ -1,22 +1,26 @@
 import type { Kysely } from 'kysely'
-import { InvoiceStatus, PaymentMethod } from '@modular-api/fastify-checkout'
-import type { Currencies } from '@modular-api/fastify-checkout'
+import {
+  InvoiceStatus,
+  PaymentMethod,
+  type Currencies,
+  type FastifyCheckoutInvoiceHandler
+} from '@modular-api/fastify-checkout'
 import type { DB } from '../kysely/types.js'
 import type { MatchInvoice, MatchTransaction } from './match.js'
 import { findAdoptablePayment } from './match.js'
 
-/** The narrow checkout seam both the sync worker and the tRPC router cross. */
+type AddPayment = FastifyCheckoutInvoiceHandler['addPaymentToInvoice']
+
+/**
+ * The narrow checkout seam both the sync worker and the tRPC router cross.
+ * The input (including the payment payload) is the upstream contract so it
+ * can't drift; the return is narrowed to what the linking logic consumes
+ * (the real handler's richer result still satisfies it structurally).
+ */
 export type InvoiceHandler = {
-  addPaymentToInvoice: (input: {
-    id: number
-    payment: {
-      amount: number
-      currency: Currencies
-      description: string
-      method: PaymentMethod
-      transactionReference?: string
-    }
-  }) => Promise<
+  addPaymentToInvoice: (
+    input: Parameters<AddPayment>[0]
+  ) => Promise<
     | { success: true; payment: { id: number } }
     | { success: false; errorMessage: string }
   >

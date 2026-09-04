@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { mkInvoice, mkBill, moreBtn } from './helpers'
 
 const EMAIL = 'admin@slimfact.app'
 const PASSWORD = 'Sif5uEG5hcTH'
-let page
+let page: Page
 
 test.describe.configure({ mode: 'serial' })
 
@@ -98,7 +99,9 @@ test.describe('Mollie', () => {
     if ((await cont.count()) > 0) await cont.first().click({ force: true })
     try {
       await page.waitForURL(/slimfact/, { timeout: 20000 })
-    } catch {}
+    } catch {
+      // Best-effort: the redirect may have already completed.
+    }
     await page.waitForTimeout(30000)
     await page.goto(`/invoice/${uuid}`)
     await page.waitForTimeout(3000)
@@ -150,7 +153,9 @@ test.describe('Mollie', () => {
     if ((await cont.count()) > 0) await cont.first().click({ force: true })
     try {
       await page.waitForURL(/slimfact/, { timeout: 20000 })
-    } catch {}
+    } catch {
+      // Best-effort: the redirect may have already completed.
+    }
     await page.waitForTimeout(30000)
     await page.goto(`/invoice/${uuid}`)
     await page.waitForTimeout(5000)
@@ -273,7 +278,9 @@ test.describe('Mollie', () => {
     if ((await cont.count()) > 0) await cont.first().click({ force: true })
     try {
       await page.waitForURL(/slimfact/, { timeout: 20000 })
-    } catch {}
+    } catch {
+      // Best-effort: the redirect may have already completed.
+    }
     // Reload and poll for the settled (paid) status — the webhook settles
     // asynchronously, so the invoice page must be re-fetched.
     await expect(async () => {
