@@ -1,13 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import {
-  suggestForCredit,
-  type SuggestInput
-} from '@slimfact/tools/banking/suggest'
+import { suggestForCredit } from '@slimfact/tools/banking/suggest'
 import type {
   MatchTransaction,
   MatchInvoice,
   BankPaymentCandidate
-} from '@slimfact/tools/banking/match'
+} from '@slimfact/tools/banking'
 
 /**
  * Synthetic fixtures for the suggestion engine.

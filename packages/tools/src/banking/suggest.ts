@@ -10,7 +10,7 @@ import type {
   MatchInvoice,
   BankPaymentCandidate,
   MatchConfig
-} from './match.js'
+} from './types.js'
 
 export interface SuggestInput {
   transaction: MatchTransaction

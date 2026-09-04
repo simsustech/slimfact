@@ -109,3 +109,52 @@ export type ApplyResult = {
   /** Set when the link could not be fully applied (e.g. invoice cancelled). */
   error?: string
 }
+
+// --- Matching types (used by match.ts, suggest.ts, and api callers) ---
+
+export interface MatchTransaction {
+  externalId: string
+  accountExternalId: string
+  companyId: number
+  amountCents: number
+  currency: string
+  creditDebit: string
+  status: string | null
+  bookingDate: string | null
+  transactionDate: string | null
+  description: string | null
+  remittanceInformation: string | null
+  referenceNumber: string | null
+  counterpartyName: string | null
+  counterpartyIban: string | null
+}
+
+export interface MatchInvoice {
+  id: number
+  number: string | null
+  amountDueCents: number
+  dueDate: string | null
+  status: string
+  companyId: number | null
+  currency: string
+}
+
+export interface MatchConfig {
+  referenceWindowDays: number
+}
+
+/** A checkout.payments row reduced to the fields the matching logic needs. */
+export interface BankPaymentCandidate {
+  id: number
+  invoiceId: number | null
+  amount: number
+  method: string | null
+  status: string | null
+  transactionReference: string | null
+  /** PSP payment id (Mollie tr_ / Stripe payment_intent) when paid via a PSP. */
+  externalId: string | null
+  /** Mollie settlement id / Stripe payment_intent id (checkout plugin's
+   * settlement_id column). */
+  settlementId: string | null
+  paymentServiceProvider: string | null
+}

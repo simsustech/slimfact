@@ -16,10 +16,7 @@ import {
 } from '@modular-api/fastify-checkout'
 import type { DB } from '../../../src/kysely/types.js'
 import type { InvoiceHandler } from '../../../src/banking/apply.js'
-import type {
-  MatchInvoice,
-  MatchTransaction
-} from '../../../src/banking/match.js'
+import type { MatchInvoice, MatchTransaction } from '@slimfact/tools/banking'
 
 const { Pool } = pg
 

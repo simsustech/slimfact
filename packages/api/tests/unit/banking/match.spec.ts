@@ -9,13 +9,13 @@ import {
   extractInvoiceUuid,
   resolvePspPaymentInvoiceId,
   matchSettlementForCredit
-} from '../../../src/banking/match.js'
+} from '@slimfact/tools/banking'
 import type {
   BankPaymentCandidate,
   MatchInvoice,
   MatchTransaction
-} from '../../../src/banking/match.js'
-import type { PspSettlement } from '../../../src/banking/client.js'
+} from '@slimfact/tools/banking'
+import type { PspSettlement } from '@slimfact/tools/banking'
 import { InvoiceStatus } from '@modular-api/fastify-checkout'
 
 const openInvoice = (overrides: Partial<MatchInvoice> = {}): MatchInvoice => ({

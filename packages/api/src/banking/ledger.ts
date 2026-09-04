@@ -3,7 +3,10 @@ import type { DB } from '../kysely/types.js'
 import type { BankingApi, Transaction } from './client.js'
 import { parseAmountToCents } from './money.js'
 import { fetchAccountCompanyLinks, resolveCompanyIds } from './accountLinks.js'
-import { matchSettlementForCredit, type MatchTransaction } from './match.js'
+import {
+  matchSettlementForCredit,
+  type MatchTransaction
+} from '@slimfact/tools/banking'
 import { toMatchTransaction } from './sync.js'
 
 /**

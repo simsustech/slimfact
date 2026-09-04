@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   normalizeReference,
   containsInvoiceNumber
-} from '../../../src/banking/normalize.js'
+} from '@slimfact/tools/banking'
 
 describe('normalizeReference', () => {
   it('lowercases and strips non-alphanumerics', () => {

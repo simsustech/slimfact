@@ -6,8 +6,8 @@ import {
   type FastifyCheckoutInvoiceHandler
 } from '@modular-api/fastify-checkout'
 import type { DB } from '../kysely/types.js'
-import type { MatchInvoice, MatchTransaction } from './match.js'
-import { findAdoptablePayment } from './match.js'
+import type { MatchInvoice, MatchTransaction } from '@slimfact/tools/banking'
+import { findAdoptablePayment } from '@slimfact/tools/banking'
 
 type AddPayment = FastifyCheckoutInvoiceHandler['addPaymentToInvoice']
 

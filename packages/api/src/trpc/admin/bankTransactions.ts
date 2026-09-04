@@ -9,8 +9,13 @@ import {
   buildLinkProposal,
   canApply,
   findAdoptablePayment,
-  matchSettlementForCredit
-} from '../../banking/match.js'
+  matchSettlementForCredit,
+  extractInvoiceUuid,
+  resolvePspPaymentInvoiceId,
+  type BankPaymentCandidate,
+  type LinkProposal,
+  type MatchTransaction
+} from '@slimfact/tools/banking'
 import {
   fetchAccountCompanyLinks,
   resolveCompanyIds,
@@ -27,13 +32,6 @@ import {
   linkBankCreditsToInvoices,
   type BankPaymentRow
 } from '../../banking/apply.js'
-import {
-  extractInvoiceUuid,
-  resolvePspPaymentInvoiceId,
-  type BankPaymentCandidate,
-  type LinkProposal,
-  type MatchTransaction
-} from '../../banking/match.js'
 import { getBossOrThrow } from '../../pgboss.js'
 import type {
   Account,
