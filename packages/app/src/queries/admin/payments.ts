@@ -18,7 +18,7 @@ export interface PaymentsFilters {
   methods: string[]
   statuses: string[]
   psps: string[]
-  sources: Array<'payments' | 'refunds' | 'bank'>
+  sources: Array<'payments' | 'refunds'>
 }
 
 export const DEFAULT_PAYMENTS_FILTERS: PaymentsFilters = {
@@ -26,7 +26,7 @@ export const DEFAULT_PAYMENTS_FILTERS: PaymentsFilters = {
   methods: [],
   statuses: [],
   psps: [],
-  sources: ['payments', 'refunds', 'bank']
+  sources: ['payments', 'refunds']
 }
 
 const asString = (value: unknown): string =>
@@ -62,7 +62,7 @@ const fromQueryParams = (query: Record<string, unknown>): PaymentsFilters => ({
   psps: asList(query.psp),
   sources: asList(query.source).filter(
     (source): source is PaymentsFilters['sources'][number] =>
-      ['payments', 'refunds', 'bank'].includes(source)
+      ['payments', 'refunds'].includes(source)
   )
 })
 
@@ -162,7 +162,7 @@ export const useAdminExportPaymentsMutation = () => {
       methods?: string[]
       statuses?: string[]
       psps?: string[]
-      sources?: Array<'payments' | 'refunds' | 'bank'>
-    }) => trpc.admin.exportPayments.query(input)
+      sources?: Array<'payments' | 'refunds'>
+    }) => trpc.admin.exportPayments.query(input as never)
   })
 }

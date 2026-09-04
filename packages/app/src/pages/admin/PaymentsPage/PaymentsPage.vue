@@ -133,12 +133,6 @@
           <q-chip dense outline color="grey-8" size="sm">
             {{ methodLabel(props.row.method) }}
           </q-chip>
-          <q-badge
-            v-if="props.row.bankSynced"
-            data-testid="ledger-bank-synced"
-            color="blue-grey-6"
-            :label="lang.payment.overview.viaBankSync"
-          />
         </q-td>
       </template>
       <template #body-cell-invoiceNumber="props">
@@ -154,10 +148,7 @@
       </template>
       <template #body-cell-clientName="props">
         <q-td :props="props">
-          {{
-            props.row.clientName ??
-            (props.row.kind === 'bank' ? props.row.bankCompanyName : null)
-          }}
+          {{ props.row.clientName }}
         </q-td>
       </template>
       <template #body-cell-amountCents="props">
@@ -185,18 +176,7 @@
       <template #body-cell-actions="props">
         <q-td :props="props">
           <q-btn
-            v-if="props.row.kind === 'bank'"
-            icon="i-mdi-link"
-            color="primary"
-            flat
-            dense
-            :title="lang.bank.actions.linkTransaction"
-            :aria-label="lang.bank.actions.linkTransaction"
-            data-testid="ledger-link"
-            @click="openLinkDialog(props.row)"
-          />
-          <q-btn
-            v-else-if="isDeletable(props.row)"
+            v-if="isDeletable(props.row)"
             icon="i-mdi-delete"
             color="negative"
             flat
