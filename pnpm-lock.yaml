@@ -515,7 +515,7 @@ importers:
         version: 1.81.0
       vitepress:
         specifier: 2.0.0-alpha.16
-        version: 2.0.0-alpha.16(@types/node@26.4.1)(axios@1.20.0)(jiti@2.7.0)(lightningcss@1.33.0)(postcss@8.5.26)(sass@1.103.1)(terser@5.51.2)(typescript@6.0.3)(yaml@2.9.0)
+        version: 2.0.0-alpha.16(@types/node@26.4.1)(axios@1.20.0)(fuse.js@7.5.0)(jiti@2.7.0)(lightningcss@1.33.0)(postcss@8.5.26)(sass@1.103.1)(terser@5.51.2)(typescript@6.0.3)(yaml@2.9.0)
 
   packages/tools:
     dependencies:
@@ -534,6 +534,9 @@ importers:
       fast-xml-parser:
         specifier: 5.11.1
         version: 5.11.1
+      fuse.js:
+        specifier: ^7.5.0
+        version: 7.5.0
       handlebars:
         specifier: 4.7.9
         version: 4.7.9
@@ -4533,6 +4536,10 @@ packages:
 
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
+
+  fuse.js@7.5.0:
+    resolution: {integrity: sha512-sQtrEfA+ez/3G0cCZecF70oqpCRttCexYUG4mUrtWL49ULUzUyxokt5kyqwtKzj1270RaKih+hcP3qLcumccow==}
+    engines: {node: '>=10'}
 
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
@@ -10171,7 +10178,7 @@ snapshots:
       '@vueuse/shared': 14.4.0(vue@3.5.42(typescript@6.0.3))
       vue: 3.5.42(typescript@6.0.3)
 
-  '@vueuse/integrations@14.4.0(axios@1.20.0)(focus-trap@7.8.0)(vue@3.5.42(typescript@6.0.3))':
+  '@vueuse/integrations@14.4.0(axios@1.20.0)(focus-trap@7.8.0)(fuse.js@7.5.0)(vue@3.5.42(typescript@6.0.3))':
     dependencies:
       '@vueuse/core': 14.4.0(vue@3.5.42(typescript@6.0.3))
       '@vueuse/shared': 14.4.0(vue@3.5.42(typescript@6.0.3))
@@ -10179,6 +10186,7 @@ snapshots:
     optionalDependencies:
       axios: 1.20.0
       focus-trap: 7.8.0
+      fuse.js: 7.5.0
 
   '@vueuse/metadata@14.4.0': {}
 
@@ -11410,6 +11418,8 @@ snapshots:
       is-document.all: 1.0.0
 
   functions-have-names@1.2.3: {}
+
+  fuse.js@7.5.0: {}
 
   generator-function@2.0.1: {}
 
@@ -14089,7 +14099,7 @@ snapshots:
     optionalDependencies:
       vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(terser@5.51.2)(yaml@2.9.0)
 
-  vitepress@2.0.0-alpha.16(@types/node@26.4.1)(axios@1.20.0)(jiti@2.7.0)(lightningcss@1.33.0)(postcss@8.5.26)(sass@1.103.1)(terser@5.51.2)(typescript@6.0.3)(yaml@2.9.0):
+  vitepress@2.0.0-alpha.16(@types/node@26.4.1)(axios@1.20.0)(fuse.js@7.5.0)(jiti@2.7.0)(lightningcss@1.33.0)(postcss@8.5.26)(sass@1.103.1)(terser@5.51.2)(typescript@6.0.3)(yaml@2.9.0):
     dependencies:
       '@docsearch/css': 4.7.0
       '@docsearch/js': 4.7.0
@@ -14103,7 +14113,7 @@ snapshots:
       '@vue/devtools-api': 8.2.1
       '@vue/shared': 3.5.42
       '@vueuse/core': 14.4.0(vue@3.5.42(typescript@6.0.3))
-      '@vueuse/integrations': 14.4.0(axios@1.20.0)(focus-trap@7.8.0)(vue@3.5.42(typescript@6.0.3))
+      '@vueuse/integrations': 14.4.0(axios@1.20.0)(focus-trap@7.8.0)(fuse.js@7.5.0)(vue@3.5.42(typescript@6.0.3))
       focus-trap: 7.8.0
       mark.js: 8.11.1
       minisearch: 7.2.0

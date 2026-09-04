@@ -14,8 +14,24 @@
       "import": "./dist/index.js"
     },
     "./banking": {
-      "types": "./dist/types/banking/types.d.ts",
-      "import": "./dist/banking/types.js"
+      "types": "./dist/types/banking/index.d.ts",
+      "import": "./dist/banking/index.js"
+    },
+    "./banking/match": {
+      "types": "./dist/types/banking/match.d.ts",
+      "import": "./dist/banking/match.js"
+    },
+    "./banking/suggest": {
+      "types": "./dist/types/banking/suggest.d.ts",
+      "import": "./dist/banking/suggest.js"
+    },
+    "./banking/normalize": {
+      "types": "./dist/types/banking/normalize.d.ts",
+      "import": "./dist/banking/normalize.js"
+    },
+    "./banking/client": {
+      "types": "./dist/types/banking/client.d.ts",
+      "import": "./dist/banking/client.js"
     },
     "./dashboard": {
       "types": "./dist/types/dashboard/index.d.ts",
@@ -58,6 +74,7 @@
     "@rgrove/parse-xml": "5.0.0",
     "export-to-csv": "1.5.0",
     "fast-xml-parser": "5.11.1",
+    "fuse.js": "^7.5.0",
     "handlebars": "4.7.9",
     "ibantools": "4.5.4"
   },
