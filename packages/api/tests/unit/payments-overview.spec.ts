@@ -316,11 +316,6 @@ beforeEach(() => {
   fakeClient = null
 })
 
-const disableBanking = () => {
-  delete process.env.BANKING_API_KEY
-  delete process.env.BANKING_API_URL
-}
-
 /* ------------------------------------------------------------------ */
 /* Tests                                                               */
 /* ------------------------------------------------------------------ */
@@ -353,7 +348,6 @@ describe('admin payments ledger', () => {
     expect(second!.kind).toBe('payment')
     expect(second!.method).toBe(PaymentMethod.cash)
     expect(second!.amountCents).toBe(5000)
-    expect(second!.bankSynced).toBe(false)
     expect(second!.date).toContain('2026-03-01')
   })
 
@@ -429,7 +423,7 @@ describe('admin payments ledger', () => {
     expect(result.aggregates.netCents).toBe(5500)
     expect(result.aggregates.count).toBe(3)
     expect(result.total).toBe(3)
-    expect(result.aggregates.unallocatedCents).toBe(0)
+
     const cashChip = result.aggregates.byMethod.find(
       (entry) => entry.method === PaymentMethod.cash
     )
@@ -469,77 +463,16 @@ describe('admin payments ledger', () => {
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' })
   })
 
-  it('omits bank rows when banking is disabled', async () => {
-    disableBanking()
+  it('always returns payments and refunds only', async () => {
     const caller = await loadCaller()
     const result = await caller.listPayments({
-      sources: ['payments', 'refunds', 'bank'],
       limit: 50,
       offset: 0
     })
-    expect(result.rows.every((row) => row.kind !== 'bank')).toBe(true)
+    expect(
+      result.rows.every(
+        (row) => row.kind === 'payment' || row.kind === 'refund'
+      )
+    ).toBe(true)
   })
-
-  it('shows unmatched credits as review rows and hides linked txids', async () => {
-    const companyId = await mkCompany()
-    createdCompanyIds.push(companyId)
-    const invoice = await mkInvoice(companyId, 0)
-    createdInvoiceIds.push(invoice.id)
-
-    // A credit already recognized: a payment row references it.
-    await mkPayment(invoice.id, {
-      method: PaymentMethod.banktransfer,
-      transactionReference: 'bank:pot-tx-linked',
-      paidAt: '2026-03-10T09:00:00Z'
-    })
-
-    fakeClient = {
-      getAccounts: vi.fn(async () => [
-        { id: 'acc-1', iban: 'NL00POTB0000000000' }
-      ]),
-      getTransactions: vi.fn(async () => ({
-        items: [
-          {
-            id: 'pot-tx-unmatched',
-            currency: 'EUR',
-            creditDebitIndicator: 'CRDT',
-            status: 'BOOK',
-            bookingDate: '2026-03-11',
-            amount: '75.00',
-            creditorName: 'Someone',
-            remittanceInformation: 'Kenmerk: unmatched'
-          },
-          {
-            id: 'pot-tx-linked',
-            currency: 'EUR',
-            creditDebitIndicator: 'CRDT',
-            status: 'BOOK',
-            bookingDate: '2026-03-10',
-            amount: '50.00',
-            creditorName: 'Someone else',
-            remittanceInformation: 'Kenmerk: linked already'
-          }
-        ],
-        total: 2
-      })),
-      getConnections: vi.fn(async () => []),
-      syncAll: vi.fn(),
-      getSyncStatus: vi.fn(async () => ({ status: 'idle' })),
-      getPspSettlements: vi.fn(async () => []),
-      getPspPayments: vi.fn(async () => [])
-    } as unknown as BankingApi
-
-    const caller = await loadCaller()
-    const result = await caller.listPayments({
-      sources: ['payments', 'refunds', 'bank'],
-      limit: 50,
-      offset: 0
-    })
-    const bankRows = result.rows.filter((row) => row.kind === 'bank')
-    expect(bankRows).toHaveLength(1)
-    expect(bankRows[0]!.status).toBe('needsReview')
-    expect(bankRows[0]!.amountCents).toBe(7500)
-    expect(bankRows[0]!.date).toContain('2026-03-11')
-    expect(result.aggregates.unallocatedCents).toBe(7500)
-  }, 30000)
 })
