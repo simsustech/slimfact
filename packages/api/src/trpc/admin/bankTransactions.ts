@@ -16,6 +16,7 @@ import {
   type LinkProposal,
   type MatchTransaction
 } from '@slimfact/tools/banking'
+import { suggestForCredit } from '@slimfact/tools/banking/suggest'
 import {
   fetchAccountCompanyLinks,
   resolveCompanyIds,
@@ -511,6 +512,169 @@ export const adminBankTransactionRoutes = ({
       return {
         enabled: true,
         items: filtered.slice(params.offset, params.offset + params.limit)
+      }
+    }),
+
+  /**
+   * Suggestions tab: actionable unlinked bank credits with matching invoices.
+   * Each row has a top suggestion and the candidate invoice uuids for the
+   * link dialog.
+   */
+  listSuggestions: procedure
+    .input(
+      z
+        .object({
+          from: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD date')
+            .optional(),
+          to: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD date')
+            .optional(),
+          limit: z.number().min(1).max(200).default(50),
+          offset: z.number().min(0).default(0)
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const params = input ?? { limit: 50, offset: 0 }
+      if (!bankingEnabled()) return { enabled: false, items: [] }
+      const client = fastify.banking.getClient()
+      if (!client) return { enabled: false, items: [] }
+
+      const accounts = await client.getAccounts()
+      const links = await fetchAccountCompanyLinks(db)
+      const companiesByIban = loadCompaniesByIban()
+      const allSuggestions: Array<{
+        transaction: MatchTransaction
+        companyId: number | null
+        topSuggestion: {
+          invoiceId: number
+          invoiceNumber: string | null
+          score: number
+          evidence: {
+            numRefHit: boolean
+            clientScore: number
+            adoptablePaymentId: number | null
+          }
+        } | null
+        candidateInvoiceUuids: string[]
+        adoptableInvoiceIds: number[]
+      }> = []
+
+      for (const account of accounts) {
+        const accountLinks = links.get(account.id)
+        const ibanCompany = account.iban
+          ? (await companiesByIban).get(normalizeIban(account.iban))
+          : undefined
+        const companyIds = accountLinks?.length
+          ? accountLinks
+          : ibanCompany != null
+            ? [ibanCompany]
+            : []
+        if (companyIds.length === 0) continue
+
+        const transactions = await fetchAccountTransactions(
+          client,
+          account.id,
+          params.from,
+          params.to
+        )
+
+        // Unlinked booked credits
+        const bankRefs = await fetchBankPayments(db)
+        const linkedTransactions = new Set<string>()
+        for (const payment of [...bankRefs.byRef.values()].flat()) {
+          if (payment.invoiceId != null) {
+            // Mark the transaction reference as linked
+          }
+        }
+        // Mark references that have linked payments
+        for (const [ref, rows] of bankRefs.byRef) {
+          if (rows.some((r) => r.invoiceId != null)) {
+            linkedTransactions.add(ref)
+          }
+        }
+
+        const companyInvoicesCache = new Map<
+          number,
+          Awaited<ReturnType<typeof listCompanyInvoices>>
+        >()
+        const companyPaymentsCache = new Map<number, BankPaymentCandidate[]>()
+
+        for (const apiTx of transactions) {
+          if (apiTx.creditDebitIndicator !== 'CRDT') continue
+          if ((apiTx.status ?? 'BOOK') !== 'BOOK') continue
+
+          const txRef = `bank:${apiTx.id}`
+          if (linkedTransactions.has(txRef)) continue
+
+          for (const companyId of companyIds) {
+            if (!companyInvoicesCache.has(companyId)) {
+              companyInvoicesCache.set(
+                companyId,
+                await listCompanyInvoices(db, companyId)
+              )
+            }
+            if (!companyPaymentsCache.has(companyId)) {
+              companyPaymentsCache.set(
+                companyId,
+                await allPaymentsForCompany(companyId)
+              )
+            }
+
+            const matchTx = toMatchTransaction(apiTx, account.id, companyId)
+            const invoices = companyInvoicesCache.get(companyId) ?? []
+            const payments = companyPaymentsCache.get(companyId) ?? []
+
+            const result = suggestForCredit({
+              transaction: matchTx,
+              invoices: invoices,
+              payments: payments,
+              config: { referenceWindowDays: 14 }
+            })
+
+            if (result) {
+              const candidateUuids = invoices
+                .filter((inv) => inv.companyId === companyId)
+                .filter((inv) => inv.status === InvoiceStatus.OPEN)
+                .map((inv) => inv.uuid)
+
+              const adoptableIds = payments
+                .filter(
+                  (p) =>
+                    p.method === 'banktransfer' &&
+                    p.status === 'paid' &&
+                    p.invoiceId != null &&
+                    (p.transactionReference === null ||
+                      p.transactionReference === '')
+                )
+                .map((p) => p.invoiceId!)
+
+              allSuggestions.push({
+                transaction: matchTx,
+                companyId,
+                topSuggestion: {
+                  invoiceId: result.invoiceId,
+                  invoiceNumber:
+                    invoices.find((inv) => inv.id === result.invoiceId)
+                      ?.number ?? null,
+                  score: result.score,
+                  evidence: result.evidence
+                },
+                candidateInvoiceUuids: candidateUuids,
+                adoptableInvoiceIds: adoptableIds
+              })
+              break
+            }
+          }
+        }
+      }
+
+      return {
+        enabled: true,
+        items: allSuggestions.slice(params.offset, params.offset + params.limit)
       }
     }),
 
