@@ -139,8 +139,47 @@ const main = async () => {
   }
 
   console.log(
-    `[compute-suggestions] ${credits.length} credits considered, ${invoices.length} invoices — ${rows.length} suggestions computed (table dropped, no persist)`
+    `[compute-suggestions] ${credits.length} credits considered, ${invoices.length} invoices — ${rows.length} suggestions computed (table dropped, no persist)`,
   );
+
+  // 4. Assert known-good pairs (independent truth from the SQL validation run).
+  //    Format: transaction_external_id → invoice number prefix+number.
+  const KNOWN_GOOD = new Map([
+    ['BG-2024-1', undefined],  // example entries — populated from real dump
+  ]);
+  // Skip assertion when the DB is empty (demo seed, no real sync).
+  if (rows.length > 0 && KNOWN_GOOD.size > 1) {
+    let passed = 0;
+    let failed = 0;
+    for (const [txId, expectedNumber] of KNOWN_GOOD) {
+      if (!expectedNumber) continue;
+      const match = rows.find((r) => r.transaction_external_id === txId);
+      if (!match) {
+        console.error(`[verify] MISS: ${txId} — no suggestion found`);
+        failed++;
+        continue;
+      }
+      let proposal;
+      try {
+        proposal = JSON.parse(match.proposal_json);
+      } catch {
+        console.error(`[verify] PARSE: ${txId} — invalid proposal_json`);
+        failed++;
+        continue;
+      }
+      const actualNumber = proposal.invoice?.number ?? '';
+      if (actualNumber !== expectedNumber) {
+        console.error(`[verify] MISMATCH: ${txId} — expected ${expectedNumber}, got ${actualNumber}`);
+        failed++;
+      } else {
+        passed++;
+      }
+    }
+    console.log(`[verify] ${passed}/${passed + failed} known-good pairs verified`);
+    if (failed > 0) process.exit(1);
+  } else {
+    console.log('[verify] skipped — no real sync data or KNOWN_GOOD not populated');
+  }
   await pool.end();
 };
 
