@@ -138,36 +138,8 @@ const main = async () => {
     });
   }
 
-  if (rows.length > 0) {
-    // Static-SQL unnest insert (values via bind params only — no interpolation
-    // in the query text, so it is injection-safe and passes the raw-SQL lint).
-    await pool.query(
-      `INSERT INTO open_banking.suggestions
-        (transaction_external_id, account_external_id, company_id, proposal_json,
-         proposal_company_id, suggestion_count, computed_at)
-       SELECT * FROM unnest(
-         $1::text[], $2::text[], $3::int[], $4::jsonb[], $5::int[],
-         $6::int[], $7::timestamptz[]
-       )
-       ON CONFLICT (transaction_external_id) DO UPDATE SET
-         proposal_json = EXCLUDED.proposal_json,
-         proposal_company_id = EXCLUDED.proposal_company_id,
-         suggestion_count = EXCLUDED.suggestion_count,
-         computed_at = EXCLUDED.computed_at`,
-      [
-        rows.map((r) => r.transaction_external_id),
-        rows.map((r) => r.account_external_id),
-        rows.map((r) => r.company_id),
-        rows.map((r) => r.proposal_json),
-        rows.map((r) => r.proposal_company_id),
-        rows.map((r) => r.suggestion_count),
-        rows.map((r) => r.computed_at),
-      ],
-    );
-  }
-
   console.log(
-    `[compute-suggestions] ${rows.length} suggestions persisted (${credits.length} credits considered, ${invoices.length} invoices)`,
+    `[compute-suggestions] ${credits.length} credits considered, ${invoices.length} invoices — ${rows.length} suggestions computed (table dropped, no persist)`
   );
   await pool.end();
 };
