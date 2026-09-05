@@ -1,209 +1,222 @@
 <template>
   <q-page padding>
-    <!-- Aggregates header -->
-    <q-card class="q-pa-sm q-mb-md" style="max-width: 560px">
-      <q-card-section class="q-pa-xs row q-gutter-md">
-        <div>
-          <div class="text-caption text-grey-7">
-            {{ lang.payment.overview.in }}
-          </div>
-          <div class="text-h6 text-positive" data-testid="agg-in">
-            {{ formatMoney(aggregates?.inCents ?? 0) }}
-          </div>
-        </div>
-        <div>
-          <div class="text-caption text-grey-7">
-            {{ lang.payment.overview.refunded }}
-          </div>
-          <div class="text-h6 text-negative" data-testid="agg-refunded">
-            {{ formatMoney(aggregates?.refundedCents ?? 0) }}
-          </div>
-        </div>
-        <div>
-          <div class="text-caption text-grey-7">
-            {{ lang.payment.overview.net }}
-          </div>
-          <div class="text-h6" data-testid="agg-net">
-            {{ formatMoney(aggregates?.netCents ?? 0) }}
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
-    <div v-if="filterSummary" class="text-caption text-grey-6 q-mb-md">
-      {{ filterSummary }}
-    </div>
+    <q-tabs v-model="activeTab" align="left" class="q-mb-md">
+      <q-tab name="payments" :label="lang.payment.overview.tabs.payments" />
+      <q-tab
+        name="suggestions"
+        :label="lang.payment.overview.tabs.suggestions"
+      />
+    </q-tabs>
 
-    <!-- Filters -->
-    <div class="row q-mb-sm items-center q-gutter-sm">
-      <q-input
-        v-model="search"
-        :label="lang.payment.overview.search"
-        dense
-        outlined
-        clearable
-        style="min-width: 220px"
-      />
-      <date-input
-        v-model="fromDate"
-        :label="lang.payment.overview.fromDate"
-        :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
-        clearable
-        style="min-width: 150px"
-      />
-      <date-input
-        v-model="toDate"
-        :label="lang.payment.overview.toDate"
-        :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
-        clearable
-        style="min-width: 150px"
-      />
-      <q-select
-        v-model="filters.methods"
-        :options="methodOptions"
-        :label="lang.payment.overview.methods"
-        multiple
-        dense
-        outlined
-        emit-value
-        map-options
-        style="min-width: 170px"
-      />
-      <q-select
-        v-model="filters.statuses"
-        :options="statusOptions"
-        :label="lang.payment.overview.statuses"
-        multiple
-        dense
-        outlined
-        style="min-width: 150px"
-      />
-      <q-select
-        v-model="filters.psps"
-        :options="pspOptions"
-        :label="lang.payment.overview.psps"
-        multiple
-        dense
-        outlined
-        style="min-width: 130px"
-      />
-      <q-select
-        v-model="filters.sources"
-        :options="sourceOptions"
-        :label="lang.payment.overview.source"
-        multiple
-        dense
-        outlined
-        emit-value
-        map-options
-        style="min-width: 170px"
-      />
-      <q-btn
-        flat
-        dense
-        icon="i-mdi-refresh"
-        :label="lang.payment.overview.refresh"
-        @click="refresh"
-      />
-      <q-btn
-        flat
-        dense
-        icon="i-mdi-download"
-        :label="lang.payment.overview.export"
-        data-testid="ledger-export"
-        @click="exportCsv"
-      />
-    </div>
+    <q-tab-panels v-model="activeTab" animated>
+      <!-- Payments panel -->
+      <q-tab-panel name="payments" class="q-pa-none">
+        <!-- Aggregates header -->
+        <q-card class="q-pa-sm q-mb-md" style="max-width: 560px">
+          <q-card-section class="q-pa-xs row q-gutter-md">
+            <div>
+              <div class="text-caption text-grey-7">
+                {{ lang.payment.overview.in }}
+              </div>
+              <div class="text-h6 text-positive" data-testid="agg-in">
+                {{ formatMoney(aggregates?.inCents ?? 0) }}
+              </div>
+            </div>
+            <div>
+              <div class="text-caption text-grey-7">
+                {{ lang.payment.overview.refunded }}
+              </div>
+              <div class="text-h6 text-negative" data-testid="agg-refunded">
+                {{ formatMoney(aggregates?.refundedCents ?? 0) }}
+              </div>
+            </div>
+            <div>
+              <div class="text-caption text-grey-7">
+                {{ lang.payment.overview.net }}
+              </div>
+              <div class="text-h6" data-testid="agg-net">
+                {{ formatMoney(aggregates?.netCents ?? 0) }}
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+        <div v-if="filterSummary" class="text-caption text-grey-6 q-mb-md">
+          {{ filterSummary }}
+        </div>
 
-    <q-banner v-if="truncated" class="bg-amber-1 text-amber-9 q-mb-sm">
-      {{ lang.payment.overview.truncated }}
-    </q-banner>
-
-    <q-table
-      :rows="rows"
-      :columns="columns"
-      :row-key="rowKey"
-      flat
-      bordered
-      :loading="loading"
-      :pagination="{ rowsPerPage: 50 }"
-      :rows-per-page-options="[10, 25, 50, 100]"
-    >
-      <template #body-cell-method="props">
-        <q-td :props="props">
-          <q-chip dense outline color="grey-8" size="sm">
-            {{ methodLabel(props.row.method) }}
-          </q-chip>
-        </q-td>
-      </template>
-      <template #body-cell-invoiceNumber="props">
-        <q-td :props="props">
-          <router-link
-            v-if="props.row.invoiceUuid"
-            :to="`/admin/invoices?uuid=${props.row.invoiceUuid}`"
-            data-testid="ledger-invoice-link"
-          >
-            {{ props.row.invoiceNumber }}
-          </router-link>
-        </q-td>
-      </template>
-      <template #body-cell-clientName="props">
-        <q-td :props="props">
-          {{ props.row.clientName }}
-        </q-td>
-      </template>
-      <template #body-cell-amountCents="props">
-        <q-td :props="props">
-          <span
-            :class="
-              props.row.amountCents < 0 ? 'text-negative' : 'text-positive'
-            "
-          >
-            {{ formatMoney(props.row.amountCents, props.row.currency) }}
-          </span>
-        </q-td>
-      </template>
-      <template #body-cell-status="props">
-        <q-td :props="props">
-          <q-badge
-            v-if="props.row.status === 'needsReview'"
-            data-testid="ledger-needs-review"
-            color="amber-9"
-            :label="lang.payment.overview.needsReview"
+        <!-- Filters -->
+        <div class="row q-mb-sm items-center q-gutter-sm">
+          <q-input
+            v-model="search"
+            :label="lang.payment.overview.search"
+            dense
+            outlined
+            clearable
+            style="min-width: 220px"
           />
-          <span v-else>{{ props.row.status }}</span>
-        </q-td>
-      </template>
-      <template #body-cell-actions="props">
-        <q-td :props="props">
+          <date-input
+            v-model="fromDate"
+            :label="lang.payment.overview.fromDate"
+            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+            clearable
+            style="min-width: 150px"
+          />
+          <date-input
+            v-model="toDate"
+            :label="lang.payment.overview.toDate"
+            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+            clearable
+            style="min-width: 150px"
+          />
+          <q-select
+            v-model="filters.methods"
+            :options="methodOptions"
+            :label="lang.payment.overview.methods"
+            multiple
+            dense
+            outlined
+            emit-value
+            map-options
+            style="min-width: 170px"
+          />
+          <q-select
+            v-model="filters.statuses"
+            :options="statusOptions"
+            :label="lang.payment.overview.statuses"
+            multiple
+            dense
+            outlined
+            style="min-width: 150px"
+          />
+          <q-select
+            v-model="filters.psps"
+            :options="pspOptions"
+            :label="lang.payment.overview.psps"
+            multiple
+            dense
+            outlined
+            style="min-width: 130px"
+          />
+          <q-select
+            v-model="filters.sources"
+            :options="sourceOptions"
+            :label="lang.payment.overview.source"
+            multiple
+            dense
+            outlined
+            emit-value
+            map-options
+            style="min-width: 170px"
+          />
           <q-btn
-            v-if="isDeletable(props.row)"
-            icon="i-mdi-delete"
-            color="negative"
             flat
             dense
-            :title="lang.payment.overview.deletePayment"
-            :aria-label="lang.payment.overview.deletePayment"
-            data-testid="ledger-delete"
-            @click="openDeleteDialog(props.row)"
+            icon="i-mdi-refresh"
+            :label="lang.payment.overview.refresh"
+            @click="refresh"
           />
-        </q-td>
-      </template>
-      <template #no-data>
-        <div class="q-pa-md text-center text-grey-6">
-          {{ lang.payment.overview.empty }}
+          <q-btn
+            flat
+            dense
+            icon="i-mdi-download"
+            :label="lang.payment.overview.export"
+            data-testid="ledger-export"
+            @click="exportCsv"
+          />
         </div>
-      </template>
-    </q-table>
 
-    <bank-link-dialog ref="linkDialogRef" :row="dialogRow" @linked="refresh" />
+        <q-banner v-if="truncated" class="bg-amber-1 text-amber-9 q-mb-sm">
+          {{ lang.payment.overview.truncated }}
+        </q-banner>
+
+        <q-table
+          :rows="rows"
+          :columns="columns"
+          :row-key="rowKey"
+          flat
+          bordered
+          :loading="loading"
+          :pagination="{ rowsPerPage: 50 }"
+          :rows-per-page-options="[10, 25, 50, 100]"
+        >
+          <template #body-cell-method="props">
+            <q-td :props="props">
+              <q-chip dense outline color="grey-8" size="sm">
+                {{ methodLabel(props.row.method) }}
+              </q-chip>
+            </q-td>
+          </template>
+          <template #body-cell-invoiceNumber="props">
+            <q-td :props="props">
+              <router-link
+                v-if="props.row.invoiceUuid"
+                :to="`/admin/invoices?uuid=${props.row.invoiceUuid}`"
+                data-testid="ledger-invoice-link"
+              >
+                {{ props.row.invoiceNumber }}
+              </router-link>
+            </q-td>
+          </template>
+          <template #body-cell-clientName="props">
+            <q-td :props="props">
+              {{ props.row.clientName }}
+            </q-td>
+          </template>
+          <template #body-cell-amountCents="props">
+            <q-td :props="props">
+              <span
+                :class="
+                  props.row.amountCents < 0 ? 'text-negative' : 'text-positive'
+                "
+              >
+                {{ formatMoney(props.row.amountCents, props.row.currency) }}
+              </span>
+            </q-td>
+          </template>
+          <template #body-cell-status="props">
+            <q-td :props="props">
+              <span>{{ props.row.status }}</span>
+            </q-td>
+          </template>
+          <template #body-cell-actions="props">
+            <q-td :props="props">
+              <q-btn
+                v-if="isDeletable(props.row)"
+                icon="i-mdi-delete"
+                color="negative"
+                flat
+                dense
+                :title="lang.payment.overview.deletePayment"
+                :aria-label="lang.payment.overview.deletePayment"
+                data-testid="ledger-delete"
+                @click="openDeleteDialog(props.row)"
+              />
+            </q-td>
+          </template>
+          <template #no-data>
+            <div class="q-pa-md text-center text-grey-6">
+              {{ lang.payment.overview.empty }}
+            </div>
+          </template>
+        </q-table>
+      </q-tab-panel>
+
+      <!-- Suggestions panel -->
+      <q-tab-panel name="suggestions" class="q-pa-none">
+        <div class="q-pa-md text-center text-grey-6">
+          {{ lang.payment.suggestions?.empty ?? 'Suggestions coming soon' }}
+        </div>
+      </q-tab-panel>
+    </q-tab-panels>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { DateInput } from '@simsustech/quasar-components/form'
 import type { PaymentMethod } from '@modular-api/fastify-checkout'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
+import { useRoute, useRouter } from 'vue-router'
 import { useLang } from '../../../lang/index.js'
 import { formatMoney } from '../../../utils/money.js'
 import {
@@ -213,11 +226,22 @@ import {
 } from '../../../queries/admin/payments.js'
 import { useAdminDeletePaymentFromInvoiceMutation } from '../../../queries/admin/invoices.js'
 import { useAdminExportPaymentsMutation } from '../../../queries/admin/payments.js'
-import type { OverviewRow } from '../../../queries/admin/bankTransactions.js'
-import BankLinkDialog from '../BankPage/BankLinkDialog.vue'
 
 const lang = useLang()
 const $q = useQuasar()
+const route = useRoute()
+const router = useRouter()
+
+// --- Tab state (?tab=payments|suggestions) ---
+const validTabs = ['payments', 'suggestions'] as const
+const activeTab = ref(
+  validTabs.includes(route.query.tab as string)
+    ? (route.query.tab as string)
+    : 'payments'
+)
+watch(activeTab, (tab) => {
+  router.replace({ query: { ...route.query, tab } })
+})
 
 const { filters, search } = usePaymentsUrlState()
 const page = ref({ limit: 50, offset: 0 })
@@ -255,7 +279,7 @@ const exportCsv = async () => {
     ...(value.q ? { q: value.q } : {}),
     ...(value.from ? { from: value.from } : {}),
     ...(value.to ? { to: value.to } : {}),
-    ...(value.methods.length ? { methods: value.methods } : {}),
+    ...(value.methods.length ? { methods: value.methods as never } : {}),
     ...(value.statuses.length ? { statuses: value.statuses } : {}),
     ...(value.psps.length ? { psps: value.psps } : {}),
     ...(value.sources.length ? { sources: value.sources } : {})
@@ -300,7 +324,6 @@ const exportCsv = async () => {
   anchor.href = url
   anchor.download = `slimfact-payments-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`
   anchor.click()
-  // Defer revocation: revoking synchronously can cancel the pending save.
   setTimeout(() => URL.revokeObjectURL(url), 5_000)
 }
 
@@ -310,8 +333,6 @@ const refresh = async () => {
 
 // --- Options ---------------------------------------------------------------
 
-// Wire values derived from the lang keys (camelCase → lowercase); keeps the
-// fastify-checkout module out of the client bundle.
 const methodLabel = (method: string): string =>
   (lang.value.payment.methods as Record<string, string | undefined>)[method] ??
   method
@@ -338,10 +359,6 @@ const sourceOptions = [
   {
     label: lang.value.payment.overview.sources.refunds,
     value: 'refunds' as const
-  },
-  {
-    label: lang.value.payment.overview.sources.bankReview,
-    value: 'bank' as const
   }
 ]
 
@@ -355,7 +372,7 @@ const filterSummary = computed(() => {
     parts.push(`Methods: ${f.methods.map((m) => methodLabel(m)).join(', ')}`)
   if (f.statuses.length) parts.push(`Statuses: ${f.statuses.join(', ')}`)
   if (f.psps.length) parts.push(`PSPs: ${f.psps.join(', ')}`)
-  if (f.sources.length && f.sources.length < 3)
+  if (f.sources.length && f.sources.length < 2)
     parts.push(`Sources: ${f.sources.join(', ')}`)
   return parts.join(' · ')
 })
@@ -418,48 +435,6 @@ const columns = [
 const rowKey = (row: PaymentsLedgerRow): string =>
   `${row.kind}-${row.id ?? row.transactionReference ?? row.date}`
 
-// --- Link dialog (bank review rows) ----------------------------------------
-
-const linkDialogRef = ref()
-const dialogRow = ref<OverviewRow | null>(null)
-
-const openLinkDialog = (row: PaymentsLedgerRow) => {
-  // Synthesize the overview row shape the reused dialog expects; company and
-  // account data were resolved server-side on the ledger row.
-  dialogRow.value = {
-    transaction: {
-      externalId: (row.transactionReference ?? '').slice('bank:'.length),
-      accountExternalId: row.bankAccountExternalId ?? '',
-      companyId: row.bankCompanyIds?.[0] ?? 0,
-      amountCents: row.amountCents,
-      currency: row.currency,
-      creditDebit: 'CRDT',
-      status: 'BOOK',
-      bookingDate: row.date.slice(0, 10),
-      description: null,
-      remittanceInformation: row.description,
-      referenceNumber: null,
-      counterpartyName: row.description,
-      counterpartyIban: null
-    },
-    account: {
-      id: row.bankAccountExternalId ?? '',
-      aspspName: row.bankCompanyName ?? '',
-      aspspCountry: 'NL',
-      currency: row.currency,
-      iban: row.bankIban ?? null,
-      needsReconnect: false
-    },
-    companyId: row.bankCompanyIds?.[0] ?? null,
-    companyName: row.bankCompanyName ?? null,
-    coverage: 'unlinked',
-    linkedInvoices: [],
-    suggestion: null,
-    psp: null
-  }
-  linkDialogRef.value?.functions.open()
-}
-
 // --- Offline payment deletion (rules unchanged) -----------------------------
 
 const { mutateAsync: deletePaymentFromInvoiceMutation } =
@@ -468,7 +443,7 @@ const { mutateAsync: deletePaymentFromInvoiceMutation } =
 const OFFLINE_METHODS = new Set<string>(['cash', 'pin', 'banktransfer'])
 
 const isDeletable = (row: PaymentsLedgerRow): boolean =>
-  row.kind === 'payment' && !row.bankSynced && OFFLINE_METHODS.has(row.method)
+  row.kind === 'payment' && OFFLINE_METHODS.has(row.method)
 
 const openDeleteDialog = async (data: PaymentsLedgerRow) => {
   const methodLabels: Record<string, string> = {

@@ -338,6 +338,19 @@ export interface Language {
       empty: string
       truncated: string
     }
+
+    suggestions?: {
+      title?: string
+      empty?: string
+      loading?: string
+      link?: string
+      adoptBadge?: string
+      topSuggestion?: string
+    }
+    tabs?: {
+      payments?: string
+      suggestions?: string
+    }
   }
   refund: {
     refund: string

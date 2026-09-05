@@ -319,6 +319,18 @@ const lang: Language = {
       export: 'Export CSV',
       empty: 'No payments match the current filters.',
       truncated: 'Showing the first 10,000 rows — narrow your range.'
+    },
+
+    suggestions: {
+      empty: 'No suggestions match the current filters.',
+      loading: 'Loading suggestions…',
+      link: 'Link',
+      adoptBadge: 'Adopt',
+      topSuggestion: 'Suggestion'
+    },
+    tabs: {
+      payments: 'Payments',
+      suggestions: 'Suggestions'
     }
   },
   refund: {
