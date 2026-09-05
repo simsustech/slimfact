@@ -1,4 +1,4 @@
-import type { Kysely } from 'kysely'
+import type { Kysely } from "kysely";
 
 /**
  * Drop the stale `open_banking.suggestions` table. It was never read by
@@ -6,7 +6,7 @@ import type { Kysely } from 'kysely'
  * and the api calls it on each request.
  */
 export async function up(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable('suggestions').ifExists().execute()
+  await db.schema.dropTable("suggestions").ifExists().execute();
 }
 
 export async function down(): Promise<void> {
