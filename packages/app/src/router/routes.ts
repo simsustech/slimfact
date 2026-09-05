@@ -64,29 +64,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: 'bank',
-            children: [
-              {
-                path: '',
-                component: () => import('../pages/admin/BankPage/BankPage.vue')
-              },
-              {
-                path: 'overview',
-                components: {
-                  default: () =>
-                    import('../pages/admin/BankPage/BankOverviewPage.vue'),
-                  fabs: () => import('../pages/admin/BankPage/BankPageFabs.vue')
-                }
-              },
-              {
-                path: 'review',
-                redirect: '/admin/bank/overview'
-              },
-              {
-                // Transition: deep links land on the relocated settings page.
-                path: 'settings',
-                redirect: '/admin/settings/banking'
-              }
-            ]
+            redirect: '/admin/payments'
           },
           {
             path: 'payments',

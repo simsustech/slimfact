@@ -1,13 +1,5 @@
 <template>
   <q-list separator>
-    <q-item to="/admin/bank/overview">
-      <q-item-section avatar>
-        <q-icon :name="BANK_ICON" />
-      </q-item-section>
-      <q-item-section>
-        <q-item-label> {{ lang.bank.pages.overview }} </q-item-label>
-      </q-item-section>
-    </q-item>
     <q-item to="/admin/settings/banking">
       <q-item-section avatar>
         <q-icon :name="SETTINGS_ICON" />
