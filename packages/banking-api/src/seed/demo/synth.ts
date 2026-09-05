@@ -654,6 +654,63 @@ export const synthDemoData = (guide: DemoGuide, seed: number): DemoData => {
       note: null,
     });
   }
+
+  // --- Matching scenarios: fuzzy client credits + adoptable credits ---
+  // (a) Unlinked credits whose payer/description are fuzzy variants of a client
+  // name and whose remittance references a line/notes token rather than the
+  // invoice number. Fictional names only.
+  const FUZZY_VARIANTS: Array<{ clientIdx: number; payer: string; remitToken: string }> = [
+    { clientIdx: 0, payer: "D. Vries Hoveniers", remitToken: "Klaverweide 42" },
+    { clientIdx: 1, payer: "Van Dijck Elektra B.V.", remitToken: "Project nr 2026-108" },
+    { clientIdx: 2, payer: "Bakker en Zonen", remitToken: "Levering bakstenen" },
+    { clientIdx: 3, payer: "J. Jansen Tuinbouw", remitToken: "Onderhoud kas Q3" },
+  ];
+  for (const v of FUZZY_VARIANTS) {
+    const amount = 8000 + Math.floor(rng() * 12000);
+    transactions.push({
+      accountIndex: 0,
+      externalId: `tx-sug-fuzzy-${randToken(rng, 6)}`,
+      currency: "EUR",
+      creditDebit: "CRDT",
+      status: "BOOK",
+      bookingDate: randomDate(rng, guide.dateRange),
+      amountCents: amount,
+      debtorName: v.payer,
+      debtorIban: makeIban(rng, "RABO"),
+      creditorName: null,
+      creditorIban: null,
+      remittanceInformation: v.remitToken,
+      note: null,
+    });
+  }
+
+  // (b) Adoptable credits: paired with a NULL-ref manual banktransfer payment
+  // on a paid invoice. The credit matches the payment amount exactly.
+  const adoptableInvoices = numberedInvoices.filter((inv) => inv.status === "paid").slice(0, 3);
+  for (const inv of adoptableInvoices) {
+    // Ensure a manual banktransfer payment exists with NULL ref
+    const existingPayment = corePayments.find(
+      (p) => p.invoiceIndex === numberedInvoices.indexOf(inv) && p.method === "banktransfer",
+    );
+    if (existingPayment && existingPayment.externalId === null) {
+      // Already a manual payment — add the matching credit
+      transactions.push({
+        accountIndex: 0,
+        externalId: `tx-sug-adopt-${randToken(rng, 6)}`,
+        currency: "EUR",
+        creditDebit: "CRDT",
+        status: "BOOK",
+        bookingDate: randomDate(rng, guide.dateRange),
+        amountCents: existingPayment.amountCents,
+        debtorName: clients[inv.clientIndex].companyName,
+        debtorIban: makeIban(rng, "INGB"),
+        creditorName: null,
+        creditorIban: null,
+        remittanceInformation: "Betalingskenmerk adoptie scenario",
+        note: null,
+      });
+    }
+  }
   for (let c = 0; c < 5; c++) {
     transactions.push({
       accountIndex: Math.floor(rng() * accounts.length),
