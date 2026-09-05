@@ -63,8 +63,42 @@ export const useAdminListBankTransactionsQuery = (
     query: () =>
       trpc.admin.listTransactions.query({
         ...(companyIds.value.length ? { companyIds: companyIds.value } : {}),
-        ...(linked?.value !== undefined ? { linked: linked.value } : {}),
+        ...(linked?.value === undefined ? {} : { linked: linked.value }),
         ...(suggestionsOnly?.value ? { suggestionsOnly: true } : {}),
+        ...(from?.value ? { from: from.value } : {}),
+        ...(to?.value ? { to: to.value } : {})
+      })
+  })
+  return { payload, ...rest }
+}
+
+export const useAdminListSuggestionsQuery = (
+  from?: Ref<string | undefined>,
+  to?: Ref<string | undefined>
+) => {
+  const { data: payload, ...rest } = useQuery<{
+    enabled: boolean
+    items: Array<{
+      transaction: BankTransaction
+      companyId: number | null
+      topSuggestion: {
+        invoiceId: number
+        invoiceNumber: string | null
+        score: number
+        evidence: {
+          numRefHit: boolean
+          clientScore: number
+          adoptablePaymentId: number | null
+        }
+      } | null
+      candidateInvoiceUuids: string[]
+      adoptableInvoiceIds: number[]
+    }>
+  }>({
+    enabled: !import.meta.env.SSR,
+    key: () => ['adminListSuggestions', from?.value ?? null, to?.value ?? null],
+    query: () =>
+      trpc.admin.listSuggestions.query({
         ...(from?.value ? { from: from.value } : {}),
         ...(to?.value ? { to: to.value } : {})
       })
@@ -143,6 +177,7 @@ export const subscribeToBankSyncEvents = (
   handler: (event: BankSyncEvent) => void
 ): (() => void) => {
   const subscription = trpc.subscribe.subscribe('bank.sync.*', {
+    // SAFETY: tRPC subscription delivers JSON-parsed payloads matching the BankSyncEvent wire contract
     onData: (message) => handler(message as unknown as BankSyncEvent)
   })
   return () => subscription.unsubscribe()

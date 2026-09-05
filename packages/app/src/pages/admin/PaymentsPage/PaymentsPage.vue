@@ -201,11 +201,88 @@
         </q-table>
       </q-tab-panel>
 
-      <!-- Suggestions panel -->
+      <!-- Suggestions tab: actionable unlinked bank credits -->
       <q-tab-panel name="suggestions" class="q-pa-none">
-        <div class="q-pa-md text-center text-grey-6">
-          {{ lang.payment.suggestions?.empty ?? 'Suggestions coming soon' }}
-        </div>
+        <q-table
+          :rows="suggestionItems"
+          :columns="suggestionColumns"
+          :row-key="(row) => row.transaction.externalId"
+          flat
+          bordered
+          :loading="suggestionsLoading"
+          :pagination="{ rowsPerPage: 50 }"
+          :rows-per-page-options="[10, 25, 50, 100]"
+        >
+          <template #body-cell-date="props">
+            <q-td :props="props">
+              {{
+                props.row.transaction.bookingDate ??
+                props.row.transaction.transactionDate
+              }}
+            </q-td>
+          </template>
+          <template #body-cell-amount="props">
+            <q-td :props="props">
+              <span class="text-positive">
+                {{
+                  formatMoney(
+                    props.row.transaction.amountCents,
+                    props.row.transaction.currency
+                  )
+                }}
+              </span>
+            </q-td>
+          </template>
+          <template #body-cell-payer="props">
+            <q-td :props="props">
+              {{ props.row.transaction.counterpartyName }}
+            </q-td>
+          </template>
+          <template #body-cell-description="props">
+            <q-td :props="props">
+              {{
+                props.row.transaction.description ??
+                props.row.transaction.remittanceInformation
+              }}
+            </q-td>
+          </template>
+          <template #body-cell-suggestion="props">
+            <q-td :props="props">
+              <q-chip
+                v-if="props.row.topSuggestion"
+                color="primary"
+                text-color="white"
+                size="sm"
+                data-testid="suggestion-chip"
+              >
+                {{
+                  props.row.topSuggestion.invoiceNumber ??
+                  lang.payment.suggestions.topSuggestion
+                }}
+              </q-chip>
+            </q-td>
+          </template>
+          <template #body-cell-actions="props">
+            <q-td :props="props">
+              <q-btn
+                v-if="props.row.topSuggestion"
+                color="primary"
+                flat
+                dense
+                icon="i-mdi-link"
+                :title="lang.payment.suggestions.link"
+                :aria-label="lang.payment.suggestions.link"
+                data-testid="suggestion-link"
+                @click="openSuggestionLinkDialog(props.row)"
+              />
+            </q-td>
+          </template>
+          <template #no-data>
+            <div class="q-pa-md text-center text-grey-6">
+              {{ lang.payment.suggestions.empty }}
+            </div>
+          </template>
+        </q-table>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -226,6 +303,7 @@ import {
 } from '../../../queries/admin/payments.js'
 import { useAdminDeletePaymentFromInvoiceMutation } from '../../../queries/admin/invoices.js'
 import { useAdminExportPaymentsMutation } from '../../../queries/admin/payments.js'
+import { useAdminListSuggestionsQuery } from '../../../queries/admin/bankTransactions.ts'
 
 const lang = useLang()
 const $q = useQuasar()
@@ -472,6 +550,60 @@ const openDeleteDialog = async (data: PaymentsLedgerRow) => {
       })
       await refresh()
     } catch {}
+  })
+}
+
+// --- Suggestions tab -------------------------------------------------------
+
+const suggestionsQuery = useAdminListSuggestionsQuery()
+const suggestionItems = computed(
+  () => suggestionsQuery.payload.value?.items ?? []
+)
+const suggestionsLoading = computed(
+  () => suggestionsQuery.status.value === 'pending'
+)
+
+const suggestionColumns = [
+  {
+    name: 'date',
+    label: lang.value.payment.overview.columns.date,
+    field: 'date',
+    align: 'left' as const
+  },
+  {
+    name: 'amount',
+    label: lang.value.payment.overview.columns.amount,
+    field: 'amount',
+    align: 'right' as const
+  },
+  {
+    name: 'payer',
+    label: 'Payer',
+    field: 'payer',
+    align: 'left' as const
+  },
+  {
+    name: 'description',
+    label: lang.value.payment.overview.columns.description,
+    field: 'description',
+    align: 'left' as const
+  },
+  {
+    name: 'suggestion',
+    label: lang.value.payment.suggestions?.topSuggestion ?? 'Suggestion',
+    field: 'suggestion',
+    align: 'left' as const
+  },
+  { name: 'actions', label: '', field: 'actions' }
+]
+
+const openSuggestionLinkDialog = (
+  row: (typeof suggestionItems.value)[number]
+) => {
+  // Step 7 will rework BankLinkDialog for single-select
+  $q.notify({
+    type: 'info',
+    message: `Link dialog coming in step 7 (invoice: ${row.topSuggestion?.invoiceNumber ?? 'unknown'})`
   })
 }
 </script>
