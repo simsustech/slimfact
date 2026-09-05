@@ -44,8 +44,12 @@ decoupling (2026-08-12) plus core domain terms.
   one account may serve several companies). Resolution is **link-first, IBAN
   fallback** (`banking/accountLinks.ts` `resolveCompanyIds`): explicit links
   win, otherwise the account's IBAN is matched against `companies.iban`.
-- **Hub** — `/admin/bank` is a menu hub (Overview / Review / Settings); the
-  overview table lives at `/admin/bank/overview`.
+- **Hub** — REMOVED: `/admin/bank` overview/review was consolidated into
+  `/admin/payments` (two-tab surface: Payments + Suggestions).
+- **Suggestion** (bank) — an actionable unlinked bank credit with a matched
+  candidate invoice (open or adoptable paid), produced by the matching engine
+  in `@slimfact/tools/banking`. Each suggestion row includes the top-scoring
+  invoice, candidate UUIDs for the link dialog, and adoptable payment IDs.
 
 ## Core domain
 
