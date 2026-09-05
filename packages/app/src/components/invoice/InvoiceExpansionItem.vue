@@ -2,6 +2,11 @@
   <q-expansion-item class="full-width" :content-inset-level="1">
     <template #header>
       <q-item-section avatar>
+        <q-radio
+          v-if="selectable"
+          :model-value="selected"
+          @update:model-value="emit('update:selected', !selected)"
+        />
         <invoice-status-avatar
           :model-value="modelValue.status"
           :paid="
@@ -51,7 +56,14 @@
         </q-item-label>
       </q-item-section>
       <q-item-section side>
-        <q-btn flat round icon="i-mdi-more-vert">
+        <template v-if="selectable">
+          <q-badge
+            v-if="adoptable"
+            color="positive"
+            :label="lang.payment.suggestions?.adoptBadge ?? 'Adopt'"
+          />
+        </template>
+        <q-btn v-else flat round icon="i-mdi-more-vert">
           <q-menu>
             <q-list>
               <q-item
@@ -449,10 +461,14 @@ export interface Props {
   onAddPaymentCreditcard?: unknown
   onSend?: unknown
   invoiceEvents?: InvoiceEvent[]
+  selectable?: boolean
+  selected?: boolean
+  adoptable?: boolean
 }
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
+  (e: 'update:selected', selected: boolean): void
   (
     e: 'update',
     {
