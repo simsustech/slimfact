@@ -302,14 +302,10 @@ const lang: Language = {
       refunded: 'Terugbetaald',
       net: 'Netto',
       count: 'Aantal',
-      unallocated: 'Niet-toegewezen bankontvangsten',
-      viaBankSync: 'via banksync',
-      needsReview: 'Bank · te controleren',
       source: 'Bron',
       sources: {
         payments: 'Betalingen',
-        refunds: 'Terugbetalingen',
-        bankReview: 'Bankcontrole'
+        refunds: 'Terugbetalingen'
       },
       methods: 'Methoden',
       statuses: 'Statussen',

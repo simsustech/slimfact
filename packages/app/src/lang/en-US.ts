@@ -301,14 +301,10 @@ const lang: Language = {
       refunded: 'Refunded',
       net: 'Net',
       count: 'Count',
-      unallocated: 'Unallocated bank receipts',
-      viaBankSync: 'via bank sync',
-      needsReview: 'Bank · needs review',
       source: 'Source',
       sources: {
         payments: 'Payments',
-        refunds: 'Refunds',
-        bankReview: 'Bank review'
+        refunds: 'Refunds'
       },
       methods: 'Methods',
       statuses: 'Statuses',

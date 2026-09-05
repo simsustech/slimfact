@@ -303,14 +303,10 @@ const lang: Language = {
       refunded: 'Erstattet',
       net: 'Netto',
       count: 'Anzahl',
-      unallocated: 'Nicht zugewiesene Bankeingänge',
-      viaBankSync: 'über Bankabgleich',
-      needsReview: 'Bank · zu prüfen',
       source: 'Quelle',
       sources: {
         payments: 'Zahlungen',
-        refunds: 'Erstattungen',
-        bankReview: 'Bankprüfung'
+        refunds: 'Erstattungen'
       },
       methods: 'Methoden',
       statuses: 'Statusse',

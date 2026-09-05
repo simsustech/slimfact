@@ -319,14 +319,10 @@ export interface Language {
       refunded: string
       net: string
       count: string
-      unallocated: string
-      viaBankSync: string
-      needsReview: string
       source: string
       sources: {
         payments: string
         refunds: string
-        bankReview: string
       }
       methods: string
       statuses: string
