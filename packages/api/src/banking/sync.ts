@@ -43,7 +43,11 @@ export interface SyncResult {
   skippedRequiresReauth: string[]
 }
 
-export type SyncInvoice = MatchInvoice & { uuid: string }
+export type SyncInvoice = MatchInvoice & {
+  uuid: string
+  /** Canonicalized client name (company + contact person) for adoption ties. */
+  clientName?: string | null
+}
 
 export interface SyncDeps {
   fastify: RelayFastify & {
@@ -150,6 +154,7 @@ const invoiceColumns = (eb: ExpressionBuilder<DB, 'checkout.invoices'>) =>
     'checkout.invoices.status',
     'checkout.invoices.numberPrefix',
     'checkout.invoices.number',
+    'checkout.invoices.clientDetails',
     amountDueExpression(eb).as('amountDue')
   ] as const
 
@@ -162,6 +167,10 @@ const toSyncInvoice = (row: {
   status: InvoiceStatus
   numberPrefix: string | null
   number: number | null
+  clientDetails: {
+    companyName?: string | null
+    contactPersonName?: string | null
+  } | null
   amountDue: number | null
 }): SyncInvoice => ({
   id: row.id,
@@ -171,7 +180,11 @@ const toSyncInvoice = (row: {
   dueDate: row.dueDate,
   status: row.status,
   companyId: row.companyId,
-  currency: row.currency
+  currency: row.currency,
+  clientName:
+    [row.clientDetails?.companyName, row.clientDetails?.contactPersonName]
+      .filter((part): part is string => !!part)
+      .join(' ') || null
 })
 
 /** Open invoices with a real remaining balance (used by the worker + router). */

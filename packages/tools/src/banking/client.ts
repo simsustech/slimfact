@@ -77,3 +77,75 @@ export const fuzzyClientScore = (
   }
   return 0
 }
+
+/**
+ * Client-name equality used for adoption ties. Port of the SQL
+ * `client_name_matches`: exact canonical match; else every token of the
+ * shorter name must hit a token of the longer one (single-char tokens
+ * prefix-match); else the surname (last token) must hit AND at least one
+ * other token must hit. Mirrors `packages/tools/src/banking/clientParser.ts`.
+ */
+/**
+ * True when both names share a >=4-char token (surname-ish overlap). Port of
+ * the SQL `shared_surname`. Used for adoption ties: initial-prefixed payers
+ * ("Hr M Groenewegen, Mw C Mendez Cabrera") match the invoice client's
+ * surname ("Marco Groenewegen") even when first names differ.
+ */
+export const sharedSurnameToken = (
+  a: string | null | undefined,
+  b: string | null | undefined
+): boolean => {
+  const ta = canonicalName(a)
+    .split(' ')
+    .filter((t) => t.length >= 4)
+  const tb = canonicalName(b)
+    .split(' ')
+    .filter((t) => t.length >= 4)
+  return ta.some((s) =>
+    tb.some((l) => s === l || s.includes(l) || l.includes(s))
+  )
+}
+
+export const clientNameMatches = (
+  a: string | null | undefined,
+  b: string | null | undefined
+): boolean => {
+  const ca = canonicalName(a)
+  const cb = canonicalName(b)
+  if (!ca || !cb) return false
+  if (ca === cb) return true
+  const ta = ca.split(' ').filter(Boolean)
+  const tb = cb.split(' ').filter(Boolean)
+  const [shorter, longer] = ta.length <= tb.length ? [ta, tb] : [tb, ta]
+
+  // Every token of the shorter name must hit a token of the longer one.
+  let ok = true
+  for (const tok of shorter) {
+    const hit =
+      tok.length === 1
+        ? longer.some((lt) => lt.startsWith(tok))
+        : longer.some((lt) => lt === tok || lt.includes(tok))
+    if (!hit) {
+      ok = false
+      break
+    }
+  }
+  if (ok) return true
+
+  // Fallback: the surname (last token of the shorter name) must hit and at
+  // least one other token must hit.
+  const surname = shorter[shorter.length - 1]
+  if (!surname || surname.length === 1) return false
+  const surnameHits = longer.some(
+    (lt) => lt === surname || lt.includes(surname)
+  )
+  if (!surnameHits) return false
+  const others = shorter
+    .slice(0, -1)
+    .filter((tok) =>
+      tok.length === 1
+        ? longer.some((lt) => lt.startsWith(tok))
+        : longer.some((lt) => lt === tok || lt.includes(tok))
+    ).length
+  return others >= 1
+}

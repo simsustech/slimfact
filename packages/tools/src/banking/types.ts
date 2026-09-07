@@ -137,6 +137,8 @@ export interface MatchInvoice {
   status: string
   companyId: number | null
   currency: string
+  /** Canonicalized client name (company + contact person) for adoption ties. */
+  clientName?: string | null
 }
 
 export interface MatchConfig {

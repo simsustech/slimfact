@@ -254,5 +254,78 @@ describe('suggestForCredit', () => {
       expect(result!.invoiceId).toBe(1)
       expect(result!.evidence.adoptablePaymentId).toBe(1)
     })
+
+    it('rejects adoption when amount matches but client does not', () => {
+      // A €50 credit from Jolanda Aukes must NOT adopt a €50 manual payment
+      // on Ruud van Eggelen's invoice — amount alone is never enough.
+      const transaction = makeTransaction({
+        amountCents: 5000,
+        counterpartyName: 'Jolanda Aukes',
+        description: 'Trimmen pippa',
+        remittanceInformation: null
+      })
+      const invoices = [
+        makeInvoice({
+          id: 1,
+          status: 'paid' as any,
+          amountDueCents: 0,
+          clientName: 'Ruud van Eggelen'
+        })
+      ]
+      const payments = [
+        makePayment({
+          id: 1,
+          invoiceId: 1,
+          amount: 5000,
+          transactionReference: null
+        })
+      ]
+
+      const result = suggestForCredit({
+        transaction,
+        invoices,
+        payments,
+        config: defaultConfig
+      })
+
+      expect(result).toBeNull()
+    })
+
+    it('adopts when the payer surname matches the invoice client', () => {
+      // Initial-prefixed payer ("Hr M Groenewegen, Mw C Mendez Cabrera")
+      // shares the surname with invoice client "Marco Groenewegen".
+      const transaction = makeTransaction({
+        amountCents: 5000,
+        counterpartyName: 'Hr M Groenewegen, Mw C Mendez Cabrera',
+        description: 'Aanbetaling Leo, oktober 2026',
+        remittanceInformation: null
+      })
+      const invoices = [
+        makeInvoice({
+          id: 1,
+          status: 'paid' as any,
+          amountDueCents: 0,
+          clientName: 'Marco Groenewegen'
+        })
+      ]
+      const payments = [
+        makePayment({
+          id: 1,
+          invoiceId: 1,
+          amount: 5000,
+          transactionReference: null
+        })
+      ]
+
+      const result = suggestForCredit({
+        transaction,
+        invoices,
+        payments,
+        config: defaultConfig
+      })
+
+      expect(result).not.toBeNull()
+      expect(result!.invoiceId).toBe(1)
+    })
   })
 })

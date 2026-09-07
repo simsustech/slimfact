@@ -66,7 +66,8 @@ export const listActionableSuggestions = async ({
           dueDate: inv.dueDate,
           status: inv.status,
           companyId: inv.companyId,
-          currency: inv.currency
+          currency: inv.currency,
+          clientName: inv.clientName ?? null
         })),
         payments: payments.map((p) => ({
           id: p.id,

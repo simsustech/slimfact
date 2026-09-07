@@ -4,7 +4,11 @@
  */
 
 import { containsInvoiceNumber, normalizeReference } from './normalize.js'
-import { buildClientFuseIndex, fuzzyClientScore } from './client.js'
+import {
+  buildClientFuseIndex,
+  fuzzyClientScore,
+  sharedSurnameToken
+} from './client.js'
 import type {
   MatchTransaction,
   MatchInvoice,
@@ -41,19 +45,46 @@ const findAdoptablePayment = (
 ): { payment: BankPaymentCandidate; invoice: MatchInvoice } | null => {
   for (const payment of payments) {
     if (
-      payment.method === 'banktransfer' &&
-      payment.status === 'paid' &&
-      payment.invoiceId != null &&
-      payment.amount === transaction.amountCents &&
-      (payment.transactionReference === null ||
-        payment.transactionReference === '' ||
-        payment.transactionReference === transaction.bookingDate)
+      payment.method !== 'banktransfer' ||
+      payment.status !== 'paid' ||
+      payment.invoiceId == null ||
+      payment.amount !== transaction.amountCents
     ) {
-      const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
-      if (invoice) {
-        return { payment, invoice }
-      }
+      continue
     }
+    // Any manual banktransfer payment not yet coupled to a bank credit is
+    // an adoption target: refs may be NULL, empty, a booking-date (legacy),
+    // or the bookkeeper's own short reference ("19-2"). Only `bank:`-refs
+    // mark an already-coupled payment — those are excluded (mirrors the SQL
+    // adopt anchor: NOT LIKE 'bank:%').
+    const ref = payment.transactionReference
+    if (ref != null && ref !== '' && ref.startsWith('bank:')) continue
+    const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
+    if (!invoice) continue
+    // NEVER adopt on amount alone: require a client tie between the bank
+    // payer and the invoice's client. Adoption without it produces false
+    // positives (any same-amount credit adopting an unrelated paid
+    // invoice). A client tie can come from the payer name matching the
+    // invoice client, or from an invoice-number reference in the credit.
+    const payer = transaction.counterpartyName ?? ''
+    const clientTie =
+      sharedSurnameToken(payer, invoice.clientName) ||
+      (invoice.number
+        ? containsInvoiceNumber(
+            normalizeReference(
+              [
+                transaction.description,
+                transaction.remittanceInformation,
+                transaction.referenceNumber
+              ]
+                .filter((part): part is string => !!part)
+                .join(' ')
+            ),
+            invoice.number
+          )
+        : false)
+    if (!clientTie) continue
+    return { payment, invoice }
   }
   return null
 }
