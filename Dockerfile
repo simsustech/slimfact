@@ -16,12 +16,18 @@ COPY --from=linked-modular-api-fastify-checkout ./ /build/packages/modular-api-f
 COPY --from=linked-modular-api-event-bus ./ /build/packages/modular-api-event-bus/
 COPY --from=linked-modular-api-quasar-components ./ /build/packages/modular-api-quasar-components/
 
-# Rewrite the local absolute @modular-api/event-bus override (pnpm-workspace.yaml)
-# to the in-build copy when the local checkout is overlaid via
-# LINKED_MODULAR_API_EVENT_BUS_PATH. Without an overlay the override stays
-# absolute — matching the committed lockfile — and the install stays frozen.
+# Rewrite the local absolute @modular-api/* overrides (pnpm-workspace.yaml)
+# to the in-build copies when the local checkouts are overlaid via
+# LINKED_MODULAR_API_*_PATH. Without an overlay the overrides stay absolute —
+# matching the committed lockfile — and the install stays frozen.
 RUN if [ -f /build/packages/modular-api-event-bus/package.json ]; then \
       sed -i 's|link:/home/stefan/Projects/modular-api/packages/event-bus|link:packages/modular-api-event-bus|' pnpm-workspace.yaml; \
+    fi; \
+    if [ -f /build/packages/modular-api-fastify-checkout/package.json ]; then \
+      sed -i 's|file:/home/stefan/Projects/modular-api/packages/fastify-checkout|file:packages/modular-api-fastify-checkout|' pnpm-workspace.yaml; \
+    fi; \
+    if [ -f /build/packages/modular-api-quasar-components/package.json ]; then \
+      sed -i 's|file:/home/stefan/Projects/modular-api/packages/components|file:packages/modular-api-quasar-components|' pnpm-workspace.yaml; \
     fi
 
 RUN rm -rf node_modules packages/*/node_modules
