@@ -314,7 +314,11 @@ const lang: Language = {
       refresh: 'Refresh',
       export: 'Export CSV',
       empty: 'No payments match the current filters.',
-      truncated: 'Showing the first 10,000 rows — narrow your range.'
+      truncated: 'Showing the first 10,000 rows — narrow your range.',
+      tabs: {
+        payments: 'Payments',
+        suggestions: 'Suggestions'
+      }
     },
 
     suggestions: {
@@ -323,10 +327,6 @@ const lang: Language = {
       link: 'Link',
       adoptBadge: 'Adopt',
       topSuggestion: 'Suggestion'
-    },
-    tabs: {
-      payments: 'Payments',
-      suggestions: 'Suggestions'
     }
   },
   refund: {

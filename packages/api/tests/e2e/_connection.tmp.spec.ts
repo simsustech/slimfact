@@ -26,7 +26,7 @@ test.describe('open-banking.io connection (credentials check)', () => {
     const page = await browser.newPage({ bypassCSP: true })
     await login({ page, email, password })
 
-    await page.goto('/admin/bank')
+    await page.goto('/admin/payments')
     await page.waitForLoadState('networkidle')
     await page.getByRole('tab', { name: 'Settings' }).click()
     await page.waitForLoadState('networkidle')

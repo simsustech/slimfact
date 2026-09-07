@@ -48,7 +48,7 @@ test.describe('banking proxy contract + settings', () => {
       expect(`${invoiceC.numberPrefix}${invoiceC.number}`).toBe('2026-0003')
 
       // Bank settings page loads cleanly.
-      await page.goto('/admin/bank/settings')
+      await page.goto('/admin/settings/banking')
       await page.waitForLoadState('networkidle')
       const knabRow = page
         .locator('.q-item')

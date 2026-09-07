@@ -256,7 +256,7 @@
                 data-testid="suggestion-chip"
               >
                 {{
-                  props.row.topSuggestion.invoiceNumber ??
+                  props.row.topSuggestion.invoiceNumber ||
                   lang.payment.suggestions.topSuggestion
                 }}
               </q-chip>
@@ -285,6 +285,8 @@
         </q-table>
       </q-tab-panel>
     </q-tab-panels>
+
+    <bank-link-dialog ref="linkDialogRef" :row="linkRow" @linked="onLinked" />
   </q-page>
 </template>
 
@@ -304,6 +306,7 @@ import {
 import { useAdminDeletePaymentFromInvoiceMutation } from '../../../queries/admin/invoices.js'
 import { useAdminExportPaymentsMutation } from '../../../queries/admin/payments.js'
 import { useAdminListSuggestionsQuery } from '../../../queries/admin/bankTransactions.ts'
+import BankLinkDialog from '../BankPage/BankLinkDialog.vue'
 
 const lang = useLang()
 const $q = useQuasar()
@@ -597,13 +600,19 @@ const suggestionColumns = [
   { name: 'actions', label: '', field: 'actions' }
 ]
 
+const linkRow = ref<(typeof suggestionItems.value)[number] | null>(null)
+const linkDialogRef = ref<InstanceType<typeof BankLinkDialog>>()
+
 const openSuggestionLinkDialog = (
   row: (typeof suggestionItems.value)[number]
 ) => {
-  // Step 7 will rework BankLinkDialog for single-select
-  $q.notify({
-    type: 'info',
-    message: `Link dialog coming in step 7 (invoice: ${row.topSuggestion?.invoiceNumber ?? 'unknown'})`
-  })
+  linkRow.value = row
+  linkDialogRef.value?.functions.open()
+}
+
+const onLinked = async () => {
+  linkRow.value = null
+  await suggestionsQuery.refresh()
+  await paymentsQuery.refresh()
 }
 </script>

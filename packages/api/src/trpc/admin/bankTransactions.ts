@@ -46,6 +46,37 @@ import { parseAmountToCents } from '../../banking/money.js'
 const PAGE_SIZE = 100
 const MAX_FETCH = 500
 
+/**
+ * Fetches transactions for an account. The overview caps the result at
+ * MAX_FETCH (newest first) to keep the table responsive; suggestions need
+ * EVERY unlinked credit to match against, so this variant pages through the
+ * whole account when `maxFetch` is null.
+ */
+const fetchAccountTransactions = async (
+  client: BankingApi,
+  accountId: string,
+  from?: string,
+  to?: string,
+  maxFetch: number | null = MAX_FETCH
+): Promise<Transaction[]> => {
+  const transactions: Transaction[] = []
+  let offset = 0
+  while (maxFetch == null || transactions.length < maxFetch) {
+    const page = await client.getTransactions(accountId, {
+      from,
+      to,
+      limit: PAGE_SIZE,
+      offset
+    })
+    if (page.items.length === 0) break
+    transactions.push(...page.items)
+    offset += page.items.length
+    if (maxFetch != null && offset >= maxFetch) break
+    if (offset >= page.total) break
+  }
+  return transactions
+}
+
 /** What makes up a settled PSP payout: the settlement + its payments. */
 export interface PspPayoutDetail {
   settlement: PspSettlement
@@ -62,29 +93,6 @@ const isCurrency = (value: string): value is Currencies =>
   value === 'EUR' || value === 'USD'
 
 type RouterProcedure = typeof t.procedure
-
-const fetchAccountTransactions = async (
-  client: BankingApi,
-  accountId: string,
-  from?: string,
-  to?: string
-): Promise<Transaction[]> => {
-  const transactions: Transaction[] = []
-  let offset = 0
-  while (transactions.length < MAX_FETCH) {
-    const page = await client.getTransactions(accountId, {
-      from,
-      to,
-      limit: PAGE_SIZE,
-      offset
-    })
-    if (page.items.length === 0) break
-    transactions.push(...page.items)
-    offset += page.items.length
-    if (offset >= page.total) break
-  }
-  return transactions
-}
 
 const loadCompaniesByIban = async (): Promise<Map<string, number>> => {
   const companies = await db
@@ -346,7 +354,8 @@ export const adminBankTransactionRoutes = ({
           client,
           account.id,
           params.from,
-          params.to
+          params.to,
+          null // ledger is the full account — paging/server filters need every tx
         )
         for (const apiTransaction of transactions) {
           const reference = `bank:${apiTransaction.id}`
@@ -579,7 +588,8 @@ export const adminBankTransactionRoutes = ({
           client,
           account.id,
           params.from,
-          params.to
+          params.to,
+          null // suggestions need EVERY credit, not just the newest 500
         )
 
         // Unlinked booked credits
@@ -636,21 +646,31 @@ export const adminBankTransactionRoutes = ({
             })
 
             if (result) {
+              // Dialog candidates = open invoices of the company PLUS the
+              // adoptable paid invoices (the dialog marks them via the adopt
+              // badge; without them an adoption suggestion could never be
+              // selected).
+              const adoptableIdSet = new Set(
+                payments
+                  .filter(
+                    (p) =>
+                      p.method === 'banktransfer' &&
+                      p.status === 'paid' &&
+                      p.invoiceId != null &&
+                      (p.transactionReference === null ||
+                        p.transactionReference === '')
+                  )
+                  .map((p) => p.invoiceId!)
+              )
               const candidateUuids = invoices
                 .filter((inv) => inv.companyId === companyId)
-                .filter((inv) => inv.status === InvoiceStatus.OPEN)
-                .map((inv) => inv.uuid)
-
-              const adoptableIds = payments
                 .filter(
-                  (p) =>
-                    p.method === 'banktransfer' &&
-                    p.status === 'paid' &&
-                    p.invoiceId != null &&
-                    (p.transactionReference === null ||
-                      p.transactionReference === '')
+                  (inv) =>
+                    inv.status === InvoiceStatus.OPEN ||
+                    adoptableIdSet.has(inv.id)
                 )
-                .map((p) => p.invoiceId!)
+                .map((inv) => inv.uuid)
+              const adoptableIds = [...adoptableIdSet]
 
               allSuggestions.push({
                 transaction: matchTx,
@@ -749,7 +769,13 @@ export const adminBankTransactionRoutes = ({
         })
       }
 
-      const transactions = await fetchAccountTransactions(client, account.id)
+      const transactions = await fetchAccountTransactions(
+        client,
+        account.id,
+        undefined,
+        undefined,
+        null // links may target any suggestion, incl. beyond the newest 500
+      )
       const apiTransaction = transactions.find(
         (tx) => tx.id === input.transactionExternalId
       )

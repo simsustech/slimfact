@@ -315,7 +315,18 @@ const lang: Language = {
       refresh: 'Vernieuwen',
       export: 'CSV exporteren',
       empty: 'Geen betalingen voldoen aan de huidige filters.',
-      truncated: 'Eerste 10.000 rijen getoond — verklein je bereik.'
+      truncated: 'Eerste 10.000 rijen getoond — verklein je bereik.',
+      tabs: {
+        payments: 'Betalingen',
+        suggestions: 'Suggesties'
+      }
+    },
+    suggestions: {
+      empty: 'Geen suggesties voldoen aan de huidige filters.',
+      loading: 'Suggesties laden…',
+      link: 'Koppelen',
+      adoptBadge: 'Overnemen',
+      topSuggestion: 'Suggestie'
     }
   },
   refund: {

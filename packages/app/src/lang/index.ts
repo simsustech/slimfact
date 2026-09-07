@@ -333,6 +333,10 @@ export interface Language {
       export: string
       empty: string
       truncated: string
+      tabs?: {
+        payments?: string
+        suggestions?: string
+      }
     }
 
     suggestions?: {
@@ -342,10 +346,6 @@ export interface Language {
       link?: string
       adoptBadge?: string
       topSuggestion?: string
-    }
-    tabs?: {
-      payments?: string
-      suggestions?: string
     }
   }
   refund: {

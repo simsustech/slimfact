@@ -174,14 +174,40 @@ watch(
     }
     loading.value = true
     try {
-      const result = await trpc.admin.getInvoices.query({
+      const result = (await trpc.admin.getInvoices.query({
         companyId: row.companyId ?? 0,
         clientId: 0,
         clientDetails: { name: null },
         pagination: { limit: 200, offset: 0, sortBy: 'id', descending: false },
         uuids: row.candidateInvoiceUuids
-      })
-      invoices.value = result.invoices ?? []
+      })) as Array<{
+        id: number
+        uuid: string
+        number: string | null
+        amountDueCents: number
+        currency: string
+        status: string
+        companyId: number | null
+        dueDate: string | null
+        numberPrefix: string | null
+        companyPrefix: string
+        totalIncludingTax: number
+        totalExcludingTax: number
+        clientId: number | null
+        clientDetails: {
+          name: string | null
+          address: string
+          postalCode: string
+          city: string
+          country: string
+          email: string
+        }
+        taxSummary: unknown[]
+        lines: unknown[]
+        paidAt: string | null
+        createdAt: string
+      }>
+      invoices.value = result ?? []
       // Auto-select top suggestion if present
       if (row.topSuggestion) {
         selectedId.value = row.topSuggestion.invoiceId

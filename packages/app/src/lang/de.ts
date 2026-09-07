@@ -316,7 +316,18 @@ const lang: Language = {
       refresh: 'Aktualisieren',
       export: 'CSV exportieren',
       empty: 'Keine Zahlungen entsprechen den aktuellen Filtern.',
-      truncated: 'Erste 10.000 Zeilen angezeigt — Bereich eingrenzen.'
+      truncated: 'Erste 10.000 Zeilen angezeigt — Bereich eingrenzen.',
+      tabs: {
+        payments: 'Zahlungen',
+        suggestions: 'Vorschläge'
+      }
+    },
+    suggestions: {
+      empty: 'Keine Vorschläge entsprechen den aktuellen Filtern.',
+      loading: 'Lade Vorschläge…',
+      link: 'Verknüpfen',
+      adoptBadge: 'Übernehmen',
+      topSuggestion: 'Vorschlag'
     }
   },
   refund: {

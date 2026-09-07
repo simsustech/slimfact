@@ -73,32 +73,19 @@ test.describe('payments overview (seeded demo)', () => {
   test('renders every seeded row kind in one chronological ledger', async ({
     browser
   }) => {
-    // Unmatched credit surfaces as a review row.
-    {
-      const { page } = await openLedger({
-        browser,
-        path: '/admin/payments?q=FACTUUR%202026-0008'
-      })
-      const table = page.locator('table')
-      await expect(table.getByText('FACTUUR 2026-0008').first()).toBeVisible()
-      await expect(
-        table.locator('[data-testid="ledger-needs-review"]').first()
-      ).toBeVisible()
-    }
-
-    // Debit noise and read-time-recognized payouts never surface as
-    // "needs review" rows.
-    const assertNoReviewBadge = async (path: string) => {
+    // The ledger holds payments + refunds only. Unmatched bank credits are
+    // NOT ledger rows anymore — they live on the Suggestions tab.
+    const assertNoUnmatchedCredit = async (path: string) => {
       const { page } = await openLedger({ browser, path })
       await page.waitForLoadState('networkidle')
-      const badges = await page
-        .locator('[data-testid="ledger-needs-review"]')
-        .count()
-      expect(badges).toBe(0)
+      await expect(page.locator('tbody tr')).toHaveCount(0)
     }
-    await assertNoReviewBadge('/admin/payments?q=Supermarkt')
-    await assertNoReviewBadge('/admin/payments?q=MOLLIE%20PAYOUT')
-    await assertNoReviewBadge('/admin/payments?q=MOLLIE%20SETTLEMENT')
+    await assertNoUnmatchedCredit('/admin/payments?q=FACTUUR%202026-0008')
+    await assertNoUnmatchedCredit('/admin/payments?q=Geen%20factuurnummer')
+    await assertNoUnmatchedCredit('/admin/payments?q=Supermarkt')
+    // MOLLIE PAYOUT / SETTLEMENT credits are recognized read-time as settled
+    // PSP payouts; their payment rows DO appear in the ledger (asserted
+    // below via the payout payment text), but never as unmatched review rows.
 
     // Recognized payments …
     const expectRowVisible = async (path: string, text: string) => {
@@ -124,7 +111,7 @@ test.describe('payments overview (seeded demo)', () => {
       'Pending creditcard attempt 2026-0006'
     )
 
-    // Linked credit is represented by its badged payment row only.
+    // A linked bank credit is represented by its banktransfer payment row.
     const linked = await openLedger({
       browser,
       path: '/admin/payments?q=Bank%20credit%202026-0005'
@@ -133,9 +120,7 @@ test.describe('payments overview (seeded demo)', () => {
       .locator('tr', { hasText: 'Bank credit 2026-0005' })
       .first()
     await expect(linkedRow).toHaveCount(1)
-    await expect(
-      linkedRow.locator('[data-testid="ledger-bank-synced"]')
-    ).toHaveCount(1)
+    await expect(linkedRow).toContainText('2026-0005')
   })
 
   test('aggregates header shows totals with refund separated', async ({
@@ -172,15 +157,19 @@ test.describe('payments overview (seeded demo)', () => {
     ).toBeVisible()
   })
 
-  test('unmatched credit opens the reused Link dialog', async ({ browser }) => {
+  test('linked bank credit renders as a deletable banktransfer payment row', async ({
+    browser
+  }) => {
     const { page } = await openLedger({
       browser,
-      path: '/admin/payments?q=FACTUUR%202026-0008'
+      path: '/admin/payments?q=Bank%20credit%202026-0005'
     })
-    const row = page.locator('tr', { hasText: 'FACTUUR 2026-0008' }).first()
-    await row.getByRole('button', { name: /link/i }).click()
-    await expect(page.locator('.q-dialog').first()).toBeVisible()
-    await page.keyboard.press('Escape')
+    const row = page.locator('tr', { hasText: 'Bank credit 2026-0005' }).first()
+    await expect(row).toBeVisible()
+    // Offline (banktransfer) payments are deletable from the ledger.
+    await expect(row.getByTestId('ledger-delete')).toBeVisible()
+    // No bank "Link" affordance lives in the ledger anymore.
+    await expect(row.getByRole('button', { name: /link/i })).toHaveCount(0)
   })
 
   test('invoice label links into the focused invoice list', async ({
