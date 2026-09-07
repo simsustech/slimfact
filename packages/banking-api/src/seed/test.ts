@@ -27,7 +27,7 @@ export const TEST_ACCOUNTS = {
 /**
  * The credit that strict-matches the E2E invoice (amount + reference + window).
  * The E2E creates an OPEN invoice with a number prefix whose next number is
- * `2026-0001`, total €42.00, dueDate ≈ bookingDate + 2 days.
+ * `2026-1`, total €42.00, dueDate ≈ bookingDate + 2 days.
  */
 export const TEST_STRICT_MATCH_CREDIT = {
   externalId: "seed-credit-001",
@@ -36,7 +36,7 @@ export const TEST_STRICT_MATCH_CREDIT = {
   creditDebit: "CRDT",
   status: "BOOK",
   bookingDate: "2026-08-10",
-  remittanceInformation: "2026-0001",
+  remittanceInformation: "2026-1",
   counterpartyName: "E2E Client",
   counterpartyIban: "NL00CLNT0123456789",
 } as const;
@@ -172,7 +172,7 @@ export const seedTest = async (): Promise<void> => {
         debtorBban: null,
         debtorAgentBic: null,
         remittanceInformation: null,
-        note: "FACTUUR 2026-0001",
+        note: "FACTUUR 2026-1",
         referenceNumber: null,
         exchangeRate: null,
         merchantCategoryCode: null,
@@ -199,7 +199,7 @@ export const seedTest = async (): Promise<void> => {
         debtorBban: null,
         debtorAgentBic: null,
         remittanceInformation: null,
-        note: "FACTUUR 2026-0002",
+        note: "FACTUUR 2026-2",
         referenceNumber: null,
         exchangeRate: null,
         merchantCategoryCode: null,
@@ -226,7 +226,7 @@ export const seedTest = async (): Promise<void> => {
         debtorBban: null,
         debtorAgentBic: null,
         remittanceInformation: null,
-        note: "FACTUUR 2026-0003",
+        note: "FACTUUR 2026-3",
         referenceNumber: null,
         exchangeRate: null,
         merchantCategoryCode: null,
@@ -254,7 +254,7 @@ export const seedTest = async (): Promise<void> => {
         debtorBban: null,
         debtorAgentBic: null,
         remittanceInformation: null,
-        note: "FACTUUR 2026-0004",
+        note: "FACTUUR 2026-4",
         referenceNumber: null,
         exchangeRate: null,
         merchantCategoryCode: null,
@@ -424,7 +424,38 @@ export const seedTest = async (): Promise<void> => {
         debtorBban: null,
         debtorAgentBic: null,
         remittanceInformation: null,
-        note: "FACTUUR 2026-0008",
+        note: "FACTUUR 2026-8",
+        referenceNumber: null,
+        exchangeRate: null,
+        merchantCategoryCode: null,
+        balanceAfterTransactionCents: null,
+        balanceAfterCurrency: null,
+      },
+      // 011: Multi-candidate adoption demo — two paid €130 invoices (M/N,
+      // 2026-13/14) on the demo client; this credit names N explicitly
+      // (note → ref hit) while M is only surname-tied (payer Jane Doe), so the
+      // link dialog shows two rows sorted N (98%) above M (75%).
+      {
+        accountId: knabRow.id,
+        externalId: "seed-credit-011",
+        currency: "EUR",
+        creditDebit: "CRDT",
+        status: "BOOK",
+        bookingDate: yesterday,
+        valueDate: null,
+        transactionDate: null,
+        bankTransactionCode: null,
+        amountCents: 13000,
+        creditorName: null,
+        creditorIban: null,
+        creditorBban: null,
+        creditorAgentBic: null,
+        debtorName: "Jane Doe",
+        debtorIban: "NL00DEMO0000000001",
+        debtorBban: null,
+        debtorAgentBic: null,
+        remittanceInformation: null,
+        note: "FACTUUR 2026-14",
         referenceNumber: null,
         exchangeRate: null,
         merchantCategoryCode: null,
@@ -488,7 +519,7 @@ const seedPspFixture = async () => {
   let invoiceEUuid: string | null = null;
   for (let attempt = 0; attempt < 20; attempt++) {
     const rows = await sql<{ uuid: string }>`select uuid from "checkout"."invoices"
-      where "number_prefix" = '2026-000' and "number" = 5
+      where "number_prefix" = '2026-' and "number" = 5
       limit 1`.execute(db);
     if (rows.rows[0]) {
       invoiceEUuid = rows.rows[0].uuid;
@@ -554,7 +585,7 @@ const seedPspFixture = async () => {
         const results: (string | null)[] = [];
         for (const num of numbers) {
           const rows = await sql<{ uuid: string }>`select uuid from "checkout"."invoices"
-            where "number_prefix" = '2026-000' and "number" = ${num}
+            where "number_prefix" = '2026-' and "number" = ${num}
             limit 1
           `.execute(db);
           results.push(rows.rows[0]?.uuid ?? null);

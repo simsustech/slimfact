@@ -93,6 +93,11 @@ export const useAdminListSuggestionsQuery = (
       } | null
       candidateInvoiceUuids: string[]
       adoptableInvoiceIds: number[]
+      candidateScores: Array<{
+        invoiceId: number
+        score: number
+        adoptable: boolean
+      }>
     }>
   }>({
     enabled: !import.meta.env.SSR,

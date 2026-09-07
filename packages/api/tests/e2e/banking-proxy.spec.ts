@@ -42,10 +42,10 @@ test.describe('banking proxy contract + settings', () => {
       const invoiceC = await db
         .selectFrom('checkout.invoices')
         .select(['id', 'numberPrefix', 'number'])
-        .where('numberPrefix', '=', '2026-000')
+        .where('numberPrefix', '=', '2026-')
         .where('number', '=', 3)
         .executeTakeFirstOrThrow()
-      expect(`${invoiceC.numberPrefix}${invoiceC.number}`).toBe('2026-0003')
+      expect(`${invoiceC.numberPrefix}${invoiceC.number}`).toBe('2026-3')
 
       // Bank settings page loads cleanly.
       await page.goto('/admin/settings/banking')

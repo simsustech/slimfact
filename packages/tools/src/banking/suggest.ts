@@ -229,3 +229,90 @@ export const suggestForCredit = ({
     }
   }
 }
+
+/**
+ * Per-candidate invoice score for the link dialog. Mirrors the adoption and
+ * open-invoice scoring used by suggestForCredit, but returns a score for
+ * EVERY actionable candidate (not just the best) so the UI can sort and
+ * label them.
+ */
+export const scoreInvoiceCandidates = ({
+  transaction,
+  invoices,
+  payments
+}: {
+  transaction: MatchTransaction
+  invoices: MatchInvoice[]
+  payments: BankPaymentCandidate[]
+}): Array<{ invoiceId: number; score: number; adoptable: boolean }> => {
+  const out: Array<{ invoiceId: number; score: number; adoptable: boolean }> =
+    []
+  if (transaction.creditDebit !== 'CRDT' || transaction.status !== 'BOOK') {
+    return out
+  }
+  const creditText = normalizeReference(
+    [
+      transaction.description,
+      transaction.remittanceInformation,
+      transaction.referenceNumber
+    ]
+      .filter((part): part is string => !!part)
+      .join(' ')
+  )
+  const payer = transaction.counterpartyName ?? ''
+
+  // Score every adoptable paid invoice (manual banktransfer payment, not
+  // bank-coupled, exact amount).
+  for (const payment of payments) {
+    if (
+      payment.method !== 'banktransfer' ||
+      payment.status !== 'paid' ||
+      payment.invoiceId == null ||
+      payment.amount !== transaction.amountCents
+    ) {
+      continue
+    }
+    const ref = payment.transactionReference
+    if (ref != null && ref !== '' && ref.startsWith('bank:')) continue
+    const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
+    if (!invoice) continue
+    const numRefHit =
+      !!invoice.number &&
+      containsInvoiceNumber(normalizeReference(creditText), invoice.number)
+    const clientTie = sharedSurnameToken(payer, invoice.clientName)
+    if (!clientTie && !numRefHit) continue
+    out.push({
+      invoiceId: invoice.id,
+      score: numRefHit ? 0.98 : 0.75,
+      adoptable: true
+    })
+  }
+
+  // Score open invoices (remaining balance, no overpay, date guard).
+  const openScores = invoices
+    .filter(
+      (inv) =>
+        inv.status === 'open' &&
+        inv.amountDueCents > 0 &&
+        transaction.amountCents <= inv.amountDueCents
+    )
+    .map((inv) => {
+      const numRefHit =
+        !!inv.number &&
+        containsInvoiceNumber(normalizeReference(creditText), inv.number)
+      if (!numRefHit) return null
+      const amountExact = transaction.amountCents === inv.amountDueCents
+      const dateOk =
+        !!transaction.bookingDate &&
+        !!inv.dueDate &&
+        new Date(transaction.bookingDate) >= new Date(inv.dueDate)
+      const score = amountExact && dateOk ? 0.95 : 0.85
+      return { invoiceId: inv.id, score, adoptable: false }
+    })
+    .filter(
+      (c): c is { invoiceId: number; score: number; adoptable: boolean } =>
+        c !== null
+    )
+
+  return [...out, ...openScores]
+}

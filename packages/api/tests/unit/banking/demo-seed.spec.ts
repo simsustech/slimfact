@@ -5,6 +5,7 @@ import type { DB } from '../../../src/kysely/types.js'
 import type * as demoData from '../../../src/kysely/seeds/demoData.js'
 import type * as fake from '../../../src/kysely/seeds/fake.js'
 import type * as testSeed from '../../../src/kysely/seeds/test.js'
+import { PaymentMethod } from '@modular-api/fastify-checkout'
 
 // The seed modules transitively import the banking-api package, whose config
 // throws at module load without POSTGRES_PASSWORD. Dynamic-import them only
@@ -149,7 +150,7 @@ describeDb('demo seed:test determinism', () => {
     const invoices = await testDb!
       .selectFrom('checkout.invoices')
       .selectAll()
-      .where('numberPrefix', '=', '2026-000')
+      .where('numberPrefix', '=', '2026-')
       .orderBy('number')
       .execute()
     const payments = await testDb!
@@ -173,7 +174,127 @@ describeDb('demo seed:test determinism', () => {
     const second = await capture()
     expect(second.invoiceUuids).toEqual(first.invoiceUuids)
     expect(second.paymentUuids).toEqual(first.paymentUuids)
-    // The pinned scheme: invoice 2026-0001 gets the deterministic uuid.
+    // The pinned scheme: invoice 2026-1 gets the deterministic uuid.
     expect(first.invoiceUuids[0]).toBe('00000000-0000-4000-8000-000000000001')
   })
 })
+
+describeDb(
+  'demo seed:test multi-candidate adoption fixture (credit-011)',
+  () => {
+    beforeAll(async () => {
+      process.env.API_HOST ??= 'slimfact.test'
+      process.env.OTP_SECRET ??= 'test-otp-secret'
+      process.env.OIDC_CLIENT_SECRET ??= 'test-client-secret'
+      process.env.OIDC_COOKIES_KEYS ??= 'test-cookie-keys'
+      process.env.BANKING_API_URL ??= 'http://banking-api'
+      delete process.env.BANKING_API_KEY
+      await truncate()
+      await seedTest()
+    })
+
+    const acme = async () =>
+      testDb!
+        .selectFrom('companies')
+        .select('id')
+        .where('name', '=', 'Acme Inc')
+        .executeTakeFirstOrThrow()
+
+    it('seeds paid €130 invoices 2026-13/14 with manual banktransfer payments', async () => {
+      const companyId = (await acme()).id
+      const { listCompanyInvoices } =
+        await import('../../../src/banking/sync.js')
+      const invoices = await listCompanyInvoices(testDb!, companyId)
+      const m = invoices.find((inv) => inv.number === '2026-13')
+      const n = invoices.find((inv) => inv.number === '2026-14')
+      expect(m).toBeDefined()
+      expect(n).toBeDefined()
+      expect(m!.status).toBe('paid')
+      expect(n!.status).toBe('paid')
+      expect(m!.amountDueCents).toBe(0)
+      expect(n!.amountDueCents).toBe(0)
+      // M has no ref; N has the bookkeeper-style day-month ref.
+      const payments = await testDb!
+        .selectFrom('checkout.payments')
+        .select(['invoiceId', 'transactionReference'])
+        .where('invoiceId', 'in', [m!.id, n!.id])
+        .where('method', '=', PaymentMethod.banktransfer)
+        .execute()
+      expect(payments.length).toBe(2)
+      const nPay = payments.find((p) => p.invoiceId === n!.id)
+      expect(nPay?.transactionReference).toBe('29-6')
+    })
+
+    it('suggestForCredit adopts N (explicit ref) at 0.98 and scores M at 0.75', async () => {
+      const companyId = (await acme()).id
+      const { listCompanyInvoices } =
+        await import('../../../src/banking/sync.js')
+      const { suggestForCredit, scoreInvoiceCandidates } =
+        await import('@slimfact/tools/banking/suggest')
+      const invoices = await listCompanyInvoices(testDb!, companyId)
+      const payments = await testDb!
+        .selectFrom('checkout.payments')
+        .select([
+          'id',
+          'invoiceId',
+          'transactionReference',
+          'amount',
+          'method',
+          'status',
+          'externalId',
+          'settlementId',
+          'paymentServiceProvider'
+        ])
+        .where(
+          'invoiceId',
+          'in',
+          invoices.map((inv) => inv.id)
+        )
+        .execute()
+
+      // Mirror the MatchTransaction the api builds for seed-credit-011.
+      const transaction = {
+        externalId: 'seed-credit-011',
+        accountExternalId: 'knab-acc',
+        companyId,
+        creditDebit: 'CRDT',
+        status: 'BOOK',
+        amountCents: 13000,
+        currency: 'EUR',
+        bookingDate: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
+        description: 'FACTUUR 2026-14',
+        remittanceInformation: null,
+        referenceNumber: null,
+        counterpartyName: 'Jane Doe',
+        counterpartyIban: null
+      } as any
+
+      const suggestion = suggestForCredit({
+        transaction,
+        invoices,
+        payments,
+        config: { referenceWindowDays: 14 }
+      })
+      expect(suggestion).not.toBeNull()
+      const n = invoices.find((inv) => inv.number === '2026-14')
+      expect(suggestion!.invoiceId).toBe(n!.id)
+      expect(suggestion!.score).toBe(0.98)
+      expect(suggestion!.evidence.numRefHit).toBe(true)
+
+      // Dialog candidate scores: N 0.98 first, M 0.75 second.
+      const candidates = scoreInvoiceCandidates({
+        transaction,
+        invoices,
+        payments
+      })
+      const m = invoices.find((inv) => inv.number === '2026-13')
+      const byId = new Map(candidates.map((c) => [c.invoiceId, c.score]))
+      expect(byId.get(n!.id)).toBe(0.98)
+      expect(byId.get(m!.id)).toBe(0.75)
+      // Sorted descending: N before M.
+      const sorted = [...candidates].sort((a, b) => b.score - a.score)
+      expect(sorted[0]?.invoiceId).toBe(n!.id)
+      expect(sorted[1]?.invoiceId).toBe(m!.id)
+    })
+  }
+)

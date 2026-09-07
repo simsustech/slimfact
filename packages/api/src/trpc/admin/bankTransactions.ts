@@ -16,7 +16,10 @@ import {
   type LinkProposal,
   type MatchTransaction
 } from '@slimfact/tools/banking'
-import { suggestForCredit } from '@slimfact/tools/banking/suggest'
+import {
+  scoreInvoiceCandidates,
+  suggestForCredit
+} from '@slimfact/tools/banking/suggest'
 import {
   fetchAccountCompanyLinks,
   resolveCompanyIds,
@@ -583,6 +586,11 @@ export const adminBankTransactionRoutes = ({
         } | null
         candidateInvoiceUuids: string[]
         adoptableInvoiceIds: number[]
+        candidateScores: Array<{
+          invoiceId: number
+          score: number
+          adoptable: boolean
+        }>
       }> = []
 
       for (const account of accounts) {
@@ -703,6 +711,11 @@ export const adminBankTransactionRoutes = ({
               ]
               const adoptableIds = [...adoptableIdSet]
 
+              const candidateScores = scoreInvoiceCandidates({
+                transaction: matchTx,
+                invoices,
+                payments
+              })
               allSuggestions.push({
                 transaction: matchTx,
                 companyId,
@@ -715,7 +728,8 @@ export const adminBankTransactionRoutes = ({
                   evidence: result.evidence
                 },
                 candidateInvoiceUuids: candidateUuids,
-                adoptableInvoiceIds: adoptableIds
+                adoptableInvoiceIds: adoptableIds,
+                candidateScores
               })
               break
             }

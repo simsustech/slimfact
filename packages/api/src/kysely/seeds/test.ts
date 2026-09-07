@@ -226,7 +226,7 @@ const seed = async () => {
   if (!e2ePrefix) {
     await db
       .insertInto('numberPrefixes')
-      .values({ name: 'E2E', template: '2026-000' })
+      .values({ name: 'E2E', template: '2026-' })
       .execute()
   }
 
@@ -245,7 +245,7 @@ const seed = async () => {
     .insertInto('initialNumberForPrefixes')
     .values({
       companyId: acme.id,
-      numberPrefix: '2026-000',
+      numberPrefix: '2026-',
       initialNumber: 1
     })
     .onConflict((conflict) => conflict.doNothing())
@@ -264,14 +264,14 @@ const seed = async () => {
     .onConflict((conflict) => conflict.doNothing())
     .execute()
 
-  // Demo invoices A–E (2026-0001..0005) + B's manual payment + E's bank link.
+  // Demo invoices A–E (2026-1..5) + B's manual payment + E's bank link.
   // Scoped to Acme: leftover invoices from other companies (e.g. unit-test
   // fixtures that TRUNCATE the shared DB) must never block the demo world.
   const demoInvoice = await db
     .selectFrom('checkout.invoices')
     .select('id')
     .where('companyId', '=', acme.id)
-    .where('numberPrefix', '=', '2026-000')
+    .where('numberPrefix', '=', '2026-')
     .limit(1)
     .executeTakeFirst()
   if (!demoInvoice) {
@@ -292,7 +292,7 @@ const seed = async () => {
         companyDetails: acme,
         clientDetails: demoClient,
         companyPrefix: acme.prefix,
-        numberPrefixTemplate: '2026-000',
+        numberPrefixTemplate: '2026-',
         currency: 'EUR',
         lines: [
           {
@@ -321,7 +321,7 @@ const seed = async () => {
     // Numbering is NOT hardcoded — the starting number comes from
     // initialNumberForPrefixes and openInvoice advances via getLastInvoiceNumber
     // (same seam as trpc/admin/invoices.ts), so the demo world gets
-    // 2026-0001..0005 automatically on a fresh stack.
+    // 2026-1..5 automatically on a fresh stack.
     const invoiceA = await createDemoInvoice(5000)
     const invoiceB = await createDemoInvoice(3000)
     const invoiceC = await createDemoInvoice(2500)
@@ -331,7 +331,7 @@ const seed = async () => {
     const { initialNumber } =
       (await db
         .selectFrom('initialNumberForPrefixes')
-        .where('numberPrefix', '=', '2026-000')
+        .where('numberPrefix', '=', '2026-')
         .select('initialNumber')
         .executeTakeFirst()) || {}
     for (const invoice of [
@@ -344,7 +344,7 @@ const seed = async () => {
     ]) {
       const opened = await invoiceHandler.openInvoice({
         id: invoice.id,
-        numberPrefix: '2026-000',
+        numberPrefix: '2026-',
         initialNumber
       })
       if (!opened.success) throw new Error(opened.errorMessage)
@@ -367,7 +367,7 @@ const seed = async () => {
       payment: {
         amount: 4200,
         currency: 'EUR',
-        description: 'Bank credit 2026-0005',
+        description: 'Bank credit 2026-5',
         method: PaymentMethod.banktransfer,
         transactionReference: 'bank:seed-credit-001'
       }
@@ -380,7 +380,7 @@ const seed = async () => {
       .insertInto('checkout.payments')
       .values({
         invoiceId: invoiceE.id,
-        description: 'Mollie payout 2026-0005',
+        description: 'Mollie payout 2026-5',
         externalId: 'pay-seed-1',
         settlementId: 'setl-seed-001',
         method: PaymentMethod.ideal,
@@ -409,7 +409,7 @@ const seed = async () => {
         .values({
           paymentId: seededPspPayment.id,
           externalId: 're-seed-001',
-          description: 'Refund 2026-0005',
+          description: 'Refund 2026-5',
           paymentServiceProvider: 'mollie',
           amount: 1000,
           currency: 'EUR',
@@ -428,7 +428,7 @@ const seed = async () => {
         amount: 4000,
         currency: 'EUR',
         status: PaymentStatus.FAILED,
-        description: 'Failed iDEAL attempt 2026-0006'
+        description: 'Failed iDEAL attempt 2026-6'
       })
       .onConflict((conflict) => conflict.doNothing())
       .execute()
@@ -448,7 +448,7 @@ const seed = async () => {
         currency: 'EUR',
         status: PaymentStatus.PENDING,
         createdAt: pendingCreatedAt,
-        description: 'Pending creditcard attempt 2026-0006'
+        description: 'Pending creditcard attempt 2026-6'
       })
       .onConflict((conflict) => conflict.doNothing())
       .execute()
@@ -470,7 +470,7 @@ const seed = async () => {
     ]) {
       const opened = await invoiceHandler.openInvoice({
         id: invoice.id,
-        numberPrefix: '2026-000',
+        numberPrefix: '2026-',
         initialNumber
       })
       if (!opened.success) throw new Error(opened.errorMessage)
@@ -488,7 +488,7 @@ const seed = async () => {
         currency: 'EUR',
         status: PaymentStatus.PAID,
         transactionReference: 'bank:seed-credit-008',
-        description: 'Mollie payout 2026-0010'
+        description: 'Mollie payout 2026-10'
       })
       .onConflict((conflict) => conflict.doNothing())
       .execute()
@@ -506,7 +506,7 @@ const seed = async () => {
         currency: 'EUR',
         status: PaymentStatus.PAID,
         transactionReference: 'bank:seed-credit-008',
-        description: 'Mollie payout 2026-0011'
+        description: 'Mollie payout 2026-11'
       })
       .onConflict((conflict) => conflict.doNothing())
       .execute()
@@ -522,7 +522,7 @@ const seed = async () => {
         amount: 19900,
         currency: 'EUR',
         status: PaymentStatus.PAID,
-        description: 'Mollie payout 2026-0012'
+        description: 'Mollie payout 2026-12'
       })
       .onConflict((conflict) => conflict.doNothing())
       .execute()
@@ -535,16 +535,51 @@ const seed = async () => {
         .execute()
     }
 
+    // Invoices M/N (2026-13/14): the multi-candidate adoption fixture.
+    // Both are €130, paid by manual banktransfer (no bank: ref); the credit
+    // seed-credit-011 names N explicitly (note "FACTUUR 2026-14") while M is
+    // reached only via the payer surname (Jane Doe). The link dialog for that
+    // credit must show both rows, N (98%) sorted above M (75%).
+    const invoiceM = await createDemoInvoice(13000)
+    const invoiceN = await createDemoInvoice(13000)
+    for (const invoice of [invoiceM, invoiceN]) {
+      const opened = await invoiceHandler.openInvoice({
+        id: invoice.id,
+        numberPrefix: '2026-',
+        initialNumber
+      })
+      if (!opened.success) throw new Error(opened.errorMessage)
+      const paid = await invoiceHandler.addPaymentToInvoice({
+        id: invoice.id,
+        payment: {
+          amount: 13000,
+          currency: 'EUR',
+          description: 'Bank transfer (manual)',
+          method: PaymentMethod.banktransfer
+        }
+      })
+      if (!paid.success) throw new Error(paid.errorMessage)
+    }
+    // Give N's manual payment the bookkeeper-style day-month ref (like the
+    // production "29-6" pattern); M keeps a NULL ref. Both stay adoptable
+    // because neither ref starts with "bank:".
+    await db
+      .updateTable('checkout.payments')
+      .set({ transactionReference: '29-6' })
+      .where('invoiceId', '=', invoiceN.id)
+      .where('method', '=', PaymentMethod.banktransfer)
+      .execute()
+
     // Pin deterministic UUIDs so the E2E test world is byte-deterministic.
     // createInvoice has no uuid param and the column defaults to
     // gen_random_uuid(), so we overwrite it post-create (Option A).
     const deterministicUuid = (number: number): string =>
       `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`
-    for (let num = 1; num <= 12; num++) {
+    for (let num = 1; num <= 14; num++) {
       await db
         .updateTable('checkout.invoices')
         .set({ uuid: deterministicUuid(num) })
-        .where('numberPrefix', '=', '2026-000')
+        .where('numberPrefix', '=', '2026-')
         .where('number', '=', num)
         .execute()
     }
@@ -573,14 +608,16 @@ const seed = async () => {
     // no externalId — pin them by invoice number + method.
     const bankTransferUuids: Record<string, string> = {
       '2:banktransfer': '00000000-0000-4000-8000-000000000201',
-      '5:banktransfer': '00000000-0000-4000-8000-000000000202'
+      '5:banktransfer': '00000000-0000-4000-8000-000000000202',
+      '13:banktransfer': '00000000-0000-4000-8000-000000000203',
+      '14:banktransfer': '00000000-0000-4000-8000-000000000204'
     }
     for (const [key, uuid] of Object.entries(bankTransferUuids)) {
       const [number, method] = key.split(':')
       const invoice = await db
         .selectFrom('checkout.invoices')
         .select('id')
-        .where('numberPrefix', '=', '2026-000')
+        .where('numberPrefix', '=', '2026-')
         .where('number', '=', Number(number))
         .executeTakeFirst()
       if (!invoice) continue

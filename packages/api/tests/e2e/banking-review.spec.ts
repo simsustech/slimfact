@@ -45,7 +45,7 @@ test.describe('bank settings (seeded demo)', () => {
     await login({ page, email, password })
 
     // Sync now runs the ingest worker; seed-credit-004 (€25.00, note FACTUUR
-    // 2026-0003) strict-matches open invoice 2026-0003 and auto-applies,
+    // 2026-3) strict-matches open invoice 2026-3 and auto-applies,
     // flipping it OPEN → PAID. The invoiceHandler's onInvoicePaid callback
     // then emails the admin (fallback recipient: the company's own address).
     await page.goto('/admin/settings/banking')
@@ -64,7 +64,7 @@ test.describe('bank settings (seeded demo)', () => {
       }
       for (const item of body.items ?? []) {
         const itemSubject = item.Content.Headers.Subject?.[0] ?? ''
-        if (itemSubject.includes('2026-0003')) {
+        if (itemSubject.includes('2026-3')) {
           subject = itemSubject
           expect(item.Content.Headers.To?.[0]).toContain('john@acme.local')
           break
@@ -75,7 +75,7 @@ test.describe('bank settings (seeded demo)', () => {
       }
     }
     expect(subject).toBeDefined()
-    expect(subject).toContain('2026-0003')
+    expect(subject).toContain('2026-3')
 
     // The auto-applied payment must be booked on the transaction's posting
     // date (seed-credit-004 has bookingDate = yesterday), not sync time.

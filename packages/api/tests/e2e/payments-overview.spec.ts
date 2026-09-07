@@ -80,7 +80,7 @@ test.describe('payments overview (seeded demo)', () => {
       await page.waitForLoadState('networkidle')
       await expect(page.locator('tbody tr')).toHaveCount(0)
     }
-    await assertNoUnmatchedCredit('/admin/payments?q=FACTUUR%202026-0008')
+    await assertNoUnmatchedCredit('/admin/payments?q=FACTUUR%202026-8')
     await assertNoUnmatchedCredit('/admin/payments?q=Geen%20factuurnummer')
     await assertNoUnmatchedCredit('/admin/payments?q=Supermarkt')
     // MOLLIE PAYOUT / SETTLEMENT credits are recognized read-time as settled
@@ -98,29 +98,29 @@ test.describe('payments overview (seeded demo)', () => {
       'Bank transfer (manual)'
     )
     await expectRowVisible(
-      '/admin/payments?q=Mollie%20payout%202026-0012',
-      'Mollie payout 2026-0012'
+      '/admin/payments?q=Mollie%20payout%202026-12',
+      'Mollie payout 2026-12'
     )
     // Failed + pending attempts …
     await expectRowVisible(
-      '/admin/payments?q=attempt%202026-0006',
-      'Failed iDEAL attempt 2026-0006'
+      '/admin/payments?q=attempt%202026-6',
+      'Failed iDEAL attempt 2026-6'
     )
     await expectRowVisible(
-      '/admin/payments?q=attempt%202026-0006',
-      'Pending creditcard attempt 2026-0006'
+      '/admin/payments?q=attempt%202026-6',
+      'Pending creditcard attempt 2026-6'
     )
 
     // A linked bank credit is represented by its banktransfer payment row.
     const linked = await openLedger({
       browser,
-      path: '/admin/payments?q=Bank%20credit%202026-0005'
+      path: '/admin/payments?q=Bank%20credit%202026-5'
     })
     const linkedRow = linked.page
-      .locator('tr', { hasText: 'Bank credit 2026-0005' })
+      .locator('tr', { hasText: 'Bank credit 2026-5' })
       .first()
     await expect(linkedRow).toHaveCount(1)
-    await expect(linkedRow).toContainText('2026-0005')
+    await expect(linkedRow).toContainText('2026-5')
   })
 
   test('aggregates header shows totals with refund separated', async ({
@@ -130,7 +130,7 @@ test.describe('payments overview (seeded demo)', () => {
     // the filtered view's totals must reflect exactly that refund.
     const { page } = await openLedger({
       browser,
-      path: '/admin/payments?q=Refund%202026-0005'
+      path: '/admin/payments?q=Refund%202026-5'
     })
     await expect(page.getByTestId('agg-refunded')).toContainText('€10.00')
     await expect(page.getByTestId('agg-in')).toContainText('€')
@@ -142,19 +142,15 @@ test.describe('payments overview (seeded demo)', () => {
   }) => {
     const { page } = await openLedger({
       browser,
-      path: '/admin/payments?method=ideal&q=Mollie%20payout%202026-0012'
+      path: '/admin/payments?method=ideal&q=Mollie%20payout%202026-12'
     })
 
     const table = page.locator('table')
-    await expect(
-      table.getByText('Mollie payout 2026-0012').first()
-    ).toBeVisible()
+    await expect(table.getByText('Mollie payout 2026-12').first()).toBeVisible()
 
     await page.reload()
     await page.waitForLoadState('networkidle')
-    await expect(
-      table.getByText('Mollie payout 2026-0012').first()
-    ).toBeVisible()
+    await expect(table.getByText('Mollie payout 2026-12').first()).toBeVisible()
   })
 
   test('linked bank credit renders as a deletable banktransfer payment row', async ({
@@ -162,9 +158,9 @@ test.describe('payments overview (seeded demo)', () => {
   }) => {
     const { page } = await openLedger({
       browser,
-      path: '/admin/payments?q=Bank%20credit%202026-0005'
+      path: '/admin/payments?q=Bank%20credit%202026-5'
     })
-    const row = page.locator('tr', { hasText: 'Bank credit 2026-0005' }).first()
+    const row = page.locator('tr', { hasText: 'Bank credit 2026-5' }).first()
     await expect(row).toBeVisible()
     // Offline (banktransfer) payments are deletable from the ledger.
     await expect(row.getByTestId('ledger-delete')).toBeVisible()
@@ -177,7 +173,7 @@ test.describe('payments overview (seeded demo)', () => {
   }) => {
     const { page } = await openLedger({
       browser,
-      path: '/admin/payments?q=Bank%20credit%202026-0005'
+      path: '/admin/payments?q=Bank%20credit%202026-5'
     })
     await page.locator('a[data-testid="ledger-invoice-link"]').first().click()
     await page.waitForLoadState('networkidle')
@@ -187,7 +183,7 @@ test.describe('payments overview (seeded demo)', () => {
   test('CSV export downloads the filtered selection', async ({ browser }) => {
     const { page } = await openLedger({
       browser,
-      path: '/admin/payments?q=Mollie%20payout%202026-0012'
+      path: '/admin/payments?q=Mollie%20payout%202026-12'
     })
     const downloadPromise = page.waitForEvent('download', { timeout: 15_000 })
     await page.getByTestId('ledger-export').click()
@@ -213,6 +209,6 @@ test.describe('payments overview (seeded demo)', () => {
       'Status',
       'PSP'
     ])
-    expect(firstRow).toContain('Mollie payout 2026-0012')
+    expect(firstRow).toContain('Mollie payout 2026-12')
   })
 })

@@ -31,28 +31,18 @@
     <template v-else>
       <q-list dense>
         <q-item
-          v-for="invoice in invoices"
+          v-for="invoice in sortedInvoices"
           :key="invoice.id"
           clickable
           @click="selectedId = invoice.id"
         >
-          <q-item-section side>
-            <q-radio
-              :model-value="selectedId"
-              :val="invoice.id"
-              @update:model-value="
-                (v: number | null) => {
-                  if (v != null) selectedId = v
-                }
-              "
-            />
-          </q-item-section>
           <q-item-section>
             <invoice-expansion-item
               :model-value="invoice"
               selectable
               :selected="selectedId === invoice.id"
               :adoptable="adoptableIds.has(invoice.id)"
+              :score="scoreById.get(invoice.id) ?? null"
               @update:selected="
                 (sel: boolean) => {
                   if (sel) selectedId = invoice.id
@@ -111,6 +101,11 @@ type SuggestionRow = {
   } | null
   candidateInvoiceUuids: string[]
   adoptableInvoiceIds: number[]
+  candidateScores: Array<{
+    invoiceId: number
+    score: number
+    adoptable: boolean
+  }>
 }
 
 const props = defineProps<{
@@ -178,6 +173,24 @@ const adoptableIds = computed(() => {
   if (!row) return new Set<number>()
   return new Set(row.adoptableInvoiceIds)
 })
+
+/** Per-invoice match confidence from the engine, keyed by invoice id. */
+const scoreById = computed(() => {
+  const row = props.row
+  const map = new Map<number, number>()
+  if (!row) return map
+  for (const c of row.candidateScores ?? []) map.set(c.invoiceId, c.score)
+  return map
+})
+
+/** Invoices ordered by match confidence (descending, unknown last). */
+const sortedInvoices = computed(() =>
+  [...invoices.value].sort((a, b) => {
+    const sa = scoreById.value.get(a.id) ?? -1
+    const sb = scoreById.value.get(b.id) ?? -1
+    return sb - sa
+  })
+)
 
 // Fetch invoices when dialog opens
 watch(

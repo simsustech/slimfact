@@ -2,10 +2,11 @@
   <q-expansion-item class="full-width" :content-inset-level="1">
     <template #header>
       <q-item-section avatar>
-        <q-radio
+        <q-checkbox
           v-if="selectable"
           :model-value="selected"
-          @update:model-value="emit('update:selected', !selected)"
+          data-testid="invoice-select"
+          @update:model-value="emit('update:selected', !!$event)"
         />
         <invoice-status-avatar
           :model-value="modelValue.status"
@@ -62,6 +63,14 @@
             color="positive"
             :label="lang.payment.suggestions?.adoptBadge ?? 'Adopt'"
           />
+          <q-badge
+            v-if="score != null"
+            :color="scoreColor(score)"
+            outline
+            data-testid="invoice-score"
+          >
+            {{ Math.round(score * 100) }}%
+          </q-badge>
         </template>
         <q-btn v-else flat round icon="i-mdi-more-vert">
           <q-menu>
@@ -464,8 +473,14 @@ export interface Props {
   selectable?: boolean
   selected?: boolean
   adoptable?: boolean
+  /** Match confidence (0-1) shown as a badge when selectable. */
+  score?: number | null
 }
 const props = defineProps<Props>()
+
+/** Green >= 80 %, amber >= 50 %, grey otherwise. */
+const scoreColor = (score: number): string =>
+  score >= 0.8 ? 'positive' : score >= 0.5 ? 'warning' : 'grey'
 
 const emit = defineEmits<{
   (e: 'update:selected', selected: boolean): void

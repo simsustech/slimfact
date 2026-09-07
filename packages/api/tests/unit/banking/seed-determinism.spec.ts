@@ -4,7 +4,7 @@
  * expected proposal type — catching regressions in the matching engine.
  *
  * All inputs are crafted inline (no DB). The test mirrors the demo seed
- * world: invoices A–L (2026-0001..0012), transactions 001–010, payments
+ * world: invoices A–L (2026-1..0012), transactions 001–010, payments
  * B (manual banktransfer), E (bank-linked + Mollie), J/K (Mollie
  * settlement 201), L (Mollie settlement 202).
  */
@@ -28,7 +28,7 @@ import { InvoiceStatus } from '@modular-api/fastify-checkout'
 // ---------------------------------------------------------------------------
 const mkInvoice = (overrides: Partial<MatchInvoice>): MatchInvoice => ({
   id: 1,
-  number: '2026-0001',
+  number: '2026-1',
   amountDueCents: 5000,
   dueDate: '2026-07-01',
   status: InvoiceStatus.OPEN,
@@ -37,40 +37,40 @@ const mkInvoice = (overrides: Partial<MatchInvoice>): MatchInvoice => ({
   ...overrides
 })
 
-const A = mkInvoice({ id: 1, number: '2026-0001', amountDueCents: 5000 })
+const A = mkInvoice({ id: 1, number: '2026-1', amountDueCents: 5000 })
 const B = mkInvoice({
   id: 2,
-  number: '2026-0002',
+  number: '2026-2',
   amountDueCents: 3000,
   status: InvoiceStatus.PAID
 })
-const C = mkInvoice({ id: 3, number: '2026-0003', amountDueCents: 2500 })
-const D = mkInvoice({ id: 4, number: '2026-0004', amountDueCents: 4000 })
+const C = mkInvoice({ id: 3, number: '2026-3', amountDueCents: 2500 })
+const D = mkInvoice({ id: 4, number: '2026-4', amountDueCents: 4000 })
 const E = mkInvoice({
   id: 5,
-  number: '2026-0005',
+  number: '2026-5',
   amountDueCents: 4200,
   status: InvoiceStatus.PAID
 })
-const F = mkInvoice({ id: 6, number: '2026-0006', amountDueCents: 4000 })
-const G = mkInvoice({ id: 7, number: '2026-0007', amountDueCents: 2499 })
-const H = mkInvoice({ id: 8, number: '2026-0008', amountDueCents: 12900 })
-const I = mkInvoice({ id: 9, number: '2026-0009', amountDueCents: 5900 })
+const F = mkInvoice({ id: 6, number: '2026-6', amountDueCents: 4000 })
+const G = mkInvoice({ id: 7, number: '2026-7', amountDueCents: 2499 })
+const H = mkInvoice({ id: 8, number: '2026-8', amountDueCents: 12900 })
+const I = mkInvoice({ id: 9, number: '2026-9', amountDueCents: 5900 })
 const J = mkInvoice({
   id: 10,
-  number: '2026-0010',
+  number: '2026-10',
   amountDueCents: 34581,
   status: InvoiceStatus.PAID
 })
 const K = mkInvoice({
   id: 11,
-  number: '2026-0011',
+  number: '2026-11',
   amountDueCents: 1290,
   status: InvoiceStatus.PAID
 })
 const L = mkInvoice({
   id: 12,
-  number: '2026-0012',
+  number: '2026-12',
   amountDueCents: 19900,
   status: InvoiceStatus.PAID
 })
@@ -221,25 +221,25 @@ const mkTx = (overrides: Partial<MatchTransaction>): MatchTransaction => ({
 const tx002 = mkTx({
   externalId: 'seed-credit-002',
   amountCents: 5000,
-  description: 'FACTUUR 2026-0001'
+  description: 'FACTUUR 2026-1'
 })
 
 const tx003 = mkTx({
   externalId: 'seed-credit-003',
   amountCents: 3000,
-  description: 'FACTUUR 2026-0002'
+  description: 'FACTUUR 2026-2'
 })
 
 const tx004 = mkTx({
   externalId: 'seed-credit-004',
   amountCents: 2500,
-  description: 'FACTUUR 2026-0003'
+  description: 'FACTUUR 2026-3'
 })
 
 const tx005 = mkTx({
   externalId: 'seed-credit-005',
   amountCents: 4500,
-  description: 'FACTUUR 2026-0004'
+  description: 'FACTUUR 2026-4'
 })
 
 const tx006 = mkTx({
@@ -276,7 +276,7 @@ const tx009 = mkTx({
 const tx010 = mkTx({
   externalId: 'seed-credit-010',
   amountCents: 4500,
-  description: 'FACTUUR 2026-0008'
+  description: 'FACTUUR 2026-8'
 })
 
 // ---------------------------------------------------------------------------
@@ -328,7 +328,7 @@ describe('buildLinkProposal against the seeded demo world', () => {
   })
 
   it('005 → split D (reference-priority)', () => {
-    // Reference "FACTUUR 2026-0004" names exactly one open invoice (D) →
+    // Reference "FACTUUR 2026-4" names exactly one open invoice (D) →
     // reference-priority split toward D, even though A+C would subset-sum.
     const result = proposal(tx005)
     expect(result).not.toBeNull()

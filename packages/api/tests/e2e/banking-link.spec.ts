@@ -6,11 +6,21 @@ import type { DB } from '../../src/kysely/types.js'
 
 import { ADMIN_EMAIL as email, ADMIN_PASSWORD as password } from './helpers'
 
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 const getDb = getTestDb
 
 /** The suggestions-table row for one seeded credit, located by its note. */
 const row = (page: Page, text: string) =>
   page.locator('tbody tr').filter({ hasText: text }).first()
+
+/** Rows containing `text` as a whole word — excludes substring collisions
+ * like 2026-1 vs 2026-14. */
+const exactRow = (page: Page, text: string) =>
+  page
+    .locator('tbody tr')
+    .filter({ hasText: new RegExp(`${escapeRegExp(text)}\\b`) })
 
 const openSuggestions = async (browser: any) => {
   const page = await browser.newPage({ bypassCSP: true })
@@ -38,7 +48,7 @@ const seededInvoiceId = async (db: Kysely<DB>, number: number) => {
   const row = await db
     .selectFrom('checkout.invoices')
     .select('id')
-    .where('numberPrefix', '=', '2026-000')
+    .where('numberPrefix', '=', '2026-')
     .where('number', '=', number)
     .executeTakeFirstOrThrow()
   return row.id
@@ -60,7 +70,7 @@ const invoiceStatus = async (db: Kysely<DB>, invoiceId: number) =>
  * Engine gates: bookingDate >= dueDate + amount <= due. The seeded credits
  * are booked the day BEFORE their target invoices are due, so only the
  * adoption path (paid-invoice, no date gate) survives: seed-credit-003
- * (€30, FACTUUR 2026-0002) adopts invoice B, which carries a €30 paid
+ * (€30, FACTUUR 2026-2) adopts invoice B, which carries a €30 paid
  * manual banktransfer payment. All other seed credits are excluded by the
  * date guard. Runs serially — linking mutates the demo world.
  */
@@ -79,8 +89,8 @@ test.describe('payments suggestions tab + link dialog (seeded demo)', () => {
       page.locator('.q-tabs .q-tab--active').filter({ hasText: 'Suggestions' })
     ).toBeVisible()
 
-    // seed-credit-003 (FACTUUR 2026-0002, €30) is the adoption suggestion.
-    const creditRow = row(page, 'FACTUUR 2026-0002')
+    // seed-credit-003 (FACTUUR 2026-2, €30) is the adoption suggestion.
+    const creditRow = row(page, 'FACTUUR 2026-2')
     await expect(creditRow).toBeVisible({ timeout: 15_000 })
     await expect(
       creditRow.locator('[data-testid="suggestion-chip"]')
@@ -90,7 +100,7 @@ test.describe('payments suggestions tab + link dialog (seeded demo)', () => {
     ).toBeVisible()
 
     // Pre-due-date credits are excluded by the date guard, not shown.
-    await expect(row(page, 'FACTUUR 2026-0001')).toHaveCount(0)
+    await expect(exactRow(page, 'FACTUUR 2026-1')).toHaveCount(0)
 
     // Recognized payouts and the debit are never suggestions.
     await expect(row(page, 'MOLLIE PAYOUT')).toHaveCount(0)
@@ -106,22 +116,26 @@ test.describe('payments suggestions tab + link dialog (seeded demo)', () => {
     try {
       const invoiceB = await seededInvoiceId(db, 2)
 
-      const dialog = await linkRow(page, 'FACTUUR 2026-0002')
+      const dialog = await linkRow(page, 'FACTUUR 2026-2')
       // Single-select dialog: the adoptable paid invoice is present and
-      // selected (radio), with the adopt explanatory note.
-      await expect(dialog.locator('.q-radio').first()).toBeVisible({
-        timeout: 15_000
-      })
+      // selected (checkbox), with the adopt explanatory note.
+      await expect(
+        dialog.locator('[data-testid="invoice-select"]').first()
+      ).toBeVisible({ timeout: 15_000 })
       // The top suggestion (paid invoice B) is auto-selected.
       const bItem = dialog
         .locator('.q-list > .q-item')
-        .filter({ hasText: '2026-0002' })
+        .filter({ hasText: '2026-2' })
         .first()
-      await expect(bItem.locator('.q-radio').first()).toBeChecked({
-        timeout: 15_000
-      })
+      await expect(
+        bItem.locator('[data-testid="invoice-select"]').first()
+      ).toHaveAttribute('aria-checked', 'true', { timeout: 15_000 })
       // Adoptable paid invoices carry the adopt badge.
       await expect(bItem.getByText('Adopt').first()).toBeVisible()
+      // Each candidate shows its match-confidence score badge.
+      await expect(
+        bItem.locator('[data-testid="invoice-score"]').first()
+      ).toBeVisible()
 
       await confirm(dialog)
 
@@ -162,6 +176,40 @@ test.describe('payments suggestions tab + link dialog (seeded demo)', () => {
   }) => {
     const page = await openSuggestions(browser)
     // seed-credit-003 was adopted by the second test → not actionable anymore.
-    await expect(row(page, 'FACTUUR 2026-0002')).toHaveCount(0)
+    await expect(row(page, 'FACTUUR 2026-2')).toHaveCount(0)
+  })
+
+  test('multi-candidate dialog sorts by score and preselects the ref-hit row', async ({
+    browser
+  }) => {
+    const page = await openSuggestions(browser)
+    // seed-credit-011 (€130, Jane Doe, note "FACTUUR 2026-14") has two
+    // adoptable paid invoices: 2026-14 (explicit ref → 98%) and 2026-13
+    // (surname-only tie → 75%). The dialog must list 2026-14 first, checked.
+    const creditRow = row(page, 'FACTUUR 2026-14')
+    await expect(creditRow).toBeVisible({ timeout: 15_000 })
+    const dialog = await linkRow(page, 'FACTUUR 2026-14')
+
+    // Invoice header rows carry the select checkbox; the two adoptable paid
+    // invoices (2026-14 ref-hit, 2026-13 surname-tie) sort first by score.
+    const invoiceRows = dialog.locator(
+      '.q-list > .q-item:has([data-testid="invoice-select"])'
+    )
+    await expect(invoiceRows.nth(0)).toContainText('2026-14')
+    await expect(
+      invoiceRows.nth(0).locator('[data-testid="invoice-score"]')
+    ).toHaveText('98%')
+    await expect(
+      invoiceRows.nth(0).locator('[data-testid="invoice-select"]')
+    ).toHaveAttribute('aria-checked', 'true')
+
+    const secondItem = invoiceRows.nth(1)
+    await expect(secondItem).toContainText('2026-13')
+    await expect(
+      secondItem.locator('[data-testid="invoice-score"]')
+    ).toHaveText('75%')
+    await expect(
+      secondItem.locator('[data-testid="invoice-select"]')
+    ).toHaveAttribute('aria-checked', 'false')
   })
 })
