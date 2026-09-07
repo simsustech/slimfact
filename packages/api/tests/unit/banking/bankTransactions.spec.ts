@@ -669,5 +669,57 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       const after = await caller.listSuggestions({})
       expect(after.items).toHaveLength(0)
     }, 30000)
+    it('adoptable dialog candidates are scoped to the credit amount', async () => {
+      const { companyId } = await seedCompany()
+      // Open invoice the €50 credit will ref-match against.
+      await seedInvoice(companyId, 1, 5000)
+      // A paid invoice with a NULL-ref €160 manual banktransfer payment —
+      // must NOT be offered as adoptable for the €50 credit.
+      const paidInv = await seedInvoice(companyId, 2, 16000)
+      await testDb!
+        .updateTable('checkout.invoices')
+        .set({ status: InvoiceStatus.PAID })
+        .where('id', '=', paidInv.id)
+        .execute()
+      await testDb!
+        .insertInto('checkout.payments')
+        .values({
+          invoiceId: paidInv.id,
+          description: 'Manual',
+          amount: 16000,
+          currency: 'EUR',
+          method: PaymentMethod.banktransfer,
+          status: PaymentStatus.PAID,
+          transactionReference: null
+        })
+        .execute()
+
+      fakeClient.getAccounts = vi.fn(async () => [makeAccount()])
+      fakeClient.getTransactions = vi.fn(async () => ({
+        items: [
+          {
+            id: 'txn-scope',
+            currency: 'EUR',
+            creditDebitIndicator: 'CRDT',
+            status: 'BOOK',
+            bookingDate: '2026-07-02',
+            amount: '50.00',
+            note: 'Factuur 2026-0001'
+          } as unknown as Transaction
+        ],
+        total: 1
+      }))
+      fakeClient.getPspSettlements = vi.fn<BankingApi['getPspSettlements']>(
+        async () => []
+      )
+      fakeClient.getPspPayments = vi.fn(async () => [])
+
+      const caller = await loadCaller()
+      const result = await caller.listSuggestions({})
+      expect(result.items).toHaveLength(1)
+      const row = result.items[0]!
+      // The €160 paid invoice is NOT adoptable for the €50 credit.
+      expect(row.adoptableInvoiceIds).not.toContain(paidInv.id)
+    }, 30000)
   }
 )
