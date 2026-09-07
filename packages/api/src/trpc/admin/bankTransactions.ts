@@ -662,9 +662,16 @@ export const adminBankTransactionRoutes = ({
 
             if (result) {
               // Dialog candidates = open invoices of the company PLUS the
-              // adoptable paid invoices (the dialog marks them via the adopt
-              // badge; without them an adoption suggestion could never be
-              // selected).
+              // adoptable paid invoices whose manual payment EXACTLY matches
+              // this credit's amount (adoption is an exact-amount match — the
+              // engine's findAdoptablePayment requires payment.amount ===
+              // transaction.amountCents). Company-wide adoptables would
+              // otherwise surface the same paid invoices in every dialog.
+              // Mirrors the engine's findAdoptablePayment predicate exactly
+              // (NULL/empty ref OR ref === the credit's booking date) so the
+              // adopt badge + preselection stay consistent with the engine.
+              const creditAmountCents = matchTx.amountCents
+              const creditBookingDate = matchTx.bookingDate
               const adoptableIdSet = new Set(
                 payments
                   .filter(
@@ -673,7 +680,9 @@ export const adminBankTransactionRoutes = ({
                       p.status === 'paid' &&
                       p.invoiceId != null &&
                       (p.transactionReference === null ||
-                        p.transactionReference === '')
+                        p.transactionReference === '' ||
+                        p.transactionReference === creditBookingDate) &&
+                      p.amount === creditAmountCents
                   )
                   .map((p) => p.invoiceId!)
               )
