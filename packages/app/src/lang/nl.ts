@@ -327,6 +327,7 @@ const lang: Language = {
       link: 'Koppelen',
       adoptBadge: 'Overnemen',
       topSuggestion: 'Suggestie',
+      score: 'Score',
       dismiss: 'Negeren'
     }
   },

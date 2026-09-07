@@ -327,6 +327,7 @@ const lang: Language = {
       link: 'Link',
       adoptBadge: 'Adopt',
       topSuggestion: 'Suggestion',
+      score: 'Score',
       dismiss: 'Dismiss'
     }
   },

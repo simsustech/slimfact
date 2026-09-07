@@ -346,6 +346,7 @@ export interface Language {
       link?: string
       adoptBadge?: string
       topSuggestion?: string
+      score?: string
       dismiss?: string
     }
   }

@@ -328,6 +328,7 @@ const lang: Language = {
       link: 'Verknüpfen',
       adoptBadge: 'Übernehmen',
       topSuggestion: 'Vorschlag',
+      score: 'Score',
       dismiss: 'Verwerfen'
     }
   },

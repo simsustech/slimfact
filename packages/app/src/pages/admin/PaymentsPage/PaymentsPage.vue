@@ -248,28 +248,30 @@
           </template>
           <template #body-cell-suggestion="props">
             <q-td :props="props">
-              <div class="row no-wrap items-center q-gutter-xs">
-                <q-chip
-                  v-if="props.row.topSuggestion"
-                  color="primary"
-                  text-color="white"
-                  size="sm"
-                  data-testid="suggestion-chip"
-                >
-                  {{
-                    props.row.topSuggestion.invoiceNumber ||
-                    lang.payment.suggestions.topSuggestion
-                  }}
-                </q-chip>
-                <q-badge
-                  v-if="props.row.topSuggestion"
-                  :color="scoreColor(props.row.topSuggestion.score)"
-                  outline
-                  data-testid="suggestion-score"
-                >
-                  {{ Math.round(props.row.topSuggestion.score * 100) }}%
-                </q-badge>
-              </div>
+              <q-chip
+                v-if="props.row.topSuggestion"
+                color="primary"
+                text-color="white"
+                size="sm"
+                data-testid="suggestion-chip"
+              >
+                {{
+                  props.row.topSuggestion.invoiceNumber ||
+                  lang.payment.suggestions.topSuggestion
+                }}
+              </q-chip>
+            </q-td>
+          </template>
+          <template #body-cell-score="props">
+            <q-td :props="props">
+              <q-badge
+                v-if="props.row.topSuggestion"
+                :color="scoreColor(props.row.topSuggestion.score)"
+                outline
+                data-testid="suggestion-score"
+              >
+                {{ Math.round(props.row.topSuggestion.score * 100) }}%
+              </q-badge>
             </q-td>
           </template>
           <template #body-cell-actions="props">
@@ -620,6 +622,12 @@ const suggestionColumns = [
     name: 'suggestion',
     label: lang.value.payment.suggestions?.topSuggestion ?? 'Suggestion',
     field: 'suggestion',
+    align: 'left' as const
+  },
+  {
+    name: 'score',
+    label: lang.value.payment.suggestions?.score ?? 'Score',
+    field: 'score',
     align: 'left' as const
   },
   { name: 'actions', label: '', field: 'actions' }

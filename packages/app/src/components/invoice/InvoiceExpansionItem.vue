@@ -9,6 +9,7 @@
           @update:model-value="emit('update:selected', !!$event)"
         />
         <invoice-status-avatar
+          v-else
           :model-value="modelValue.status"
           :paid="
             !!modelValue.amountPaid &&
