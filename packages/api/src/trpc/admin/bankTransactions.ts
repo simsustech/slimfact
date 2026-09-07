@@ -661,17 +661,10 @@ export const adminBankTransactionRoutes = ({
             })
 
             if (result) {
-              // Dialog candidates = open invoices of the company PLUS the
-              // adoptable paid invoices whose manual payment EXACTLY matches
-              // this credit's amount (adoption is an exact-amount match — the
-              // engine's findAdoptablePayment requires payment.amount ===
-              // transaction.amountCents). Company-wide adoptables would
-              // otherwise surface the same paid invoices in every dialog.
-              // Mirrors the engine's findAdoptablePayment predicate exactly
-              // (NULL/empty ref OR ref === the credit's booking date) so the
-              // adopt badge + preselection stay consistent with the engine.
+              // Adoptable = manual banktransfer payments not yet coupled to
+              // a bank credit (any ref except bank: — mirrors the engine's
+              // findAdoptablePayment predicate) with the credit's amount.
               const creditAmountCents = matchTx.amountCents
-              const creditBookingDate = matchTx.bookingDate
               const adoptableIdSet = new Set(
                 payments
                   .filter(
@@ -681,19 +674,33 @@ export const adminBankTransactionRoutes = ({
                       p.invoiceId != null &&
                       (p.transactionReference === null ||
                         p.transactionReference === '' ||
-                        p.transactionReference === creditBookingDate) &&
+                        !p.transactionReference.startsWith('bank:')) &&
                       p.amount === creditAmountCents
                   )
                   .map((p) => p.invoiceId!)
               )
-              const candidateUuids = invoices
-                .filter((inv) => inv.companyId === companyId)
-                .filter(
-                  (inv) =>
-                    inv.status === InvoiceStatus.OPEN ||
-                    adoptableIdSet.has(inv.id)
-                )
-                .map((inv) => inv.uuid)
+              // Dialog candidates: open invoices + adoptable paid invoices
+              // + ALWAYS the engine's top suggestion (it may be a paid
+              // invoice adopted via a short-ref manual payment like "29-6"
+              // that the amount+ref filter above still captures, but include
+              // it unconditionally so the dialog never opens empty).
+              const candidateUuids = [
+                ...new Set([
+                  ...invoices
+                    .filter((inv) => inv.companyId === companyId)
+                    .filter(
+                      (inv) =>
+                        inv.status === InvoiceStatus.OPEN ||
+                        adoptableIdSet.has(inv.id)
+                    )
+                    .map((inv) => inv.uuid),
+                  ...(result
+                    ? invoices
+                        .filter((inv) => inv.id === result.invoiceId)
+                        .map((inv) => inv.uuid)
+                    : [])
+                ])
+              ]
               const adoptableIds = [...adoptableIdSet]
 
               allSuggestions.push({

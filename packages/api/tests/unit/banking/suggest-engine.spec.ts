@@ -253,6 +253,9 @@ describe('suggestForCredit', () => {
       expect(result).not.toBeNull()
       expect(result!.invoiceId).toBe(1)
       expect(result!.evidence.adoptablePaymentId).toBe(1)
+      // Default fixture has an invoice-number ref → near-certain adoption.
+      expect(result!.evidence.numRefHit).toBe(true)
+      expect(result!.score).toBeCloseTo(0.98)
     })
 
     it('rejects adoption when amount matches but client does not', () => {
@@ -326,6 +329,66 @@ describe('suggestForCredit', () => {
 
       expect(result).not.toBeNull()
       expect(result!.invoiceId).toBe(1)
+      // Surname-only tie (no invoice-number ref) → strong but inferred.
+      expect(result!.evidence.numRefHit).toBe(false)
+      expect(result!.score).toBeCloseTo(0.75)
+    })
+
+    it('prefers the invoice the credit explicitly references over an earlier same-client one', () => {
+      // Two €130 manual payments on two paid invoices of the same client.
+      // The credit references HVB-2026-4 → adoption must pick invoice 4's
+      // payment, not the first same-amount/same-client payment (invoice 2).
+      const transaction = makeTransaction({
+        amountCents: 13000,
+        counterpartyName: 'V.d. Bighelaar Elektrotechniek B.V.',
+        description: null,
+        remittanceInformation: 'HVB-2026-4',
+        referenceNumber: null
+      })
+      const invoices = [
+        makeInvoice({
+          id: 2,
+          number: 'HVB-2026-2',
+          status: 'paid' as any,
+          amountDueCents: 0,
+          clientName: 'Van den Bighelaar Elektrotechniek'
+        }),
+        makeInvoice({
+          id: 4,
+          number: 'HVB-2026-4',
+          status: 'paid' as any,
+          amountDueCents: 0,
+          clientName: 'Van den Bighelaar Elektrotechniek'
+        })
+      ]
+      const payments = [
+        makePayment({
+          id: 11,
+          invoiceId: 2,
+          amount: 13000,
+          transactionReference: '14-4'
+        }),
+        makePayment({
+          id: 12,
+          invoiceId: 4,
+          amount: 13000,
+          transactionReference: '29-6'
+        })
+      ]
+
+      const result = suggestForCredit({
+        transaction,
+        invoices,
+        payments,
+        config: defaultConfig
+      })
+
+      expect(result).not.toBeNull()
+      expect(result!.invoiceId).toBe(4)
+      expect(result!.evidence.adoptablePaymentId).toBe(12)
+      // Explicit ref → near-certain.
+      expect(result!.evidence.numRefHit).toBe(true)
+      expect(result!.score).toBeCloseTo(0.98)
     })
   })
 })

@@ -42,7 +42,27 @@ const findAdoptablePayment = (
   transaction: MatchTransaction,
   payments: BankPaymentCandidate[],
   invoices: MatchInvoice[]
-): { payment: BankPaymentCandidate; invoice: MatchInvoice } | null => {
+): {
+  payment: BankPaymentCandidate
+  invoice: MatchInvoice
+  numRefHit: boolean
+} | null => {
+  // Reference text of the credit, used to prefer the explicitly referenced
+  // invoice over an arbitrary same-client manual payment.
+  const creditText = normalizeReference(
+    [
+      transaction.description,
+      transaction.remittanceInformation,
+      transaction.referenceNumber
+    ]
+      .filter((part): part is string => !!part)
+      .join(' ')
+  )
+  let refFallback: {
+    payment: BankPaymentCandidate
+    invoice: MatchInvoice
+    numRefHit: boolean
+  } | null = null
   for (const payment of payments) {
     if (
       payment.method !== 'banktransfer' ||
@@ -62,31 +82,21 @@ const findAdoptablePayment = (
     const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
     if (!invoice) continue
     // NEVER adopt on amount alone: require a client tie between the bank
-    // payer and the invoice's client. Adoption without it produces false
-    // positives (any same-amount credit adopting an unrelated paid
-    // invoice). A client tie can come from the payer name matching the
-    // invoice client, or from an invoice-number reference in the credit.
+    // payer and the invoice's client, or an invoice-number reference in the
+    // credit. Amount equality is necessary but never sufficient.
     const payer = transaction.counterpartyName ?? ''
-    const clientTie =
-      sharedSurnameToken(payer, invoice.clientName) ||
-      (invoice.number
-        ? containsInvoiceNumber(
-            normalizeReference(
-              [
-                transaction.description,
-                transaction.remittanceInformation,
-                transaction.referenceNumber
-              ]
-                .filter((part): part is string => !!part)
-                .join(' ')
-            ),
-            invoice.number
-          )
-        : false)
-    if (!clientTie) continue
-    return { payment, invoice }
+    const numRefHit =
+      !!invoice.number &&
+      containsInvoiceNumber(normalizeReference(creditText), invoice.number)
+    const clientTie = sharedSurnameToken(payer, invoice.clientName)
+    if (!clientTie && !numRefHit) continue
+    if (numRefHit) {
+      // The credit names this invoice explicitly — always prefer it.
+      return { payment, invoice, numRefHit: true }
+    }
+    if (!refFallback) refFallback = { payment, invoice, numRefHit: false }
   }
-  return null
+  return refFallback
 }
 
 /**
@@ -110,11 +120,15 @@ export const suggestForCredit = ({
   // no-overpay / date-valid filters that exclude paid invoices.
   const adoptable = findAdoptablePayment(transaction, payments, invoices)
   if (adoptable) {
+    // Graded confidence for adoption: an explicit invoice-number reference
+    // in the credit text is near-certain; a client-surname-only tie is a
+    // strong but inferred match (same client paid some same-amount invoice).
+    const score = adoptable.numRefHit ? 0.98 : 0.75
     return {
       invoiceId: adoptable.invoice.id,
-      score: 1.0,
+      score,
       evidence: {
-        numRefHit: false,
+        numRefHit: adoptable.numRefHit,
         clientScore: 0,
         adoptablePaymentId: adoptable.payment.id
       }
