@@ -7,7 +7,12 @@ import {
 } from '@modular-api/fastify-checkout'
 import type { DB } from '../kysely/types.js'
 import type { MatchInvoice, MatchTransaction } from '@slimfact/tools/banking'
-import { findAdoptablePayment } from '@slimfact/tools/banking'
+import {
+  containsInvoiceNumber,
+  findAdoptablePayment,
+  normalizeReference,
+  sharedSurnameToken
+} from '@slimfact/tools/banking'
 
 type AddPayment = FastifyCheckoutInvoiceHandler['addPaymentToInvoice']
 
@@ -17,6 +22,33 @@ type AddPayment = FastifyCheckoutInvoiceHandler['addPaymentToInvoice']
  * can't drift; the return is narrowed to what the linking logic consumes
  * (the real handler's richer result still satisfies it structurally).
  */
+/**
+ * True when the credit text names the invoice or the payer's name shares a
+ * surname token with the invoice client. Adoption must never happen on the
+ * amount alone.
+ */
+const adoptionTie = (
+  transaction: MatchTransaction,
+  invoice: MatchInvoice
+): boolean => {
+  const creditText = normalizeReference(
+    [
+      transaction.description,
+      transaction.remittanceInformation,
+      transaction.referenceNumber
+    ]
+      .filter((part): part is string => !!part)
+      .join(' ')
+  )
+  const numRefHit =
+    !!invoice.number && containsInvoiceNumber(creditText, invoice.number)
+  const clientTie = sharedSurnameToken(
+    transaction.counterpartyName,
+    invoice.clientName
+  )
+  return numRefHit || clientTie
+}
+
 export type InvoiceHandler = {
   addPaymentToInvoice: (
     input: Parameters<AddPayment>[0]
@@ -204,7 +236,11 @@ export const linkBankCreditToInvoice = async ({
   if (adoptable) {
     if (
       invoice.companyId === transaction.companyId &&
-      invoice.currency === transaction.currency
+      invoice.currency === transaction.currency &&
+      // NEVER adopt on amount alone: the bank payer must share a surname
+      // token with the invoice client, or the credit text must name the
+      // invoice (mirrors the suggestion engine's adoption gate).
+      adoptionTie(transaction, invoice)
     ) {
       try {
         await db

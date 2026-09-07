@@ -63,9 +63,14 @@ const inDateWindow = (
 }
 
 /**
- * Adoption predicate: a paid manual banktransfer payment (same exact amount,
- * no other reference, or the booking date itself) can be coupled to the bank
- * credit instead of creating a second payment.
+ * Adoption predicate: a paid manual banktransfer payment for the exact credit
+ * amount can be coupled to the bank credit instead of creating a second
+ * payment. Mirrors the SQL adopt anchor (NOT LIKE 'bank:%'): a ref may be
+ * NULL, empty, the booking date, or a bookkeeper short ref ("29-6",
+ * "Factuur 2026-1"). Only `bank:`-prefixed refs mark an already-coupled
+ * payment and are excluded.
+ *
+ * Callers decide which invoice(s) to test; this checks the payment itself.
  */
 export const findAdoptablePayment = ({
   transaction,
@@ -83,7 +88,7 @@ export const findAdoptablePayment = ({
         payment.amount === transaction.amountCents &&
         (payment.transactionReference === null ||
           payment.transactionReference === '' ||
-          payment.transactionReference === transaction.bookingDate)
+          !payment.transactionReference.startsWith('bank:'))
     ) ?? null
   )
 }

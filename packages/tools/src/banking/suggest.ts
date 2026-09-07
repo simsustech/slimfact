@@ -3,6 +3,7 @@
  * SQL-derived suggestion scorer with deterministic gates + Fuse fuzzy client matching.
  */
 
+import { findAdoptablePayment } from './match.js'
 import { containsInvoiceNumber, normalizeReference } from './normalize.js'
 import {
   buildClientFuseIndex,
@@ -15,6 +16,50 @@ import type {
   BankPaymentCandidate,
   MatchConfig
 } from './types.js'
+
+interface AdoptableHit {
+  payment: BankPaymentCandidate
+  invoice: MatchInvoice
+  numRefHit: boolean
+}
+
+/**
+ * Best adoption candidate across the company's invoices, using the shared
+ * match.ts predicate for the payment itself and layering the suggestion
+ * rules on top: an explicit invoice-number reference in the credit text is
+ * preferred (and sufficient); otherwise a client surname tie is required —
+ * amount equality is never enough on its own.
+ */
+const findAdoptableCandidate = (
+  transaction: MatchTransaction,
+  payments: BankPaymentCandidate[],
+  invoices: MatchInvoice[]
+): AdoptableHit | null => {
+  const creditText = normalizeReference(
+    [
+      transaction.description,
+      transaction.remittanceInformation,
+      transaction.referenceNumber
+    ]
+      .filter((part): part is string => !!part)
+      .join(' ')
+  )
+  const payer = transaction.counterpartyName ?? ''
+  let refFallback: AdoptableHit | null = null
+  for (const payment of payments) {
+    if (!findAdoptablePayment({ transaction, payments: [payment] })) continue
+    const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
+    if (!invoice) continue
+    const numRefHit =
+      !!invoice.number &&
+      containsInvoiceNumber(normalizeReference(creditText), invoice.number)
+    const clientTie = sharedSurnameToken(payer, invoice.clientName)
+    if (!clientTie && !numRefHit) continue
+    if (numRefHit) return { payment, invoice, numRefHit: true }
+    if (!refFallback) refFallback = { payment, invoice, numRefHit: false }
+  }
+  return refFallback
+}
 
 export interface SuggestInput {
   transaction: MatchTransaction
@@ -34,75 +79,6 @@ export interface SuggestResult {
   }
 }
 
-/**
- * Finds an adoptable payment: exact-amount manual banktransfer payment.
- * Checks ALL invoices (not just open ones) because adoption applies to paid invoices.
- */
-const findAdoptablePayment = (
-  transaction: MatchTransaction,
-  payments: BankPaymentCandidate[],
-  invoices: MatchInvoice[]
-): {
-  payment: BankPaymentCandidate
-  invoice: MatchInvoice
-  numRefHit: boolean
-} | null => {
-  // Reference text of the credit, used to prefer the explicitly referenced
-  // invoice over an arbitrary same-client manual payment.
-  const creditText = normalizeReference(
-    [
-      transaction.description,
-      transaction.remittanceInformation,
-      transaction.referenceNumber
-    ]
-      .filter((part): part is string => !!part)
-      .join(' ')
-  )
-  let refFallback: {
-    payment: BankPaymentCandidate
-    invoice: MatchInvoice
-    numRefHit: boolean
-  } | null = null
-  for (const payment of payments) {
-    if (
-      payment.method !== 'banktransfer' ||
-      payment.status !== 'paid' ||
-      payment.invoiceId == null ||
-      payment.amount !== transaction.amountCents
-    ) {
-      continue
-    }
-    // Any manual banktransfer payment not yet coupled to a bank credit is
-    // an adoption target: refs may be NULL, empty, a booking-date (legacy),
-    // or the bookkeeper's own short reference ("19-2"). Only `bank:`-refs
-    // mark an already-coupled payment — those are excluded (mirrors the SQL
-    // adopt anchor: NOT LIKE 'bank:%').
-    const ref = payment.transactionReference
-    if (ref != null && ref !== '' && ref.startsWith('bank:')) continue
-    const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
-    if (!invoice) continue
-    // NEVER adopt on amount alone: require a client tie between the bank
-    // payer and the invoice's client, or an invoice-number reference in the
-    // credit. Amount equality is necessary but never sufficient.
-    const payer = transaction.counterpartyName ?? ''
-    const numRefHit =
-      !!invoice.number &&
-      containsInvoiceNumber(normalizeReference(creditText), invoice.number)
-    const clientTie = sharedSurnameToken(payer, invoice.clientName)
-    if (!clientTie && !numRefHit) continue
-    if (numRefHit) {
-      // The credit names this invoice explicitly — always prefer it.
-      return { payment, invoice, numRefHit: true }
-    }
-    if (!refFallback) refFallback = { payment, invoice, numRefHit: false }
-  }
-  return refFallback
-}
-
-/**
- * Main suggestion function for a single bank credit.
- * Returns null if no actionable suggestion exists.
- */
 export const suggestForCredit = ({
   transaction,
   invoices,
@@ -118,7 +94,7 @@ export const suggestForCredit = ({
   // Gate 2: Check for adoptable payment FIRST — adoption applies to paid
   // invoices (amountDueCents may be 0), so it must run before the
   // no-overpay / date-valid filters that exclude paid invoices.
-  const adoptable = findAdoptablePayment(transaction, payments, invoices)
+  const adoptable = findAdoptableCandidate(transaction, payments, invoices)
   if (adoptable) {
     // Graded confidence for adoption: an explicit invoice-number reference
     // in the credit text is near-certain; a client-surname-only tie is a
@@ -262,18 +238,10 @@ export const scoreInvoiceCandidates = ({
   const payer = transaction.counterpartyName ?? ''
 
   // Score every adoptable paid invoice (manual banktransfer payment, not
-  // bank-coupled, exact amount).
+  // bank-coupled, exact amount) that also has a client tie or a ref hit —
+  // same rules as suggestForCredit's adoption gate.
   for (const payment of payments) {
-    if (
-      payment.method !== 'banktransfer' ||
-      payment.status !== 'paid' ||
-      payment.invoiceId == null ||
-      payment.amount !== transaction.amountCents
-    ) {
-      continue
-    }
-    const ref = payment.transactionReference
-    if (ref != null && ref !== '' && ref.startsWith('bank:')) continue
+    if (!findAdoptablePayment({ transaction, payments: [payment] })) continue
     const invoice = invoices.find((inv) => inv.id === payment.invoiceId)
     if (!invoice) continue
     const numRefHit =

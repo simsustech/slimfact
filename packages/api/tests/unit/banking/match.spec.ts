@@ -222,12 +222,12 @@ describe('findAdoptablePayment', () => {
     expect(payment?.id).toBe(900)
   })
 
-  it('does not adopt when the payment reference is something else', () => {
+  it('adopts a non-bank bookkeeper reference (short or invoice-number ref)', () => {
     const payment = findAdoptablePayment({
       transaction: credit(),
       payments: [manualPayment({ transactionReference: 'Factuur 2026-0001' })]
     })
-    expect(payment).toBeNull()
+    expect(payment?.id).toBe(900)
   })
 
   it('does not adopt on an amount mismatch', () => {
@@ -301,13 +301,13 @@ describe('suggestInvoiceCandidates', () => {
     expect(candidates[0].adopt).toBe(true)
   })
 
-  it('no adoption chip when the payment reference is something else', () => {
+  it('adoption chip also applies to a non-bank bookkeeper reference', () => {
     const candidates = suggestInvoiceCandidates({
       transaction: credit(),
       invoices: [openInvoice({ status: InvoiceStatus.PAID })],
       payments: [manualPayment({ transactionReference: 'Factuur 2026-0001' })]
     })
-    expect(candidates.some((candidate) => candidate.adopt)).toBe(false)
+    expect(candidates.some((candidate) => candidate.adopt)).toBe(true)
   })
 
   it('no adoption chip on an amount mismatch', () => {
