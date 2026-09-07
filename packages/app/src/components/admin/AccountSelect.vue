@@ -2,7 +2,9 @@
   <filtered-model-select
     v-bind="attrs"
     :label="lang.account.name"
-    :filtered-options="indexedOptions"
+    :filtered-options="
+      filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+    "
     label-key="email"
   >
     <template
@@ -23,23 +25,23 @@ export default {
 
 <script setup lang="ts">
 import { FilteredModelSelect } from '@simsustech/quasar-components/form'
-import { computed, useAttrs } from 'vue'
+import { useAttrs } from 'vue'
 import { useLang } from '../../lang/index.js'
 
 export interface Props {
   filteredOptions: readonly { id?: number }[]
+  /**
+   * Typed for parents that reference `$props['onFilter']` when typing their
+   * `@filter` handlers. Not forwarded: AccountSelect spreads attrs so the
+   * parent's @filter listener reaches FilteredModelSelect naturally.
+   */
   onFilter?: (args: {
     ids: number[]
     searchPhrase: string
     done: (success?: boolean) => void
   }) => unknown
 }
-const props = defineProps<Props>()
-/** Upstream expects required id; runtime rows always carry one. */
-const indexedOptions = computed<{ id: number; [key: string]: unknown }[]>(
-  () =>
-    props.filteredOptions as unknown as { id: number; [key: string]: unknown }[]
-)
+defineProps<Props>()
 const attrs = useAttrs()
 const lang = useLang()
 </script>

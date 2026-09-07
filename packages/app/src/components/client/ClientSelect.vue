@@ -1,8 +1,9 @@
 <template>
   <filtered-model-select
     :label="`${lang.client.client}`"
-    :filtered-options="indexedOptions"
-    :on-filter="onFilter"
+    :filtered-options="
+      filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+    "
     label-key="companyName"
     :label-function="
       (option: unknown) => {
@@ -41,31 +42,24 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useLang } from '../../lang/index.js'
 import { FilteredModelSelect } from '@simsustech/quasar-components/form'
 
-type ClientOption = {
-  id?: number
-  companyName?: string | null
-  contactPersonName?: string | null
-}
-
-interface Props {
-  filteredOptions: ClientOption[]
+export interface Props {
+  filteredOptions: readonly { id?: number }[]
+  /**
+   * Typed for parents that reference `$props['onFilter']` when typing their
+   * `@filter` handlers. Not forwarded as FilteredModelSelect's onFilter prop:
+   * parents pass `@filter` which binds to FilteredModelSelect's own filter
+   * emit (plain dropdown stays open); typing-to-filter is driven by
+   * FilteredModelSelect's filter emit reaching the parent's handler.
+   */
   onFilter?: (args: {
-    ids: number[]
     searchPhrase: string
     done: (success?: boolean) => void
   }) => unknown
 }
-const props = defineProps<Props>()
-
-/** Upstream expects a required `id`; runtime rows always carry one. */
-const indexedOptions = computed<{ id: number; [key: string]: unknown }[]>(
-  () =>
-    props.filteredOptions as unknown as { id: number; [key: string]: unknown }[]
-)
+defineProps<Props>()
 
 const lang = useLang()
 </script>
