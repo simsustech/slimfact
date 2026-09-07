@@ -555,6 +555,19 @@ export const adminBankTransactionRoutes = ({
       const accounts = await client.getAccounts()
       const links = await fetchAccountCompanyLinks(db)
       const companiesByIban = loadCompaniesByIban()
+
+      // Dismissed suggestion keys: (companyId → set of transaction external ids).
+      const dismissedRows = await db
+        .selectFrom('bankSuggestionDismissals')
+        .select(['companyId', 'transactionExternalId'])
+        .execute()
+      const dismissedByCompany = new Map<number, Set<string>>()
+      for (const row of dismissedRows) {
+        const set = dismissedByCompany.get(row.companyId) ?? new Set<string>()
+        set.add(row.transactionExternalId)
+        dismissedByCompany.set(row.companyId, set)
+      }
+
       const allSuggestions: Array<{
         transaction: MatchTransaction
         companyId: number | null
@@ -621,6 +634,8 @@ export const adminBankTransactionRoutes = ({
           if (linkedTransactions.has(txRef)) continue
 
           for (const companyId of companyIds) {
+            // Skip credits the user dismissed for this company.
+            if (dismissedByCompany.get(companyId)?.has(apiTx.id)) continue
             if (!companyInvoicesCache.has(companyId)) {
               companyInvoicesCache.set(
                 companyId,
@@ -991,6 +1006,39 @@ export const adminBankTransactionRoutes = ({
         }
       }
       await setAccountCompanies(db, input.accountExternalId, input.companyIds)
+      return { ok: true }
+    }),
+  /**
+   * Dismisses (hides) a suggestion for a specific bank credit + company.
+   * The credit may still suggest for other companies sharing the account.
+   */
+  dismissSuggestion: procedure
+    .input(
+      z.object({
+        transactionExternalId: z.string(),
+        companyId: z.number()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const company = await db
+        .selectFrom('companies')
+        .select('id')
+        .where('id', '=', input.companyId)
+        .executeTakeFirst()
+      if (!company) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Unknown company id ${input.companyId}`
+        })
+      }
+      await db
+        .insertInto('bankSuggestionDismissals')
+        .values({
+          transactionExternalId: input.transactionExternalId,
+          companyId: input.companyId
+        })
+        .onConflict((conflict) => conflict.doNothing())
+        .execute()
       return { ok: true }
     }),
 

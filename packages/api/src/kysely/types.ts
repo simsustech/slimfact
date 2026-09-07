@@ -113,6 +113,12 @@ export interface BankAccountCompanies {
   createdAt: Generated<string>
 }
 
+export interface BankSuggestionDismissals {
+  transactionExternalId: string
+  companyId: number
+  createdAt: Generated<string>
+}
+
 export interface DB extends CheckoutDatabase {
   accounts: AccountsTable
   authenticationMethods: AuthenticationMethodsTable
@@ -125,4 +131,5 @@ export interface DB extends CheckoutDatabase {
   subscriptions: Subscriptions
   invoiceEvents: InvoiceEvents
   bankAccountCompanies: BankAccountCompanies
+  bankSuggestionDismissals: BankSuggestionDismissals
 }

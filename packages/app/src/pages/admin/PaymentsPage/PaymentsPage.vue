@@ -248,33 +248,55 @@
           </template>
           <template #body-cell-suggestion="props">
             <q-td :props="props">
-              <q-chip
-                v-if="props.row.topSuggestion"
-                color="primary"
-                text-color="white"
-                size="sm"
-                data-testid="suggestion-chip"
-              >
-                {{
-                  props.row.topSuggestion.invoiceNumber ||
-                  lang.payment.suggestions.topSuggestion
-                }}
-              </q-chip>
+              <div class="row no-wrap items-center q-gutter-xs">
+                <q-chip
+                  v-if="props.row.topSuggestion"
+                  color="primary"
+                  text-color="white"
+                  size="sm"
+                  data-testid="suggestion-chip"
+                >
+                  {{
+                    props.row.topSuggestion.invoiceNumber ||
+                    lang.payment.suggestions.topSuggestion
+                  }}
+                </q-chip>
+                <q-badge
+                  v-if="props.row.topSuggestion"
+                  :color="scoreColor(props.row.topSuggestion.score)"
+                  outline
+                  data-testid="suggestion-score"
+                >
+                  {{ Math.round(props.row.topSuggestion.score * 100) }}%
+                </q-badge>
+              </div>
             </q-td>
           </template>
           <template #body-cell-actions="props">
             <q-td :props="props">
-              <q-btn
-                v-if="props.row.topSuggestion"
-                color="primary"
-                flat
-                dense
-                icon="i-mdi-link"
-                :title="lang.payment.suggestions.link"
-                :aria-label="lang.payment.suggestions.link"
-                data-testid="suggestion-link"
-                @click="openSuggestionLinkDialog(props.row)"
-              />
+              <div class="row no-wrap items-center q-gutter-xs">
+                <q-btn
+                  v-if="props.row.topSuggestion"
+                  color="primary"
+                  flat
+                  dense
+                  icon="i-mdi-link"
+                  :title="lang.payment.suggestions.link"
+                  :aria-label="lang.payment.suggestions.link"
+                  data-testid="suggestion-link"
+                  @click="openSuggestionLinkDialog(props.row)"
+                />
+                <q-btn
+                  flat
+                  dense
+                  color="grey"
+                  icon="i-mdi-close"
+                  :title="lang.payment.suggestions.dismiss"
+                  :aria-label="lang.payment.suggestions.dismiss"
+                  data-testid="suggestion-dismiss"
+                  @click="dismissSuggestion(props.row)"
+                />
+              </div>
             </q-td>
           </template>
           <template #no-data>
@@ -305,7 +327,10 @@ import {
 } from '../../../queries/admin/payments.js'
 import { useAdminDeletePaymentFromInvoiceMutation } from '../../../queries/admin/invoices.js'
 import { useAdminExportPaymentsMutation } from '../../../queries/admin/payments.js'
-import { useAdminListSuggestionsQuery } from '../../../queries/admin/bankTransactions.ts'
+import {
+  useAdminListSuggestionsQuery,
+  useAdminDismissSuggestionMutation
+} from '../../../queries/admin/bankTransactions.ts'
 import BankLinkDialog from '../BankPage/BankLinkDialog.vue'
 
 const lang = useLang()
@@ -614,5 +639,21 @@ const onLinked = async () => {
   linkRow.value = null
   await suggestionsQuery.refresh()
   await paymentsQuery.refresh()
+}
+
+/** Green ≥ 80 %, amber ≥ 50 %, grey otherwise. */
+const scoreColor = (score: number): string =>
+  score >= 0.8 ? 'positive' : score >= 0.5 ? 'warning' : 'grey'
+
+const { mutateAsync: dismissSuggestionMutation } =
+  useAdminDismissSuggestionMutation()
+const dismissSuggestion = async (
+  row: (typeof suggestionItems.value)[number]
+) => {
+  await dismissSuggestionMutation({
+    transactionExternalId: row.transaction.externalId,
+    companyId: row.companyId ?? 0
+  })
+  await suggestionsQuery.refresh()
 }
 </script>

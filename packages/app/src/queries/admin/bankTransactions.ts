@@ -164,6 +164,13 @@ export const useAdminBankSyncNowMutation = () => {
     mutation: () => trpc.admin.requestSync.mutate()
   })
 }
+
+export const useAdminDismissSuggestionMutation = () => {
+  return useMutation({
+    mutation: (input: { transactionExternalId: string; companyId: number }) =>
+      trpc.admin.dismissSuggestion.mutate(input)
+  })
+}
 export type BankSyncEvent = {
   topic: string
   data: { runId: string } & Record<string, unknown>

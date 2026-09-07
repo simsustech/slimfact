@@ -285,7 +285,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
     beforeEach(async () => {
       // The shared Postgres also holds the E2E seeded world (initial_number_for_prefixes
       // rows) — CASCADE clears every table referencing companies.
-      await sql`TRUNCATE TABLE companies, "checkout".invoices, "checkout".payments CASCADE`.execute(
+      await sql`TRUNCATE TABLE companies, "checkout".invoices, "checkout".payments, "bank_suggestion_dismissals" CASCADE`.execute(
         testDb!
       )
     })
@@ -628,6 +628,46 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       expect(row.suggestion).toMatchObject({
         invoice: { id: openTarget.id, number: '2026-0002' }
       })
+    }, 30000)
+    it('dismissSuggestion hides the credit from listSuggestions', async () => {
+      const { companyId } = await seedCompany()
+      const invoice = await seedInvoice(companyId, 1)
+      fakeClient.getAccounts = vi.fn(async () => [makeAccount()])
+      fakeClient.getTransactions = vi.fn(async () => ({
+        // bookingDate after the invoice due date → passes the date gate.
+        items: [
+          {
+            id: 'txn-dismiss',
+            currency: 'EUR',
+            creditDebitIndicator: 'CRDT',
+            status: 'BOOK',
+            bookingDate: '2026-07-02',
+            amount: '50.00',
+            note: 'Factuur 2026-0001'
+          } as unknown as Transaction
+        ],
+        total: 1
+      }))
+      fakeClient.getPspSettlements = vi.fn<BankingApi['getPspSettlements']>(
+        async () => []
+      )
+      fakeClient.getPspPayments = vi.fn(async () => [])
+
+      const caller = await loadCaller()
+      const before = await caller.listSuggestions({})
+      expect(before.enabled).toBe(true)
+      expect(before.items).toHaveLength(1)
+      expect(before.items[0]!.topSuggestion).toMatchObject({
+        invoiceId: invoice.id
+      })
+
+      await caller.dismissSuggestion({
+        transactionExternalId: 'txn-dismiss',
+        companyId
+      })
+
+      const after = await caller.listSuggestions({})
+      expect(after.items).toHaveLength(0)
     }, 30000)
   }
 )

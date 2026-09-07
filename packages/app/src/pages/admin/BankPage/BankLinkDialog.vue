@@ -7,7 +7,17 @@
     @submit="link"
   >
     <template #title>
-      {{ title }}
+      <div class="row items-center q-gutter-sm">
+        <span>{{ title }}</span>
+        <q-badge
+          v-if="scoreLabel"
+          color="primary"
+          outline
+          data-testid="dialog-score"
+        >
+          {{ scoreLabel }}
+        </q-badge>
+      </div>
     </template>
 
     <div v-if="loading" class="q-pa-md text-center">
@@ -124,6 +134,12 @@ const title = computed(() => {
     row.transaction.bookingDate ?? ''
   }`
 })
+
+/** Match confidence of the preselected top suggestion (0–1). */
+const topScore = computed(() => props.row?.topSuggestion?.score ?? null)
+const scoreLabel = computed(() =>
+  topScore.value == null ? '' : `${Math.round(topScore.value * 100)}%`
+)
 
 const invoices = ref<
   Array<{

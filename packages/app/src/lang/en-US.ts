@@ -326,7 +326,8 @@ const lang: Language = {
       loading: 'Loading suggestions…',
       link: 'Link',
       adoptBadge: 'Adopt',
-      topSuggestion: 'Suggestion'
+      topSuggestion: 'Suggestion',
+      dismiss: 'Dismiss'
     }
   },
   refund: {
