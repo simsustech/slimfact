@@ -53,16 +53,6 @@
         </q-item>
       </q-list>
     </template>
-
-    <template #actions>
-      <q-btn flat :label="lang.bank.linkDialog.cancel" @click="done(false)" />
-      <q-btn
-        type="submit"
-        color="primary"
-        :label="lang.bank.linkDialog.confirm"
-        :disable="selectedId === null || loading"
-      />
-    </template>
   </responsive-dialog>
 </template>
 
@@ -73,6 +63,7 @@ import { ResponsiveDialog } from '@simsustech/quasar-components'
 import { useLang } from '../../../lang/index.js'
 import { isTRPCClientError } from '../../../trpc.js'
 import { useAdminApplyLinkMutation } from '../../../queries/admin/bankTransactions.js'
+import type { Invoice } from '@modular-api/fastify-checkout'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { formatMoney } from '../../../utils/money.js'
 import { trpc } from '../../../trpc.js'
@@ -136,35 +127,7 @@ const scoreLabel = computed(() =>
   topScore.value == null ? '' : `${Math.round(topScore.value * 100)}%`
 )
 
-const invoices = ref<
-  Array<{
-    id: number
-    uuid: string
-    number: string | null
-    amountDueCents: number
-    currency: string
-    status: string
-    companyId: number | null
-    dueDate: string | null
-    numberPrefix: string | null
-    companyPrefix: string
-    totalIncludingTax: number
-    totalExcludingTax: number
-    clientId: number | null
-    clientDetails: {
-      name: string | null
-      address: string
-      postalCode: string
-      city: string
-      country: string
-      email: string
-    }
-    taxSummary: unknown[]
-    lines: unknown[]
-    paidAt: string | null
-    createdAt: string
-  }>
->([])
+const invoices = ref<Invoice[]>([])
 const loading = ref(false)
 const selectedId = ref<number | null>(null)
 
@@ -203,40 +166,14 @@ watch(
     }
     loading.value = true
     try {
-      const result = (await trpc.admin.getInvoices.query({
+      const result = await trpc.admin.getInvoices.query({
         companyId: row.companyId ?? 0,
         clientId: 0,
         clientDetails: { name: null },
         pagination: { limit: 200, offset: 0, sortBy: 'id', descending: false },
         uuids: row.candidateInvoiceUuids
-      })) as Array<{
-        id: number
-        uuid: string
-        number: string | null
-        amountDueCents: number
-        currency: string
-        status: string
-        companyId: number | null
-        dueDate: string | null
-        numberPrefix: string | null
-        companyPrefix: string
-        totalIncludingTax: number
-        totalExcludingTax: number
-        clientId: number | null
-        clientDetails: {
-          name: string | null
-          address: string
-          postalCode: string
-          city: string
-          country: string
-          email: string
-        }
-        taxSummary: unknown[]
-        lines: unknown[]
-        paidAt: string | null
-        createdAt: string
-      }>
-      invoices.value = result ?? []
+      })
+      invoices.value = (result ?? []) as Invoice[]
       // Auto-select top suggestion if present
       if (row.topSuggestion) {
         selectedId.value = row.topSuggestion.invoiceId

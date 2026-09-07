@@ -26,7 +26,7 @@
   >
     <company-form
       ref="updateCompanyFormRef"
-      :filtered-number-prefixes="numberPrefixes"
+      :filtered-number-prefixes="numberPrefixes || []"
       @submit="updateCompany"
     ></company-form>
   </responsive-dialog>
@@ -39,7 +39,7 @@
   >
     <company-form
       ref="createCompanyFormRef"
-      :filtered-number-prefixes="numberPrefixes"
+      :filtered-number-prefixes="numberPrefixes || []"
       @submit="createCompany"
     ></company-form>
   </responsive-dialog>
@@ -74,6 +74,8 @@ bus.on('administrator-open-companies-create-dialog', () => {
       done: () => {}
     })
 })
+
+const lang = useLang()
 
 const { companies, refetch: execute } = useAdminGetCompaniesQuery()
 

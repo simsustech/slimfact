@@ -16,13 +16,13 @@
 
           <company-select
             v-model="companyId"
-            :filtered-options="filteredCompanies"
+            :filtered-options="filteredCompanies || []"
             clearable
             @filter="onFilterCompanies"
           />
           <client-select
             v-model="clientId"
-            :filtered-options="filteredClients"
+            :filtered-options="filteredClients || []"
             clearable
             use-input
             @filter="onFilterClients"
@@ -52,7 +52,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          :invoice-events="invoiceEvents[invoice.id]"
+          :invoice-events="invoiceEvents?.[invoice.id]"
           v-on="invoiceExpansionItemHandlers"
         />
         <q-item v-if="!invoices?.length" class="flex flex-center text-grey-6">
@@ -150,7 +150,10 @@ import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
 
-import { PaymentMethod } from '@modular-api/fastify-checkout/types'
+import {
+  PaymentMethod,
+  InvoiceStatus
+} from '@modular-api/fastify-checkout/types'
 
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../../components/company/CompanySelect.vue'
@@ -233,7 +236,7 @@ const applyRouteFilters = (to: typeof route) => {
   ) {
     companyId.value = Number(queryCompanyId)
   } else {
-    companyId.value = null
+    companyId.value = NaN
   }
   startDate.value = dateQueryParam(to.query, 'startDate')
   endDate.value = dateQueryParam(to.query, 'endDate')
@@ -507,7 +510,7 @@ const openDeletePaymentDialog = async ({
 
 const openAddCashPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentCash'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat(data.locale, {
       maximumFractionDigits: 2,
@@ -545,7 +548,7 @@ const openAddCashPaymentDialog: InstanceType<
 
 const openAddBankTransferPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentBankTransfer'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat($q.lang.isoName, {
       maximumFractionDigits: 2,
@@ -584,7 +587,7 @@ const openAddBankTransferPaymentDialog: InstanceType<
 
 const openAddPinPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentPin'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat($q.lang.isoName, {
       maximumFractionDigits: 2,
@@ -746,7 +749,7 @@ const activeSearch = computed(
 const clearSearchResults = () => {
   companyId.value = NaN
   clientId.value = NaN
-  status.value = null
+  status.value = undefined
   startDate.value = null
   endDate.value = null
 }

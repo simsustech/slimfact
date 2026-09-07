@@ -331,7 +331,7 @@
               <q-item
                 v-if="modelValue.metadata?.referenceUrl"
                 clickable
-                :href="modelValue.metadata?.referenceUrl"
+                :href="modelValue.metadata?.referenceUrl as string"
                 target="_blank"
               >
                 <q-item-section avatar
@@ -388,7 +388,7 @@
           <invoice-line-item
             v-for="(discount, index) in modelValue.discounts"
             :key="index"
-            :model-value="discount"
+            :model-value="discount as unknown as RawInvoiceLine"
             :locale="modelValue.locale"
             :currency="modelValue.currency"
           ></invoice-line-item>
@@ -399,7 +399,7 @@
           <invoice-line-item
             v-for="(surcharge, index) in modelValue.surcharges"
             :key="index"
-            :model-value="surcharge"
+            :model-value="surcharge as unknown as RawInvoiceLine"
             :locale="modelValue.locale"
             :currency="modelValue.currency"
           ></invoice-line-item>
@@ -414,7 +414,7 @@
           <payment-item
             v-for="payment in modelValue.payments"
             :key="payment.id"
-            :model-value="payment"
+            :model-value="payment as unknown as PaymentPayload"
             :on-delete-payment="onDeletePaymentFromRow"
           />
         </q-list>
@@ -424,7 +424,7 @@
           <refund-item
             v-for="refund in modelValue.refunds"
             :key="refund.id"
-            :model-value="refund"
+            :model-value="refund as unknown as RefundPayload"
           />
         </q-list>
       </q-tab-panel>
@@ -448,7 +448,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Invoice } from '@modular-api/fastify-checkout'
+import type {
+  Invoice,
+  RawInvoiceLine,
+  PaymentPayload,
+  RefundPayload
+} from '@modular-api/fastify-checkout'
 import Price from '../Price.vue'
 import {
   InvoiceLineItem,

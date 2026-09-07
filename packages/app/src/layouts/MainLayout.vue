@@ -28,7 +28,12 @@
             <q-language-select
               :model-value="locale"
               @update:model-value="updateLocale"
-              :language-imports="languageImports"
+              :language-imports="
+                languageImports as unknown as Record<
+                  string,
+                  () => Promise<{ default: import('quasar').QuasarLanguage }>
+                >
+              "
               :locales="languageLocales"
               is-item
             />

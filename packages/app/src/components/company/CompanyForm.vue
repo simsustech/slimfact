@@ -214,7 +214,9 @@ import {
   LocaleSelect,
   CurrencySelect,
   BooleanSelect,
-  CountrySelect
+  CountrySelect,
+  type ISO3166,
+  type Locales
 } from '@simsustech/quasar-components/form'
 import { Company, NumberPrefix } from '@slimfact/api/zod'
 import { languageLocales, countryOptions } from '../../configuration.js'
@@ -271,7 +273,17 @@ const initialValue: Company = {
   defaultIncludeTax: true
 }
 
-const modelValue = ref<Company>(initialValue)
+type Currency = 'EUR' | 'USD'
+type CompanyDraft = Omit<
+  Company,
+  'country' | 'defaultLocale' | 'defaultCurrency' | 'defaultIncludeTax'
+> & {
+  country: ISO3166
+  defaultLocale: Locales
+  defaultCurrency: Currency | null
+  defaultIncludeTax: boolean
+}
+const modelValue = ref<CompanyDraft>(initialValue as unknown as CompanyDraft)
 
 // const $q = useQuasar()
 const lang = useLang()

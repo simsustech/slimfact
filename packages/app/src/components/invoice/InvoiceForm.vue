@@ -15,7 +15,7 @@
         class="md:col-span-6 col-span-12"
         :filtered-options="filteredClients"
         :rules="[
-          (val) =>
+          (val: unknown) =>
             !!val ||
             !!modelValue.clientDetails?.email ||
             lang.client.validations.fieldRequired
@@ -55,7 +55,8 @@
         />
         <locale-select
           filled
-          v-model="modelValue.locale"
+          :model-value="locale"
+          @update:model-value="setLocale"
           :disable="!modelValue.companyId"
           :locales="languageLocales"
           :label="lang.invoice.fields.locale"
@@ -121,7 +122,7 @@
           :key="index"
           v-ripple
           :model-value="line"
-          :locale="modelValue.locale"
+          :locale="locale"
           :currency="modelValue.currency"
           editable
           @click="openInvoiceLineDialog(modelValue.lines, index)"
@@ -146,8 +147,8 @@
           v-for="(discount, index) in modelValue.discounts"
           :key="index"
           v-ripple
-          :model-value="discount"
-          :locale="modelValue.locale"
+          :model-value="discount as unknown as RawInvoiceLine"
+          :locale="locale"
           :currency="modelValue.currency"
           editable
           @click="openInvoiceLineDialog(modelValue.discounts, index)"
@@ -173,8 +174,8 @@
           v-for="(surcharge, index) in modelValue.surcharges"
           :key="index"
           v-ripple
-          :model-value="surcharge"
-          :locale="modelValue.locale"
+          :model-value="surcharge as unknown as RawInvoiceLine"
+          :locale="locale"
           :currency="modelValue.currency"
           editable
           @click="openInvoiceLineDialog(modelValue.surcharges, index)"
@@ -217,7 +218,8 @@
 <script setup lang="ts">
 import {
   CurrencySelect,
-  LocaleSelect
+  LocaleSelect,
+  type Locales
 } from '@simsustech/quasar-components/form'
 import {
   type RawNewInvoice,
@@ -309,6 +311,14 @@ const modelValue = ref<Invoice>(getInitialValue())
 
 const lang = useLang()
 
+/** The form always carries a concrete locale (defaulted + resolved from company). */
+const locale = computed<Locales>(
+  () => (modelValue.value.locale || 'en-US') as Locales
+)
+const setLocale = (value: Locales) => {
+  modelValue.value.locale = value
+}
+
 const filterCompanies: InstanceType<
   typeof CompanySelect
 >['$props']['onFilter'] = ({ searchPhrase, done }) =>
@@ -370,7 +380,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   formRef.value?.validate().then((success) => {
     if (success) {
       return emit('submit', {
-        data: modelValue.value,
+        data: modelValue.value as RawNewInvoice,
         done
       })
     }

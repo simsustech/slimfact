@@ -4,6 +4,8 @@ packages:
   - packages/*
 overrides:
   typescript: 6.0.3
+  "@modular-api/fastify-checkout": "file:/home/stefan/Projects/modular-api/packages/fastify-checkout"
+  "@modular-api/quasar-components": "file:/home/stefan/Projects/modular-api/packages/components"
 
 minimumReleaseAge: 1440
 

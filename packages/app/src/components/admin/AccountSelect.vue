@@ -2,7 +2,7 @@
   <filtered-model-select
     v-bind="attrs"
     :label="lang.account.name"
-    :filtered-options="filteredOptions"
+    :filtered-options="indexedOptions"
     label-key="email"
   >
     <template
@@ -23,13 +23,23 @@ export default {
 
 <script setup lang="ts">
 import { FilteredModelSelect } from '@simsustech/quasar-components/form'
-import { useAttrs } from 'vue'
+import { computed, useAttrs } from 'vue'
 import { useLang } from '../../lang/index.js'
 
 export interface Props {
-  filteredOptions: { id: number; [key: string]: unknown }[]
+  filteredOptions: readonly { id?: number }[]
+  onFilter?: (args: {
+    ids: number[]
+    searchPhrase: string
+    done: (success?: boolean) => void
+  }) => unknown
 }
-defineProps<Props>()
+const props = defineProps<Props>()
+/** Upstream expects required id; runtime rows always carry one. */
+const indexedOptions = computed<{ id: number; [key: string]: unknown }[]>(
+  () =>
+    props.filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+)
 const attrs = useAttrs()
 const lang = useLang()
 </script>

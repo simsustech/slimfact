@@ -51,7 +51,8 @@
         name="city"
       />
       <country-select
-        v-model="modelValue.country"
+        :model-value="modelValue.country as ISO3166"
+        @update:model-value="setCountry"
         :label="lang.client.fields.country"
         :countries="countryOptions"
         filled
@@ -95,7 +96,13 @@
         class="col-span-12 md:col-span-3"
         :filtered-options="filteredAccounts"
         :hint="lang.client.messages.linkAccount"
-        @filter="($event) => emit('filter:accounts', $event)"
+        @filter="
+          ($event: {
+            ids: number[]
+            searchPhrase: string
+            done: (success?: boolean) => void
+          }) => emit('filter:accounts', $event)
+        "
       >
         <template #prepend>
           <q-icon name="i-mdi-search" />
@@ -111,8 +118,11 @@ import { type QFormProps, type QInputProps, type QForm, extend } from 'quasar'
 import { useLang } from '../../lang/index.js'
 import { ref } from 'vue'
 import { type ResponsiveDialog } from '@simsustech/quasar-components'
-import { FormInput, CountrySelect } from '@simsustech/quasar-components/form'
-import { Account } from '@slimfact/api/zod'
+import {
+  FormInput,
+  CountrySelect,
+  type ISO3166
+} from '@simsustech/quasar-components/form'
 import { countryOptions } from '../../configuration.js'
 
 export interface Props {
@@ -129,7 +139,12 @@ export interface Props {
     | 'autofocus'
     | ('label' & { style?: Partial<CSSStyleDeclaration> })
   >
-  filteredAccounts?: Account[]
+  filteredAccounts?: readonly {
+    id?: number
+    name?: string | null
+    email?: string
+    roles?: string[] | null
+  }[]
 }
 defineProps<Props>()
 const emit = defineEmits<{
@@ -157,7 +172,8 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const initialValue: Client = {
+type ClientDraft = Omit<Client, 'country'> & { country: ISO3166 | '' }
+const initialValue: ClientDraft = {
   companyName: '',
   address: '',
   postalCode: '',
@@ -167,7 +183,11 @@ const initialValue: Client = {
   contactPersonName: ''
 }
 
-const modelValue = ref<Client>(initialValue)
+const modelValue = ref<ClientDraft>(initialValue)
+
+const setCountry = (value: ISO3166) => {
+  modelValue.value.country = value
+}
 
 // const $q = useQuasar()
 const lang = useLang()
@@ -175,7 +195,11 @@ const lang = useLang()
 const formRef = ref<QForm>()
 
 const setValue = (newValue: Client) => {
-  modelValue.value = extend({}, initialValue, newValue)
+  modelValue.value = extend(
+    {},
+    initialValue,
+    newValue
+  ) as unknown as ClientDraft
 }
 
 const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
@@ -184,7 +208,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   formRef.value?.validate().then((success) => {
     if (success) {
       return emit('submit', {
-        data: modelValue.value,
+        data: modelValue.value as Client,
         done
       })
     }

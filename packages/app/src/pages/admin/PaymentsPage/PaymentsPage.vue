@@ -341,7 +341,7 @@ import { useAdminExportPaymentsMutation } from '../../../queries/admin/payments.
 import {
   useAdminListSuggestionsQuery,
   useAdminDismissSuggestionMutation
-} from '../../../queries/admin/bankTransactions.ts'
+} from '../../../queries/admin/bankTransactions'
 import BankLinkDialog from '../BankPage/BankLinkDialog.vue'
 
 const lang = useLang()
@@ -351,9 +351,9 @@ const router = useRouter()
 
 // --- Tab state (?tab=payments|suggestions) ---
 const validTabs = ['payments', 'suggestions'] as const
-const activeTab = ref(
-  validTabs.includes(route.query.tab as string)
-    ? (route.query.tab as string)
+const activeTab = ref<'payments' | 'suggestions'>(
+  validTabs.includes(route.query.tab as (typeof validTabs)[number])
+    ? (route.query.tab as 'payments' | 'suggestions')
     : 'payments'
 )
 watch(activeTab, (tab) => {

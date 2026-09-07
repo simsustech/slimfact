@@ -19,13 +19,13 @@
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
-            :filtered-options="filteredCompanies"
+            :filtered-options="filteredCompanies || []"
             clearable
             @filter="onFilterCompanies"
           />
           <client-select
             v-model="clientId"
-            :filtered-options="filteredClients"
+            :filtered-options="filteredClients || []"
             clearable
             @filter="onFilterClients"
           />
@@ -38,7 +38,7 @@
         <subscription-expansion-item
           v-for="subscription in subscriptions"
           :key="subscription.id"
-          :model-value="subscription"
+          :model-value="subscription as unknown as Subscription"
           @update="openUpdateDialog"
           @start="onStartSubscription"
           @stop="onStopSubscription"
@@ -73,8 +73,8 @@
   >
     <subscription-form
       ref="updateSubscriptionFormRef"
-      :filtered-companies="filteredCompanies"
-      :filtered-clients="filteredClients"
+      :filtered-companies="filteredCompanies || []"
+      :filtered-clients="filteredClients || []"
       :filtered-number-prefixes="numberPrefixes || []"
       @submit="updateSubscription"
       @filter:companies="onFilterCompanies"
@@ -90,8 +90,8 @@
   >
     <subscription-form
       ref="createSubscriptionFormRef"
-      :filtered-companies="filteredCompanies"
-      :filtered-clients="filteredClients"
+      :filtered-companies="filteredCompanies || []"
+      :filtered-clients="filteredClients || []"
       :filtered-number-prefixes="numberPrefixes || []"
       @submit="createSubscription"
       @filter:companies="onFilterCompanies"
@@ -108,8 +108,10 @@ export default {
 
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, watch } from 'vue'
+import type { Subscription } from '@slimfact/api/zod'
 import { ResourcePage, ResponsiveDialog } from '@simsustech/quasar-components'
 import SubscriptionForm from '../../../components/subscription/SubscriptionForm.vue'
+import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import { useLang } from '../../../lang/index.js'
 
 // import { useQuasar } from 'quasar'

@@ -1,10 +1,17 @@
 <template>
   <filtered-model-select
     :label="`${lang.client.client}`"
-    :filtered-options="filteredOptions"
+    :filtered-options="indexedOptions"
+    :on-filter="onFilter"
     label-key="companyName"
     :label-function="
-      (option) => `${option.companyName || option.contactPersonName}`
+      (option: unknown) => {
+        const o = option as {
+          companyName?: string | null
+          contactPersonName?: string | null
+        }
+        return `${o.companyName || o.contactPersonName}`
+      }
     "
   >
     <template
@@ -34,13 +41,31 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useLang } from '../../lang/index.js'
 import { FilteredModelSelect } from '@simsustech/quasar-components/form'
 
-export interface Props {
-  filteredOptions: { id: number; [key: string]: unknown }[]
+type ClientOption = {
+  id?: number
+  companyName?: string | null
+  contactPersonName?: string | null
 }
-defineProps<Props>()
+
+interface Props {
+  filteredOptions: ClientOption[]
+  onFilter?: (args: {
+    ids: number[]
+    searchPhrase: string
+    done: (success?: boolean) => void
+  }) => unknown
+}
+const props = defineProps<Props>()
+
+/** Upstream expects a required `id`; runtime rows always carry one. */
+const indexedOptions = computed<{ id: number; [key: string]: unknown }[]>(
+  () =>
+    props.filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+)
 
 const lang = useLang()
 </script>

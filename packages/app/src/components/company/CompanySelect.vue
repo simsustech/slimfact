@@ -1,7 +1,8 @@
 <template>
   <filtered-model-select
     :label="lang.company.company"
-    :filtered-options="filteredOptions"
+    :filtered-options="indexedOptions"
+    :on-filter="onFilter"
     label-key="name"
   >
     <template
@@ -21,13 +22,24 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useLang } from '../../lang/index.js'
 import { FilteredModelSelect } from '@simsustech/quasar-components/form'
 
 export interface Props {
-  filteredOptions: { id: number; [key: string]: unknown }[]
+  filteredOptions: readonly { id?: number }[]
+  onFilter?: (args: {
+    ids: number[]
+    searchPhrase: string
+    done: (success?: boolean) => void
+  }) => unknown
 }
-defineProps<Props>()
+const props = defineProps<Props>()
+/** Upstream expects required id; runtime rows always carry one. */
+const indexedOptions = computed<{ id: number; [key: string]: unknown }[]>(
+  () =>
+    props.filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+)
 
 const lang = useLang()
 </script>

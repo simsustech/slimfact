@@ -17,12 +17,7 @@ export const useAdminGetInvoicesQuery = defineQuery(() => {
   const paid = ref()
   const startDate = ref<string | null>(null)
   const endDate = ref<string | null>(null)
-  const invoiceStatus = ref<
-    | InvoiceStatus.OPEN
-    | InvoiceStatus.PAID
-    | InvoiceStatus.CONCEPT
-    | InvoiceStatus.CANCELED
-  >()
+  const invoiceStatus = ref<InvoiceStatus | undefined>()
   const pagination = computed<{
     limit: number
     offset: number

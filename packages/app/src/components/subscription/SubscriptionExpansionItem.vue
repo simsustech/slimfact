@@ -89,7 +89,7 @@
       <invoice-line-item
         v-for="(discount, index) in modelValue.discounts"
         :key="index"
-        :model-value="discount"
+        :model-value="discount as unknown as RawInvoiceLine"
         :locale="modelValue.locale"
         :currency="modelValue.currency"
       ></invoice-line-item>
@@ -100,7 +100,7 @@
       <invoice-line-item
         v-for="(surcharge, index) in modelValue.surcharges"
         :key="index"
-        :model-value="surcharge"
+        :model-value="surcharge as unknown as RawInvoiceLine"
         :locale="modelValue.locale"
         :currency="modelValue.currency"
       ></invoice-line-item>
@@ -110,6 +110,7 @@
 
 <script setup lang="ts">
 import { Subscription } from '@slimfact/api/zod'
+import type { RawInvoiceLine } from '@modular-api/fastify-checkout'
 import { toRefs } from 'vue'
 import { useQuasar } from 'quasar'
 import { useLang } from '../../lang/index.js'

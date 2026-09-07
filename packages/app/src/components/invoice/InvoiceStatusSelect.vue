@@ -18,10 +18,12 @@ import { computed } from 'vue'
 import { InvoiceStatus } from '@slimfact/api/zod'
 
 export interface Props {
-  modelValue: string | null
+  modelValue: InvoiceStatus | null | undefined
 }
 defineProps<Props>()
-const emit = defineEmits<{ (e: 'update:modelValue', val: string): void }>()
+const emit = defineEmits<{
+  (e: 'update:modelValue', val: InvoiceStatus): void
+}>()
 
 const lang = useLang()
 const options = computed(() => [

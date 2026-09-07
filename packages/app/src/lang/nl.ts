@@ -19,6 +19,7 @@ const lang: Language = {
   updateAvailable: 'Er is een update beschikbaar.',
   refresh: 'Vernieuwen',
   name: 'Naam',
+  image: 'Afbeelding',
   overview: 'Overzicht',
   noResultsAvailable: 'Geen resultaten beschikbaar.',
   rowsPerPage: 'Regels per pagina',

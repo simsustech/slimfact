@@ -1,7 +1,8 @@
-import { describe, expect, it, beforeAll, afterAll } from 'vitest'
+import { describe, expect, it, afterAll } from 'vitest'
 import { Kysely, PostgresDialect, CamelCasePlugin } from 'kysely'
 import pg from 'pg'
 import type { DB } from '../../../src/kysely/types.js'
+import { PaymentMethod, PaymentStatus } from '@modular-api/fastify-checkout'
 
 const { Pool } = pg
 
@@ -52,8 +53,8 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       const manualPayments = await testDb
         .selectFrom('checkout.payments')
         .select(['id', 'invoiceId', 'amount', 'transactionReference'])
-        .where('method', '=', 'banktransfer')
-        .where('status', '=', 'paid')
+        .where('method', '=', PaymentMethod.banktransfer)
+        .where('status', '=', PaymentStatus.PAID)
         .where('transactionReference', 'is', null)
         .limit(10)
         .execute()

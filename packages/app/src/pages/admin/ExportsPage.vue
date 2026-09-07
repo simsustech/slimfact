@@ -112,7 +112,7 @@ const { data: digibooxCsv, refetch: executeDigibooxInvoices } = useQuery({
 
 const downloadDigibooxInvoices = async () => {
   await executeDigibooxInvoices()
-  if (digibooxCsv.value) exportFile('digiboox.csv', digibooxCsv.value)
+  if (digibooxCsv.value) exportFile('digiboox.csv', String(digibooxCsv.value))
 }
 
 const {

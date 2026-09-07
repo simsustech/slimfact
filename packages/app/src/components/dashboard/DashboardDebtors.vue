@@ -20,8 +20,8 @@
 
       <q-list v-if="rows.length > 0">
         <q-item
-          v-for="row in rows"
-          :key="row.companyId"
+          v-for="(row, index) in rows"
+          :key="row.companyId ?? index"
           clickable
           @click="onRowClick(row)"
         >

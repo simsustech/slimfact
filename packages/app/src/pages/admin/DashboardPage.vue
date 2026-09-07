@@ -137,11 +137,14 @@ interface DashboardStatsResponse {
   }
   granularity: 'day' | 'week' | 'month' | 'quarter'
   statusCounts: {
-    status: InvoiceStatus
+    companyId: number | null
+    companyName: string | null
+    status: string
     count: number
     totalAmount: number
   }[]
   overdueAging: {
+    companyId: number | null
     reminderCount: number
     count: number
     totalAmount: number

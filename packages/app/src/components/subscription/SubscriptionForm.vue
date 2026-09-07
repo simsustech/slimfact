@@ -139,7 +139,7 @@
           v-for="(discount, index) in modelValue.discounts"
           :key="index"
           v-ripple
-          :model-value="discount"
+          :model-value="discount as unknown as RawInvoiceLine"
           :locale="modelValue.locale"
           :currency="modelValue.currency"
           editable
@@ -166,7 +166,7 @@
           v-for="(surcharge, index) in modelValue.surcharges"
           :key="index"
           v-ripple
-          :model-value="surcharge"
+          :model-value="surcharge as unknown as RawInvoiceLine"
           :locale="modelValue.locale"
           :currency="modelValue.currency"
           editable
@@ -199,6 +199,7 @@ import { useLang } from '../../lang/index.js'
 import { DATE_FORMAT } from '../../configuration.js'
 import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
+import ClientSelect from '../client/ClientSelect.vue'
 import {
   InvoiceLineItem,
   InvoiceLineDialog
@@ -214,6 +215,7 @@ import {
 } from '@modular-api/fastify-checkout'
 import { computeNumberPrefix } from '../../tools.js'
 import { languageLocales } from '../../configuration.js'
+import type { Locales } from '@simsustech/quasar-components/form'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -263,7 +265,7 @@ const { filteredCompanies, filteredClients } = toRefs(props)
 // Factory (not a shared object): the form mutates lines/discounts/surcharges
 // in place, and a module-level initialValue would leak state from one dialog
 // open into the next (same fix as InvoiceForm).
-const getInitialValue = (): Subscription => ({
+const getInitialValue = (): SubscriptionDraft => ({
   name: '',
   companyId: null,
   clientId: null,
@@ -280,7 +282,17 @@ const getInitialValue = (): Subscription => ({
   endDate: null
 })
 
-const modelValue = ref<Subscription>(getInitialValue())
+type SubscriptionDraft = Omit<
+  Subscription,
+  'companyId' | 'clientId' | 'locale'
+> & {
+  companyId: number | null
+  clientId: number | null
+  locale: Locales
+}
+const modelValue = ref<SubscriptionDraft>(
+  getInitialValue() as SubscriptionDraft
+)
 
 const lang = useLang()
 
@@ -345,7 +357,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   formRef.value?.validate().then((success) => {
     if (success) {
       return emit('submit', {
-        data: modelValue.value,
+        data: modelValue.value as Subscription,
         done
       })
     }
@@ -392,7 +404,7 @@ watch(
     const defaultLocale = filteredCompanies.value.find(
       (company) => company.id === newVal
     )?.defaultLocale
-    if (defaultLocale) modelValue.value.locale = defaultLocale
+    if (defaultLocale) modelValue.value.locale = defaultLocale as Locales
 
     const defaultCurrency = filteredCompanies.value.find(
       (company) => company.id === newVal

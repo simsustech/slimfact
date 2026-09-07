@@ -9,7 +9,7 @@
           `${lang.initialNumberForPrefix.fields.initialNumber}: ${modelValue.initialNumber}`
         }}
       </q-item-label>
-      <q-item-label>
+      <q-item-label v-if="modelValue.company">
         {{ modelValue.company.name }}
       </q-item-label>
     </q-item-section>
@@ -17,14 +17,12 @@
 </template>
 
 <script setup lang="ts">
-import type { CompanyDetails } from '@modular-api/fastify-checkout'
-import { NumberPrefix } from '@slimfact/api/zod'
 import { useLang } from '../../lang/index.js'
 
 export interface Props {
   modelValue: {
-    company: CompanyDetails
-    numberPrefix: NumberPrefix
+    company: { name: string } | null
+    numberPrefix: string
     initialNumber: number
   }
 }

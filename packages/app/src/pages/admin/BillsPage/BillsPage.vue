@@ -15,13 +15,13 @@
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
-            :filtered-options="filteredCompanies"
+            :filtered-options="filteredCompanies || []"
             clearable
             @filter="onFilterCompanies"
           />
           <client-select
             v-model="clientId"
-            :filtered-options="filteredClients"
+            :filtered-options="filteredClients || []"
             clearable
             use-input
             @filter="onFilterClients"
@@ -397,7 +397,7 @@ const openDeletePaymentDialog = async ({
 
 const openAddCashPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentCash'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat(data.locale, {
       maximumFractionDigits: 2,
@@ -435,7 +435,7 @@ const openAddCashPaymentDialog: InstanceType<
 
 const openAddBankTransferPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentBankTransfer'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat($q.lang.isoName, {
       maximumFractionDigits: 2,
@@ -474,7 +474,7 @@ const openAddBankTransferPaymentDialog: InstanceType<
 
 const openAddPinPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentPin'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat($q.lang.isoName, {
       maximumFractionDigits: 2,
@@ -703,8 +703,8 @@ const activeSearch = computed(
     endDate.value !== null
 )
 const clearSearchResults = () => {
-  companyId.value = null
-  clientId.value = null
+  companyId.value = NaN
+  clientId.value = NaN
   paid.value = undefined
   startDate.value = null
   endDate.value = null

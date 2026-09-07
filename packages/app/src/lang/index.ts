@@ -23,6 +23,7 @@ export interface Language {
   updateAvailable: string
   refresh: string
   name: string
+  image: string
   overview: string
   noResultsAvailable: string
   rowsPerPage: string
@@ -333,21 +334,21 @@ export interface Language {
       export: string
       empty: string
       truncated: string
-      tabs?: {
-        payments?: string
-        suggestions?: string
+      tabs: {
+        payments: string
+        suggestions: string
       }
     }
 
-    suggestions?: {
+    suggestions: {
       title?: string
-      empty?: string
-      loading?: string
-      link?: string
-      adoptBadge?: string
-      topSuggestion?: string
-      score?: string
-      dismiss?: string
+      empty: string
+      loading: string
+      link: string
+      adoptBadge: string
+      topSuggestion: string
+      score: string
+      dismiss: string
     }
   }
   refund: {

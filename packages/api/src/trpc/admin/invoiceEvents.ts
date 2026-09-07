@@ -5,7 +5,7 @@ import { z } from 'zod'
 import {
   findInvoiceEvents,
   getGroupedInvoiceEventsByInvoiceIds
-} from 'src/repositories/invoiceEvent.js'
+} from '../../repositories/invoiceEvent.js'
 
 export const adminInvoiceEventsRoutes = ({
   // fastify,

@@ -79,13 +79,16 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const initialValue: InitialNumberForPrefix = {
+type InitialNumberForPrefixDraft = Omit<InitialNumberForPrefix, 'companyId'> & {
+  companyId: number | null
+}
+const initialValue: InitialNumberForPrefixDraft = {
   numberPrefix: '',
   companyId: null,
   initialNumber: 1
 }
 
-const modelValue = ref<InitialNumberForPrefix>(initialValue)
+const modelValue = ref<InitialNumberForPrefixDraft>(initialValue)
 
 // const $q = useQuasar()
 const lang = useLang()
@@ -93,7 +96,11 @@ const lang = useLang()
 const formRef = ref<QForm>()
 
 const setValue = (newValue: InitialNumberForPrefix) => {
-  modelValue.value = extend({}, initialValue, newValue)
+  modelValue.value = extend(
+    {},
+    initialValue,
+    newValue
+  ) as unknown as InitialNumberForPrefixDraft
 }
 
 const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
@@ -102,7 +109,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   formRef.value?.validate().then((success) => {
     if (success) {
       return emit('submit', {
-        data: modelValue.value,
+        data: modelValue.value as InitialNumberForPrefix,
         done
       })
     }

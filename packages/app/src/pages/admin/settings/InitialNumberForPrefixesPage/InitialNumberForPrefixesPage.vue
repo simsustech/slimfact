@@ -20,7 +20,7 @@
   >
     <initial-number-for-prefix-form
       ref="updateInitialNumberForPrefixFormRef"
-      :filtered-companies="filteredCompanies"
+      :filtered-companies="filteredCompanies || []"
       @submit="updateInitialNumberForPrefix"
       @filter:companies="onFilterCompanies"
     ></initial-number-for-prefix-form>
@@ -34,7 +34,7 @@
   >
     <initial-number-for-prefix-form
       ref="createInitialNumberForPrefixFormRef"
-      :filtered-companies="filteredCompanies"
+      :filtered-companies="filteredCompanies || []"
       @submit="createInitialNumberForPrefix"
       @filter:companies="onFilterCompanies"
     ></initial-number-for-prefix-form>
@@ -134,7 +134,12 @@ const updateInitialNumberForPrefix: InstanceType<
 >['$props']['onSubmit'] = async ({ data, done }) => {
   try {
     if (data.id) {
-      await updateInitialNumberForPrefixMutation(data)
+      await updateInitialNumberForPrefixMutation({
+        id: data.id,
+        companyId: data.companyId,
+        numberPrefix: data.numberPrefix,
+        initialNumber: data.initialNumber
+      })
     }
 
     done()

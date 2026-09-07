@@ -195,7 +195,7 @@
         >
           {{ lang.payment.amountDue }}:
           <price
-            :model-value="invoice.amountDue"
+            :model-value="invoice.amountDue ?? null"
             :currency="invoice.currency"
             :locale="invoice.locale"
           />
@@ -251,7 +251,7 @@
           <div>{{ lang.payment.fields.description }}: {{ description }}</div>
           <price
             :currency="invoice.currency"
-            :model-value="invoice.amountDue"
+            :model-value="invoice.amountDue ?? null"
           />
         </div>
       </responsive-dialog>
@@ -349,7 +349,7 @@ const { data: invoice, refetch } = useQuery({
 watch(invoice, (newVal) => {
   if (newVal?.locale) {
     const quasarLang = quasarLanguageMap[newVal.locale as Locales]
-    loadLang(quasarLang)
+    if (quasarLang) loadLang(quasarLang)
   }
 })
 

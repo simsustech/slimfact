@@ -19,6 +19,7 @@ const lang: Language = {
   updateAvailable: 'An update is available.',
   refresh: 'Refresh',
   name: 'Name',
+  image: 'Image',
   overview: 'Overview',
   noResultsAvailable: 'No results available.',
   rowsPerPage: 'Rows per page',

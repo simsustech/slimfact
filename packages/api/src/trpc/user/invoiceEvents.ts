@@ -1,8 +1,8 @@
 import { t } from '../index.js'
 import * as z from 'zod'
 import type { FastifyInstance } from 'fastify'
-import { createInvoiceEvent } from 'src/repositories/invoiceEvent.js'
-import { INVOICE_EVENT_TYPE } from 'src/kysely/types.js'
+import { createInvoiceEvent } from '../../repositories/invoiceEvent.js'
+import { INVOICE_EVENT_TYPE } from '../../kysely/types.js'
 
 export const userInvoiceEventsRoutes = ({
   // fastify,

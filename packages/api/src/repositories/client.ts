@@ -169,5 +169,7 @@ export async function searchClients({
 }) {
   const query = find({ criteria, select, pagination })
 
-  return query.orderBy('id', 'desc').execute()
+  return query.orderBy('id', 'desc').execute() as Promise<
+    (Client & { total: number })[]
+  >
 }

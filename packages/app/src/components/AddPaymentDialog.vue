@@ -54,7 +54,7 @@ import { useLang } from '../lang/index.js'
 export interface Props {
   message: string
   currency: 'EUR' | 'USD'
-  totalIncludingTax?: number
+  totalIncludingTax: number
 }
 const amount = ref(0)
 const transactionReference = ref('')

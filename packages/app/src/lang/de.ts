@@ -20,6 +20,7 @@ const lang: Language = {
   refresh: 'Aktualisieren',
   darkMode: 'Dunkelmodus',
   name: 'Name',
+  image: 'Bild',
   overview: 'Übersicht',
   noResultsAvailable: 'Keine Ergebnisse verfügbar.',
   rowsPerPage: 'Zeilen pro Seite',

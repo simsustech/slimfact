@@ -7,6 +7,8 @@ settings:
 
 overrides:
   typescript: 6.0.3
+  '@modular-api/fastify-checkout': file:/home/stefan/Projects/modular-api/packages/fastify-checkout
+  '@modular-api/quasar-components': file:/home/stefan/Projects/modular-api/packages/components
 
 importers:
 
@@ -67,8 +69,8 @@ importers:
         specifier: 0.2.1
         version: 0.2.1(@trpc/client@11.18.0(@trpc/server@11.18.0(typescript@6.0.3))(typescript@6.0.3))(@trpc/server@11.18.0(typescript@6.0.3))
       '@modular-api/fastify-checkout':
-        specifier: 0.10.0
-        version: 0.10.0(@types/node@26.4.1)(kysely@0.29.5)
+        specifier: file:/home/stefan/Projects/modular-api/packages/fastify-checkout
+        version: file:../../../modular-api/packages/fastify-checkout(@types/node@26.4.1)(kysely@0.29.5)
       '@modular-api/fastify-oidc':
         specifier: 0.9.27
         version: 0.9.27(@fastify/static@10.1.3)(bcryptjs@3.0.3)(fastify@5.12.1)(handlebars@4.7.9)(kysely@0.29.5)(otplib@13.5.0)(typescript@6.0.3)
@@ -297,11 +299,11 @@ importers:
         specifier: 0.2.1
         version: 0.2.1(@trpc/client@11.18.0(@trpc/server@11.18.0(typescript@6.0.3))(typescript@6.0.3))(@trpc/server@11.18.0(typescript@6.0.3))
       '@modular-api/fastify-checkout':
-        specifier: 0.10.0
-        version: 0.10.0(@types/node@26.4.1)(kysely@0.29.5)
+        specifier: file:/home/stefan/Projects/modular-api/packages/fastify-checkout
+        version: file:../../../modular-api/packages/fastify-checkout(@types/node@26.4.1)(kysely@0.29.5)
       '@modular-api/quasar-components':
-        specifier: 0.3.42
-        version: 0.3.42(quasar@2.29.0)
+        specifier: file:/home/stefan/Projects/modular-api/packages/components
+        version: file:../../../modular-api/packages/components(quasar@2.29.0)
       '@myriaddreamin/typst-ts-renderer':
         specifier: 0.7.0
         version: 0.7.0
@@ -520,8 +522,8 @@ importers:
   packages/tools:
     dependencies:
       '@modular-api/fastify-checkout':
-        specifier: 0.10.0
-        version: 0.10.0(@types/node@26.4.1)(kysely@0.29.5)
+        specifier: file:/home/stefan/Projects/modular-api/packages/fastify-checkout
+        version: file:../../../modular-api/packages/fastify-checkout(@types/node@26.4.1)(kysely@0.29.5)
       '@myriaddreamin/typst-ts-renderer':
         specifier: 0.7.0
         version: 0.7.0
@@ -1842,15 +1844,10 @@ packages:
     peerDependencies:
       kysely: ^0.29.3
 
-  '@modular-api/fastify-checkout@0.10.0':
-    resolution: {integrity: sha512-Hl+hN8f84ETf/OXPuZxTe8wtRZjQ0FECKNSJOnr8bVCnSe88r9V/+CTM8ZxBKx1F5sclVdqLpd0TClYCzGOOYQ==}
+  '@modular-api/fastify-checkout@file:../../../modular-api/packages/fastify-checkout':
+    resolution: {directory: ../../../modular-api/packages/fastify-checkout, type: directory}
     peerDependencies:
       kysely: ^0.29.5
-
-  '@modular-api/fastify-checkout@0.8.2':
-    resolution: {integrity: sha512-ugPU6HV2uV93G94PD7PqcVHYAc+dzFCXb8TEUxKFTRpPNnBQSVuXQp+rSZAz6fQAVVtKVQ9ronozp8wV3gu3fA==}
-    peerDependencies:
-      kysely: ^0.29.3
 
   '@modular-api/fastify-oidc@0.9.27':
     resolution: {integrity: sha512-lk55zYXhpe8RkireMEXJPHcuokcGySNUdptFiQd1EflyvrwnULQeIOCOR6XGFlnwX1gkLIS4bgAwZ/jHUtUmVg==}
@@ -1866,10 +1863,10 @@ packages:
       '@fastify/static': ^9.1.3
       fastify: ^5.10.0
 
-  '@modular-api/quasar-components@0.3.42':
-    resolution: {integrity: sha512-UyosbVCC5WaD75Re0+g21V6BvD1japKvsCy8psfc8Ka+YMFaPvNQwx5VtjCYkuOFpm2NEvumNVxZGRILV0a7nA==}
+  '@modular-api/quasar-components@file:../../../modular-api/packages/components':
+    resolution: {directory: ../../../modular-api/packages/components, type: directory}
     peerDependencies:
-      quasar: ^2.21.1
+      quasar: ^2.29.0
 
   '@mollie/api-client@4.6.0':
     resolution: {integrity: sha512-7G3Ya3Yf+Z3q7aNhtlStxWp4p7FEgmWPyoq23crTcjmrYmos6hMjCweMKCPRj/aW7Z3UX7yark/lTgZRQvF4Cw==}
@@ -8769,7 +8766,7 @@ snapshots:
       '@fastify/middie': 9.3.3
       '@fastify/static': 9.3.0
       '@modular-api/fastify-cart': 0.3.21(kysely@0.29.5)
-      '@modular-api/fastify-checkout': 0.8.2(@types/node@26.4.1)(kysely@0.29.5)
+      '@modular-api/fastify-checkout': file:../../../modular-api/packages/fastify-checkout(@types/node@26.4.1)(kysely@0.29.5)
       '@modular-api/fastify-oidc': 0.9.27(@fastify/static@9.3.0)(bcryptjs@3.0.3)(fastify@5.12.1)(handlebars@4.7.9)(kysely@0.29.5)(otplib@13.5.0)(typescript@6.0.3)
       '@trpc/server': 11.18.0(typescript@6.0.3)
       '@types/compression': 1.8.1
@@ -8820,26 +8817,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@modular-api/fastify-checkout@0.10.0(@types/node@26.4.1)(kysely@0.29.5)':
+  '@modular-api/fastify-checkout@file:../../../modular-api/packages/fastify-checkout(@types/node@26.4.1)(kysely@0.29.5)':
     dependencies:
       '@fastify/cookie': 11.1.2
       '@fastify/middie': 9.3.3
       '@fastify/static': 10.1.3
-      '@mollie/api-client': 4.6.0
-      '@vitrify/tools': 0.5.4
-      fastify-plugin: 6.0.0
-      kysely: 0.29.5
-      short-uuid: 6.0.3
-      stripe: 22.6.1(@types/node@26.4.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - encoding
-
-  '@modular-api/fastify-checkout@0.8.2(@types/node@26.4.1)(kysely@0.29.5)':
-    dependencies:
-      '@fastify/cookie': 11.1.2
-      '@fastify/middie': 9.3.3
-      '@fastify/static': 9.3.0
       '@mollie/api-client': 4.6.0
       '@vitrify/tools': 0.5.4
       fastify-plugin: 6.0.0
@@ -8900,7 +8882,7 @@ snapshots:
       '@fastify/static': 9.3.0
       fastify: 5.12.1
 
-  '@modular-api/quasar-components@0.3.42(quasar@2.29.0)':
+  '@modular-api/quasar-components@file:../../../modular-api/packages/components(quasar@2.29.0)':
     dependencies:
       quasar: 2.29.0
       validator: 13.15.35

@@ -147,10 +147,15 @@ const nextRows = computed<UpcomingInvoiceRow[]>(() =>
   (props.next ?? []).slice(0, 3)
 )
 
+const emptyBuckets: AggBucket = { count: 0, totalAmount: 0 }
 const overdueTotal = computed(
-  () => sumOverdueBuckets(props.overdue).totalAmount
+  () =>
+    (props.overdue ? sumOverdueBuckets(props.overdue) : emptyBuckets)
+      .totalAmount
 )
-const overdueCount = computed(() => sumOverdueBuckets(props.overdue).count)
+const overdueCount = computed(() =>
+  props.overdue ? sumOverdueBuckets(props.overdue).count : 0
+)
 
 // Aging buckets with lang labels, only the non-empty ones.
 const overdueRows = computed(() => {

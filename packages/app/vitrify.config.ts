@@ -220,7 +220,7 @@ export default async function ({
               typeof quasarConf['framework']['iconSet'] === 'object'
                 ? quasarConf['framework']['iconSet']
                 : undefined
-          })
+          }) as never
         ],
         theme: {},
         content: {
