@@ -2,10 +2,19 @@
   <q-page padding>
     <q-tabs v-model="activeTab" align="left" class="q-mb-md">
       <q-tab name="payments" :label="lang.payment.overview.tabs.payments" />
-      <q-tab
-        name="suggestions"
-        :label="lang.payment.overview.tabs.suggestions"
-      />
+      <q-tab name="suggestions">
+        <div class="row no-wrap items-center q-gutter-xs">
+          <span>{{ lang.payment.overview.tabs.suggestions }}</span>
+          <q-badge
+            v-if="suggestionListCount > 0"
+            color="primary"
+            rounded
+            data-testid="payments-tab-suggestion-badge"
+          >
+            {{ suggestionListCount > 99 ? '99+' : suggestionListCount }}
+          </q-badge>
+        </div>
+      </q-tab>
     </q-tabs>
 
     <q-tab-panels v-model="activeTab" animated>
@@ -586,6 +595,10 @@ const openDeleteDialog = async (data: PaymentsLedgerRow) => {
 // --- Suggestions tab -------------------------------------------------------
 
 const suggestionsQuery = useAdminListSuggestionsQuery()
+/** Server-reported total suggestions (the list query paginates at 50). */
+const suggestionListCount = computed(
+  () => suggestionsQuery.payload.value?.count ?? 0
+)
 const suggestionItems = computed(
   () => suggestionsQuery.payload.value?.items ?? []
 )

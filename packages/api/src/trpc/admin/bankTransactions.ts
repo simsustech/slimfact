@@ -551,9 +551,9 @@ export const adminBankTransactionRoutes = ({
     )
     .query(async ({ input }) => {
       const params = input ?? { limit: 50, offset: 0 }
-      if (!bankingEnabled()) return { enabled: false, items: [] }
+      if (!bankingEnabled()) return { enabled: false, items: [], count: 0 }
       const client = fastify.banking.getClient()
-      if (!client) return { enabled: false, items: [] }
+      if (!client) return { enabled: false, items: [], count: 0 }
 
       const accounts = await client.getAccounts()
       const links = await fetchAccountCompanyLinks(db)
@@ -739,6 +739,7 @@ export const adminBankTransactionRoutes = ({
 
       return {
         enabled: true,
+        count: allSuggestions.length,
         items: allSuggestions.slice(params.offset, params.offset + params.limit)
       }
     }),

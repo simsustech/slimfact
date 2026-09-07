@@ -78,6 +78,7 @@ export const useAdminListSuggestionsQuery = (
 ) => {
   const { data: payload, ...rest } = useQuery<{
     enabled: boolean
+    count: number
     items: Array<{
       transaction: BankTransaction
       companyId: number | null
@@ -110,6 +111,39 @@ export const useAdminListSuggestionsQuery = (
   })
   return { payload, ...rest }
 }
+
+/**
+ * Shared actionable-suggestion count for nav badges (drawer, dashboard menu,
+ * Payments tab). Singleton (defineQuery) so all consumers share one fetch +
+ * cache and refresh together. Fetches with limit 1 — the server still computes
+ * every suggestion, but we only ship the count.
+ */
+export const useAdminSuggestionCountQuery = defineQuery(() => {
+  const { data, ...rest } = useQuery<{
+    enabled: boolean
+    count: number
+    items: unknown[]
+  }>({
+    enabled: !import.meta.env.SSR,
+    key: () => ['adminSuggestionCount'],
+    query: () =>
+      trpc.admin.listSuggestions.query({
+        limit: 1,
+        offset: 0
+      })
+  })
+
+  const count = computed(() =>
+    data.value?.enabled ? (data.value.count ?? 0) : 0
+  )
+
+  return {
+    count,
+    /** True once a real (non-cached) value is known. */
+    known: computed(() => data.value != null),
+    ...rest
+  }
+})
 
 export const useAdminListLinkCandidatesQuery = defineQuery(() => {
   const companyId = ref<number | null>(null)

@@ -57,6 +57,15 @@
       <q-item-section>
         <q-item-label>{{ lang.payment.payments }}</q-item-label>
       </q-item-section>
+      <q-item-section
+        v-if="suggestionCount > 0"
+        side
+        data-testid="dashboard-menu-suggestion-badge"
+      >
+        <q-badge color="primary" rounded>
+          {{ suggestionCount > 99 ? '99+' : suggestionCount }}
+        </q-badge>
+      </q-item-section>
     </q-item>
     <q-item to="/admin/settings">
       <q-item-section avatar>
@@ -83,6 +92,8 @@ import {
   SUBSCRIPTION_ICON
 } from '../../configuration.js'
 import { useLang } from '../../lang/index.js'
+import { useAdminSuggestionCountQuery } from '../../queries/admin/bankTransactions.js'
 
 const lang = useLang()
+const { count: suggestionCount } = useAdminSuggestionCountQuery()
 </script>
