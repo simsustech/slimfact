@@ -71,8 +71,9 @@ services:
         linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
         linked-modular-api-event-bus: ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
         linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
-    ports:
-      - "3001:80"
+    # No host port binding: api is served at slimfact.localhost via caddy on
+    # the docker network. (localhost:3001 was unused and collided with other
+    # projects' dev servers on the host.)
     depends_on:
       database:
         condition: service_healthy
