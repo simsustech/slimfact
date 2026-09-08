@@ -290,6 +290,8 @@ die betaling (koppelt het banktegoed eraan) in plaats van een tweede betaling
 te registreren. De instellingenpagina toont de verbindingsstatus en waarschuwt
 wanneer een bankmachtiging opnieuw moet worden ingesteld.
 
+> **Self-hosten?** Zie [Bankimport (open-banking) installatie](/nl/guide/bank-import) voor de architectuur, omgevingsvariabelen, referenties en API-sleutelconfiguratie.
+>
 > Bekende beperking: als een strikte match eerst automatisch is toegepast en
 > je later handmatig een bankoverschrijving registreert voor dezelfde factuur,
 > kunnen er twee betaalde betalingen bestaan.

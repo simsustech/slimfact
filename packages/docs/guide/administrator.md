@@ -279,8 +279,6 @@ Go to **Settings → Exports** to access:
 
 ## Bank Import
 
-## Bank Import
-
 The **Bank** menu has three pages — **Overview**, **To match** and **Settings**
 (bank transactions come from open-banking.io via the banking-api proxy; the
 proxy keeps the complete history). **Settings → Sync now** triggers a refresh.
@@ -293,6 +291,8 @@ Apply **adopts** that payment (links the bank credit to it) instead of
 recording a second payment. The settings page shows connection status and
 warns when a bank consent needs to be re-established.
 
+> **Self-hosting?** See [Bank Import (open-banking) setup](/guide/bank-import) for the architecture, environment variables, credentials and API-key configuration.
+>
 > Known limitation: if a strict match auto-applies first and you later record
 > a manual bank transfer for the same invoice, two paid payments can exist.
 
