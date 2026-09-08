@@ -671,10 +671,19 @@ const { mutateAsync: dismissSuggestionMutation } =
 const dismissSuggestion = async (
   row: (typeof suggestionItems.value)[number]
 ) => {
-  await dismissSuggestionMutation({
-    transactionExternalId: row.transaction.externalId,
-    companyId: row.companyId ?? 0
+  const amount = formatMoney(
+    row.transaction.amountCents,
+    row.transaction.currency
+  )
+  $q.dialog({
+    message: lang.value.payment.suggestions.confirmDismiss({ amount }),
+    cancel: true
+  }).onOk(async () => {
+    await dismissSuggestionMutation({
+      transactionExternalId: row.transaction.externalId,
+      companyId: row.companyId ?? 0
+    })
+    await suggestionsQuery.refresh()
   })
-  await suggestionsQuery.refresh()
 }
 </script>

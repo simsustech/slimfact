@@ -329,7 +329,9 @@ const lang: Language = {
       adoptBadge: 'Overnemen',
       topSuggestion: 'Suggestie',
       score: 'Score',
-      dismiss: 'Negeren'
+      dismiss: 'Negeren',
+      confirmDismiss: ({ amount }: { amount: string }) =>
+        `Weet u zeker dat u de suggestie van ${amount} wilt negeren?`
     }
   },
   refund: {

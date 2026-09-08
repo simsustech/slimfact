@@ -349,6 +349,7 @@ export interface Language {
       topSuggestion: string
       score: string
       dismiss: string
+      confirmDismiss: (args: { amount: string }) => string
     }
   }
   refund: {

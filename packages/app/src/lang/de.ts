@@ -330,7 +330,9 @@ const lang: Language = {
       adoptBadge: 'Übernehmen',
       topSuggestion: 'Vorschlag',
       score: 'Score',
-      dismiss: 'Verwerfen'
+      dismiss: 'Verwerfen',
+      confirmDismiss: ({ amount }: { amount: string }) =>
+        `Möchten Sie den Vorschlag von ${amount} wirklich verwerfen?`
     }
   },
   refund: {

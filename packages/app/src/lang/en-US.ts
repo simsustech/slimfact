@@ -329,7 +329,9 @@ const lang: Language = {
       adoptBadge: 'Adopt',
       topSuggestion: 'Suggestion',
       score: 'Score',
-      dismiss: 'Dismiss'
+      dismiss: 'Dismiss',
+      confirmDismiss: ({ amount }: { amount: string }) =>
+        `Are you sure you want to dismiss the suggestion of ${amount}?`
     }
   },
   refund: {
