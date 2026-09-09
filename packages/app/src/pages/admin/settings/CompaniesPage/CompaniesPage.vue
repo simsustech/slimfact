@@ -68,20 +68,12 @@ import { useAdminGetNumberPrefixesQuery } from '../../../../queries/admin/number
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
-bus.on('administrator-open-companies-create-dialog', () => {
-  if (openCreateDialog)
-    openCreateDialog({
-      done: () => {}
-    })
-})
-
 const lang = useLang()
 
 const { companies, refetch: execute } = useAdminGetCompaniesQuery()
 
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
-await refetchNumberPrefixes()
 
 const updateCompanyFormRef = ref<typeof CompanyForm>()
 const createCompanyFormRef = ref<typeof CompanyForm>()
@@ -102,6 +94,13 @@ const openCreateDialog: InstanceType<
 >['$props']['onCreate'] = () => {
   createDialogRef.value?.functions.open()
 }
+
+bus.on('administrator-open-companies-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
 
 const update: InstanceType<
   typeof ResponsiveDialog
@@ -148,6 +147,7 @@ const createCompany: InstanceType<
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
+  await refetchNumberPrefixes()
   await execute()
   ready.value = true
 })

@@ -185,13 +185,6 @@ import { useAdminGetInvoiceEventsByInvoiceIdsQuery } from '../../../queries/admi
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
-bus.on('administrator-open-invoices-create-dialog', () => {
-  if (openCreateDialog)
-    openCreateDialog({
-      done: () => {}
-    })
-})
-
 const configuration = useConfiguration()
 
 const $q = useQuasar()
@@ -283,7 +276,6 @@ const total = computed(() => invoices.value?.at(0)?.total || 0)
 
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
-await refetchNumberPrefixes()
 
 const { mutateAsync: updateInvoiceMutation } = useAdminUpdateInvoiceMutation()
 const { mutateAsync: createInvoiceMutation } = useAdminCreateInvoiceMutation()
@@ -316,6 +308,13 @@ const openCreateDialog: InstanceType<
 >['$props']['onCreate'] = () => {
   createDialogRef.value?.functions.open()
 }
+
+bus.on('administrator-open-invoices-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
 
 const update: InstanceType<
   typeof ResponsiveDialog
@@ -756,6 +755,7 @@ const clearSearchResults = () => {
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
+  await refetchNumberPrefixes()
   await execute()
   await refetchFilteredClients()
   await refetchFilteredCompanies()

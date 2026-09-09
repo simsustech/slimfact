@@ -133,13 +133,6 @@ import { useAdminGetNumberPrefixesQuery } from '../../../queries/admin/numberPre
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
-bus.on('administrator-open-subscriptions-create-dialog', () => {
-  if (openCreateDialog)
-    openCreateDialog({
-      done: () => {}
-    })
-})
-
 // const $q = useQuasar()
 const lang = useLang()
 
@@ -160,7 +153,6 @@ watch(rowsPerPage, () => {
 
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
-await refetchNumberPrefixes()
 
 const updateSubscriptionFormRef = ref<typeof SubscriptionForm>()
 const createSubscriptionFormRef = ref<typeof SubscriptionForm>()
@@ -182,6 +174,13 @@ const openCreateDialog: InstanceType<
 >['$props']['onCreate'] = () => {
   createDialogRef.value?.functions.open()
 }
+
+bus.on('administrator-open-subscriptions-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
 
 const update: InstanceType<
   typeof ResponsiveDialog
@@ -301,6 +300,7 @@ const clearSearchResults = () => {
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
+  await refetchNumberPrefixes()
   await execute()
   await refetchFilteredClients()
   await refetchFilteredCompanies()
