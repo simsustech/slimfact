@@ -1,5 +1,6 @@
 import * as z from 'zod'
 import { client } from './client.js'
+import { locale } from './locale.js'
 import { company } from './company.js'
 
 export const subscriptionValidation = {
@@ -10,7 +11,7 @@ export const subscriptionValidation = {
   companyId: z.number(),
   clientId: z.number(),
   numberPrefixTemplate: z.string(),
-  locale: z.string(),
+  locale: locale,
   currency: z.union([z.literal('EUR'), z.literal('USD')]),
   lines: z
     .object({
