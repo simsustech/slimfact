@@ -37,7 +37,6 @@ export default defineConfig({
       testIgnore: [
         'screenshots-*.spec.ts',
         'invoice-flow-guards.spec.ts',
-        // Requires real open-banking.io credentials; run on demand only.
         '**/*.tmp.spec.ts',
         // Long-running (2h+) Mollie refund settlement test. Excluded from the
         // normal suite; run on demand with INCLUDE_LONGWAIT=1.

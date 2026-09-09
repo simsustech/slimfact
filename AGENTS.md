@@ -257,13 +257,13 @@ reseeding are not supported.
 
 ### SlimFact api env
 
-| Env Var                 | Default              | Description                                                   |
-| ----------------------- | -------------------- | ------------------------------------------------------------- |
-| `BANKING_API_URL`       | _(empty — disabled)_ | Proxy base URL (e.g. `http://banking-api` in the test stack). |
-| `BANKING_API_KEY`       | _(empty — disabled)_ | `obk_…` key granted read + sync scopes for the own accounts.  |
-| `BANKING_SYNC_TIMEOUT_MS` | `120000`            | Wait timeout before polling sync status when no `bank.sync.finished` event arrives. |
+| Env Var                    | Default              | Description                                                                                    |
+| -------------------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| `BANKING_API_URL`          | _(empty — disabled)_ | Proxy base URL (e.g. `http://banking-api` in the test stack).                                  |
+| `BANKING_API_KEY`          | _(empty — disabled)_ | `obk_…` key granted read + sync scopes for the own accounts.                                   |
+| `BANKING_SYNC_TIMEOUT_MS`  | `120000`             | Wait timeout before polling sync status when no `bank.sync.finished` event arrives.            |
 | `ADMIN_NOTIFICATION_EMAIL` | _(empty)_            | Admin "invoice paid" notification address; falls back to the invoice's `companyDetails.email`. |
-| `OPENBANKING_SYNC_CRON` | `0 */4 7-23 * * *`   | (proxy) cron schedule for automatic bank transaction sync.    |
+| `OPENBANKING_SYNC_CRON`    | `0 */4 7-23 * * *`   | (proxy) cron schedule for automatic bank transaction sync.                                     |
 
 ### banking-api proxy env
 

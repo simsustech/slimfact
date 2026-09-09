@@ -200,9 +200,6 @@ export default async function (fastify: FastifyInstance) {
     options: {
       paymentMethodRouting,
       onInvoicePaid: async (args) => {
-        // sendInvoicePaidNotification reads fastify.mailer at call time; the
-        // callback only fires on a paid transition, long after the nodemailer
-        // plugin decorated fastify during registration.
         await sendInvoicePaidNotification(fastify, args, {
           adminNotificationEmail: config.adminNotificationEmail,
           host

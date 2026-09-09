@@ -85,7 +85,7 @@ FROM build-stage AS banking-api-deploy
 RUN pnpm --filter @slimfact/banking-api build && pnpm --filter @slimfact/banking-api deploy banking-api --prod
 
 FROM node:lts-slim AS banking-api
-LABEL "io.stak.vendor"="simsustech"
+LABEL "io.opencontainers.vendor"="simsustech"
 WORKDIR /app
 COPY --from=banking-api-deploy /build/banking-api /app
 ENV HOST=0.0.0.0 PORT=80

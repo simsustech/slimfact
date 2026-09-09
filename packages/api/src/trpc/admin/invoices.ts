@@ -971,8 +971,6 @@ export const adminInvoiceRoutes = ({
           })
 
         if (result.success) {
-          // Audit trail: the payments row is gone, so record that a payment
-          // was deleted on this invoice (amount/method live in the server log).
           await createInvoiceEvent({
             invoiceId: id,
             type: INVOICE_EVENT_TYPE.PAYMENT_DELETED

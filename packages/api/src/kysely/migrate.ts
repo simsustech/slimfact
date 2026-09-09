@@ -11,11 +11,6 @@ async function migrateToLatest() {
       path,
       migrationFolder: new URL('./migrations', import.meta.url).pathname
     }),
-    // The banking-api proxy now shares this database (its tables live in the
-    // open_banking schema, including its own kysely_migration). Without an
-    // explicit schema the Migrator's table-exists introspection matches those
-    // tables by name and skips creating the public migration table. Pin the
-    // migration bookkeeping to public explicitly.
     migrationTableSchema: 'public'
   })
 
