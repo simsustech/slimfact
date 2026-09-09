@@ -118,18 +118,18 @@ const PREFIX = 'POT' // payments overview test
 // its own fixtures via a unique description token.
 const uniqueToken = () => `pot-${Math.random().toString(36).slice(2, 10)}`
 
-const mkCompany = async (): Promise<number> => {
+const mkCompany = async (suffix = ''): Promise<number> => {
   const row = await testDb
     .insertInto('companies')
     .values({
-      name: `${PREFIX} Company`,
-      prefix: PREFIX,
+      name: `${PREFIX} Company${suffix}`,
+      prefix: `${PREFIX}${suffix}`,
       address: 'Ledger Lane 1',
       city: 'Ledgerdam',
       country: 'NL',
       cocNumber: '12345678',
-      email: 'ledger@example.com',
-      iban: 'NL00POTB0000000000',
+      email: `ledger${suffix}@example.com`,
+      iban: `NL00POT${suffix.padEnd(11, '0')}`,
       bic: 'POTBNL2A',
       postalCode: '1234AB',
       vatIdNumber: 'NL123456789B01'
@@ -395,6 +395,54 @@ describe('admin payments ledger', () => {
       offset: 0
     })
     expect(byPsp.rows).toHaveLength(1)
+  })
+
+  it('filters by company and client (via the invoice)', async () => {
+    const companyA = await mkCompany()
+    createdCompanyIds.push(companyA)
+    const companyB = await mkCompany('B')
+    createdCompanyIds.push(companyB)
+    const clientA = await mkClient(`Alpha ${PREFIX}`)
+    createdClientIds.push(clientA)
+    const clientB = await mkClient(`Beta ${PREFIX}`)
+    createdClientIds.push(clientB)
+
+    const token = uniqueToken()
+    const invoiceA = await mkInvoice(companyA, clientA)
+    createdInvoiceIds.push(invoiceA.id)
+    const invoiceB = await mkInvoice(companyB, clientB, { number: 901 })
+    createdInvoiceIds.push(invoiceB.id)
+    await mkPayment(invoiceA.id, { description: `${token} a` })
+    await mkPayment(invoiceB.id, { description: `${token} b` })
+
+    const caller = await loadCaller()
+
+    const byCompany = await caller.listPayments({
+      q: token,
+      companyId: companyA,
+      limit: 50,
+      offset: 0
+    })
+    expect(byCompany.rows).toHaveLength(1)
+    expect(byCompany.rows[0]!.description).toBe(`${token} a`)
+
+    const byClient = await caller.listPayments({
+      q: token,
+      clientId: clientB,
+      limit: 50,
+      offset: 0
+    })
+    expect(byClient.rows).toHaveLength(1)
+    expect(byClient.rows[0]!.description).toBe(`${token} b`)
+
+    const byBoth = await caller.listPayments({
+      q: token,
+      companyId: companyA,
+      clientId: clientB,
+      limit: 50,
+      offset: 0
+    })
+    expect(byBoth.rows).toHaveLength(0)
   })
 
   it("includes settled refunds when filtering status 'paid'", async () => {

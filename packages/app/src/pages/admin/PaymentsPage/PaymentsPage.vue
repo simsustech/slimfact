@@ -83,6 +83,18 @@
                   :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
                   clearable
                 />
+                <company-select
+                  v-model="companyFilter"
+                  :filtered-options="companyOptions"
+                  clearable
+                />
+                <client-select
+                  v-model="clientFilter"
+                  :filtered-options="clientOptions"
+                  clearable
+                  use-input
+                  @filter="onFilterClients"
+                />
                 <q-select
                   v-model="filters.methods"
                   :options="methodOptions"
@@ -339,6 +351,8 @@
 <script setup lang="ts">
 import { DateInput } from '@simsustech/quasar-components/form'
 import type { PaymentMethod } from '@modular-api/fastify-checkout'
+import CompanySelect from '../../../components/company/CompanySelect.vue'
+import ClientSelect from '../../../components/client/ClientSelect.vue'
 import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -346,6 +360,8 @@ import { useLang } from '../../../lang/index.js'
 import { formatMoney } from '../../../utils/money.js'
 import { formatDate } from '@slimfact/tools'
 import { DATE_FORMAT } from '../../../configuration.js'
+import { useAdminGetCompaniesQuery } from '../../../queries/admin/companies.js'
+import { useAdminSearchClientsQuery } from '../../../queries/admin/clients.js'
 import {
   useAdminGetPaymentsQuery,
   usePaymentsUrlState,
@@ -417,6 +433,41 @@ const toDate = computed({
     filters.value = { ...filters.value, to: value || undefined }
   }
 })
+
+/* --- Company / client filters (NaN = unset, matching the selects) -------- */
+
+const { companies: filterCompanies } = useAdminGetCompaniesQuery()
+const { clients: searchClients, name: clientSearchPhrase } =
+  useAdminSearchClientsQuery()
+
+const companyOptions = computed(() => filterCompanies.value ?? [])
+const clientOptions = computed(() => searchClients.value ?? [])
+
+const companyFilter = computed<number | null>({
+  get: () => filters.value.companyId ?? null,
+  set: (value: number | null) => {
+    filters.value = { ...filters.value, companyId: value ?? undefined }
+  }
+})
+
+const clientFilter = computed<number | null>({
+  get: () => filters.value.clientId ?? null,
+  set: (value: number | null) => {
+    filters.value = { ...filters.value, clientId: value ?? undefined }
+  }
+})
+
+/** Async client search for the filter select (mirrors InvoicesPage). */
+const onFilterClients = async ({
+  searchPhrase,
+  done
+}: {
+  searchPhrase: string
+  done?: (success?: boolean) => void
+}): Promise<void> => {
+  clientSearchPhrase.value = searchPhrase
+  done?.()
+}
 
 const paymentsQuery = useAdminGetPaymentsQuery(filters, page)
 const payload = paymentsQuery.payload

@@ -23,6 +23,8 @@ const inputSchema = z.object({
   statuses: z.array(z.string()).optional(),
   psps: z.array(z.string()).optional(),
   sources: z.array(z.enum(['payments', 'refunds'])).optional(),
+  companyId: z.number().int().positive().optional(),
+  clientId: z.number().int().positive().optional(),
   limit: z.number().min(1).max(200).default(DEFAULT_PAGE_SIZE),
   offset: z.number().min(0).default(0)
 })
@@ -201,6 +203,15 @@ const runLedger = async (
   const filteredBase = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query: any = db.selectFrom(ledgerSource.as('l'))
+    // Company/client filters attribute the money movement through its
+    // invoice (payments and refunds both carry the invoice id).
+    query = query.leftJoin('checkout.invoices as fi', 'fi.id', 'l.invoiceId')
+    if (input.companyId) {
+      query = query.where('fi.companyId', '=', input.companyId)
+    }
+    if (input.clientId) {
+      query = query.where('fi.clientId', '=', input.clientId)
+    }
     if (input.methods?.length) {
       query = query.where('l.method', 'in', [...input.methods])
     }

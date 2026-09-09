@@ -19,6 +19,9 @@ export interface PaymentsFilters {
   statuses: string[]
   psps: string[]
   sources: Array<'payments' | 'refunds'>
+  /** Restrict to payments on invoices of this company / client. */
+  companyId?: number
+  clientId?: number
 }
 
 export const DEFAULT_PAYMENTS_FILTERS: PaymentsFilters = {
@@ -50,6 +53,8 @@ const toQueryParams = (filters: PaymentsFilters): Record<string, string> => {
   ) {
     params.source = filters.sources.join(',')
   }
+  if (filters.companyId) params.companyId = String(filters.companyId)
+  if (filters.clientId) params.clientId = String(filters.clientId)
   return params
 }
 
@@ -67,8 +72,16 @@ const fromQueryParams = (query: Record<string, unknown>): PaymentsFilters => ({
         (source): source is PaymentsFilters['sources'][number] =>
           ['payments', 'refunds'].includes(source)
       ) as PaymentsFilters['sources'])
-    : [...DEFAULT_PAYMENTS_FILTERS.sources]
+    : [...DEFAULT_PAYMENTS_FILTERS.sources],
+  companyId: parseIdParam(query.companyId),
+  clientId: parseIdParam(query.clientId)
 })
+
+/** Parse a numeric id query param (companyId/clientId); NaN-safe. */
+const parseIdParam = (value: unknown): number | undefined => {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
 
 /** Ledger filter query-param keys (mirrors toQueryParams). */
 const LEDGER_FILTER_PARAMS = [
@@ -78,7 +91,9 @@ const LEDGER_FILTER_PARAMS = [
   'method',
   'status',
   'psp',
-  'source'
+  'source',
+  'companyId',
+  'clientId'
 ] as const
 
 /** True when the route query carries at least one explicit ledger filter. */
@@ -189,6 +204,8 @@ export const useAdminGetPaymentsQuery = (
         ...(value.statuses.length ? { statuses: value.statuses } : {}),
         ...(value.psps.length ? { psps: value.psps } : {}),
         ...(value.sources.length ? { sources: value.sources } : {}),
+        ...(value.companyId ? { companyId: value.companyId } : {}),
+        ...(value.clientId ? { clientId: value.clientId } : {}),
         limit: page.value.limit,
         offset: page.value.offset
       })
