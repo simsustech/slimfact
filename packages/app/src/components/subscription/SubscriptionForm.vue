@@ -262,9 +262,6 @@ const $q = useQuasar()
 
 const { filteredCompanies, filteredClients } = toRefs(props)
 
-// Factory (not a shared object): the form mutates lines/discounts/surcharges
-// in place, and a module-level initialValue would leak state from one dialog
-// open into the next (same fix as InvoiceForm).
 const getInitialValue = (): SubscriptionDraft => ({
   name: '',
   companyId: null,

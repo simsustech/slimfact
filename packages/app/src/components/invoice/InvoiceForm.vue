@@ -287,9 +287,6 @@ const emit = defineEmits<{
 
 const $q = useQuasar()
 
-// Factory (not a shared object): the form mutates lines/discounts/surcharges
-// in place, and a module-level initialValue would leak state from one dialog
-// open into the next.
 const getInitialValue = (): Invoice => ({
   companyId: null,
   clientId: null,
