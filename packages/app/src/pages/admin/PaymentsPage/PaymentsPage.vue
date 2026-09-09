@@ -153,6 +153,11 @@
           :pagination="{ rowsPerPage: 50 }"
           :rows-per-page-options="[10, 25, 50, 100]"
         >
+          <template #body-cell-date="props">
+            <q-td :props="props">
+              {{ dateCell(props.row.date) }}
+            </q-td>
+          </template>
           <template #body-cell-method="props">
             <q-td :props="props">
               <q-chip dense outline color="grey-8" size="sm">
@@ -230,8 +235,10 @@
           <template #body-cell-date="props">
             <q-td :props="props">
               {{
-                props.row.transaction.bookingDate ??
-                props.row.transaction.transactionDate
+                dateCell(
+                  props.row.transaction.bookingDate ??
+                    props.row.transaction.transactionDate
+                )
               }}
             </q-td>
           </template>
@@ -456,6 +463,12 @@ const refresh = async () => {
 }
 
 // --- Options ---------------------------------------------------------------
+
+/** Render a ledger/suggestion date cell in the configured DATE_FORMAT.
+ * Dates arrive as full ISO timestamps (payments) or YYYY-MM-DD (bank
+ * transactions); the date part is sliced off before token formatting. */
+const dateCell = (iso?: string | null): string =>
+  formatDate((iso ?? '').slice(0, 10), DATE_FORMAT.value)
 
 const methodLabel = (method: string): string =>
   (lang.value.payment.methods as Record<string, string | undefined>)[method] ??
