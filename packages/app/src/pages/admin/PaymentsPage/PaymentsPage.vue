@@ -73,12 +73,14 @@
               <div class="column q-gutter-xs">
                 <date-input
                   v-model="fromDate"
+                  :format="DATE_FORMAT"
                   :label="lang.payment.overview.fromDate"
                   :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
                   clearable
                 />
                 <date-input
                   v-model="toDate"
+                  :format="DATE_FORMAT"
                   :label="lang.payment.overview.toDate"
                   :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
                   clearable
