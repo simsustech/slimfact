@@ -30,7 +30,25 @@ export const initializeTRPCClient = async (apiHost: string) => {
     input: RequestInfo | URL,
     init?: RequestInit
   ) => {
-    return fetch(input, init).then(async (res) => {
+    // SSRF guard: only ever talk to the api origin this client was built for.
+    // httpBatchLink hands us its own request URLs, but the wrapper accepts
+    // arbitrary input — never fetch anything off-origin.
+    const host = `https://${apiHost}`
+    let url: URL
+    try {
+      url =
+        typeof input === 'string'
+          ? new URL(input, host)
+          : input instanceof URL
+            ? input
+            : new URL(input.url)
+    } catch {
+      throw new Error('Invalid request URL')
+    }
+    if (url.origin !== host) {
+      throw new Error(`Refusing to fetch non-api origin: ${url.origin}`)
+    }
+    return fetch(url, init).then(async (res) => {
       try {
         if (!res.ok) {
           const body = await (res as Response).clone().json()
@@ -73,7 +91,7 @@ export const initializeTRPCClient = async (apiHost: string) => {
   trpc = createTRPCClient<BrowserRouter>({
     links: buildTrpcLinks({
       wsUrl: `wss://${apiHost}/ws`,
-      getToken: () => oAuthClient.value?.getAccessToken() ?? undefined,
+      getToken: () => oAuthClient.value?.getAccessToken(),
       httpLink,
       isBrowser: typeof window !== 'undefined'
     })

@@ -26,7 +26,7 @@ function find({
   select,
   pagination
 }: {
-  criteria: Partial<Client> & { name?: string }
+  criteria: Partial<Client> & { name?: string | null }
   select?: (keyof Client)[]
   pagination?: {
     limit: number
@@ -85,7 +85,7 @@ export async function findClient({
   criteria,
   select
 }: {
-  criteria: Partial<Client> & { name?: string }
+  criteria: Partial<Client> & { name?: string | null }
   select?: (keyof Client)[]
 }) {
   const query = find({ criteria, select })
@@ -98,7 +98,7 @@ export async function findClients({
   select,
   pagination
 }: {
-  criteria: Partial<Client> & { name?: string }
+  criteria: Partial<Client> & { name?: string | null }
   select?: (keyof Client)[]
   pagination?: {
     limit: number
@@ -137,7 +137,7 @@ export async function createClient(client: NewClient) {
 }
 
 export async function updateClient(
-  criteria: Partial<Client> & { name?: string },
+  criteria: Partial<Client> & { name?: string | null },
   updateWith: ClientUpdate
 ) {
   let query = db.updateTable('clients')
@@ -158,7 +158,7 @@ export async function searchClients({
   select,
   pagination
 }: {
-  criteria: Partial<Client> & { name?: string }
+  criteria: Partial<Client> & { name?: string | null }
   select?: (keyof Client)[]
   pagination?: {
     limit: number

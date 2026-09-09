@@ -62,7 +62,7 @@ export const createStripeAdapter = (apiKey: string): PspAdapter => {
     listSettlements: async ({ limit, from }) => {
       const list = await stripe.payouts.list({
         limit,
-        starting_after: from ?? undefined,
+        starting_after: from,
       });
       const items: PspSettlementItem[] = list.data.map((payout) => ({
         externalId: payout.id,

@@ -448,14 +448,20 @@ const clientOptions = computed(() => searchClients.value ?? [])
 const companyFilter = computed<number | null>({
   get: () => filters.value.companyId ?? null,
   set: (value: number | null) => {
-    filters.value = { ...filters.value, companyId: value ?? undefined }
+    const next = { ...filters.value }
+    if (value !== null) next.companyId = value
+    else delete next.companyId
+    filters.value = next
   }
 })
 
 const clientFilter = computed<number | null>({
   get: () => filters.value.clientId ?? null,
   set: (value: number | null) => {
-    filters.value = { ...filters.value, clientId: value ?? undefined }
+    const next = { ...filters.value }
+    if (value !== null) next.clientId = value
+    else delete next.clientId
+    filters.value = next
   }
 })
 

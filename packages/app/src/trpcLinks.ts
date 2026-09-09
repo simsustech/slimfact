@@ -5,7 +5,7 @@ export interface BuildTrpcLinksOptions {
   /** e.g. `wss://api.example.com/ws` (the api mounts the event bus there). */
   wsUrl: string
   /** Returns the current OAuth access token for the WS connectionParams. */
-  getToken: () => string | undefined
+  getToken: () => string | null | undefined
   /** The HTTP batch link (queries/mutations). */
   httpLink: TRPCLink<AnyRouter>
   /** True on the client only (browsers can set WS connectionParams but not headers). */
