@@ -150,7 +150,8 @@
           flat
           bordered
           :loading="loading"
-          :pagination="{ rowsPerPage: 50 }"
+          v-model:pagination="pagination"
+          @request="onTableRequest"
           :rows-per-page-options="[10, 25, 50, 100]"
         >
           <template #body-cell-date="props">
@@ -377,6 +378,33 @@ watch(activeTab, (tab) => {
 const { filters, search } = usePaymentsUrlState()
 const page = ref({ limit: 50, offset: 0 })
 
+/**
+ * q-table pagination state. The ledger is server-sorted (newest first) and
+ * server-paginated: q-table runs in server mode (@request) and the tRPC
+ * payload reports the total, so the table pages through the whole filtered
+ * set instead of only the first page.
+ */
+const pagination = ref({
+  sortBy: undefined as string | undefined,
+  descending: true,
+  page: 1,
+  rowsPerPage: 50,
+  rowsNumber: 0
+})
+
+/** Translate a q-table page request into the tRPC limit/offset. */
+const onTableRequest = ({
+  pagination: requested
+}: {
+  pagination: { page: number; rowsPerPage: number }
+}): void => {
+  pagination.value = { ...pagination.value, ...requested }
+  page.value = {
+    limit: requested.rowsPerPage,
+    offset: (requested.page - 1) * requested.rowsPerPage
+  }
+}
+
 const fromDate = computed({
   get: () => filters.value.from ?? null,
   set: (value: string | null) => {
@@ -397,6 +425,27 @@ const rows = computed(() => paymentsQuery.payload.value?.rows ?? [])
 const aggregates = computed(() => paymentsQuery.payload.value?.aggregates)
 const truncated = computed(
   () => paymentsQuery.payload.value?.truncated ?? false
+)
+
+// Surface the server-reported total so q-table renders "1–50 of 1,148".
+watch(
+  payload,
+  (data) => {
+    if (data !== undefined) pagination.value.rowsNumber = data.total
+  },
+  { immediate: true }
+)
+
+// A filter change restarts the list at page 1 (the query key refetches).
+watch(
+  filters,
+  () => {
+    if (pagination.value.page !== 1 || page.value.offset !== 0) {
+      pagination.value.page = 1
+      page.value = { limit: pagination.value.rowsPerPage, offset: 0 }
+    }
+  },
+  { deep: true }
 )
 
 const { mutateAsync: exportPaymentsMutation } = useAdminExportPaymentsMutation()
@@ -526,8 +575,7 @@ const columns = [
     name: 'date',
     label: lang.value.payment.overview.columns.date,
     field: 'date',
-    align: 'left' as const,
-    sortable: true
+    align: 'left' as const
   },
   {
     name: 'method',
