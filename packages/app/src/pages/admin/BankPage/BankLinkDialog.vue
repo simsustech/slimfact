@@ -37,18 +37,34 @@
           @click="selectedId = invoice.id"
         >
           <q-item-section>
-            <invoice-expansion-item
-              :model-value="invoice"
-              selectable
-              :selected="selectedId === invoice.id"
-              :adoptable="adoptableIds.has(invoice.id)"
-              :score="scoreById.get(invoice.id) ?? null"
-              @update:selected="
-                (sel: boolean) => {
-                  if (sel) selectedId = invoice.id
-                }
-              "
-            />
+            <invoice-expansion-item :model-value="invoice">
+              <template #item-avatar>
+                <q-checkbox
+                  :model-value="selectedId === invoice.id"
+                  data-testid="invoice-select"
+                  @update:model-value="
+                    (checked: boolean) => {
+                      if (checked) selectedId = invoice.id
+                    }
+                  "
+                />
+              </template>
+              <template #item-side>
+                <q-badge
+                  v-if="adoptableIds.has(invoice.id)"
+                  color="positive"
+                  :label="lang.payment.suggestions?.adoptBadge ?? 'Adopt'"
+                />
+                <q-badge
+                  v-if="scoreById.has(invoice.id)"
+                  :color="scoreColor(scoreById.get(invoice.id)!)"
+                  outline
+                  data-testid="invoice-score"
+                >
+                  {{ Math.round(scoreById.get(invoice.id)! * 100) }}%
+                </q-badge>
+              </template>
+            </invoice-expansion-item>
           </q-item-section>
         </q-item>
       </q-list>
@@ -120,6 +136,10 @@ const title = computed(() => {
     row.transaction.bookingDate ?? ''
   }`
 })
+
+/** Green >= 80 %, amber >= 50 %, grey otherwise. */
+const scoreColor = (score: number): string =>
+  score >= 0.8 ? 'positive' : score >= 0.5 ? 'warning' : 'grey'
 
 /** Match confidence of the preselected top suggestion (0–1). */
 const topScore = computed(() => props.row?.topSuggestion?.score ?? null)
