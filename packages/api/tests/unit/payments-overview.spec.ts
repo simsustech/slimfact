@@ -397,6 +397,55 @@ describe('admin payments ledger', () => {
     expect(byPsp.rows).toHaveLength(1)
   })
 
+  it("includes settled refunds when filtering status 'paid'", async () => {
+    const companyId = await mkCompany()
+    createdCompanyIds.push(companyId)
+    const clientId = await mkClient(`Zebra ${PREFIX}`)
+    createdClientIds.push(clientId)
+    const invoice = await mkInvoice(companyId, clientId)
+    createdInvoiceIds.push(invoice.id)
+
+    const token = uniqueToken()
+    const paymentId = await mkPayment(invoice.id, {
+      description: `${token} pay`
+    })
+    await mkRefund(paymentId, { description: `${token} refund` })
+    await mkPayment(invoice.id, {
+      status: PaymentStatus.FAILED,
+      description: `${token} fail`
+    })
+
+    const caller = await loadCaller()
+
+    // A refund is 'refunded', not 'paid': selecting 'paid' must still surface
+    // the settled refund (the money-out side of a paid payment).
+    const paidOnly = await caller.listPayments({
+      q: token,
+      statuses: [PaymentStatus.PAID],
+      limit: 50,
+      offset: 0
+    })
+    expect(paidOnly.rows).toHaveLength(2)
+    expect(paidOnly.rows.map((row) => row.kind).sort()).toEqual([
+      'payment',
+      'refund'
+    ])
+    const refundRow = paidOnly.rows.find((row) => row.kind === 'refund')
+    expect(refundRow?.status).toBe(RefundStatus.REFUNDED)
+
+    // Non-paid selections stay payment-only (a failed payment shows, no
+    // refunds ride along).
+    const failedOnly = await caller.listPayments({
+      q: token,
+      statuses: [PaymentStatus.FAILED],
+      limit: 50,
+      offset: 0
+    })
+    expect(failedOnly.rows).toHaveLength(1)
+    expect(failedOnly.rows[0]?.kind).toBe('payment')
+    expect(failedOnly.rows[0]?.status).toBe(PaymentStatus.FAILED)
+  })
+
   it('computes aggregates over the filtered ledger', async () => {
     const companyId = await mkCompany()
     createdCompanyIds.push(companyId)

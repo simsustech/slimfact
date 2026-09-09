@@ -4,7 +4,7 @@ import * as z from 'zod'
 import type { FastifyInstance } from 'fastify'
 import type { ExpressionBuilder } from 'kysely'
 import { db } from '../../kysely/index.js'
-import { PaymentMethod } from '@modular-api/fastify-checkout'
+import { PaymentMethod, RefundStatus } from '@modular-api/fastify-checkout'
 import type { LedgerRow } from '../../banking/ledger.js'
 
 const MAX_ROWS = 10000
@@ -205,7 +205,25 @@ const runLedger = async (
       query = query.where('l.method', 'in', [...input.methods])
     }
     if (input.statuses?.length) {
-      query = query.where('l.status', 'in', input.statuses)
+      const statuses = input.statuses
+      // The dropdown lists payment statuses. A settled refund is 'refunded',
+      // not 'paid', so selecting 'paid' also includes refunded refunds (the
+      // money-out side of a paid payment). All other selections stay
+      // payment-only.
+      query = query.where((eb: ExpressionBuilder<any, any>) => {
+        const paidPayments = eb.and([
+          eb('l.kind', '=', 'payment'),
+          eb('l.status', 'in', statuses)
+        ])
+        if (!statuses.includes('paid')) return paidPayments
+        return eb.or([
+          paidPayments,
+          eb.and([
+            eb('l.kind', '=', 'refund'),
+            eb('l.status', '=', RefundStatus.REFUNDED)
+          ])
+        ])
+      })
     }
     if (input.psps?.length) {
       query = query.where('l.psp', 'in', input.psps)
