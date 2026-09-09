@@ -313,10 +313,40 @@ const lang: Language = {
       psps: 'PSPs',
       deletePayment: 'Betaling verwijderen',
       search: 'Zoeken',
+      filters: 'Filters',
       refresh: 'Vernieuwen',
       export: 'CSV exporteren',
       empty: 'Geen betalingen voldoen aan de huidige filters.',
       truncated: 'Eerste 10.000 rijen getoond — verklein je bereik.',
+      filterSummary: ({
+        from,
+        to,
+        q,
+        methods,
+        statuses,
+        psps,
+        sources
+      }: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => {
+        const zinnen: string[] = []
+        if (from && to) zinnen.push(`van ${from} tot ${to}`)
+        else if (from) zinnen.push(`van ${from}`)
+        else if (to) zinnen.push(`tot ${to}`)
+        if (q) zinnen.push(`met zoekterm "${q}"`)
+        if (statuses.length)
+          zinnen.push(`met status ${statuses.map((s) => `'${s}'`).join(', ')}`)
+        if (methods.length) zinnen.push(`via ${methods.join(', ')}`)
+        if (psps.length) zinnen.push(`met PSP ${psps.join(', ')}`)
+        if (sources.length === 1) zinnen.push(`bron: ${sources[0]}`)
+        return zinnen.length ? `Betalingen ${zinnen.join(' ')}` : ''
+      },
       tabs: {
         payments: 'Betalingen',
         suggestions: 'Suggesties'

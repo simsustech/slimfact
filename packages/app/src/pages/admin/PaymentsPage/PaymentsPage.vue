@@ -63,60 +63,71 @@
             clearable
             style="min-width: 220px"
           />
-          <date-input
-            v-model="fromDate"
-            :label="lang.payment.overview.fromDate"
-            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
-            clearable
-            style="min-width: 150px"
-          />
-          <date-input
-            v-model="toDate"
-            :label="lang.payment.overview.toDate"
-            :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
-            clearable
-            style="min-width: 150px"
-          />
-          <q-select
-            v-model="filters.methods"
-            :options="methodOptions"
-            :label="lang.payment.overview.methods"
-            multiple
+          <q-btn
+            flat
             dense
-            outlined
-            emit-value
-            map-options
-            style="min-width: 170px"
-          />
-          <q-select
-            v-model="filters.statuses"
-            :options="statusOptions"
-            :label="lang.payment.overview.statuses"
-            multiple
-            dense
-            outlined
-            style="min-width: 150px"
-          />
-          <q-select
-            v-model="filters.psps"
-            :options="pspOptions"
-            :label="lang.payment.overview.psps"
-            multiple
-            dense
-            outlined
-            style="min-width: 130px"
-          />
-          <q-select
-            v-model="filters.sources"
-            :options="sourceOptions"
-            :label="lang.payment.overview.source"
-            multiple
-            dense
-            outlined
-            emit-value
-            map-options
-            style="min-width: 170px"
-          />
+            icon="i-mdi-tune-variant"
+            :label="lang.payment.overview.filters"
+            data-testid="ledger-filters-btn"
+            @click="filtersMenuOpen = !filtersMenuOpen"
+          >
+            <q-menu
+              v-model="filtersMenuOpen"
+              class="q-pa-sm"
+              style="min-width: 260px"
+            >
+              <div class="column q-gutter-xs">
+                <date-input
+                  v-model="fromDate"
+                  :label="lang.payment.overview.fromDate"
+                  :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+                  clearable
+                />
+                <date-input
+                  v-model="toDate"
+                  :label="lang.payment.overview.toDate"
+                  :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
+                  clearable
+                />
+                <q-select
+                  v-model="filters.methods"
+                  :options="methodOptions"
+                  :label="lang.payment.overview.methods"
+                  multiple
+                  dense
+                  outlined
+                  emit-value
+                  map-options
+                />
+                <q-select
+                  v-model="filters.statuses"
+                  :options="statusOptions"
+                  :label="lang.payment.overview.statuses"
+                  multiple
+                  dense
+                  outlined
+                />
+                <q-select
+                  v-model="filters.psps"
+                  :options="pspOptions"
+                  :label="lang.payment.overview.psps"
+                  multiple
+                  dense
+                  outlined
+                />
+                <q-select
+                  v-model="filters.sources"
+                  :options="sourceOptions"
+                  :label="lang.payment.overview.source"
+                  multiple
+                  dense
+                  outlined
+                  emit-value
+                  map-options
+                />
+              </div>
+            </q-menu>
+          </q-btn>
           <q-btn
             flat
             dense
@@ -331,6 +342,8 @@ import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import { useLang } from '../../../lang/index.js'
 import { formatMoney } from '../../../utils/money.js'
+import { formatDate } from '@slimfact/tools'
+import { DATE_FORMAT } from '../../../configuration.js'
 import {
   useAdminGetPaymentsQuery,
   usePaymentsUrlState,
@@ -359,6 +372,10 @@ const activeTab = ref<'payments' | 'suggestions'>(
 watch(activeTab, (tab) => {
   router.replace({ query: { ...route.query, tab } })
 })
+
+/** Filters QMenu open state (explicit v-model: Quasar auto-open needs a
+ * plain QBtn without label/icon props; we have both, so toggle manually). */
+const filtersMenuOpen = ref(false)
 
 const { filters, search } = usePaymentsUrlState()
 const page = ref({ limit: 50, offset: 0 })
@@ -480,18 +497,23 @@ const sourceOptions = [
 ]
 
 const filterSummary = computed(() => {
-  const parts: string[] = []
   const f = filters.value
-  if (f.from) parts.push(`From ${f.from}`)
-  if (f.to) parts.push(`To ${f.to}`)
-  if (f.q) parts.push(`"${f.q}"`)
-  if (f.methods.length)
-    parts.push(`Methods: ${f.methods.map((m) => methodLabel(m)).join(', ')}`)
-  if (f.statuses.length) parts.push(`Statuses: ${f.statuses.join(', ')}`)
-  if (f.psps.length) parts.push(`PSPs: ${f.psps.join(', ')}`)
-  if (f.sources.length && f.sources.length < 2)
-    parts.push(`Sources: ${f.sources.join(', ')}`)
-  return parts.join(' · ')
+  const format = (iso?: string): string | undefined =>
+    iso ? formatDate(iso, DATE_FORMAT.value) : undefined
+  const sourceLabels = f.sources.map((source) =>
+    source === 'refunds'
+      ? lang.value.payment.overview.sources.refunds
+      : lang.value.payment.overview.sources.payments
+  )
+  return lang.value.payment.overview.filterSummary({
+    from: format(f.from),
+    to: format(f.to),
+    q: f.q || undefined,
+    methods: f.methods.map((m) => methodLabel(m)),
+    statuses: f.statuses,
+    psps: f.psps,
+    sources: sourceLabels
+  })
 })
 
 // --- Table -----------------------------------------------------------------

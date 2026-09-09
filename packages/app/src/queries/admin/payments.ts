@@ -66,6 +66,41 @@ const fromQueryParams = (query: Record<string, unknown>): PaymentsFilters => ({
   )
 })
 
+/** Ledger filter query-param keys (mirrors toQueryParams). */
+const LEDGER_FILTER_PARAMS = [
+  'q',
+  'from',
+  'to',
+  'method',
+  'status',
+  'psp',
+  'source'
+] as const
+
+/** True when the route query carries at least one explicit ledger filter. */
+const hasLedgerFilterParam = (query: Record<string, unknown>): boolean =>
+  LEDGER_FILTER_PARAMS.some((key) => {
+    const value = query[key]
+    return value !== undefined && value !== ''
+  })
+
+/** First day of the current year as an ISO date (e.g. "2026-01-01"). */
+const firstDayOfYear = (): string => `${new Date().getFullYear()}-01-01`
+
+/**
+ * Fresh page view (no explicit ledger filters): default to this year's paid
+ * payments. Deep links with any filter param keep their exact semantics.
+ */
+const defaultLedgerFilters = (): PaymentsFilters => ({
+  ...DEFAULT_PAYMENTS_FILTERS,
+  from: firstDayOfYear(),
+  statuses: ['paid']
+})
+
+/** Parse route query, applying the fresh-view defaults when no filter is set. */
+const parseLedgerQuery = (query: Record<string, unknown>): PaymentsFilters =>
+  hasLedgerFilterParam(query) ? fromQueryParams(query) : defaultLedgerFilters()
+
 /**
  * URL is the single source of truth for the ledger filters: the composable
  * mirrors route.query ⇄ reactive filters (arrays comma-encoded, search
@@ -76,7 +111,7 @@ export const usePaymentsUrlState = () => {
   const router = useRouter()
 
   const filters = ref<PaymentsFilters>(
-    fromQueryParams(route.query as Record<string, unknown>)
+    parseLedgerQuery(route.query as Record<string, unknown>)
   )
   /** Immediate model for the search box; applied to filters after 300 ms. */
   const search = ref(filters.value.q)
@@ -94,7 +129,7 @@ export const usePaymentsUrlState = () => {
   watch(
     () => route.query,
     (query) => {
-      const next = fromQueryParams(query as Record<string, unknown>)
+      const next = parseLedgerQuery(query as Record<string, unknown>)
       if (JSON.stringify(next) !== JSON.stringify(filters.value)) {
         filters.value = next
         search.value = next.q
@@ -116,7 +151,7 @@ export const usePaymentsUrlState = () => {
   )
 
   const clear = () => {
-    filters.value = { ...DEFAULT_PAYMENTS_FILTERS }
+    filters.value = defaultLedgerFilters()
     search.value = ''
   }
 

@@ -330,10 +330,20 @@ export interface Language {
       psps: string
       deletePayment: string
       search: string
+      filters: string
       refresh: string
       export: string
       empty: string
       truncated: string
+      filterSummary: (args: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => string
       tabs: {
         payments: string
         suggestions: string

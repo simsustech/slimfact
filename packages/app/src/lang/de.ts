@@ -314,10 +314,40 @@ const lang: Language = {
       psps: 'PSPs',
       deletePayment: 'Zahlung löschen',
       search: 'Suchen',
+      filters: 'Filter',
       refresh: 'Aktualisieren',
       export: 'CSV exportieren',
       empty: 'Keine Zahlungen entsprechen den aktuellen Filtern.',
       truncated: 'Erste 10.000 Zeilen angezeigt — Bereich eingrenzen.',
+      filterSummary: ({
+        from,
+        to,
+        q,
+        methods,
+        statuses,
+        psps,
+        sources
+      }: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => {
+        const saetze: string[] = []
+        if (from && to) saetze.push(`vom ${from} bis ${to}`)
+        else if (from) saetze.push(`ab ${from}`)
+        else if (to) saetze.push(`bis ${to}`)
+        if (q) saetze.push(`mit Suche "${q}"`)
+        if (statuses.length)
+          saetze.push(`mit Status ${statuses.map((s) => `'${s}'`).join(', ')}`)
+        if (methods.length) saetze.push(`per ${methods.join(', ')}`)
+        if (psps.length) saetze.push(`über ${psps.join(', ')}`)
+        if (sources.length === 1) saetze.push(`Quelle: ${sources[0]}`)
+        return saetze.length ? `Zahlungen ${saetze.join(' ')}` : ''
+      },
       tabs: {
         payments: 'Zahlungen',
         suggestions: 'Vorschläge'

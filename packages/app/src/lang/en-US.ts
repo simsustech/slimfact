@@ -312,10 +312,42 @@ const lang: Language = {
       psps: 'PSPs',
       deletePayment: 'Delete payment',
       search: 'Search',
+      filters: 'Filters',
       refresh: 'Refresh',
       export: 'Export CSV',
       empty: 'No payments match the current filters.',
       truncated: 'Showing the first 10,000 rows — narrow your range.',
+      filterSummary: ({
+        from,
+        to,
+        q,
+        methods,
+        statuses,
+        psps,
+        sources
+      }: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => {
+        const clauses: string[] = []
+        if (from && to) clauses.push(`from ${from} to ${to}`)
+        else if (from) clauses.push(`from ${from}`)
+        else if (to) clauses.push(`until ${to}`)
+        if (q) clauses.push(`matching "${q}"`)
+        if (statuses.length)
+          clauses.push(
+            `with status ${statuses.map((s) => `'${s}'`).join(', ')}`
+          )
+        if (methods.length) clauses.push(`with method ${methods.join(', ')}`)
+        if (psps.length) clauses.push(`via ${psps.join(', ')}`)
+        if (sources.length === 1) clauses.push(`source: ${sources[0]}`)
+        return clauses.length ? `Payments ${clauses.join(' ')}` : ''
+      },
       tabs: {
         payments: 'Payments',
         suggestions: 'Suggestions'
