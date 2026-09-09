@@ -15,7 +15,7 @@ describe('banking env config', () => {
     delete process.env.BANKING_API_URL
     delete process.env.BANKING_API_KEY
     delete process.env.BANKING_SYNC_CRON
-    delete process.env.BANKING_SYNC_WAIT_MS
+    delete process.env.BANKING_SYNC_TIMEOUT_MS
     delete process.env.BANKING_INGEST_DISABLED
   })
 
@@ -50,12 +50,12 @@ describe('banking env config', () => {
     expect(appConfig.bankingSyncCron).toBe('*/10 * * * *')
   })
 
-  it('reads BANKING_API_URL and BANKING_SYNC_WAIT_MS', async () => {
+  it('reads BANKING_API_URL and BANKING_SYNC_TIMEOUT_MS', async () => {
     process.env.BANKING_API_URL = 'http://banking-api'
-    process.env.BANKING_SYNC_WAIT_MS = '30000'
+    process.env.BANKING_SYNC_TIMEOUT_MS = '30000'
     const { appConfig } = await loadBankingEnv()
     expect(appConfig.bankingApiUrl).toBe('http://banking-api')
-    expect(appConfig.bankingSyncWaitMs).toBe(30000)
+    expect(appConfig.bankingSyncTimeoutMs).toBe(30000)
   })
 
   it('defaults bankingIngestDisabled to false when BANKING_INGEST_DISABLED is absent', async () => {

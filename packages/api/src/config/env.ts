@@ -48,7 +48,7 @@ export const appConfig = {
   bankingApiUrl: read('BANKING_API_URL'),
   bankingApiKey: read('BANKING_API_KEY'),
   bankingSyncCron: read('BANKING_SYNC_CRON') || '*/15 7-23 * * *',
-  bankingSyncWaitMs: Number(read('BANKING_SYNC_WAIT_MS') || '120000'),
+  bankingSyncTimeoutMs: Number(read('BANKING_SYNC_TIMEOUT_MS') || '120000'),
   bankingIngestDisabled: read('BANKING_INGEST_DISABLED') === 'true',
 
   /**

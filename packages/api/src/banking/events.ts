@@ -153,7 +153,7 @@ export const startRelay = async ({
   })
 
   const relay: Relay = {
-    waitForSyncRun: (runId, timeoutMs = appConfig.bankingSyncWaitMs) =>
+    waitForSyncRun: (runId, timeoutMs = appConfig.bankingSyncTimeoutMs) =>
       waitForSyncRun({ fastify, runId, timeoutMs }),
     close: () => {
       unsubscribe()

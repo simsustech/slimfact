@@ -47,7 +47,7 @@ never deletes). All amounts are **integer cents** everywhere.
 1. proxy `syncAll()` (tRPC, API-key auth) → the proxy's pg-boss `SYNC_QUEUE`
    worker runs; in tame mode it records a `sync_runs` row and publishes
    `bank.sync.started` / `bank.sync.finished` on the event bus (the UI shows
-   progress via the bus, `BANKING_SYNC_WAIT_MS` fallback).
+   progress via the bus, `BANKING_SYNC_TIMEOUT_MS` fallback).
 2. `requestSync` then enqueues the api's **ingest worker**:
    `boss.send('processBankSync', { runId }, { singletonKey: 'process-sync' })`.
 

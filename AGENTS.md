@@ -14,7 +14,7 @@
 - **Authentication**: OpenID Connect (OIDC) via @modular-api/fastify-oidc
 - **Payments**: Mollie + Stripe PSP integrations with multi-profile support, configurable payment method routing (ideal → mollie|stripe, creditcard → mollie|stripe)
 - **Background Jobs**: pg-boss (PostgreSQL job queue)
-- **Banking**: open-banking.io integration for importing own bank transactions (Knab/Rabobank), matching incoming credits to open invoices, auto-apply strict matches. Single-tenant, own-accounts feature — not customer-facing.
+- **Banking**: open-banking.io integration for importing own bank transactions , matching incoming credits to invoices or payments, auto-apply strict matches.
 
 ### Package Structure
 
@@ -103,9 +103,6 @@ To switch, edit `packages/api/.env.development.local` and restart the dev server
 **Why VITE_API_HOST matters**: The OIDC issuer URL is built from `VITE_API_HOST`. If set to the NetBird URL but you browse to localhost, OIDC will error with "Incorrect issuer in meta data" because the issuer doesn't match the page origin.
 
 **Gotcha: stale POSTGRES_HOST**: If you previously ran Docker, `POSTGRES_HOST=database` may linger in your shell env. Unset it: `unset POSTGRES_HOST`.
-
-<<<<<<< HEAD
-=======
 **Gotcha: one-shot test recipe**: Always start a fresh test run with `down --volumes` so the API re-seeds from scratch, then `build --no-cache api` (so any linked local package overlay is picked up), then `up -d --wait` (so containers are healthy before tests run). `up -d api` without `--wait` returns immediately and the API then crashes on a missing DB if its container was recreated against a stale volume. The one-shot recipe:
 
 ```bash
@@ -119,7 +116,6 @@ cd packages/api && pnpm exec playwright test --workers=1 --config=playwright.nos
 
 `--volumes` drops the DB so the API re-runs migrations + `seed:test` from scratch. `build --no-cache api` rebuilds the image with any local fastify-checkout overlay. `up -d --wait` blocks until every container's healthcheck passes, so the API is ready before Playwright starts.
 
->>>>>>> dev
 ## Docker Test Stack with Linked Local Packages
 
 The Docker build supports overlaying local packages on top of npm-installed ones via BuildKit `additional_contexts`. Set `LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH` (or other `LINKED_*` vars) to point at your local copy. The Dockerfile copies, injects a `link:` override into `pnpm-workspace.yaml`, and builds inside Docker — no pre-building needed locally. Unset paths default to `.docker/empty`.
@@ -265,7 +261,7 @@ reseeding are not supported.
 | ----------------------- | -------------------- | ------------------------------------------------------------- |
 | `BANKING_API_URL`       | _(empty — disabled)_ | Proxy base URL (e.g. `http://banking-api` in the test stack). |
 | `BANKING_API_KEY`       | _(empty — disabled)_ | `obk_…` key granted read + sync scopes for the own accounts.  |
-| `BANKING_SYNC_WAIT_MS`  | `30000`              | Frontend fallback when no `bank.sync.finished` event arrives. |
+| `BANKING_SYNC_TIMEOUT_MS` | `120000`            | Wait timeout before polling sync status when no `bank.sync.finished` event arrives. |
 | `ADMIN_NOTIFICATION_EMAIL` | _(empty)_            | Admin "invoice paid" notification address; falls back to the invoice's `companyDetails.email`. |
 | `OPENBANKING_SYNC_CRON` | `0 */4 7-23 * * *`   | (proxy) cron schedule for automatic bank transaction sync.    |
 

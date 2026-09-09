@@ -106,7 +106,7 @@ services:
       MODULARAPI_ADMIN_PASSWORD: Sif5uEG5hcTH
       BANKING_API_URL: http://banking-api
       BANKING_API_KEY: obk_test_6xJo6yNf2Biim50gmr0yfOVyK2Slug4LryYFqWoT_vw
-      BANKING_SYNC_WAIT_MS: 5000
+      BANKING_SYNC_TIMEOUT_MS: 5000
       # The ingest worker only runs when the user clicks "Sync now" in tests:
       # BANKING_SYNC_CRON: disabled skips the periodic schedule entirely, keeping
       # the seeded review queue / auto-apply demo deterministic across the run.
