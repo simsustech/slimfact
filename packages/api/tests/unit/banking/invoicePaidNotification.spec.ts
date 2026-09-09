@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely'
 import pg from 'pg'
+import type { FastifyInstance } from 'fastify'
 import type { OnInvoicePaidArgs } from '@modular-api/fastify-checkout'
 import { sendInvoicePaidNotification } from '../../../src/notifications/invoicePaid.js'
 import type { DB } from '../../../src/kysely/types.js'
@@ -65,17 +66,22 @@ const paidArgs = (
     previousStatus: 'open'
   }) as unknown as OnInvoicePaidArgs
 
+const makeFastify = ({ mailer, warn }: { mailer?: unknown; warn?: unknown }) =>
+  ({
+    log: { warn: warn ?? vi.fn(), info: vi.fn() },
+    mailer
+  }) as unknown as FastifyInstance
+
 describeDb('sendInvoicePaidNotification recipient resolution', () => {
   it('uses ADMIN_NOTIFICATION_EMAIL over companyDetails.email', async () => {
     const sendMail = vi.fn<(opts: { to: string }) => Promise<void>>(
       async () => {}
     )
-    await sendInvoicePaidNotification(paidArgs('company@x.local'), {
-      logger: { warn: vi.fn(), info: vi.fn() },
-      mailer: { sendMail },
-      adminNotificationEmail: 'admin@notify.local',
-      host: 'slimfact.test'
-    })
+    await sendInvoicePaidNotification(
+      makeFastify({ mailer: { sendMail } }),
+      paidArgs('company@x.local'),
+      { adminNotificationEmail: 'admin@notify.local', host: 'slimfact.test' }
+    )
     expect(sendMail).toHaveBeenCalledTimes(1)
     expect(vi.mocked(sendMail).mock.calls[0]![0]!.to).toBe('admin@notify.local')
   })
@@ -84,12 +90,11 @@ describeDb('sendInvoicePaidNotification recipient resolution', () => {
     const sendMail = vi.fn<(opts: { to: string }) => Promise<void>>(
       async () => {}
     )
-    await sendInvoicePaidNotification(paidArgs('company@x.local'), {
-      logger: { warn: vi.fn(), info: vi.fn() },
-      mailer: { sendMail },
-      adminNotificationEmail: undefined,
-      host: 'slimfact.test'
-    })
+    await sendInvoicePaidNotification(
+      makeFastify({ mailer: { sendMail } }),
+      paidArgs('company@x.local'),
+      { adminNotificationEmail: undefined, host: 'slimfact.test' }
+    )
     expect(sendMail).toHaveBeenCalledTimes(1)
     expect(vi.mocked(sendMail).mock.calls[0]![0]!.to).toBe('company@x.local')
   })
@@ -99,24 +104,22 @@ describeDb('sendInvoicePaidNotification recipient resolution', () => {
       async () => {}
     )
     const warn = vi.fn()
-    await sendInvoicePaidNotification(paidArgs(''), {
-      logger: { warn, info: vi.fn() },
-      mailer: { sendMail },
-      adminNotificationEmail: undefined,
-      host: 'slimfact.test'
-    })
+    await sendInvoicePaidNotification(
+      makeFastify({ mailer: { sendMail }, warn }),
+      paidArgs(''),
+      { adminNotificationEmail: undefined, host: 'slimfact.test' }
+    )
     expect(sendMail).not.toHaveBeenCalled()
     expect(warn).toHaveBeenCalledTimes(1)
   })
 
   it('skips with exactly one warning when the mailer is not configured', async () => {
     const warn = vi.fn()
-    await sendInvoicePaidNotification(paidArgs('company@x.local'), {
-      logger: { warn, info: vi.fn() },
-      mailer: undefined,
-      adminNotificationEmail: 'admin@notify.local',
-      host: 'slimfact.test'
-    })
+    await sendInvoicePaidNotification(
+      makeFastify({ warn }),
+      paidArgs('company@x.local'),
+      { adminNotificationEmail: 'admin@notify.local', host: 'slimfact.test' }
+    )
     expect(warn).toHaveBeenCalledTimes(1)
   })
 })
@@ -134,12 +137,11 @@ describeDb('invoice-paid email rendering (real template glob)', () => {
   })
 
   it('renders en-US subject with compiled number and price', async () => {
-    await sendInvoicePaidNotification(paidArgs('company@x.local'), {
-      logger: { warn: vi.fn(), info: vi.fn() },
-      mailer: { sendMail } as unknown as Mailer,
-      adminNotificationEmail: 'admin@notify.local',
-      host: 'slimfact.test'
-    })
+    await sendInvoicePaidNotification(
+      makeFastify({ mailer: { sendMail } as unknown as Mailer }),
+      paidArgs('company@x.local'),
+      { adminNotificationEmail: 'admin@notify.local', host: 'slimfact.test' }
+    )
     expect(sent[0]!.subject).toBe('Invoice 2026-00012 paid · €121.00')
     expect(sent[0]!.html).toContain('Client BV')
     expect(sent[0]!.html).toContain('/invoice/test-uuid')
@@ -147,24 +149,16 @@ describeDb('invoice-paid email rendering (real template glob)', () => {
 
   it('renders nl-NL and de-DE variants by invoice locale', async () => {
     await sendInvoicePaidNotification(
+      makeFastify({ mailer: { sendMail } as unknown as Mailer }),
       paidArgs('company@x.local', { locale: 'nl-NL' }),
-      {
-        logger: { warn: vi.fn(), info: vi.fn() },
-        mailer: { sendMail } as unknown as Mailer,
-        adminNotificationEmail: 'admin@notify.local',
-        host: 'slimfact.test'
-      }
+      { adminNotificationEmail: 'admin@notify.local', host: 'slimfact.test' }
     )
     expect(sent[1]!.subject).toContain('betaald')
 
     await sendInvoicePaidNotification(
+      makeFastify({ mailer: { sendMail } as unknown as Mailer }),
       paidArgs('company@x.local', { locale: 'de-DE' }),
-      {
-        logger: { warn: vi.fn(), info: vi.fn() },
-        mailer: { sendMail } as unknown as Mailer,
-        adminNotificationEmail: 'admin@notify.local',
-        host: 'slimfact.test'
-      }
+      { adminNotificationEmail: 'admin@notify.local', host: 'slimfact.test' }
     )
     expect(sent[2]!.subject).toContain('bezahlt')
   })

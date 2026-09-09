@@ -33,10 +33,7 @@ import healthRoutes from './routes/health.js'
 import type { ClientMetadata } from 'oidc-provider'
 import { generateTheme } from 'unocss-preset-quasar/theme'
 import { createClient } from './banking/client.js'
-import {
-  sendInvoicePaidNotification,
-  type InvoicePaidNotificationDeps
-} from './notifications/invoicePaid.js'
+import { sendInvoicePaidNotification } from './notifications/invoicePaid.js'
 
 const theme = generateTheme(config.sourceColor)
 const OIDC_API_CLIENT_IDS = ['petboarding']
@@ -180,18 +177,6 @@ export default async function (fastify: FastifyInstance) {
       | undefined
   }
 
-  // Lazy getters: the nodemailer plugin decorates fastify.mailer only after
-  // registration completes, so it must be resolved at send time, not here.
-  const invoicePaidNotificationDeps: InvoicePaidNotificationDeps = {
-    get logger() {
-      return fastify.log
-    },
-    get mailer() {
-      return fastify.mailer
-    },
-    adminNotificationEmail: config.adminNotificationEmail,
-    host
-  }
   if (!config.adminNotificationEmail) {
     fastify.log.warn(
       'ADMIN_NOTIFICATION_EMAIL not set — paid notifications fall back to companyDetails.email'
@@ -215,7 +200,13 @@ export default async function (fastify: FastifyInstance) {
     options: {
       paymentMethodRouting,
       onInvoicePaid: async (args) => {
-        await sendInvoicePaidNotification(args, invoicePaidNotificationDeps)
+        // sendInvoicePaidNotification reads fastify.mailer at call time; the
+        // callback only fires on a paid transition, long after the nodemailer
+        // plugin decorated fastify during registration.
+        await sendInvoicePaidNotification(fastify, args, {
+          adminNotificationEmail: config.adminNotificationEmail,
+          host
+        })
       }
     }
   })
