@@ -63,19 +63,13 @@
             clearable
             style="min-width: 220px"
           />
-          <q-btn
-            flat
-            dense
-            icon="i-mdi-tune-variant"
-            :label="lang.payment.overview.filters"
-            data-testid="ledger-filters-btn"
-            @click="filtersMenuOpen = !filtersMenuOpen"
-          >
-            <q-menu
-              v-model="filtersMenuOpen"
-              class="q-pa-sm"
-              style="min-width: 260px"
-            >
+          <q-btn flat dense data-testid="ledger-filters-btn">
+            <q-icon name="i-mdi-tune-variant" />
+            <span class="q-ml-xs">{{ lang.payment.overview.filters }}</span>
+            <!-- no-route-dismiss: the page mirrors filter changes into the URL
+                 (usePaymentsUrlState), and QMenu's hideOnRouteChange would
+                 otherwise close the menu on every selection. -->
+            <q-menu no-route-dismiss class="q-pa-sm" style="min-width: 260px">
               <div class="column q-gutter-xs">
                 <date-input
                   v-model="fromDate"
@@ -372,10 +366,6 @@ const activeTab = ref<'payments' | 'suggestions'>(
 watch(activeTab, (tab) => {
   router.replace({ query: { ...route.query, tab } })
 })
-
-/** Filters QMenu open state (explicit v-model: Quasar auto-open needs a
- * plain QBtn without label/icon props; we have both, so toggle manually). */
-const filtersMenuOpen = ref(false)
 
 const { filters, search } = usePaymentsUrlState()
 const page = ref({ limit: 50, offset: 0 })

@@ -60,10 +60,14 @@ const fromQueryParams = (query: Record<string, unknown>): PaymentsFilters => ({
   methods: asList(query.method),
   statuses: asList(query.status),
   psps: asList(query.psp),
-  sources: asList(query.source).filter(
-    (source): source is PaymentsFilters['sources'][number] =>
-      ['payments', 'refunds'].includes(source)
-  )
+  // Absent/empty source param means the default (both); only an explicit
+  // source= narrows the ledger.
+  sources: asList(query.source).length
+    ? (asList(query.source).filter(
+        (source): source is PaymentsFilters['sources'][number] =>
+          ['payments', 'refunds'].includes(source)
+      ) as PaymentsFilters['sources'])
+    : [...DEFAULT_PAYMENTS_FILTERS.sources]
 })
 
 /** Ledger filter query-param keys (mirrors toQueryParams). */
@@ -141,11 +145,16 @@ export const usePaymentsUrlState = () => {
     filters,
     async (value) => {
       const params = toQueryParams(value)
-      const current = route.query as Record<string, unknown>
-      const changed = Object.keys({ ...current, ...params }).some(
-        (key) => (current[key] ?? '') !== (params[key] ?? '')
+      // Compare against the URL's *effective* filters (fresh-view defaults
+      // included): a no-op filters write — e.g. a bound input echoing its
+      // value when the filter menu mounts — must not replace the URL, or the
+      // route change would close the menu (hideOnRouteChange).
+      const current = toQueryParams(
+        parseLedgerQuery(route.query as Record<string, unknown>)
       )
-      if (changed) await router.replace({ query: params })
+      if (JSON.stringify(params) !== JSON.stringify(current)) {
+        await router.replace({ query: params })
+      }
     },
     { deep: true }
   )
