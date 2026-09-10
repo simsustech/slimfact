@@ -73,7 +73,7 @@
     "@pinia/colada": "1.4.4",
     "@quasar/extras": "2.0.4",
     "@quasar/quasar-ui-qcalendar": "5.3.0",
-    "@simsustech/quasar-components": "0.12.9",
+    "@simsustech/quasar-components": "0.12.10",
     "@slimfact/api": "link:../api",
     "@trpc/client": "11.18.0",
     "@trpc/server": "11.18.0",
