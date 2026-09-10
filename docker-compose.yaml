@@ -26,6 +26,11 @@ services:
       VITE_TITLE: SlimFact dev
       VITE_LANG: en-US
       # VITE_OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      # Bank Import (optional). This URL is this stack's banking-api service.
+      # An empty BANKING_API_KEY disables the feature cleanly — bankingEnabled()
+      # requires both, and the app then hides the bank UI and makes no calls.
+      BANKING_API_URL: http://banking-api:80
+      BANKING_API_KEY: ${BANKING_API_KEY:-}
 
     # entrypoint: ["/bin/sh", "-c", "tail -f /dev/null"]
     secrets:
@@ -48,10 +53,66 @@ services:
       - ./database:/var/lib/postgresql/data
     secrets:
       - POSTGRES_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     networks:
       slimfact:
         aliases:
           - database
+    restart: unless-stopped
+
+  # Bank transaction import (open-banking.io). Omit this service and leave
+  # BANKING_API_KEY empty to run the stack without Bank Import.
+  banking-api:
+    image: "ghcr.io/simsustech/slimfact-banking-api:latest"
+    environment:
+      # Bare hostname, and it must match the api's BANKING_API_URL above —
+      # OIDC and event-bus origins are derived from it.
+      API_HOST: banking-api
+      POSTGRES_HOST: database
+      # Shared with the api, in its own `open_banking` schema. A separate
+      # database would work too (set POSTGRES_DB accordingly).
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+      # Read directly as a path, so this must NOT point under /run/secrets:
+      # @vitrify/tools env.read() replaces any value starting with /run/secrets
+      # with that file's *contents*, which would make loadKeyConfig() treat JSON
+      # as a filename. Hence the bind mount below rather than a Docker secret.
+      BANKING_API_CONFIG_PATH: /etc/banking-api/config.json
+      # The opposite case, and the one the _FILE convention exists for: reading
+      # the /run/secrets file's contents (the base64 bundle) is exactly right.
+      OPENBANKING_CREDENTIALS_JSON_FILE: /run/secrets/OPENBANKING_CREDENTIALS_JSON
+    volumes:
+      # Must exist before `up` (fail-closed at boot). Start it as
+      # {"apiKeys": []}, then replace it with a real key via bootstrap-config.
+      - ./banking-api-config.json:/etc/banking-api/config.json:ro
+    secrets:
+      - POSTGRES_PASSWORD
+      - OPENBANKING_CREDENTIALS_JSON
+    healthcheck:
+      # Unhandled fetch rejection exits non-zero on its own, so no .catch.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost/health').then(r => process.exit(r.ok ? 0 : 1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      slimfact:
+        aliases:
+          - banking-api
     restart: unless-stopped
 
 secrets:
@@ -61,6 +122,8 @@ secrets:
     file: ./env/OTP_SECRET
   OIDC_COOKIES_KEYS:
     file: ./env/OIDC_COOKIES_KEYS
+  OPENBANKING_CREDENTIALS_JSON:
+    file: ./env/OPENBANKING_CREDENTIALS_JSON
 
 networks:
   slimfact:

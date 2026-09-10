@@ -19,6 +19,10 @@ jwks
 /config/
 packages/banking-api/config.dump.json
 packages/banking-api/.backup/
+# Prod banking-api key config (mounted by docker-compose.yaml) — holds a live
+# obk_live_ key, so it must never be committed. config.test.json is the
+# committed test-key fixture and is intentionally tracked.
+/banking-api-config.json
 *.dump.json
 *.dump.sql
 
