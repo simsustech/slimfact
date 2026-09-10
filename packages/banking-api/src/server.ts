@@ -46,7 +46,7 @@ const start = async (): Promise<void> => {
     connectionString: `postgres://${postgresConfig.user}:${encodeURIComponent(
       postgresConfig.password,
     )}@${postgresConfig.host}:${postgresConfig.port}/${postgresConfig.database}`,
-    schema: "pgboss_banking_v11",
+    schema: "pgboss_banking",
   });
   await boss.start();
   app.decorate("pg-boss", boss);

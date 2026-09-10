@@ -101,7 +101,7 @@ into an image.
 Migrations run automatically on startup: the image's entrypoint is
 `migrate.js && server.js`. They are idempotent and tracked in
 `open_banking.kysely_migration`, so restarts and rolling deploys are safe. The
-first boot creates the `open_banking` and `pgboss_banking_v11` queue schemas.
+first boot creates the `open_banking` and `pgboss_banking` queue schemas.
 Nothing is seeded — seeding is test-only.
 
 ### 3. Generate the real config
@@ -233,7 +233,7 @@ pnpm --filter @slimfact/banking-api start
 # [banking-api] listening on 0.0.0.0:80
 ```
 
-`migrate:latest` creates the `open_banking` and `pgboss_banking_v11` schemas if
+`migrate:latest` creates the `open_banking` and `pgboss_banking` schemas if
 they don't exist.
 
 ## PSP payout sync (optional)
