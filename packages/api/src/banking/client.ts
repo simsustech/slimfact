@@ -1,5 +1,5 @@
 import { createBankingApiClient } from '@slimfact/banking-api/client'
-import { centsToAmountString } from './money.js'
+import { centsToAmountString } from '@slimfact/tools/banking'
 
 /**
  * SDK-shaped types the api consumes. The proxy returns DB rows; the client
@@ -258,11 +258,15 @@ export const createClient = ({
       })
       return { items: page.items.map(mapTransaction), total: page.total }
     },
+    // SAFETY: the proxy serializes open_banking.psp_settlements rows directly;
+    // PspSettlement mirrors that row shape, but tRPC can only infer its generic
+    // wire type here, so the assertion bridges the two.
     getPspSettlements: async (query) =>
       client.listPspSettlements.query({
         ...query
       }) as unknown as PspSettlement[],
     getPspPayments: async (query) =>
+      // SAFETY: same as getPspSettlements — mirrors the psp_payments row shape.
       client.listPspPayments.query({ ...query }) as unknown as PspPayment[],
     getConnections: async () => {
       const rows = await client.listConnections.query()
@@ -273,6 +277,7 @@ export const createClient = ({
       return { queued: result.queued, runId: result.runId }
     },
     getSyncStatus: async () =>
+      // SAFETY: mirrors the proxy's sync-status payload (pg-boss run state).
       client.getSyncStatus.query() as unknown as SyncStatus
   }
 }

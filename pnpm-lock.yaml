@@ -454,6 +454,9 @@ importers:
       '@open-banking-io/client':
         specifier: 1.1.0
         version: 1.1.0
+      '@slimfact/tools':
+        specifier: workspace:*
+        version: link:../tools
       '@trpc/client':
         specifier: 11.18.0
         version: 11.18.0(@trpc/server@11.18.0(typescript@6.0.3))(typescript@6.0.3)

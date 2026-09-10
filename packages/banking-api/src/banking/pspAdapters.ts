@@ -1,6 +1,6 @@
 import { createMollieClient } from "@mollie/api-client";
 import Stripe from "stripe";
-import { parseAmountToCents } from "./money.js";
+import { parseAmountToCents } from "@slimfact/tools/banking";
 import type { PspAdapter, PspPaymentItem, PspSettlementItem } from "./pspSync.js";
 
 /** Sums the settlement's withheld costs (fees) across all periods, in cents. */

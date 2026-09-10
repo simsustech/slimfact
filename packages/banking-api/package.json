@@ -49,6 +49,7 @@
     "@modular-api/event-bus": "0.2.1",
     "@mollie/api-client": "4.6.0",
     "@open-banking-io/client": "1.1.0",
+    "@slimfact/tools": "workspace:*",
     "@trpc/client": "11.18.0",
     "@trpc/server": "11.18.0",
     "@vitrify/tools": "0.5.4",

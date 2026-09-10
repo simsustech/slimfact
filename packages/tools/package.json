@@ -33,6 +33,10 @@
       "types": "./dist/types/banking/client.d.ts",
       "import": "./dist/banking/client.js"
     },
+    "./banking/money": {
+      "types": "./dist/types/banking/money.d.ts",
+      "import": "./dist/banking/money.js"
+    },
     "./dashboard": {
       "types": "./dist/types/dashboard/index.d.ts",
       "import": "./dist/dashboard/index.js"

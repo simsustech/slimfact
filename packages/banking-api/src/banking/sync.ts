@@ -5,7 +5,7 @@ import { appConfig } from "../config/env.js";
 import type { BankEventSchemas } from "../events.js";
 import type { DB } from "../kysely/types.js";
 import type { BankingApi } from "./client.js";
-import { parseAmountToCents } from "./money.js";
+import { parseAmountToCents } from "@slimfact/tools/banking";
 
 const PAGE_SIZE = 100;
 const DAY_MS = 24 * 60 * 60 * 1000;

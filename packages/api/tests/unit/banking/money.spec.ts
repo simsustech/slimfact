@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   parseAmountToCents,
   centsToAmountString
-} from '../../../src/banking/money.js'
+} from '@slimfact/tools/banking/money'
 
 describe('parseAmountToCents', () => {
   it('parses negative amounts with 2dp', () => {

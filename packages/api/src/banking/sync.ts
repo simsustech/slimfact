@@ -8,10 +8,10 @@ import {
 import { RefundStatus } from '@modular-api/fastify-checkout/types'
 import type { DB } from '../kysely/types.js'
 import type { Connection, Transaction } from './client.js'
-import { parseAmountToCents } from './money.js'
 import {
   buildLinkProposal,
   findAdoptablePayment,
+  parseAmountToCents,
   type BankPaymentCandidate,
   type MatchInvoice,
   type MatchTransaction

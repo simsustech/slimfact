@@ -10,6 +10,7 @@ import {
   canApply,
   findAdoptablePayment,
   matchSettlementForCredit,
+  parseAmountToCents,
   extractInvoiceUuid,
   resolvePspPaymentInvoiceId,
   type BankPaymentCandidate,
@@ -44,7 +45,6 @@ import type {
   PspSettlement,
   Transaction
 } from '../../banking/client.js'
-import { parseAmountToCents } from '../../banking/money.js'
 
 const PAGE_SIZE = 100
 const MAX_FETCH = 500

@@ -7,6 +7,12 @@ import type { Kysely } from 'kysely'
  * operating accounts). Account-centric composite PK — the account is the
  * primary axis, companies are the value set. Resolution is link-first, IBAN
  * fallback (see `src/banking/accountLinks.ts`).
+ *
+ * Lives in `public` (not a dedicated `open_banking` schema like the proxy's own
+ * tables) because it FKs to `public.companies` and is read by core api code
+ * alongside invoices/payments; banking-api's `open_banking` schema is scoped to
+ * its separate database. Unqualified DDL = `public` is this repo's convention
+ * (every api migration except 14 uses it).
  */
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
