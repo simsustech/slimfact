@@ -3,7 +3,7 @@
     v-bind="attrs"
     :label="lang.account.name"
     :filtered-options="
-      filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+      filteredOptions as { id: number; [key: string]: unknown }[]
     "
     label-key="email"
   >

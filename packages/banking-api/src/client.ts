@@ -37,6 +37,9 @@ export const createBankingApiClient = ({
 
   const wsClient = createWSClient({
     url: wsUrl,
+    // SAFETY: `ws` implements the subset of the DOM WebSocket API that tRPC's
+    // wsLink drives (send/close/readyState + the event handlers). The two class
+    // types do not overlap structurally, so `unknown` is required here.
     WebSocket: WebSocketWithHeaders as unknown as typeof globalThis.WebSocket,
   });
 
@@ -65,6 +68,11 @@ export const createBankingApiClient = ({
   // The tRPC client is a recursive proxy that answers EVERY property access
   // with a procedure callable, so extras can't be Object.assign'ed onto it —
   // wrap it and answer the two helper keys before the inner proxy sees them.
+  // SAFETY: the `get` trap answers `subscribeEvents`/`close` before the tRPC
+  // proxy sees them, so both exist at runtime. `unknown` is required because
+  // neither type overlaps: BankingApiClient adds those two members, and its
+  // tRPC half is narrowed to `AppRouter` while the value also carries
+  // EventBusRouter's procedures.
   return new Proxy(client, {
     get(target, prop, receiver) {
       if (prop === "subscribeEvents") return subscribeEvents;

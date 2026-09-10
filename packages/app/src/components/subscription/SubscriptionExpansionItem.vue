@@ -89,7 +89,7 @@
       <invoice-line-item
         v-for="(discount, index) in modelValue.discounts"
         :key="index"
-        :model-value="discount as unknown as RawInvoiceLine"
+        :model-value="discount as RawInvoiceLine"
         :locale="modelValue.locale"
         :currency="modelValue.currency"
       ></invoice-line-item>
@@ -100,7 +100,7 @@
       <invoice-line-item
         v-for="(surcharge, index) in modelValue.surcharges"
         :key="index"
-        :model-value="surcharge as unknown as RawInvoiceLine"
+        :model-value="surcharge as RawInvoiceLine"
         :locale="modelValue.locale"
         :currency="modelValue.currency"
       ></invoice-line-item>

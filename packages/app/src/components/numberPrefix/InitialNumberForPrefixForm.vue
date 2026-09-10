@@ -100,7 +100,7 @@ const setValue = (newValue: InitialNumberForPrefix) => {
     {},
     initialValue,
     newValue
-  ) as unknown as InitialNumberForPrefixDraft
+  ) as InitialNumberForPrefixDraft
 }
 
 const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({

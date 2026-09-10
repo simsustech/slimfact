@@ -224,7 +224,7 @@ export const subscribeToBankSyncEvents = (
 ): (() => void) => {
   const subscription = trpc.subscribe.subscribe('bank.sync.*', {
     // SAFETY: tRPC subscription delivers JSON-parsed payloads matching the BankSyncEvent wire contract
-    onData: (message) => handler(message as unknown as BankSyncEvent)
+    onData: (message) => handler(message as BankSyncEvent)
   })
   return () => subscription.unsubscribe()
 }

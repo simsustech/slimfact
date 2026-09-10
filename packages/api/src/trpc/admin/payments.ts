@@ -321,7 +321,7 @@ const runLedger = async (
     .orderBy('l.date', 'desc')
     .orderBy('l.id', 'desc')
     .limit(MAX_ROWS)
-    .execute()) as unknown as Record<string, unknown>[]
+    .execute()) as Record<string, unknown>[]
   const sqlRows = rawRows.map(toLedgerRow)
 
   const merged = sortRows(sqlRows)

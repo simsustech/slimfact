@@ -38,7 +38,7 @@
         <subscription-expansion-item
           v-for="subscription in subscriptions"
           :key="subscription.id"
-          :model-value="subscription as unknown as Subscription"
+          :model-value="subscription as Subscription"
           @update="openUpdateDialog"
           @start="onStartSubscription"
           @stop="onStopSubscription"

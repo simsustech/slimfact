@@ -195,11 +195,7 @@ const lang = useLang()
 const formRef = ref<QForm>()
 
 const setValue = (newValue: Client) => {
-  modelValue.value = extend(
-    {},
-    initialValue,
-    newValue
-  ) as unknown as ClientDraft
+  modelValue.value = extend({}, initialValue, newValue) as ClientDraft
 }
 
 const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({

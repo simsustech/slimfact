@@ -2,7 +2,7 @@
   <filtered-model-select
     :label="lang.company.company"
     :filtered-options="
-      filteredOptions as unknown as { id: number; [key: string]: unknown }[]
+      filteredOptions as { id: number; [key: string]: unknown }[]
     "
     label-key="name"
   >

@@ -366,6 +366,9 @@
         </q-list>
 
         <q-list v-if="modelValue.discounts?.length" separator bordered>
+          <!-- SAFETY: InvoiceLineItem renders discounts through the line component.
+               InvoiceDiscount lacks the line-only fields (quantity, quantityPerMille,
+               discount), and neither type overlaps, so `unknown` is required. -->
           <q-item-label header>{{ lang.invoice.discounts }}</q-item-label>
           <invoice-line-item
             v-for="(discount, index) in modelValue.discounts"
@@ -377,6 +380,7 @@
         </q-list>
 
         <q-list v-if="modelValue.surcharges?.length" separator bordered>
+          <!-- SAFETY: as above, for InvoiceSurcharge. -->
           <q-item-label header>{{ lang.invoice.surcharges }}</q-item-label>
           <invoice-line-item
             v-for="(surcharge, index) in modelValue.surcharges"
@@ -396,7 +400,7 @@
           <payment-item
             v-for="payment in modelValue.payments"
             :key="payment.id"
-            :model-value="payment as unknown as PaymentPayload"
+            :model-value="payment as PaymentPayload"
             :on-delete-payment="onDeletePaymentFromRow"
           />
         </q-list>
@@ -406,7 +410,7 @@
           <refund-item
             v-for="refund in modelValue.refunds"
             :key="refund.id"
-            :model-value="refund as unknown as RefundPayload"
+            :model-value="refund as RefundPayload"
           />
         </q-list>
       </q-tab-panel>

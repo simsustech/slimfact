@@ -283,7 +283,7 @@ type CompanyDraft = Omit<
   defaultCurrency: Currency | null
   defaultIncludeTax: boolean
 }
-const modelValue = ref<CompanyDraft>(initialValue as unknown as CompanyDraft)
+const modelValue = ref<CompanyDraft>(initialValue as CompanyDraft)
 
 // const $q = useQuasar()
 const lang = useLang()
