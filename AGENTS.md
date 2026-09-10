@@ -169,7 +169,7 @@ Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, us
 
 | Method         | Default PSP             | Env override                                |
 | -------------- | ----------------------- | ------------------------------------------- |
-| `wero`         | _none_ — unset = hidden | `WERO_PAYMENT_HANDLER=mollie\|stripe`      |
+| `wero`         | _none_ — unset = hidden | `WERO_PAYMENT_HANDLER=mollie\|stripe`       |
 | `creditcard`   | _none_ — unset = hidden | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
 | `cash`         | Cash (offline)          | —                                           |
 | `bankTransfer` | Bank transfer (offline) | —                                           |
@@ -202,8 +202,11 @@ The open-banking.io integration lives in the **banking-api proxy**
 (`packages/banking-api`, `@slimfact/banking-api`): it owns the credentials and
 its own pg-boss sync queue, and exposes data over tRPC with per-key API-key
 grants (`config.test.json` / `BANKING_API_CONFIG_PATH`). The proxy stores
-**complete history** in the shared `slimfact` database under the `open_banking`
-schema (incremental sync via `accounts.synced_at`; never deletes).
+**complete history** in its own `open_banking` schema (incremental sync via
+`accounts.synced_at`; never deletes). By default that schema lives in the same
+`slimfact` database the api uses, but nothing requires it: the two communicate
+only over tRPC and the event bus, and the api never queries `open_banking`
+directly, so `POSTGRES_HOST` may point the proxy at a separate database.
 
 SlimFact has **no local bank tables** (the create/drop migration pair was
 squashed away pre-release — no local bank schema ships): it reads bank data

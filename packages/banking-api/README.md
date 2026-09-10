@@ -162,9 +162,14 @@ UI and makes no calls to the proxy.
 
 ### Docker Compose
 
-The same setup, joined to an existing SlimFact stack. `banking-api` shares the
-`database` service and is reached internally as `banking-api`, so it publishes no
-ports.
+The same setup, joined to an existing SlimFact stack. `banking-api` is reached
+internally as `banking-api`, so it publishes no ports.
+
+It connects to whatever Postgres `POSTGRES_HOST` names — here the stack's own
+`database` service, but any Postgres will do, including a managed one. **The two
+services do not need the same database:** `banking-api` keeps its own
+`open_banking` schema, and the api reads bank data only over tRPC and the event
+bus. Sharing is a deployment convenience, not a requirement.
 
 **Both services must be on the same non-external network.** `BANKING_API_URL`
 addresses the service by its Compose name, `banking-api`, which only resolves
