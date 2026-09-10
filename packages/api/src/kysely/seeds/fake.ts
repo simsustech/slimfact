@@ -40,13 +40,18 @@ export const seedFake = async (): Promise<void> => {
   const { companies, clients, numberPrefixes, invoices, payments, refunds } =
     demoCore
 
-  // Re-seed guard: early-exit if the numbered demo invoices already exist, so
-  // re-running never shifts the numbers (mirrors seed:test.ts's demoInvoice
-  // early-exit).
+  // Re-seed guard: early-exit if the demo world already exists, so re-running
+  // never shifts the numbers. Key it on the demo's OWN company prefixes — NOT on
+  // an invoice number prefix, because seed:test uses '2026-' too and the test
+  // stack runs seed:test immediately before seed:fake (`migrate && seed:test &&
+  // seed:fake && start`). Keying on the shared prefix made this guard fire
+  // whenever seed:test had run, silently skipping the entire demo dataset —
+  // which left the dashboard year view with revenue in one quarter only.
+  const demoCompanyPrefixes = companies.map((company) => company.prefix)
   const existing = await db
-    .selectFrom('checkout.invoices')
+    .selectFrom('companies')
     .select('id')
-    .where('numberPrefix', '=', '2026-')
+    .where('prefix', 'in', demoCompanyPrefixes)
     .limit(1)
     .executeTakeFirst()
   if (existing) {
