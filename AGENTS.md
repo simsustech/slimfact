@@ -210,14 +210,13 @@ fresh database gets it with the table; existing instances need it applied by han
 The company → account mapping is **link-first,
 IBAN fallback**: explicit `bank_account_companies` rows (many-to-many — one
 company may own several accounts, one account may serve several companies) win;
-otherwise the account's IBAN is matched against `companies.iban`. The bank UI
-is **three routes** — `/admin/bank` (hub menu), `/admin/bank/overview`
-(merged review queue: coverage chips, `→` hints, Link dialog with
-single/multi/split/PSP proposals), `/admin/bank/settings` (connections,
-per-account company links, Sync now). `/admin/bank/review` redirects to the
-overview. The
-"Sync now"
-button pushes progress over the event bus.
+otherwise the account's IBAN is matched against `companies.iban`. The bank UI is
+**two surfaces**: `/admin/payments` (two tabs — the payments ledger, and
+**Suggestions** = the review queue of unlinked credits, where Link opens the
+single/multi/split/PSP proposal dialog and Dismiss persists to
+`bank_suggestion_dismissals`) and `/admin/settings/banking` (connections,
+per-account company links, **Sync now** — which pushes progress over the event
+bus). `/admin/bank` is a redirect to `/admin/payments`, kept for old links.
 **Deterministic E2E (no manual DB writes in tests)**: the banking E2E specs
 (`banking-proxy`, `banking-link` — which also covers the company filter and
 drawer nav — and `banking-review`) assert against the

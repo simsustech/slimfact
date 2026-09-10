@@ -277,18 +277,22 @@ Ga naar **Instellingen → Exports** voor toegang tot:
 
 ## Bankimport
 
-De pagina **Bank** heeft drie onderdelen — **Overzicht**, **Te matchen** en
-**Instellingen** (banktransacties komen uit open-banking.io via de banking-api
-proxy; de proxy bewaart de volledige historie). **Instellingen → Sync nu**
-start een verversing. Inkomende crediteringen worden gematcht tegen
-openstaande facturen: een exacte match (bedrag, referentie en datumbereik,
-zelfde valuta) wordt automatisch toegepast als een **bankgekoppelde betaling**;
-de rest komt in de reviewwachtrij (**Te matchen**), waar je een voorgestelde
-factuur kiest en **Toepassen** drukt. Als een factuur al handmatig met een
-bankoverschrijving van het exacte bedrag is betaald, **adopteert** Toepassen
-die betaling (koppelt het banktegoed eraan) in plaats van een tweede betaling
-te registreren. De instellingenpagina toont de verbindingsstatus en waarschuwt
-wanneer een bankmachtiging opnieuw moet worden ingesteld.
+Banktransacties komen uit open-banking.io via de banking-api proxy, die de
+volledige historie bewaart. Ze verschijnen op twee plekken:
+
+- **Instellingen → Bank** (`/admin/settings/banking`) — verbindingsstatus, de
+  koppeling van rekeningen aan bedrijven, en **Sync nu** om te verversen.
+  Waarschuwt wanneer een bankmachtiging opnieuw moet worden ingesteld.
+- **Betalingen → Suggesties** (`/admin/payments`) — binnenkomende crediteringen
+  die een beslissing nodig hebben. Elke rij toont de meest waarschijnlijke
+  factuur en een score: **Koppelen** hangt de creditering aan één of meer
+  facturen, **Negeren** verbergt hem voor dat bedrijf.
+
+Een exacte match (bedrag, referentie, datumbereik en valuta) wordt automatisch
+toegepast als een **bankgekoppelde betaling**, dus die komt nooit in de wachtrij.
+Is een factuur al handmatig per bankoverschrijving betaald voor het exacte
+bedrag, dan **adopteert** koppelen die betaling in plaats van een tweede te
+registreren.
 
 > **Self-hosten?** Zie [Bankimport (open-banking) installatie](/nl/guide/bank-import) voor de architectuur, omgevingsvariabelen, referenties en API-sleutelconfiguratie.
 >

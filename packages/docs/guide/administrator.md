@@ -279,17 +279,21 @@ Go to **Settings → Exports** to access:
 
 ## Bank Import
 
-The **Bank** menu has three pages — **Overview**, **To match** and **Settings**
-(bank transactions come from open-banking.io via the banking-api proxy; the
-proxy keeps the complete history). **Settings → Sync now** triggers a refresh.
-Incoming credits are matched against open invoices: an exact match (amount,
-reference and date window, same currency) is applied automatically as a
-**bank-linked payment**; everything else lands in the review queue
-(**To match**), where you pick a suggested invoice and press **Apply**. If an
-invoice was already paid manually with a bank transfer of the exact amount,
-Apply **adopts** that payment (links the bank credit to it) instead of
-recording a second payment. The settings page shows connection status and
-warns when a bank consent needs to be re-established.
+Bank transactions come from open-banking.io through the banking-api proxy, which
+keeps the complete history. They show up in two places:
+
+- **Settings → Bank** (`/admin/settings/banking`) — connection status, the
+  per-account company links, and **Sync now** to trigger a refresh. Warns when a
+  bank consent needs re-establishing.
+- **Payments → Suggestions** (`/admin/payments`) — incoming credits that need a
+  decision. Each row carries the most likely invoice and a match score: **Link**
+  attaches the credit to one or more invoices, **Dismiss** hides it for that
+  company.
+
+An exact match (amount, reference, date window and currency) is applied
+automatically as a **bank-linked payment**, so it never reaches the queue. If an
+invoice was already paid manually by bank transfer for the exact amount, linking
+**adopts** that payment instead of recording a second one.
 
 > **Self-hosting?** See [Bank Import (open-banking) setup](/guide/bank-import) for the architecture, environment variables, credentials and API-key configuration.
 >
