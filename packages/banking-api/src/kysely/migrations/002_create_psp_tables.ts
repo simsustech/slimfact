@@ -37,6 +37,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("status", "varchar")
     .addColumn("paid_at", "timestamptz")
     .addColumn("synced_at", "timestamptz")
+    // PSP-provided description; the checkout plugin stores the invoice uuid
+    // here, so a settlement can resolve its payments to invoices when the
+    // external id does not line up with checkout.payments.
+    .addColumn("description", "varchar(255)")
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`CURRENT_TIMESTAMP`).notNull(),
     )

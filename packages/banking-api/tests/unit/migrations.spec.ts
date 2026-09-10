@@ -95,29 +95,33 @@ describe.skipIf(!dbAvailable)("open_banking migration", () => {
         expect(await openBankingTables(trx)).toContain("kysely_migration");
         expect(await openBankingTables(trx)).toHaveLength(11);
 
-        // migrateDown rolls back one migration at a time, newest first. 004 goes
-        // first, and its down() is a deliberate no-op (the dropped table was
-        // never used), so a second call is what reaches 003 — the one that drops
-        // the psp_payments.description column. Every table, including the PSP
-        // tables from 001/002, stays either way.
-        const firstDown = await migrator.migrateDown();
-        expect(firstDown.error).toBeUndefined();
-        expect(firstDown.results?.[0]?.migrationName).toContain("004");
-        const downResult = await migrator.migrateDown();
-        expect(downResult.error).toBeUndefined();
-        expect(downResult.results?.[0]?.migrationName).toContain("003");
-        const afterDown = await openBankingTables(trx);
-        expect(afterDown).toContain("psp_settlements");
-        expect(afterDown).toContain("psp_payments");
-        expect(afterDown).toContain("accounts");
-        expect(afterDown).toContain("kysely_migration");
-        expect(afterDown).toHaveLength(11);
+        // The psp_payments.description column is part of the table's own
+        // definition (migration 002), not a follow-up ALTER.
         const paymentColumns = await sql<{ column_name: string }>`
           SELECT column_name
           FROM information_schema.columns
           WHERE table_schema = 'open_banking' AND table_name = 'psp_payments'
         `.execute(trx);
-        expect(paymentColumns.rows.map((row) => row.column_name)).not.toContain("description");
+        expect(paymentColumns.rows.map((row) => row.column_name)).toContain("description");
+
+        // migrateDown rolls back one migration at a time, newest first. 003 goes
+        // first and its down() is a deliberate no-op (the dropped `suggestions`
+        // table was never used), so nothing observable changes; 002 is the one
+        // that actually drops tables. Accounts and the rest of 001 survive.
+        const firstDown = await migrator.migrateDown();
+        expect(firstDown.error).toBeUndefined();
+        expect(firstDown.results?.[0]?.migrationName).toContain("003");
+        expect(await openBankingTables(trx)).toHaveLength(11);
+
+        const downResult = await migrator.migrateDown();
+        expect(downResult.error).toBeUndefined();
+        expect(downResult.results?.[0]?.migrationName).toContain("002");
+        const afterDown = await openBankingTables(trx);
+        expect(afterDown).not.toContain("psp_settlements");
+        expect(afterDown).not.toContain("psp_payments");
+        expect(afterDown).toContain("accounts");
+        expect(afterDown).toContain("kysely_migration");
+        expect(afterDown).toHaveLength(9);
 
         throw ROLLBACK;
       });
