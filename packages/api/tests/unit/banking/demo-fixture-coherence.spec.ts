@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { demoCore } from '../../../src/kysely/seeds/demoData.js'
-import { demoBanking } from '@slimfact/banking-api/demo-data'
+import { demoCore } from '@slimfact/tools/banking/demo/core'
+import { demoBanking } from '@slimfact/tools/banking/demo/banking'
 
 // Cross-fixture coherence (critique #1): the api `demoCore` and the
 // banking-api `demoBanking` fixtures are generated from the same in-memory

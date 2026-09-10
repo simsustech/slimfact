@@ -63,10 +63,23 @@
     },
     "./templates/invoice/*": {
       "import": "./templates/invoice/*"
+    },
+    "./banking/demo/core": {
+      "types": "./dist/types/banking/demo/core.d.ts",
+      "import": "./dist/banking/demo/core.js"
+    },
+    "./banking/demo/banking": {
+      "types": "./dist/types/banking/demo/banking.d.ts",
+      "import": "./dist/banking/demo/banking.js"
+    },
+    "./banking/demo/synth": {
+      "types": "./dist/types/banking/demo/synth.d.ts",
+      "import": "./dist/banking/demo/synth.js"
     }
   },
   "scripts": {
     "build": "tsc",
+    "generate:demo": "node ./scripts/generate-demo-data.mjs",
     "lint": "oxlint src",
     "lint:fix": "oxlint src --fix",
     "format:check": "oxfmt --check .",

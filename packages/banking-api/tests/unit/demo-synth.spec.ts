@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { synthDemoData, makeIban, type DemoGuide } from "../../src/seed/demo/synth.js";
+import { synthDemoData, makeIban, type DemoGuide } from "@slimfact/tools/banking/demo/synth";
 
 // Fixed guide + seed so the test is deterministic and reproducible.
 const GUIDE: DemoGuide = {

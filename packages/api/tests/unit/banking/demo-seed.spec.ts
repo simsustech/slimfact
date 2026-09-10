@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { CamelCasePlugin, Kysely, PostgresDialect, sql } from 'kysely'
 import pg from 'pg'
 import type { DB } from '../../../src/kysely/types.js'
-import type * as demoData from '../../../src/kysely/seeds/demoData.js'
+import type * as demoData from '@slimfact/tools/banking/demo/core'
 import type * as fake from '../../../src/kysely/seeds/fake.js'
 import type * as testSeed from '../../../src/kysely/seeds/test.js'
 import { PaymentMethod } from '@modular-api/fastify-checkout'
@@ -43,7 +43,7 @@ if (databaseUrl) {
 const describeDb = testDb ? describe : describe.skip
 if (testDb) {
   process.env.POSTGRES_PASSWORD ??= 'unused-by-url-based-connection'
-  ;({ demoCore } = await import('../../../src/kysely/seeds/demoData.js'))
+  ;({ demoCore } = await import('@slimfact/tools/banking/demo/core'))
   ;({ seedFake } = await import('../../../src/kysely/seeds/fake.js'))
   ;({ seedTest } = await import('../../../src/kysely/seeds/test.js'))
 }

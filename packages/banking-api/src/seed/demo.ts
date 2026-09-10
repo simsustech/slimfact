@@ -1,6 +1,6 @@
 import { sql } from "kysely";
 import { db } from "../kysely/index.js";
-import { demoBanking } from "./demoData.js";
+import { demoBanking } from "@slimfact/tools/banking/demo/banking";
 
 // Banking `seed:demo`: upserts the committed `demoBanking` fixture into the
 // open_banking schema (idempotent via onConflict). The api container seeds

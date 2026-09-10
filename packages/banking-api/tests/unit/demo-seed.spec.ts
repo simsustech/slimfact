@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Kysely } from "kysely";
 import type { DB } from "../../src/kysely/types.js";
 import { sql } from "kysely";
-import { demoBanking } from "../../src/seed/demoData.js";
+import { demoBanking } from "@slimfact/tools/banking/demo/banking";
 
 // DB-backed integrity test for the banking `seed:demo`. Runs against the
 // shared slimfact_unit DB (the banking-api specs set POSTGRES_PORT=5433 in

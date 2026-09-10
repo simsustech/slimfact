@@ -190,16 +190,16 @@ api subscribes to drive its ingest worker.
 
 ## Scripts
 
-| Script                    | Purpose                                                                             |
-| ------------------------- | ----------------------------------------------------------------------------------- |
-| `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).          |
-| `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                   |
-| `fetch-dump-account.mjs`  | Fetch real bank data into a dump DB (see its header; rate-limit aware, idempotent). |
-| `verify-real-data.ts`     | Verify fetched data against expectations.                                           |
-| `compute-suggestions.mjs` | Compute matching suggestions from fetched credits + invoices (analysis only).       |
-| `generate-demo-data.ts`   | Regenerate the committed demo fixture consumed by the api `seed:fake`.              |
-| `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                   |
-| `check-schema`            | Verify the DB schema matches the code.                                              |
+| Script                    | Purpose                                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                           |
+| `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                                    |
+| `fetch-dump-account.mjs`  | Fetch real bank data into a dump DB (see its header; rate-limit aware, idempotent).                                                  |
+| `verify-real-data.ts`     | Verify fetched data against expectations.                                                                                            |
+| `compute-suggestions.mjs` | Compute matching suggestions from fetched credits + invoices (analysis only).                                                        |
+| `generate:demo`           | _Moved to_ `pnpm --filter @slimfact/tools generate:demo` — the fixtures now live in `@slimfact/tools/banking/demo`, which owns them. |
+| `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                                    |
+| `check-schema`            | Verify the DB schema matches the code.                                                                                               |
 
 ## Testing
 
