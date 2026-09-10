@@ -27,6 +27,7 @@ packages/banking-api/.backup/
 .pi/continue/
 .pi/handoff/
 .pi/plans/
+.pi/adr/
 PR.md
 
 # Local scratch (ad-hoc analysis output / agent notes)
