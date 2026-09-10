@@ -294,7 +294,7 @@ Is een factuur al handmatig per bankoverschrijving betaald voor het exacte
 bedrag, dan **adopteert** koppelen die betaling in plaats van een tweede te
 registreren.
 
-> **Self-hosten?** Zie [Bankimport (open-banking) installatie](/nl/guide/bank-import) voor de architectuur, omgevingsvariabelen, referenties en API-sleutelconfiguratie.
+> **Self-hosten?** Installatie staat in de README van het package: [Banking-API](https://github.com/simsustech/slimfact/blob/main/packages/banking-api/README.md) beschrijft de architectuur, omgevingsvariabelen, referenties en API-sleutelconfiguratie.
 >
 > Bekende beperking: als een strikte match eerst automatisch is toegepast en
 > je later handmatig een bankoverschrijving registreert voor dezelfde factuur,

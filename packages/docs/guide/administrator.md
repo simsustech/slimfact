@@ -295,7 +295,7 @@ automatically as a **bank-linked payment**, so it never reaches the queue. If an
 invoice was already paid manually by bank transfer for the exact amount, linking
 **adopts** that payment instead of recording a second one.
 
-> **Self-hosting?** See [Bank Import (open-banking) setup](/guide/bank-import) for the architecture, environment variables, credentials and API-key configuration.
+> **Self-hosting?** Deployment is documented in the package README: [Banking-API](https://github.com/simsustech/slimfact/blob/main/packages/banking-api/README.md) covers the architecture, environment variables, credentials and API-key configuration.
 >
 > Known limitation: if a strict match auto-applies first and you later record
 > a manual bank transfer for the same invoice, two paid payments can exist.
