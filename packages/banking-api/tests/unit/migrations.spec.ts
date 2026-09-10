@@ -95,11 +95,17 @@ describe.skipIf(!dbAvailable)("open_banking migration", () => {
         expect(await openBankingTables(trx)).toContain("kysely_migration");
         expect(await openBankingTables(trx)).toHaveLength(11);
 
-        // A single migrateDown rolls back only the LAST migration (003): the
-        // psp_payments.description column is dropped, while every table —
-        // including the PSP tables from 001/002 — stays.
+        // migrateDown rolls back one migration at a time, newest first. 004 goes
+        // first, and its down() is a deliberate no-op (the dropped table was
+        // never used), so a second call is what reaches 003 — the one that drops
+        // the psp_payments.description column. Every table, including the PSP
+        // tables from 001/002, stays either way.
+        const firstDown = await migrator.migrateDown();
+        expect(firstDown.error).toBeUndefined();
+        expect(firstDown.results?.[0]?.migrationName).toContain("004");
         const downResult = await migrator.migrateDown();
         expect(downResult.error).toBeUndefined();
+        expect(downResult.results?.[0]?.migrationName).toContain("003");
         const afterDown = await openBankingTables(trx);
         expect(afterDown).toContain("psp_settlements");
         expect(afterDown).toContain("psp_payments");
