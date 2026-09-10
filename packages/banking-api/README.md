@@ -166,6 +166,39 @@ The same setup, joined to an existing SlimFact stack. `banking-api` shares the
 `database` service and is reached internally as `banking-api`, so it publishes no
 ports.
 
+**Both services must be on the same non-external network.** `BANKING_API_URL`
+addresses the service by its Compose name, `banking-api`, which only resolves
+between containers sharing a network. Put `banking-api` on the external,
+public-facing network — or let it fall to its own project default — and the api
+cannot reach it. In the stack below that shared network is `slimfact`, the
+non-external one; `web` is the external Caddy network.
+
+> **"Non-external" does not mean "offline".** `external: true` only says the
+> network already exists (Compose did not create it, e.g. Caddy's); it has no
+> bearing on connectivity. A network Compose creates is a normal bridge with a
+> default gateway, so containers on it keep outbound internet through NAT.
+> `internal: true` is the setting that actually severs egress — do not use it
+> here.
+
+**banking-api needs outbound internet.** It calls open-banking.io, and Mollie or
+Stripe when PSP sync is configured, so the host must allow egress to those.
+Corporate egress filtering is the usual cause of syncs that connect but never
+return data.
+
+`OPENBANKING_API_BASE_URL` can point it at a different API host, but **the proxy
+environment variables are not read by default**. The SDK uses the global `fetch`
+(undici), which ignores `HTTPS_PROXY`/`NO_PROXY` unless the runtime opts in:
+
+```yaml
+environment:
+  NODE_USE_ENV_PROXY: "1" # Node 24+: make fetch honour HTTPS_PROXY / NO_PROXY
+```
+
+Two caveats. The SDK accepts a custom `fetch` bound to an undici `Dispatcher` for
+proxy or custom-CA setups, but `createClient` does not pass one — using that
+needs a code change, not configuration. And Mollie/Stripe clients are separate
+and were not tested here, so treat proxy support for PSP sync as unverified.
+
 ```yaml
 services:
   banking-api:
@@ -184,15 +217,29 @@ services:
     secrets:
       - POSTGRES_PASSWORD
       - OPENBANKING_CREDENTIALS_JSON
+    networks:
+      - slimfact
     depends_on:
       database:
         condition: service_healthy
     restart: unless-stopped
 
   api:
+    # Only the two banking variables are shown here. The api still needs its own
+    # configuration — API_HOST, POSTGRES_*, OTP_SECRET, OIDC_CLIENT_SECRET,
+    # OIDC_COOKIES_KEYS and the MAIL_* / LICENSE_KEY settings — which is what
+    # makes it start at all. See the repository README's "Self-Hosted" section.
     environment:
       BANKING_API_URL: http://banking-api:80
       BANKING_API_KEY: ${BANKING_API_KEY}
+    networks:
+      - slimfact
+
+networks:
+  # Non-external, so Compose creates it and services on it resolve each other by
+  # name. Not `internal: true` — banking-api still needs outbound internet to
+  # reach open-banking.io. The api service is already attached to this one.
+  slimfact:
 
 secrets:
   # Already declared by the api/database services; the bundle is the new one.
