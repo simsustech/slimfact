@@ -303,6 +303,14 @@ currency, a booking-date window around the payout date, and **the exact net
 amount**. When it matches, the lump sum is attributed to the individual invoices
 inside that payout instead of sitting unmatched.
 
+> **Planned: transaction overview.** The recognition above runs server-side when
+> the bank transaction list is queried, but no page in the app requests it yet —
+> so settlements are ingested and matched, while the result is not surfaced
+> anywhere in the UI today. A **transaction overview** that lists each bank
+> credit alongside the PSP settlements, payments and invoices it was matched to
+> is planned, and the existing settlement/payment tables already carry what it
+> needs.
+
 Unset both keys and this pass is skipped entirely — the proxy still boots, and
 bank import works as normal. Syncs upsert and never delete, so history
 accumulates and a re-run reports zero new rows. One PSP failing is logged and

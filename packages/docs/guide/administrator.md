@@ -294,6 +294,13 @@ automatically as a **bank-linked payment**, so it never reaches the queue. If an
 invoice was already paid manually by bank transfer for the exact amount, linking
 **adopts** that payment instead of recording a second one.
 
+> **Planned: transaction overview.** A page listing every bank transaction is not
+> built yet. It will show each credit next to the payments and invoices it was
+> matched to, including the PSP settlements (Mollie, Stripe) behind lump-sum
+> payouts. Those payouts are already ingested and matched in the background, but
+> nothing in the UI shows them today — so a single large credit from a payment
+> provider can look unexplained.
+>
 > **Self-hosting?** Deployment is documented in the package README: [Banking-API](https://github.com/simsustech/slimfact/blob/main/packages/banking-api/README.md) covers the architecture, environment variables, credentials and API-key configuration.
 >
 > Known limitation: if a strict match auto-applies first and you later record
