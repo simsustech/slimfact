@@ -1,5 +1,6 @@
 import { computed, type Ref, ref } from 'vue'
 import { Loading } from 'quasar'
+import type { QuasarLanguage } from 'quasar'
 import { useLang } from './lang/index.js'
 import type { Locales, ISO3166 } from '@simsustech/quasar-components/form'
 
@@ -144,7 +145,16 @@ export const countryOptions = ref<{ icon: string; iso3166: ISO3166 }[]>([
   }
 ])
 
-export const languageImports = ref({
+/**
+ * Quasar language packs the language select can load on demand.
+ *
+ * Typed as `Record<string, …>` on purpose: the key is a runtime string (looked
+ * up from `quasarLanguageMap`) and consumers index it with that string, rather
+ * than with the literal keys declared here.
+ */
+export const languageImports = ref<
+  Record<string, () => Promise<{ default: QuasarLanguage }>>
+>({
   nl: () => import(`quasar/lang/nl.js`),
   'en-US': () => import(`quasar/lang/en-US.js`),
   de: () => import('quasar/lang/de.js')

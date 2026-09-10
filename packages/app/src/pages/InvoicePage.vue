@@ -307,7 +307,6 @@ watch(locale, (newVal) => {
     loadCheckoutLang(quasarLang)
     loadGeneralLang(quasarLang)
 
-    // @ts-expect-error string
     languageImports.value[quasarLang]().then((lang) => {
       $q.lang.set(lang.default)
     })

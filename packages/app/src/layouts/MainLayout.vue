@@ -28,12 +28,7 @@
             <q-language-select
               :model-value="locale"
               @update:model-value="updateLocale"
-              :language-imports="
-                languageImports as unknown as Record<
-                  string,
-                  () => Promise<{ default: import('quasar').QuasarLanguage }>
-                >
-              "
+              :language-imports="languageImports"
               :locales="languageLocales"
               is-item
             />
@@ -344,7 +339,6 @@ watch(locale, (newVal, oldVal) => {
     loadCheckoutLang(quasarLang)
     loadGeneralLang(quasarLang)
 
-    // @ts-expect-error string
     languageImports.value[quasarLang]().then((lang) => {
       $q.lang.set(lang.default)
     })
