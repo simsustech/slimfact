@@ -7,13 +7,17 @@ import type { Kysely } from 'kysely'
  * credit) while allowing a single bank credit (e.g. a PSP lump-sum payout) to
  * be split across several invoices — each row shares the reference, but the
  * (reference, invoice) pair stays unique.
- * This replaces the strict `payments_bank_ref_unique` (unique on the reference
- * alone) that migration 12 created: that one forbids splitting a single credit
- * across invoices, so it is dropped first. The drop is `.ifExists()` because a
- * from-scratch database (migrations 11/12 were squashed away pre-release) never
- * ran 12 — but any database that did still carries the index, and leaving it in
- * place silently breaks splits. Index creation and the drop share one migration
- * so both paths converge on the same schema.
+ * This supersedes the strict `payments_bank_ref_unique` (unique on the reference
+ * alone), which forbids splitting one credit across invoices. No released
+ * database carries it: migrations 11/12 were squashed away pre-release, so the
+ * index has no creator on any branch and does not appear in the production dump.
+ * The drop is kept anyway, and is `.ifExists()`, so the migration converges to a
+ * known end state instead of assuming its starting state — a developer database
+ * built while 12 was still in the migrations folder keeps the strict index, and
+ * leaving it in place silently breaks splits (observed on this branch, where a
+ * stale build artifact re-introduced it). Adding the relaxed index before
+ * removing the strict one would momentarily allow neither: the relaxed index
+ * alone still permits every split the strict one did.
  */
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
