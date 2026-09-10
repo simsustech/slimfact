@@ -5,3 +5,11 @@ node_modules
 .pi
 .dump
 .env
+# Never bake credentials, API-key configs or real client data into an image
+# (the Dockerfile does `COPY . .` into the build stage).
+env
+config
+*.dump.json
+*.dump.sql
+.backup
+failure_memories.txt

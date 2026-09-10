@@ -2,7 +2,6 @@
 /packages/**/node_modules
 /packages/**/dist
 /dump-*.sql
-/env
 .env
 .env.staging
 TODO
@@ -13,12 +12,23 @@ jwks
 **/.pnpm-store/**
 .worktrees/**
 
+# Credentials, API-key configs and real client data — never commit.
+# (The live bundle is env/credentials.json, base64'd into
+# OPENBANKING_CREDENTIALS_JSON; it holds a P-256 decryption key.)
+/env
+/config/
+packages/banking-api/config.dump.json
+packages/banking-api/.backup/
+*.dump.json
+*.dump.sql
+
 # Agent session artifacts (plans, handoffs, scratch state) — never commit.
 .pi/fff/
 .pi/continue/
 .pi/handoff/
 .pi/plans/
-.pnpm-store/
-.pi/fff/
-.pi/plans/
 PR.md
+
+# Local scratch (ad-hoc analysis output / agent notes)
+failure_memories.txt
+packages/api/src/banking/match-transactions-to-invoices.sql

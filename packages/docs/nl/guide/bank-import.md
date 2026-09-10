@@ -154,7 +154,9 @@ docker compose -f docker-compose.test.yaml up -d --wait api banking-api
 ```
 
 Per-stack sleutelconfiguraties staan in
-`packages/banking-api/config.test.json` en `config.dump.json`. Zie
+`packages/banking-api/config.test.json` (gecommit, nodig voor de gedeelde
+E2E-stack) en `config.dump.json` (**gitignored** — bevat een echte sleutel,
+maak dit lokaal aan vanuit `config.example.json`). Zie
 `scripts/verify-slimfact-dump.sh` voor de volledige real-data (dump)-setup.
 
 ## Machine-API

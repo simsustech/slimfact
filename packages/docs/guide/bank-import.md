@@ -149,9 +149,10 @@ export MOLLIE_API_KEY=$(cat env/MOLLIE_API_KEY)
 docker compose -f docker-compose.test.yaml up -d --wait api banking-api
 ```
 
-Per-stack key configs live in `packages/banking-api/config.test.json` and
-`config.dump.json`. See `scripts/verify-slimfact-dump.sh` for the full
-real-data (dump) setup.
+Per-stack key configs live in `packages/banking-api/config.test.json` (committed,
+needed by the shared E2E stack) and `config.dump.json` (**gitignored** — it holds
+a real key, so create it locally from `config.example.json`). See
+`scripts/verify-slimfact-dump.sh` for the full real-data (dump) setup.
 
 ## Machine API
 

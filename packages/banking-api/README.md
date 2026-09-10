@@ -163,7 +163,9 @@ docker compose -f docker-compose.test.yaml up -d --wait api banking-api
 
 See `docker-compose.dump.yaml` / `scripts/verify-slimfact-dump.sh` for the
 real-data (dump) setup and `config.test.json` / `config.dump.json` for the
-per-stack key configs.
+per-stack key configs. `config.test.json` is committed (the shared E2E stack
+needs it); `config.dump.json` is **gitignored** because it holds a real key —
+create it locally from `config.example.json` with your own key.
 
 ## Machine API (tRPC)
 

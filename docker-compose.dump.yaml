@@ -32,6 +32,9 @@ services:
       MOLLIE_API_KEY: ${MOLLIE_API_KEY:-}
       BANKING_API_CONFIG_PATH: /etc/banking-api/config.dump.json
     volumes:
+      # config.dump.json is gitignored (it holds a real API key) — create it
+      # locally from config.example.json with your own key before using this
+      # overlay, otherwise this mount fails closed.
       - ./packages/banking-api/config.dump.json:/etc/banking-api/config.dump.json:ro
     # Do NOT seed fake test accounts — sync the real ones via the credentials.
     command: ["sh", "-c", "node dist/src/kysely/migrate.js && node dist/src/server.js"]
