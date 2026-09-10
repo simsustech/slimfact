@@ -134,7 +134,9 @@ Config file shape (see `config.example.json`):
 ```
 
 - `scopes`: `read` (default) and/or `sync`. `sync` gates the `sync` mutation.
-- `accounts`: the external account ids this key may access. Empty = all.
+- `accounts`: the external account ids this key may access. **Empty means no
+  access**, not all — the grant is intersected against the key's ids, so a key
+  with none sees an empty list. There is no wildcard; grant accounts explicitly.
 - `expiresAt`: optional ISO date; the key stops working after it.
 - **Rotate/revoke**: edit the file and restart — boot reconciles keys into the
   DB (creates/updates/reactivates/revokes, and reports `unknownAccounts` for
@@ -192,6 +194,7 @@ api subscribes to drive its ingest worker.
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                           |
 | `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                                    |
+| `bootstrap-config`        | Write a complete API-key config: generates a key and grants it every account in the DB. Refuses before any account exists.           |
 | `generate:demo`           | _Moved to_ `pnpm --filter @slimfact/tools generate:demo` — the fixtures now live in `@slimfact/tools/banking/demo`, which owns them. |
 | `generate:demo`           | _Moved to_ `pnpm --filter @slimfact/tools generate:demo` — the fixtures now live in `@slimfact/tools/banking/demo`, which owns them. |
 | `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                                    |

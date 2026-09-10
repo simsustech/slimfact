@@ -154,6 +154,8 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
+    # E2E fixture; the image itself no longer seeds on boot.
+    command: ["sh", "-c", "npm run migrate:latest && npm run seed:test && npm run start"]
     healthcheck:
       # Unhandled fetch rejection exits non-zero on its own, so no .catch.
       test:

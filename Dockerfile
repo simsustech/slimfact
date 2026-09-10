@@ -90,4 +90,4 @@ WORKDIR /app
 COPY --from=banking-api-deploy /build/banking-api /app
 ENV HOST=0.0.0.0 PORT=80
 EXPOSE 80
-CMD ["sh", "-c", "node dist/src/kysely/migrate.js && node dist/src/seed/test.js && node dist/src/server.js"]
+CMD ["sh", "-c", "node dist/src/kysely/migrate.js && node dist/src/server.js"]

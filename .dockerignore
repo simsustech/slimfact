@@ -13,3 +13,7 @@ config
 *.dump.sql
 .backup
 failure_memories.txt
+
+# Build output is produced inside the build stage. Excluding it stops stale local
+# artifacts (from sources since deleted) leaking into the image via `COPY . .`.
+dist

@@ -278,9 +278,9 @@ reseeding are not supported.
 | `RATE_LIMIT_PER_MINUTE`                  | `600`                          | Proxy HTTP rate limit (requests/min per key). Garbage values fail at boot.                                                  |
 | `POSTGRES_SSL` / `POSTGRES_SSL_INSECURE` | _(off)_ / `false`              | TLS to Postgres; certificate verification is on by default — set `POSTGRES_SSL_INSECURE=true` only for self-signed dev DBs. |
 
-> The banking-api image is **test-only**: its entrypoint always runs the demo
-> seed (`seed:test`) on boot. Do not deploy it outside the test stack without
-> removing that first.
+> The banking-api image **migrates and serves only** — it does not seed. The E2E
+> fixture (`seed:test`) is applied by the test stack's `command:`, not the image,
+> so the published image is safe to run against real data.
 
 > **Credentials warning**: `OPENBANKING_CREDENTIALS_JSON` holds a P-256 private key for decrypting bank data. Never commit it to git, never log/dump it. Rotate by regenerating the bundle in the open-banking.io dashboard.
 
