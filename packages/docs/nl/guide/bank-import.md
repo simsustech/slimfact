@@ -1,19 +1,16 @@
 # Bankimport (open-banking)
 
 De **bankimport** van SlimFact verbindt je echte bankrekeningen via
-[open-banking.io](https://open-banking.io). Binnenkomende crediteringen worden
-automatisch gematcht tegen openstaande facturen (zie het [hoofdstuk in de
-beheerdershandleiding](/nl/guide/administrator#bankimport) voor de dagelijkse
-werkwijze). Deze pagina is de **installatiehandleiding** voor self-hosters: wat
-draait waar, welke omgevingsvariabelen van belang zijn, en hoe je de API-sleutels
-aanmaakt.
+[open-banking.io](https://open-banking.io) en matcht binnenkomende crediteringen
+tegen openstaande facturen. Deze pagina gaat over de installatie; zie de
+[beheerdershandleiding](/nl/guide/administrator#bankimport) voor het dagelijkse
+gebruik.
 
 ## Architectuur
 
-Een aparte service — **banking-api** (`packages/banking-api`,
-`@slimfact/banking-api`) — beheert de open-banking.io-referenties en de
-banksynchronisatiewachtrij. SlimFact zelf praat nooit rechtstreeks met
-open-banking.io en houdt geen lokale banktabellen bij:
+Een aparte service — **banking-api** — beheert de open-banking.io-referenties en
+de synchronisatiewachtrij. SlimFact praat nooit rechtstreeks met open-banking.io
+en houdt geen lokale banktabellen bij:
 
 ```text
 ┌──────────────┐   tRPC (Bearer key)   ┌──────────────┐   open-banking.io
@@ -26,23 +23,20 @@ open-banking.io en houdt geen lokale banktabellen bij:
 Banking-api bewaart de volledige rekening- en transactiehistorie in zijn eigen
 `open_banking`-schema (gedeelde Postgres), voert de geplande synchronisaties uit
 en biedt een met sleutels geauthenticeerde machine-API (`/trpc`) die SlimFact
-aanroept voor rekeningen, saldi, transacties, verbindingen en sync-triggers.
+aanroept.
 
 ## Vereisten
 
-- **Docker** (met BuildKit — de standaard op moderne Docker)
-- **Postgres**, bereikbaar vanuit de container. Dezelfde server die SlimFact
-  gebruikt is prima; banking-api houdt er zijn eigen `open_banking`-schema op na.
+- **Docker** met BuildKit (de standaard op moderne Docker)
+- **Postgres**, bereikbaar vanuit de container — die van SlimFact is prima
 - Een [open-banking.io](https://open-banking.io)-account met je bank(en)
-  verbonden, en de geëxporteerde **credentials bundle** (`credentials.json`)
-- Toegang tot de gepubliceerde image (of, om zelf te bouwen, een token voor het
-  **`@modular-api`-register** — zie stap 1).
+  verbonden, en de geëxporteerde **credentials bundle**
+- Toegang tot de gepubliceerde image, of — om zelf te bouwen — een token voor het
+  private `@modular-api`-register (`npm.simsus.tech`)
 
-## Installatie met Docker
+## Installatie
 
 ### 1. De image ophalen
-
-Uitgebrachte images staan op GHCR:
 
 ```sh
 docker pull ghcr.io/simsustech/slimfact-banking-api:latest
@@ -51,15 +45,14 @@ docker pull ghcr.io/simsustech/slimfact-banking-api:latest
 docker pull ghcr.io/simsustech/slimfact-banking-api:1.2.3
 ```
 
-Het pakket staat standaard op privé — wordt de pull geweigerd, authenticeer dan
-eerst met een token met `read:packages`:
+Het pakket staat op privé — wordt de pull geweigerd, log dan in met een token met
+`read:packages`:
 
 ```sh
 echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-gebruikersnaam> --password-stdin
 ```
 
-Zelf bouwen vanuit een checkout kan ook (vereist een token voor het private
-`@modular-api`-register, want de installatie haalt daar pakketten vandaan):
+Zelf bouwen vanuit een checkout kan ook:
 
 ```sh
 docker build \
@@ -69,19 +62,15 @@ docker build \
   .
 ```
 
-### 2. Eerste start (bootstrap)
+### 2. Starten met een plaatshouder-config
 
-Banking-api authenticeert zijn aanroepers (SlimFact) met API-sleutels uit een
-gemount JSON-bestand. Alleen de SHA-256-hash van elke sleutel wordt in de DB
-bewaard; het bestand is de bron van waarheid en de start **mislukt
-(fail-closed)** als het ontbreekt of ongeldig is. De container kan dus niet
-starten zonder.
+Banking-api authenticeert zijn aanroepers met API-sleutels uit een gemount
+JSON-bestand. Alleen de SHA-256-hash van elke sleutel komt in de database, maar
+het bestand **moet bestaan** — de start mislukt (fail-closed) zonder.
 
-Sleutels geven toegang tot **specifieke** bankrekeningen. Een lege
-`accounts`-lijst geeft **geen** toegang — niet alle toegang. Omdat rekening-id's
-pas bestaan nadat er een sync is gedraaid, gaat de configuratie in twee stappen.
-
-Start met een plaatshouder, zodat de container opstart en de eerste data ophaalt:
+Sleutels geven toegang tot **specifieke** rekeningen, en rekening-id's bestaan pas
+nadat er een sync is gedraaid. Daarom gaat het in twee stappen. Begin met een lege
+lijst:
 
 ```sh
 printf '{"apiKeys": []}\n' > config.json
@@ -99,35 +88,39 @@ docker run -d --name banking-api --restart unless-stopped \
   banking-api
 ```
 
-`API_HOST` is de canonieke hostnaam waarop deze instance bereikbaar is; die moet
-overeenkomen met wat SlimFact als `BANKING_API_URL` gebruikt, anders lopen de
-OIDC- en event-bus-origins uiteen.
+`API_HOST` is de hostnaam waarop deze instance bereikbaar is. Die moet
+overeenkomen met `BANKING_API_URL` van SlimFact, anders lopen de OIDC- en
+event-bus-origins uiteen.
 
-De credentials bundle bevat de P-256-ontsleutelingssleutel en de API-sleutel —
-**behandel die als een wachtwoord**. Geef hem via de omgeving door (zoals
-hierboven), nooit door hem te committen of in de image te kopiëren.
+De credentials bundle bevat de P-256-ontsleutelingssleutel — **behandel die als
+een wachtwoord**. Geef hem via de omgeving door, nooit door hem te committen of in
+een image te bakken.
 
-### 3. De echte configuratie genereren
+Migraties draaien automatisch bij het opstarten: het entrypoint van de image is
+`migrate.js && server.js`. Ze zijn idempotent en worden bijgehouden in
+`open_banking.kysely_migration`, dus herstarten en rolling deploys zijn veilig. De
+eerste start maakt het `open_banking`- en het pg-boss-queueschema aan. Er wordt
+niets geseed — seeden is alleen voor tests.
 
-Zodra de eerste sync rekeningen heeft opgehaald, laat je banking-api de
-configuratie zelf genereren — het kiest een sleutel, kent elke gevonden rekening
-toe, en print wat SlimFact nodig heeft:
+### 3. De echte config genereren
+
+Zodra de eerste sync heeft gedraaid, schrijft `bootstrap-config` een complete
+config voor je. Het doet drie dingen: het leest de rekeningen die nu in de
+database staan, genereert een sleutel (`obk_test_…`, of `obk_live_…` met `live`),
+en schrijft een config die die sleutel **al die rekeningen** toekent.
 
 ```sh
 docker exec banking-api node dist/scripts/bootstrap-config.js /tmp/config.json
 docker cp banking-api:/tmp/config.json ./config.json
 ```
 
-Of, vanuit de broncode tegen dezelfde database:
+Geschreven met mode `0600`. Het weigert te draaien voordat er rekeningen zijn —
+een sleutel met een lege `accounts`-lijst leest **niets**, dus het bestand zou
+nutteloos zijn. Het weigert ook een bestaande config te overschrijven zonder
+`--force`, wat de sleutel roteert.
 
-```sh
-pnpm --filter @slimfact/banking-api bootstrap-config ./config.json
-```
-
-Het bestand wordt geschreven met mode `0600`. Het weigert een bestaande
-configuratie te overschrijven zonder `--force` (wat de sleutel roteert), en het
-weigert te draaien voordat er rekeningen bestaan — een lege toekenningslijst zou
-stil niets lezen.
+Pas het bestand daarna aan om de toekenningen te beperken, terug te brengen tot
+één rekening, of een tweede sleutel toe te voegen voor een andere afnemer.
 
 ### 4. Herstarten om de sleutel toe te passen
 
@@ -135,62 +128,57 @@ stil niets lezen.
 docker restart banking-api
 ```
 
-Bij het opstarten wordt het bestand met de database verzoend. Daarna:
+Bij het opstarten wordt het bestand met de database verzoend. Per sleutel:
 
-- `scopes`: `read` en/of `sync`. `sync` geeft toegang tot de sync-trigger.
-- `accounts`: de externe rekening-id's waar deze sleutel bij mag.
-- `expiresAt`: optioneel — de sleutel werkt hierna niet meer.
-- **Roteren/intrekken**: pas het bestand aan en herstart; bij het opstarten worden
-  de sleutels met de DB verzoend (aanmaken/bijwerken/heractiveren/intrekken).
+- `scopes` — `read` en/of `sync`; `sync` geeft toegang tot de sync-trigger
+- `accounts` — externe rekening-id's waartoe de sleutel toegang heeft; **leeg betekent geen**
+- `expiresAt` — optioneel; de sleutel werkt hierna niet meer
 
-### 5. Controleren
+Om te roteren of in te trekken: pas het bestand aan en herstart.
+
+### 5. Controleren en SlimFact erop richten
 
 ```sh
-docker logs banking-api                 # migratieregels, dan "listening on 0.0.0.0:80"
+docker logs banking-api   # migratieregels, dan "listening on 0.0.0.0:80"
 docker exec banking-api \
   node -e "fetch('http://localhost/health').then(r=>r.json()).then(console.log)"
 # { ok: true, keys: 1 }
 ```
 
-`keys` is het aantal actieve API-sleutels uit het configuratiebestand — staat daar
-`0`, dan is het gemounte bestand niet gevonden of niet geldig.
+`keys` telt de actieve sleutels uit de config — `0` betekent dat het bestand niet
+gevonden is of niet valideerde.
 
-### 6. SlimFact erop richten
+Zet daarna deze op de **SlimFact api**-service:
 
-Zet deze op de **SlimFact api**-service:
+| Variabele         | Waarde                                               |
+| ----------------- | ---------------------------------------------------- |
+| `BANKING_API_URL` | `http://banking-api:80` (de `PORT` van de container) |
+| `BANKING_API_KEY` | de `obk_…`-sleutel uit stap 3                        |
 
-| Variabele         | Waarde                                                    |
-| ----------------- | --------------------------------------------------------- |
-| `BANKING_API_URL` | `http://banking-api:3000` (of waar je hem hebt ontsloten) |
-| `BANKING_API_KEY` | de `obk_…`-sleutel uit stap 3                             |
+Laat beide leeg om de bankimport volledig uit te schakelen — SlimFact verbergt dan
+de bank-UI en doet geen aanroepen naar de proxy.
 
-Laat beide leeg om de bankimport volledig uit te schakelen — SlimFact verbergt
-dan de bank-UI en doet geen aanroepen naar de proxy.
+## Docker Compose
 
-## Met docker-compose
-
-De tweestapsinstallatie hierboven in één bestand, samengevoegd met een bestaande
-SlimFact-stack. `banking-api` deelt de `database`-service en is intern
-bereikbaar als `banking-api`, dus gepubliceerde poorten zijn niet nodig.
+Dezelfde installatie, samengevoegd met een bestaande SlimFact-stack.
+`banking-api` deelt de `database`-service en is intern bereikbaar als
+`banking-api`, dus publiceert geen poorten.
 
 ```yaml
 services:
   banking-api:
-    image: banking-api # lokaal gebouwd: docker build --target banking-api -t banking-api .
+    image: ghcr.io/simsustech/slimfact-banking-api:latest
     environment:
       API_HOST: banking-api
-      # banking-api leest POSTGRES_PASSWORD direct — er is geen _FILE-variant.
+      # Wordt direct gelezen — banking-api heeft hiervoor geen _FILE-variant.
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: database
       POSTGRES_DB: ${POSTGRES_DB}
       # Base64 van credentials.json. Weglaten betekent bank-sync inert.
       OPENBANKING_CREDENTIALS_JSON: ${OPENBANKING_CREDENTIALS_JSON:-}
-      # Optioneel — weglaten tenzij je PSP-uitbetalingen wilt inlezen:
-      # MOLLIE_API_KEY: ${MOLLIE_API_KEY:-}
-      # STRIPE_API_KEY: ${STRIPE_API_KEY:-}
       BANKING_API_CONFIG_PATH: /etc/banking-api/config.json
     volumes:
-      # Begin met {"apiKeys": []} en vervang via bootstrap-config: zie hierboven.
+      # Begin met {"apiKeys": []} en vervang via bootstrap-config (stap 3).
       - ./config.json:/etc/banking-api/config.json:ro
     depends_on:
       database:
@@ -203,92 +191,78 @@ services:
       BANKING_API_KEY: ${BANKING_API_KEY}
 ```
 
-Richt `BANKING_API_URL` op de poort waarop de container luistert (`PORT`,
-standaard `80`) — beide services delen het compose-netwerk, dus een
-gepubliceerde poort is niet nodig.
+## PSP-uitbetalingssync (optioneel)
 
-```sh
-docker compose build banking-api
-docker compose up -d banking-api api
+Optioneel, en los van de bankimport — configureer dit alleen als je betalingen
+via Mollie of Stripe ontvangt.
+
+**Het probleem dat het oplost.** PSP's betalen niet per transactie uit. Ze
+bundelen, en het geld komt dagen later als één bedrag op je bankrekening, netto
+na kosten:
+
+```text
+Klant betaalt 12 facturen via Mollie  →  Mollie houdt ze vast
+                                       → één creditering van €524,18 op je bank
+                                         (€537,00 gefactureerd, €12,82 kosten)
 ```
 
-## Draaien migraties automatisch?
+Voor de matcher van de bankimport is dat een onverklaard bedrag — het matcht geen
+enkele factuur, dus het blijft voor altijd in de reviewwachtrij staan.
 
-**Ja.** Het entrypoint van de image is:
+**Wat de sync doet.** `MOLLIE_API_KEY` / `STRIPE_API_KEY` laten banking-api de
+uitbetalingshistorie ophalen naast de bankgegevens, in
+`open_banking.psp_settlements` en `psp_payments`:
 
-```sh
-node dist/src/kysely/migrate.js && node dist/src/server.js
-```
+- **Mollie** — settlements en de betalingen daarbinnen, met de ingehouden kosten
+  opgeteld uit de settlementperiodes.
+- **Stripe** — payouts en de balanstransacties die aan elke payout hangen.
 
-Elke containerstart past openstaande migraties toe en serveert daarna. Migraties
-zijn idempotent en worden vastgelegd in `open_banking.kysely_migration`, dus
-herstarten en rolling deployments zijn veilig — er is geen aparte migratiestap en
-geen handmatige `migrate:latest` nodig.
+De matcher herkent een bankcreditering dan als een bekende uitbetaling: hij
+matcht op valuta, een datumvenster rond de uitbetalingsdatum, en **het exacte
+nettobedrag**. Bij een match wordt het totaal toegerekend aan de individuele
+facturen in die uitbetaling, in plaats van ongematcht te blijven.
 
-De eerste start maakt het `open_banking`-schema en het pg-boss-queueschema aan.
-De image **seedt niets**: seeden is opt-in en alleen de teststack doet het.
+Laat beide sleutels weg en deze stap wordt volledig overgeslagen — de proxy start
+nog steeds en de bankimport werkt normaal.
+
+| Variabele                   | Standaard         | Doel                                              |
+| --------------------------- | ----------------- | ------------------------------------------------- |
+| `MOLLIE_API_KEY`            | —                 | Mollie-settlements ophalen.                       |
+| `STRIPE_API_KEY`            | —                 | Stripe-payouts ophalen.                           |
+| `PSP_SYNC_CRON`             | `0 30 7-23 * * *` | Wanneer synchroniseren.                           |
+| `PSP_SYNC_COOLDOWN_SECONDS` | `60`              | Minimum seconden tussen runs (pg-boss singleton). |
+
+Syncs upserten en verwijderen nooit, dus de historie groeit en een tweede run
+meldt nul nieuwe rijen. Als één PSP faalt wordt dat gelogd en stopt de andere
+niet.
 
 ## Omgevingsvariabelen
 
-Deployment:
-
-| Variabele                 | Vereist | Standaard                      | Doel                                                                              |
-| ------------------------- | ------- | ------------------------------ | --------------------------------------------------------------------------------- |
-| `API_HOST`                | ja      | —                              | Canonieke hostnaam van deze banking-api-instance.                                 |
-| `POSTGRES_PASSWORD`       | ja      | —                              | Postgres-wachtwoord.                                                              |
-| `POSTGRES_DB`             | ja      | —                              | Database (die van SlimFact, bijv. `slimfact`).                                    |
-| `POSTGRES_HOST`           | nee     | `localhost`                    | Postgres-host.                                                                    |
-| `POSTGRES_PORT`           | nee     | `5432`                         | Postgres-poort.                                                                   |
-| `POSTGRES_USER`           | nee     | `postgres`                     | Postgres-gebruiker.                                                               |
-| `POSTGRES_POOL_MAX`       | nee     | `3`                            | Max Postgres-verbindingen in de pool.                                             |
-| `POSTGRES_SSL`            | nee     | _(uit)_                        | TLS naar Postgres aanzetten.                                                      |
-| `POSTGRES_SSL_INSECURE`   | nee     | `false`                        | Certificaatverificatie overslaan — alleen self-signed dev-servers.                |
-| `CACERT`                  | nee     | —                              | CA-certificaat om de Postgres-server te verifiëren.                               |
-| `BANKING_API_CONFIG_PATH` | nee     | `/etc/banking-api/config.json` | Gemount API-sleutelconfiguratiebestand. **Moet bestaan** — anders faalt de start. |
-| `RATE_LIMIT_PER_MINUTE`   | nee     | `600`                          | HTTP-rate limit.                                                                  |
-| `PORT` / `HOST`           | nee     | `80` / `0.0.0.0`               | Luisteradres.                                                                     |
-| `DEBUG`                   | nee     | —                              | SQL-statements loggen.                                                            |
-
-open-banking.io-sync:
-
-| Variabele                               | Vereist | Standaard          | Doel                                                           |
-| --------------------------------------- | ------- | ------------------ | -------------------------------------------------------------- |
-| `OPENBANKING_CREDENTIALS_JSON`          | nee\*   | —                  | Base64 van de credentials bundle. Zonder blijft bank-sync uit. |
-| `OPENBANKING_API_BASE_URL`              | nee     | SDK-standaard      | Overschrijf de open-banking.io API-basis-URL.                  |
-| `OPENBANKING_SYNC_CRON`                 | nee     | `0 */4 7-23 * * *` | Schema voor geplande synchronisaties (cron).                   |
-| `OPENBANKING_SYNC_COOLDOWN_SECONDS`     | nee     | `60`               | Minimum aantal seconden tussen syncs.                          |
-| `OPENBANKING_MIN_SYNC_INTERVAL_SECONDS` | nee     | `60`               | Minimum interval tussen syncpogingen.                          |
-
-Optioneel — PSP-uitbetalingen inlezen:
-
-| Variabele                   | Vereist | Standaard         | Doel                                      |
-| --------------------------- | ------- | ----------------- | ----------------------------------------- |
-| `MOLLIE_API_KEY`            | nee     | —                 | Schakelt Mollie-settlement-sync in (PSP). |
-| `STRIPE_API_KEY`            | nee     | —                 | Schakelt Stripe-payout-sync in.           |
-| `PSP_SYNC_CRON`             | nee     | `0 30 7-23 * * *` | Schema voor PSP-uitbetalingssync.         |
-| `PSP_SYNC_COOLDOWN_SECONDS` | nee     | `60`              | Minimum aantal seconden tussen PSP-syncs. |
+| Variabele                               | Vereist | Standaard                      | Doel                                                                      |
+| --------------------------------------- | ------- | ------------------------------ | ------------------------------------------------------------------------- |
+| `API_HOST`                              | ja      | —                              | Hostnaam van deze instance; moet matchen met `BANKING_API_URL`.           |
+| `POSTGRES_PASSWORD`                     | ja      | —                              | Postgres-wachtwoord.                                                      |
+| `POSTGRES_DB`                           | ja      | —                              | Database (die van SlimFact, bijv. `slimfact`).                            |
+| `POSTGRES_HOST`                         | nee     | `localhost`                    | Postgres-host.                                                            |
+| `POSTGRES_PORT`                         | nee     | `5432`                         | Postgres-poort.                                                           |
+| `POSTGRES_USER`                         | nee     | `postgres`                     | Postgres-gebruiker.                                                       |
+| `POSTGRES_POOL_MAX`                     | nee     | `3`                            | Grootte van de connection pool.                                           |
+| `POSTGRES_SSL`                          | nee     | _(uit)_                        | TLS naar Postgres aanzetten.                                              |
+| `POSTGRES_SSL_INSECURE`                 | nee     | `false`                        | Certificaatverificatie overslaan — alleen self-signed dev-servers.        |
+| `CACERT`                                | nee     | —                              | CA-certificaat om de Postgres-server te verifiëren.                       |
+| `BANKING_API_CONFIG_PATH`               | nee     | `/etc/banking-api/config.json` | API-sleutelconfiguratiebestand. **Moet bestaan** — anders faalt de start. |
+| `OPENBANKING_CREDENTIALS_JSON`          | nee\*   | —                              | Base64 credentials bundle. Zonder blijft bank-sync uit.                   |
+| `OPENBANKING_API_BASE_URL`              | nee     | SDK-standaard                  | Overschrijf de open-banking.io basis-URL.                                 |
+| `OPENBANKING_SYNC_CRON`                 | nee     | `0 */4 7-23 * * *`             | Wanneer bankgegevens synchroniseren.                                      |
+| `OPENBANKING_SYNC_COOLDOWN_SECONDS`     | nee     | `60`                           | Minimum seconden tussen syncs.                                            |
+| `OPENBANKING_MIN_SYNC_INTERVAL_SECONDS` | nee     | `60`                           | Minimum interval tussen syncpogingen per rekening.                        |
+| `RATE_LIMIT_PER_MINUTE`                 | nee     | `600`                          | HTTP-rate limit.                                                          |
+| `PORT` / `HOST`                         | nee     | `80` / `0.0.0.0`               | Luisteradres.                                                             |
+| `DEBUG`                                 | nee     | —                              | SQL-statements loggen.                                                    |
 
 \* Zonder referenties start de service gewoon — sleutels, lees-API en de wachtrij
-werken, maar elke sync levert een leeg resultaat op en de sync-cron is inert.
-Handig om de deployment te controleren voordat je echte bankdata aansluit.
-
-De PSP-sleutels staan los van de bankimport: ze bestaan om PSP-uitbetalingen
-tegen bankcrediteringen te matchen. Ze allebei weglaten slaat die stap over.
-
-## Draaien vanuit de broncode
-
-Voor ontwikkeling binnen een checkout kan alles wat de image doet ook direct
-gedraaid worden:
-
-```sh
-pnpm --filter @slimfact/banking-api install
-pnpm --filter @slimfact/banking-api build
-pnpm --filter @slimfact/banking-api migrate:latest   # maakt open_banking + pg-boss
-pnpm --filter @slimfact/banking-api start            # listening on 0.0.0.0:80
-```
-
-`generate-key` en `list-accounts` zijn ook beschikbaar als package-scripts. De
-omgevingsvariabelen hierboven gelden ongewijzigd.
+werken, maar syncs leveren niets op en de cron is inert. Handig om een deployment
+te controleren voordat je echte bankdata aansluit.
 
 ## Machine-API
 
@@ -298,6 +272,6 @@ omgevingsvariabelen hierboven gelden ongewijzigd.
 `listPspSettlements`, `listPspPayments`. Sync-voortgang wordt gepubliceerd als
 `bank.sync.*`-events op de WebSocket op `/ws`.
 
-> De volledige ontwikkelaarsreferentie (alle env-vars, scripts, configuratieschema)
-> staat in
+> De volledige ontwikkelaarsreferentie — alle env-vars, scripts en
+> configuratie-opties — staat in
 > [`packages/banking-api/README.md`](https://github.com/simsustech/slimfact/blob/main/packages/banking-api/README.md).
