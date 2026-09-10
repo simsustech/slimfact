@@ -32,3 +32,6 @@ PR.md
 # Local scratch (ad-hoc analysis output / agent notes)
 failure_memories.txt
 packages/api/src/banking/match-transactions-to-invoices.sql
+
+# Per-machine pi-lens config (formatter/autofix vs this repo's oxfmt)
+.pi-lens.json
