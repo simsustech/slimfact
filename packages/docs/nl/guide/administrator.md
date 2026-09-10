@@ -244,14 +244,14 @@ Stel `STRIPE_API_KEY` in. Zelfde patroon voor meerdere bedrijven: `STRIPE_API_KE
 
 Bepaal welke PSP welke betaalmethode afhandelt:
 
-| Env-variabele                | Standaard | Opties               |
-| ---------------------------- | --------- | -------------------- |
-| `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` of `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` of `stripe` |
-| Env-variabele                | Standaard | Opties               |
-| -------------                | --------- | ---------            |
-| `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` of `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` of `stripe` |
+| Env-variabele                | Opties               |
+| ---------------------------- | -------------------- |
+| `WERO_PAYMENT_HANDLER`       | `mollie` of `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | `mollie` of `stripe` |
+
+Geen van beide heeft een standaardwaarde. Laat je er een weg, dan wordt die
+betaalmethode niet aangeboden — de betaalknop verdwijnt, in plaats van terug te
+vallen op een provider.
 
 ### Contant & bankoverschrijving
 

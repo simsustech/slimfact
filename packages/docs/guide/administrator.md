@@ -244,14 +244,13 @@ Set `STRIPE_API_KEY`. Same multi-company pattern: `STRIPE_API_KEY_<PREFIX>`.
 
 Control which PSP handles which payment method:
 
-| Env variable                 | Default   | Options              |
-| ---------------------------- | --------- | -------------------- |
-| `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` or `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` or `stripe` |
-| Env variable                 | Default   | Options              |
-| -------------                | --------- | ---------            |
-| `IDEAL_PAYMENT_HANDLER`      | Mollie    | `mollie` or `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe    | `mollie` or `stripe` |
+| Env variable                 | Options              |
+| ---------------------------- | -------------------- |
+| `WERO_PAYMENT_HANDLER`       | `mollie` or `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | `mollie` or `stripe` |
+
+Neither has a default. Leave one unset and that method is not offered at all —
+the payment button is hidden, rather than falling back to a provider.
 
 ### Cash & Bank Transfer
 

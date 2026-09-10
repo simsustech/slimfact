@@ -169,11 +169,16 @@ Payment handler code lives in `@modular-api/fastify-checkout`. For local dev, us
 
 | Method         | Default PSP             | Env override                                |
 | -------------- | ----------------------- | ------------------------------------------- |
-| `ideal`        | Mollie                  | `IDEAL_PAYMENT_HANDLER=mollie\|stripe`      |
-| `creditcard`   | Stripe                  | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
+| `wero`         | _none_ — unset = hidden | `WERO_PAYMENT_HANDLER=mollie\|stripe`      |
+| `creditcard`   | _none_ — unset = hidden | `CREDITCARD_PAYMENT_HANDLER=mollie\|stripe` |
 | `cash`         | Cash (offline)          | —                                           |
 | `bankTransfer` | Bank transfer (offline) | —                                           |
 | `pin`          | PIN (offline)           | —                                           |
+
+Both routing vars are read with no fallback (`read()`, not `||`), so an unset
+var means the method is not offered at all — no default PSP applies. The
+`PaymentMethod` enum still carries `ideal`, kept as a deprecated routing fallback
+while clients migrate; `wero` is the primary key.
 
 ### Webhook Handling
 
