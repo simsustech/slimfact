@@ -86,7 +86,7 @@
     "format:write": "oxfmt --write ."
   },
   "dependencies": {
-    "@modular-api/fastify-checkout": "0.10.0",
+    "@modular-api/fastify-checkout": "0.10.1",
     "@myriaddreamin/typst-ts-renderer": "0.7.0",
     "@rgrove/parse-xml": "5.0.0",
     "export-to-csv": "1.5.0",
@@ -102,8 +102,8 @@
     "@types/node": "26.4.1",
     "csv-parse": "7.0.2",
     "kysely": "0.29.5",
-    "oxfmt": "0.66.0",
-    "oxlint": "1.81.0",
+    "oxfmt": "0.67.0",
+    "oxlint": "1.82.0",
     "typescript": "7.0.2"
   }
 }

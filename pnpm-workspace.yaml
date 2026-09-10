@@ -4,14 +4,12 @@ packages:
   - packages/*
 overrides:
   typescript: 6.0.3
-  "@modular-api/fastify-checkout": "file:/home/stefan/Projects/modular-api/packages/fastify-checkout"
-  "@modular-api/quasar-components": "file:/home/stefan/Projects/modular-api/packages/components"
 
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-  - "@modular-api/event-bus@0.2.0 || 0.2.1"
-  - "@modular-api/fastify-checkout@0.10.0"
+  - '@modular-api/event-bus@0.2.0 || 0.2.1 || 0.2.2'
+  - '@modular-api/fastify-checkout@0.10.0 || 0.10.1'
   - "@rolldown/binding-android-arm-eabi@1.2.7"
   - "@rolldown/binding-android-arm64@1.2.7"
   - "@rolldown/binding-darwin-arm64@1.2.7"
@@ -24,10 +22,10 @@ minimumReleaseAgeExclude:
   - "@rolldown/binding-linux-s390x-gnu@1.2.7"
   - "@rolldown/binding-linux-x64-gnu@1.2.7"
   - "@rolldown/binding-linux-x64-musl@1.2.7"
-  - "@rolldown/binding-openharmony-arm64@1.2.7"
+  - '@rolldown/binding-openharmony-arm64@1.2.7 || 1.2.8'
   - "@rolldown/binding-win32-arm64-msvc@1.2.7"
   - "@rolldown/binding-win32-x64-msvc@1.2.7"
-  - "@types/oidc-provider@9.12.0"
+  - "@types/oidc-provider@9.12.0 || 9.12.1"
   - "@vitest/mocker@5.0.0"
   - "@vitest/spy@5.0.0"
   - beasties@0.5.3
@@ -37,6 +35,14 @@ minimumReleaseAgeExclude:
   - vitest@5.0.0
   - vitrify@0.27.2 || 0.28.0 || 0.28.1
   - pg-boss@12.30.0
+  - stripe@22.6.2
+  - zod@4.6.1
+  - '@modular-api/api@0.6.36'
+  - '@modular-api/fastify-cart@0.3.22'
+  - '@modular-api/fastify-oidc@0.9.28'
+  - '@modular-api/oidc-interactions@0.7.24'
+  - '@modular-api/quasar-components@0.3.43'
+  - nodemailer@10.0.3
 
 onlyBuiltDependencies:
   - "@parcel/watcher"

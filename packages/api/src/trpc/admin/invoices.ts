@@ -450,6 +450,8 @@ export const adminInvoiceRoutes = ({
                 attachments.push({
                   filename: pdfResult.filename,
                   content: pdfResult.pdf
+                    ? Buffer.from(pdfResult.pdf)
+                    : undefined
                 })
 
                 if (
@@ -468,7 +470,7 @@ export const adminInvoiceRoutes = ({
                 from: `${result.invoice.companyDetails.name} <noreply@slimfact.app>`,
                 replyTo: result.invoice.companyDetails.email,
                 to: result.invoice.clientDetails.email,
-                bcc: emailBcc,
+                bcc: emailBcc ?? undefined,
                 subject,
                 html: body,
                 attachments
@@ -538,7 +540,7 @@ export const adminInvoiceRoutes = ({
             if (pdfResult.success)
               attachments.push({
                 filename: pdfResult.filename,
-                content: pdfResult.pdf
+                content: pdfResult.pdf ? Buffer.from(pdfResult.pdf) : undefined
               })
 
             await fastify.mailer?.sendMail({
@@ -616,7 +618,7 @@ export const adminInvoiceRoutes = ({
             if (pdfResult.success)
               attachments.push({
                 filename: pdfResult.filename,
-                content: pdfResult.pdf
+                content: pdfResult.pdf ? Buffer.from(pdfResult.pdf) : undefined
               })
 
             await fastify.mailer?.sendMail({
@@ -672,7 +674,7 @@ export const adminInvoiceRoutes = ({
             if (pdfResult.success)
               attachments.push({
                 filename: pdfResult.filename,
-                content: pdfResult.pdf
+                content: pdfResult.pdf ? Buffer.from(pdfResult.pdf) : undefined
               })
             await fastify.mailer?.sendMail({
               from: `${invoice.companyDetails.name} <noreply@slimfact.app>`,
@@ -723,7 +725,7 @@ export const adminInvoiceRoutes = ({
             if (pdfResult.success)
               attachments.push({
                 filename: pdfResult.filename,
-                content: pdfResult.pdf
+                content: pdfResult.pdf ? Buffer.from(pdfResult.pdf) : undefined
               })
             await fastify.mailer?.sendMail({
               from: `${invoice.companyDetails.name} <noreply@slimfact.app>`,

@@ -303,7 +303,6 @@ export default async function (fastify: FastifyInstance) {
           : undefined
     },
     nodemailer: {
-      defaults: { from: config.mailFrom },
       transport: {
         host: config.mailHost,
         port: config.mailPort,
