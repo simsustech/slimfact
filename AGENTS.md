@@ -204,9 +204,10 @@ SlimFact has **no local bank tables** (the create/drop migration pair was
 squashed away pre-release — no local bank schema ships): it reads bank data
 only through the
 proxy and records outcomes as `checkout.payments` rows with
-`transaction_reference = 'bank:<txid>'` (partial unique index
-`payments_bank_ref_invoice_unique` on `(transaction_reference, invoice_id)`,
-migration 14). The company → account mapping is **link-first,
+`payments_bank_ref_invoice_unique` on `(transaction_reference, invoice_id)`, created by
+`createPaymentsTable` from `@modular-api/fastify-checkout` — migration 02, so a
+fresh database gets it with the table; existing instances need it applied by hand).
+The company → account mapping is **link-first,
 IBAN fallback**: explicit `bank_account_companies` rows (many-to-many — one
 company may own several accounts, one account may serve several companies) win;
 otherwise the account's IBAN is matched against `companies.iban`. The bank UI
