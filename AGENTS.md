@@ -81,11 +81,11 @@ docker compose -f docker-compose.dev.yaml up --force-recreate -d
 cd packages/api
 POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact POSTGRES_PORT=5433 MODULARAPI_ADMIN_PASSWORD=<password> pnpm run migrate:latest
 POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact POSTGRES_PORT=5433 MODULARAPI_ADMIN_PASSWORD=<password> pnpm run seed:data
-POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact POSTGRES_PORT=5433 MODULARAPI_ADMIN_PASSWORD=<password> pnpm run seed:fake
+POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact POSTGRES_PORT=5433 MODULARAPI_ADMIN_PASSWORD=<password> pnpm run seed:demo
 NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm exec vitrify dev -m fastify --host --port 3001
 ```
 
-Use `seed:test` for E2E test data, `seed:fake` for development exploration. `seed:data` creates production-like data with invoices but requires `MODULARAPI_ADMIN_PASSWORD`. For E2E tests, run `seed:data` + `seed:fake` to get invoices.
+Use `seed:test` for E2E test data, `seed:demo` for development exploration. `seed:data` creates production-like data with invoices but requires `MODULARAPI_ADMIN_PASSWORD`. For E2E tests, run `seed:data` + `seed:demo` to get invoices.
 
 For Docker-based dev stack (with Caddy + NetBird for webhook testing), use `docker-compose.test.yaml` instead.
 

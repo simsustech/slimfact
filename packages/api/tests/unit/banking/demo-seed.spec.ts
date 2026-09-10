@@ -3,7 +3,7 @@ import { CamelCasePlugin, Kysely, PostgresDialect, sql } from 'kysely'
 import pg from 'pg'
 import type { DB } from '../../../src/kysely/types.js'
 import type * as demoData from '@slimfact/tools/banking/demo/core'
-import type * as fake from '../../../src/kysely/seeds/fake.js'
+import type * as demo from '../../../src/kysely/seeds/demo.js'
 import type * as testSeed from '../../../src/kysely/seeds/test.js'
 import { PaymentMethod } from '@modular-api/fastify-checkout'
 
@@ -12,7 +12,7 @@ import { PaymentMethod } from '@modular-api/fastify-checkout'
 // when the test DB is actually available (same pattern as the banking-api
 // unit specs), so `pnpm test` still skips cleanly on machines without it.
 let demoCore: typeof demoData.demoCore
-let seedFake: typeof fake.seedFake
+let seedDemo: typeof demo.seedDemo
 let seedTest: typeof testSeed.seedTest
 
 const { Pool } = pg
@@ -44,11 +44,11 @@ const describeDb = testDb ? describe : describe.skip
 if (testDb) {
   process.env.POSTGRES_PASSWORD ??= 'unused-by-url-based-connection'
   ;({ demoCore } = await import('@slimfact/tools/banking/demo/core'))
-  ;({ seedFake } = await import('../../../src/kysely/seeds/fake.js'))
+  ;({ seedDemo } = await import('../../../src/kysely/seeds/demo.js'))
   ;({ seedTest } = await import('../../../src/kysely/seeds/test.js'))
 }
 
-// Destroy the shared pool once, after all describe blocks (the seed:fake and
+// Destroy the shared pool once, after all describe blocks (the seed:demo and
 // seed:test determinism blocks share testDb).
 afterAll(async () => {
   if (testDb) await testDb.destroy()
@@ -63,10 +63,10 @@ const truncate = async () => {
   )
 }
 
-describeDb('demo seed:fake (fixture-driven)', () => {
+describeDb('demo seed:demo (fixture-driven)', () => {
   beforeAll(async () => {
     await truncate()
-    await seedFake()
+    await seedDemo()
   })
 
   afterAll(async () => {
@@ -133,7 +133,7 @@ describeDb('demo seed:fake (fixture-driven)', () => {
       .where('numberPrefix', '=', '2026-')
       .orderBy('number')
       .execute()
-    await seedFake()
+    await seedDemo()
     const after = await testDb!
       .selectFrom('checkout.invoices')
       .selectAll()

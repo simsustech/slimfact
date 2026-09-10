@@ -117,7 +117,7 @@ services:
       [
         "sh",
         "-c",
-        "npm run migrate:latest && npm run seed:test && npm run seed:fake && npm run start",
+        "npm run migrate:latest && npm run seed:test && npm run seed:demo && npm run start",
       ]
     healthcheck:
       test: curl --fail --insecure http://localhost || exit 1

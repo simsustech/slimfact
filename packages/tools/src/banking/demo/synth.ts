@@ -187,7 +187,7 @@ export interface DemoData {
 // PRNG + numeric helpers
 // ---------------------------------------------------------------------------
 
-/** Deterministic PRNG (same as packages/api/src/kysely/seeds/fake.ts). */
+/** Deterministic PRNG — the generator must be reproducible for a fixed seed. */
 export const mulberry32 = (seed: number): (() => number) => {
   let a = seed
   return () => {

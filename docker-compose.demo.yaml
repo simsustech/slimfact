@@ -9,5 +9,5 @@ services:
       [
         'sh',
         '-c',
-        'npm run migrate:latest && npm run seed:data && npm run seed:fake && npm run start'
+        'npm run migrate:latest && npm run seed:data && npm run seed:demo && npm run start'
       ]

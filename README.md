@@ -45,7 +45,7 @@ pnpm i
 docker compose -f docker-compose.dev.yaml up
 cd packages/api
 POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact pnpm run migrate:latest
-POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact pnpm run seed:fake
+POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB=slimfact pnpm run seed:demo
 pnpm run dev
 ```
 

@@ -69,7 +69,7 @@ const header = (pkg) =>
 
 writeFileSync(
   path.join(demoDir, 'core.ts'),
-  `${header('the api seed:fake')}export const demoCore = ${JSON.stringify(data.core, null, 2)} as const\n`
+  `${header('the api seed:demo')}export const demoCore = ${JSON.stringify(data.core, null, 2)} as const\n`
 )
 writeFileSync(
   path.join(demoDir, 'banking.ts'),
