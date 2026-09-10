@@ -164,7 +164,7 @@ const companies: Insertable<Companies>[] = [
     // Matches the Rabobank account's IBAN but is NOT explicitly linked —
     // link-first resolution must still map rabobank-acc to Acme, proving an
     // explicit link beats the IBAN fallback (E2E link-over-iban assertions).
-    iban: 'NL00RABO9876543210',
+    iban: 'NL78RABO9876543210',
     bic: 'RABONL2U',
     prefix: 'rabo',
     vatIdNumber: 'NL87654321',

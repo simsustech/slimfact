@@ -528,15 +528,20 @@ onMounted(async () => {
   if (!import.meta.env.ssr) {
     await useOAuthClient()
 
-    try {
-      await oAuthClient.value?.signInSilently({})
-    } catch (e) {
-      console.error('Failed to sign in silently')
-    }
-
-    await oAuthClient.value?.getUserInfo()
-
+    // Silent sign-in only makes sense when this browser already holds a session.
+    // With none, the provider answers `login_required` and the app lands on
+    // /redirect — throwing an anonymous visitor off the public invoice page, so
+    // the invoice never renders and cannot be paid. The try/catch below cannot
+    // intercept that navigation because it happens outside the promise chain.
+    // Gated the same way as useUser() in oauth.ts.
     if (oAuthClient.value?.getAccessToken()) {
+      try {
+        await oAuthClient.value?.signInSilently({})
+      } catch (e) {
+        console.error('Failed to sign in silently')
+      }
+
+      await oAuthClient.value?.getUserInfo()
       user.value = await oAuthClient.value?.getUser()
     }
 
