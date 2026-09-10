@@ -35,29 +35,39 @@ aanroept voor rekeningen, saldi, transacties, verbindingen en sync-triggers.
   gebruikt is prima; banking-api houdt er zijn eigen `open_banking`-schema op na.
 - Een [open-banking.io](https://open-banking.io)-account met je bank(en)
   verbonden, en de geëxporteerde **credentials bundle** (`credentials.json`)
-- Toegang tot het **`@modular-api`-register** (`npm.simsus.tech`) — bij het
-  bouwen van de image worden die pakketten geïnstalleerd, dus je hebt een token
-  nodig.
+- Toegang tot de gepubliceerde image (of, om zelf te bouwen, een token voor het
+  **`@modular-api`-register** — zie stap 1).
 
 ## Installatie met Docker
 
-### 1. De image bouwen
+### 1. De image ophalen
 
-De image wordt niet naar een register gepubliceerd, dus bouw hem vanuit de
-repository:
+Uitgebrachte images staan op GHCR:
 
 ```sh
-export SIMSUSTECH_NPM_TOKEN=$(cat env/SIMSUSTECH_NPM_TOKEN)
+docker pull ghcr.io/simsustech/slimfact-banking-api:latest
 
+# Pin een versie in productie:
+docker pull ghcr.io/simsustech/slimfact-banking-api:1.2.3
+```
+
+Het pakket staat standaard op privé — wordt de pull geweigerd, authenticeer dan
+eerst met een token met `read:packages`:
+
+```sh
+echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-gebruikersnaam> --password-stdin
+```
+
+Zelf bouwen vanuit een checkout kan ook (vereist een token voor het private
+`@modular-api`-register, want de installatie haalt daar pakketten vandaan):
+
+```sh
 docker build \
   --secret id=SIMSUSTECH_NPM_TOKEN,src=env/SIMSUSTECH_NPM_TOKEN \
   --target banking-api \
-  -t banking-api \
+  -t ghcr.io/simsustech/slimfact-banking-api:local \
   .
 ```
-
-Het secret wordt alleen gebruikt om je bij het private `@modular-api`-register te
-authenticeren tijdens de installatie; het belandt niet in de image.
 
 ### 2. Eerste start (bootstrap)
 

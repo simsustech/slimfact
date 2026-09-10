@@ -14,6 +14,8 @@ config
 .backup
 failure_memories.txt
 
-# Build output is produced inside the build stage. Excluding it stops stale local
-# artifacts (from sources since deleted) leaking into the image via `COPY . .`.
-dist
+# Build output is produced inside the build stage. A bare `dist` only matched the
+# context root, so stale artifacts under packages/*/dist still leaked in via
+# `COPY . .` and survived the rebuild (tsc adds, never prunes).
+**/dist
+**/dist/**

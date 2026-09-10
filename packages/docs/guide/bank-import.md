@@ -34,27 +34,39 @@ balances, transactions, connections, and sync triggers.
   fine; banking-api keeps its own `open_banking` schema.
 - A [open-banking.io](https://open-banking.io) account with your bank(s)
   connected, and the exported **credentials bundle** (`credentials.json`)
-- Access to the **`@modular-api` registry** (`npm.simsus.tech`) — building the
-  image installs those packages, so you need a token.
+- Access to the published image (or, to build it yourself, a token for the
+  **`@modular-api` registry** — see step 1).
 
 ## Setup with Docker
 
-### 1. Build the image
+### 1. Get the image
 
-The image is not published to a registry, so build it from the repository:
+Released images are published to GHCR:
 
 ```sh
-export SIMSUSTECH_NPM_TOKEN=$(cat env/SIMSUSTECH_NPM_TOKEN)
+docker pull ghcr.io/simsustech/slimfact-banking-api:latest
 
+# Pin a version in production:
+docker pull ghcr.io/simsustech/slimfact-banking-api:1.2.3
+```
+
+The package is private by default — if the pull is denied, authenticate first
+with a token that has `read:packages`:
+
+```sh
+echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-username> --password-stdin
+```
+
+To build from a source checkout instead (needs a token for the private
+`@modular-api` registry, which the install resolves packages from):
+
+```sh
 docker build \
   --secret id=SIMSUSTECH_NPM_TOKEN,src=env/SIMSUSTECH_NPM_TOKEN \
   --target banking-api \
-  -t banking-api \
+  -t ghcr.io/simsustech/slimfact-banking-api:local \
   .
 ```
-
-The secret is only used to authenticate the private `@modular-api` registry
-during install; it is not baked into the image.
 
 ### 2. First boot (bootstrap)
 
