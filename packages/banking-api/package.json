@@ -32,7 +32,6 @@
     "generate-key": "node ./dist/scripts/generate-key.js",
     "list-accounts": "node ./dist/scripts/list-accounts.js",
     "seed:demo": "node ./dist/src/seed/demo.js",
-    "verify:real": "node ./dist/scripts/verify-real-data.js",
     "lint": "oxlint src scripts",
     "lint:fix": "oxlint src scripts --fix",
     "format:check": "oxfmt --check .",

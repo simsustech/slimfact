@@ -35,3 +35,6 @@ packages/api/src/banking/match-transactions-to-invoices.sql
 
 # Per-machine pi-lens config (formatter/autofix vs this repo's oxfmt)
 .pi-lens.json
+
+# Local DB dumps (real client data) — never commit
+/dumps/

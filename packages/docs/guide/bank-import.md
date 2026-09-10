@@ -52,7 +52,7 @@ schema (`pgboss_banking_v11`). It needs the `POSTGRES_*` variables below.
 | --------------------------------------- | -------- | ------------------------------ | ----------------------------------------------------------------- |
 | `API_HOST`                              | yes      | —                              | Canonical hostname of this banking-api instance.                  |
 | `POSTGRES_PASSWORD`                     | yes      | —                              | Postgres password.                                                |
-| `POSTGRES_DB`                           | yes      | —                              | Database (SlimFact's, e.g. `slimfact_dump`).                      |
+| `POSTGRES_DB`                           | yes      | —                              | Database (SlimFact's, e.g. `slimfact`).                      |
 | `POSTGRES_HOST`                         | no       | `localhost`                    | Postgres host.                                                    |
 | `POSTGRES_PORT`                         | no       | `5432`                         | Postgres port.                                                    |
 | `POSTGRES_USER`                         | no       | `postgres`                     | Postgres user.                                                    |
@@ -151,8 +151,7 @@ docker compose -f docker-compose.test.yaml up -d --wait api banking-api
 
 Per-stack key configs live in `packages/banking-api/config.test.json` (committed,
 needed by the shared E2E stack) and `config.dump.json` (**gitignored** — it holds
-a real key, so create it locally from `config.example.json`). See
-`scripts/verify-slimfact-dump.sh` for the full real-data (dump) setup.
+a real key, so create it locally from `config.example.json`).
 
 ## Machine API
 

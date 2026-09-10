@@ -54,7 +54,7 @@ hieronder nodig.
 | --------------------------------------- | ------- | ------------------------------ | -------------------------------------------------------------- |
 | `API_HOST`                              | ja      | —                              | Canonieke hostnaam van deze banking-api-instance.              |
 | `POSTGRES_PASSWORD`                     | ja      | —                              | Postgres-wachtwoord.                                           |
-| `POSTGRES_DB`                           | ja      | —                              | Database (die van SlimFact, bijv. `slimfact_dump`).            |
+| `POSTGRES_DB`                           | ja      | —                              | Database (die van SlimFact, bijv. `slimfact`).            |
 | `POSTGRES_HOST`                         | nee     | `localhost`                    | Postgres-host.                                                 |
 | `POSTGRES_PORT`                         | nee     | `5432`                         | Postgres-poort.                                                |
 | `POSTGRES_USER`                         | nee     | `postgres`                     | Postgres-gebruiker.                                            |
@@ -156,8 +156,7 @@ docker compose -f docker-compose.test.yaml up -d --wait api banking-api
 Per-stack sleutelconfiguraties staan in
 `packages/banking-api/config.test.json` (gecommit, nodig voor de gedeelde
 E2E-stack) en `config.dump.json` (**gitignored** — bevat een echte sleutel,
-maak dit lokaal aan vanuit `config.example.json`). Zie
-`scripts/verify-slimfact-dump.sh` voor de volledige real-data (dump)-setup.
+maak dit lokaal aan vanuit `config.example.json`).
 
 ## Machine-API
 

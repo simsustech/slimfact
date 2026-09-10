@@ -56,7 +56,7 @@ All are read from the process env. Required ones abort startup when missing.
 | --------------------------------------- | -------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
 | `API_HOST`                              | yes      | —                              | Canonical hostname (used for URLs/links).                                                       |
 | `POSTGRES_PASSWORD`                     | yes      | —                              | Postgres password.                                                                              |
-| `POSTGRES_DB`                           | yes      | —                              | Postgres database (SlimFact's, e.g. `slimfact_dump`).                                           |
+| `POSTGRES_DB`                           | yes      | —                              | Postgres database (SlimFact's, e.g. `slimfact`).                                                |
 | `POSTGRES_HOST`                         | no       | `localhost`                    | Postgres host.                                                                                  |
 | `POSTGRES_PORT`                         | no       | `5432`                         | Postgres port.                                                                                  |
 | `POSTGRES_USER`                         | no       | `postgres`                     | Postgres user.                                                                                  |
@@ -90,8 +90,7 @@ export OPENBANKING_CREDENTIALS_JSON=$(base64 -w0 path/to/credentials.json)
 ```
 
 - The bundle must contain `apiBaseUrl` (e.g. `https://open-banking.io`) and
-  the API key/encryption key. See `scripts/fetch-dump-account.mjs` for a
-  consumer example.
+  the API key/encryption key.
 - Never commit `env/credentials.json` or log the bundle; the code reports only
   failure _reasons_, never credential content.
 
@@ -150,7 +149,7 @@ pnpm --filter @slimfact/banking-api start
 
 Health check: `GET /health` → `{ "ok": true, "keys": <count> }`.
 
-### 6. Docker (test/dump stacks)
+### 6. Docker (test stack)
 
 The compose files mount the config and credentials via env:
 
@@ -161,11 +160,10 @@ export MOLLIE_API_KEY=$(cat env/MOLLIE_API_KEY)
 docker compose -f docker-compose.test.yaml up -d --wait api banking-api
 ```
 
-See `docker-compose.dump.yaml` / `scripts/verify-slimfact-dump.sh` for the
-real-data (dump) setup and `config.test.json` / `config.dump.json` for the
-per-stack key configs. `config.test.json` is committed (the shared E2E stack
-needs it); `config.dump.json` is **gitignored** because it holds a real key —
-create it locally from `config.example.json` with your own key.
+Per-stack key configs are `config.test.json` / `config.dump.json`. `config.test.json`
+is committed (the shared E2E stack needs it); `config.dump.json` is
+**gitignored** because it holds a real key — create it locally from
+`config.example.json` with your own key.
 
 ## Machine API (tRPC)
 
@@ -194,9 +192,7 @@ api subscribes to drive its ingest worker.
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                           |
 | `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                                    |
-| `fetch-dump-account.mjs`  | Fetch real bank data into a dump DB (see its header; rate-limit aware, idempotent).                                                  |
-| `verify-real-data.ts`     | Verify fetched data against expectations.                                                                                            |
-| `compute-suggestions.mjs` | Compute matching suggestions from fetched credits + invoices (analysis only).                                                        |
+| `generate:demo`           | _Moved to_ `pnpm --filter @slimfact/tools generate:demo` — the fixtures now live in `@slimfact/tools/banking/demo`, which owns them. |
 | `generate:demo`           | _Moved to_ `pnpm --filter @slimfact/tools generate:demo` — the fixtures now live in `@slimfact/tools/banking/demo`, which owns them. |
 | `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                                    |
 | `check-schema`            | Verify the DB schema matches the code.                                                                                               |
