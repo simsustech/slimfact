@@ -334,21 +334,39 @@ mounted JSON config file (`BANKING_API_CONFIG_PATH`). The DB stores only the
 SHA-256 hash of each key; the file is the source of truth (fail-closed at
 boot: a missing/invalid file aborts startup).
 
-Generate a key (from `packages/banking-api`):
+Generate a key:
 
 ```sh
-pnpm generate-key              # test key
+pnpm generate-key              # from a checkout — test key
 pnpm generate-key live         # live key
-# key:    obk_test_<43 base64url chars>
-# prefix: obk_test_xxxx…
-# hash:   <sha256 hex — stored in DB>
 ```
 
-List the accounts a key may be granted (paste ids into the config):
+```text
+key:    obk_test_<43 base64url chars>
+prefix: obk_test_xxxx…
+hash:   <sha256 hex — stored in DB>
+```
+
+Only the hash reaches the database; the key itself is what you paste into the
+config file.
+
+List the accounts a key may be granted (paste the ids into the config):
 
 ```sh
 pnpm list-accounts   # externalId | aspspName | iban
 ```
+
+In a container, call the built script directly — the runtime image is
+`node:lts-slim` with only the deployed output copied in, so **`pnpm` is not
+installed**:
+
+```sh
+docker exec banking-api node dist/scripts/generate-key.js
+docker exec banking-api node dist/scripts/list-accounts.js
+```
+
+`npm run <script>` works too, but the `node dist/…` form is what step 3 uses and
+does not depend on the package's script names.
 
 Config file shape (see `config.example.json`):
 
@@ -401,14 +419,12 @@ api subscribes to drive its ingest worker.
 
 ## Scripts
 
-| Script                    | Purpose                                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                           |
-| `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                                    |
-| `bootstrap-config`        | Write a complete API-key config: generates a key and grants it every account in the DB. Refuses before any account exists.           |
-| `generate:demo`           | _Moved to_ `pnpm --filter @slimfact/tools generate:demo` — the fixtures now live in `@slimfact/tools/banking/demo`, which owns them. |
-| `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                                    |
-| `check-schema`            | Verify the DB schema matches the code.                                                                                               |
+| Script                    | Purpose                                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                 |
+| `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                          |
+| `bootstrap-config`        | Write a complete API-key config: generates a key and grants it every account in the DB. Refuses before any account exists. |
+| `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                          |
 
 ## Testing
 

@@ -28,7 +28,6 @@
     "start": "node ./dist/src/server.js",
     "migrate:latest": "node ./dist/src/kysely/migrate.js",
     "seed:test": "node ./dist/src/seed/test.js",
-    "check-schema": "node ./dist/scripts/check-schema.js",
     "generate-key": "node ./dist/scripts/generate-key.js",
     "bootstrap-config": "node ./dist/scripts/bootstrap-config.js",
     "list-accounts": "node ./dist/scripts/list-accounts.js",
