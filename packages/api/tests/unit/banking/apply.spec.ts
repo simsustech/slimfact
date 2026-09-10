@@ -403,6 +403,54 @@ describeDb('banking/apply', () => {
     )
   })
 
+  it('explains why a PAID invoice cannot take a new payment', async () => {
+    const seeded = await seed(testDb!)
+    // The guard reads the status from the DB row, not from the argument.
+    await testDb!
+      .updateTable('checkout.invoices')
+      .set({ status: InvoiceStatus.PAID })
+      .where('id', '=', seeded.invoiceId)
+      .execute()
+    const addPaymentToInvoice = vi.fn<InvoiceHandler['addPaymentToInvoice']>(
+      async () => ({ success: true, payment: { id: 1 } })
+    )
+
+    const result = await linkBankCreditToInvoice({
+      db: testDb!,
+      invoiceHandler: { addPaymentToInvoice },
+      invoice: invoiceFor(seeded, { status: InvoiceStatus.PAID }),
+      transaction: credit()
+    })
+
+    // Short-circuits before the handler, so the caller gets a specific reason
+    // instead of the handler's generic "Could not add payment to invoice".
+    expect(addPaymentToInvoice).not.toHaveBeenCalled()
+    expect(result).toMatchObject({ adopted: false, alreadyLinked: false })
+    expect('error' in result ? result.error : undefined).toBe(
+      `invoice is ${InvoiceStatus.PAID} — no matching manual bank transfer to adopt`
+    )
+  })
+
+  it('reports a cancelled invoice distinctly from a paid one', async () => {
+    const seeded = await seed(testDb!)
+    await testDb!
+      .updateTable('checkout.invoices')
+      .set({ status: InvoiceStatus.CANCELED })
+      .where('id', '=', seeded.invoiceId)
+      .execute()
+
+    const result = await linkBankCreditToInvoice({
+      db: testDb!,
+      invoiceHandler: { addPaymentToInvoice: makeHandler() },
+      invoice: invoiceFor(seeded, { status: InvoiceStatus.CANCELED }),
+      transaction: credit()
+    })
+
+    expect('error' in result ? result.error : undefined).toBe(
+      'invoice is cancelled'
+    )
+  })
+
   it('allows one bank: reference across two invoices and rejects the same (ref, invoice) pair twice', async () => {
     // Relaxed partial unique index (transaction_reference, invoice_id): a
     // PSP payout credit linked to two invoices is legal; the OLD index (unique

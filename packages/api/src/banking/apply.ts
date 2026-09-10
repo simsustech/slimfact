@@ -258,18 +258,29 @@ export const linkBankCreditToInvoice = async ({
     }
   }
 
-  // Guard: never record a bank payment against a cancelled invoice. Paid
-  // invoices stay allowed (the adoption flow couples credits to paid ones).
+  // Guard: only OPEN/BILL invoices can take a NEW payment — the same gate
+  // fastify-checkout applies internally. This seam is shared by the sync worker
+  // and the review-queue Apply action, so it enforces the rule itself rather
+  // than relying on each caller (the worker's adoption path is not otherwise
+  // guarded). A non-OPEN invoice is only reachable here after the adoption path
+  // above declined, so the message names the state and the missing precondition
+  // instead of surfacing the handler's generic "Could not add payment".
   const invoiceRow = await db
     .selectFrom('checkout.invoices')
     .select('status')
     .where('id', '=', invoice.id)
     .executeTakeFirst()
-  if (invoiceRow?.status === InvoiceStatus.CANCELED) {
+  if (
+    invoiceRow &&
+    ![InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(invoiceRow.status)
+  ) {
     return {
       adopted: false,
       alreadyLinked: false,
-      error: 'invoice is cancelled'
+      error:
+        invoiceRow.status === InvoiceStatus.CANCELED
+          ? 'invoice is cancelled'
+          : `invoice is ${invoiceRow.status} — no matching manual bank transfer to adopt`
     }
   }
 

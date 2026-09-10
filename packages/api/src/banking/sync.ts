@@ -452,6 +452,15 @@ export const processBankSync = async ({
               refs.add(reference)
               break
             }
+            // The adoption candidate was on an invoice this credit cannot be
+            // coupled to (e.g. already PAID with no matching manual bank
+            // transfer). Without this the failure is silent and the credit
+            // looks un-processed on the next run too.
+            if (link && 'error' in link && link.error) {
+              fastify.log.warn(
+                `banking: adoption failed for txn ${transaction.externalId}: ${link.error}`
+              )
+            }
           }
         }
 
