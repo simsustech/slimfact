@@ -15,14 +15,6 @@ import type {
 /** InvoiceStatus mirror — tools is framework-free, can't import from checkout. */
 export const InvoiceStatus = { OPEN: 'open' } as const
 
-export type MatchLevel = 'strict' | 'suggest' | 'none'
-
-export interface MatchResult {
-  level: MatchLevel
-  invoiceId?: number
-  reasons: string[]
-}
-
 type Confidence = 'strict' | 'medium' | 'low'
 
 export interface Suggestion {
@@ -179,103 +171,6 @@ const scoreCandidate = (
   }
 }
 
-export const matchCreditToInvoices = ({
-  transaction,
-  invoices,
-  config = DEFAULT_MATCH_CONFIG,
-  linked = false
-}: {
-  transaction: MatchTransaction
-  invoices: MatchInvoice[]
-  config?: MatchConfig
-  linked?: boolean
-}): MatchResult => {
-  const scored = invoices
-    .map((invoice) => scoreCandidate(transaction, invoice, config, linked))
-    .filter((candidate): candidate is ScoredCandidate => candidate !== null)
-  const strictCandidates = scored.filter(
-    (candidate) => candidate.confidence === 'strict'
-  )
-  if (strictCandidates.length === 1) {
-    const { invoiceId, reasons } = strictCandidates[0]
-    return { level: 'strict', invoiceId, reasons }
-  }
-  if (strictCandidates.length > 1) {
-    return { level: 'none', reasons: ['ambiguous'] }
-  }
-  const bestSuggestion = scored
-    .filter((candidate) => candidate.confidence !== 'strict')
-    .sort(
-      (a, b) => confidenceRank(a.confidence) - confidenceRank(b.confidence)
-    )[0]
-  if (bestSuggestion) {
-    const { invoiceId, reasons } = bestSuggestion
-    return { level: 'suggest', invoiceId, reasons }
-  }
-  return { level: 'none', reasons: [] }
-}
-
-/**
- * Ranked suggestions (top `limit`, default 3) for the review queue. Adoption
- * chips rank above regular suggestions.
- */
-export const suggestInvoiceCandidates = ({
-  transaction,
-  invoices,
-  config = DEFAULT_MATCH_CONFIG,
-  limit = 3,
-  payments = []
-}: {
-  transaction: MatchTransaction
-  invoices: MatchInvoice[]
-  config?: MatchConfig
-  limit?: number
-  payments?: BankPaymentCandidate[]
-}): Suggestion[] => {
-  const adoptionChips = invoices
-    .map((invoice): Suggestion | null => {
-      if (
-        !findAdoptablePayment({
-          transaction,
-          payments: payments.filter(
-            (payment) => payment.invoiceId === invoice.id
-          )
-        })
-      ) {
-        return null
-      }
-      if (invoice.companyId !== transaction.companyId) return null
-      if (invoice.currency !== transaction.currency) return null
-      return {
-        invoiceId: invoice.id,
-        invoiceNumber: invoice.number,
-        confidence: 'strict',
-        reasons: ['amount', 'banktransfer-payment'],
-        adopt: true
-      }
-    })
-    .filter((suggestion): suggestion is Suggestion => suggestion !== null)
-  const regular = invoices
-    .map((invoice) => scoreCandidate(transaction, invoice, config, false))
-    .filter((candidate): candidate is ScoredCandidate => candidate !== null)
-    .map(({ invoice, invoiceId, confidence, reasons }) => ({
-      invoiceId,
-      invoiceNumber: invoice.number,
-      confidence,
-      reasons
-    }))
-  const seen = new Set<number>()
-  const merged: Suggestion[] = []
-  for (const suggestion of [...adoptionChips, ...regular]) {
-    if (seen.has(suggestion.invoiceId)) continue
-    seen.add(suggestion.invoiceId)
-    merged.push(suggestion)
-  }
-  return merged
-    .sort((a, b) => confidenceRank(a.confidence) - confidenceRank(b.confidence))
-    .slice(0, limit)
-}
-
 const PSP_NAME_PATTERN = /mollie|stripe/i
 
 const hasPspHint = (transaction: MatchTransaction): boolean =>
@@ -350,39 +245,6 @@ export const resolvePspPaymentInvoiceId = (
   if (linkedPayment?.invoiceId != null) return linkedPayment.invoiceId
   const uuid = extractInvoiceUuid(payment.description)
   return uuid ? (invoiceIdByUuid.get(uuid) ?? null) : null
-}
-
-/** Minimal PSP payment shape for resolvePspPaymentIds. */
-interface PspPaymentMinimal {
-  externalId: string
-  settlementId: string | null
-}
-
-export const resolvePspPaymentIds = (
-  settlement: PspSettlement,
-  pspPayments: PspPaymentMinimal[],
-  payments: BankPaymentCandidate[]
-): number[] => {
-  const matchedPayments =
-    settlement.psp === 'mollie'
-      ? payments.filter(
-          (payment) => payment.settlementId === settlement.externalId
-        )
-      : (() => {
-          const intentIds = new Set(
-            pspPayments
-              .filter(
-                (payment) => payment.settlementId === settlement.externalId
-              )
-              .map((payment) => payment.externalId)
-          )
-          return payments.filter(
-            (payment) =>
-              payment.settlementId != null &&
-              intentIds.has(payment.settlementId)
-          )
-        })()
-  return matchedPayments.map((payment) => payment.id)
 }
 
 const MAX_SUBSET_SIZE = 4
