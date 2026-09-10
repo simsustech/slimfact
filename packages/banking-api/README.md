@@ -180,24 +180,9 @@ non-external one; `web` is the external Caddy network.
 > `internal: true` is the setting that actually severs egress — do not use it
 > here.
 
-**banking-api needs outbound internet.** It calls open-banking.io, and Mollie or
-Stripe when PSP sync is configured, so the host must allow egress to those.
-Corporate egress filtering is the usual cause of syncs that connect but never
-return data.
-
-`OPENBANKING_API_BASE_URL` can point it at a different API host, but **the proxy
-environment variables are not read by default**. The SDK uses the global `fetch`
-(undici), which ignores `HTTPS_PROXY`/`NO_PROXY` unless the runtime opts in:
-
-```yaml
-environment:
-  NODE_USE_ENV_PROXY: "1" # Node 24+: make fetch honour HTTPS_PROXY / NO_PROXY
-```
-
-Two caveats. The SDK accepts a custom `fetch` bound to an undici `Dispatcher` for
-proxy or custom-CA setups, but `createClient` does not pass one — using that
-needs a code change, not configuration. And Mollie/Stripe clients are separate
-and were not tested here, so treat proxy support for PSP sync as unverified.
+**banking-api needs outbound internet.** It calls open-banking.io — and Mollie or
+Stripe, when PSP sync is configured — so the host must allow that egress.
+`OPENBANKING_API_BASE_URL` repoints it at a different API host if needed.
 
 ```yaml
 services:
