@@ -54,10 +54,11 @@ export interface Props {
 }
 
 const toBase64 = (file: File) =>
-  new Promise((resolve, reject) => {
+  new Promise<string | null>((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
+    reader.onload = () =>
+      resolve(typeof reader.result === 'string' ? reader.result : null)
     reader.onerror = (error) => reject(error)
   })
 
@@ -73,14 +74,14 @@ const { allowChange, modelValue } = toRefs(props)
 const fileSelector = ref<typeof QFile>()
 const pickFiles = () => fileSelector.value?.pickFiles()
 const open = () => {
-  if (modelValue?.value) imageDialog.value.functions.open()
+  if (modelValue?.value) imageDialog.value?.functions.open()
 }
 const image = ref<File>()
 
 const setImage: QFileProps['onUpdate:modelValue'] = async (file) => {
   if (!import.meta.env.SSR) {
     const base64 = await toBase64(file)
-    emit('update:modelValue', base64)
+    if (base64 !== null) emit('update:modelValue', base64)
   }
 }
 

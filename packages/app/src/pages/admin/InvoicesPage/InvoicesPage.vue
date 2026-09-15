@@ -16,13 +16,13 @@
 
           <company-select
             v-model="companyId"
-            :filtered-options="filteredCompanies"
+            :filtered-options="filteredCompanies || []"
             clearable
             @filter="onFilterCompanies"
           />
           <client-select
             v-model="clientId"
-            :filtered-options="filteredClients"
+            :filtered-options="filteredClients || []"
             clearable
             use-input
             @filter="onFilterClients"
@@ -52,7 +52,7 @@
           v-for="invoice in invoices"
           :key="invoice.id"
           :model-value="invoice"
-          :invoice-events="invoiceEvents[invoice.id]"
+          :invoice-events="invoiceEvents?.[invoice.id]"
           v-on="invoiceExpansionItemHandlers"
         />
         <q-item v-if="!invoices?.length" class="flex flex-center text-grey-6">
@@ -150,7 +150,10 @@ import InvoiceForm from '../../../components/invoice/InvoiceForm.vue'
 import InvoiceExpansionItem from '../../../components/invoice/InvoiceExpansionItem.vue'
 import { useLang } from '../../../lang/index.js'
 
-import { PaymentMethod } from '@modular-api/fastify-checkout/types'
+import {
+  PaymentMethod,
+  InvoiceStatus
+} from '@modular-api/fastify-checkout/types'
 
 import { useQuasar, QSelect } from 'quasar'
 import CompanySelect from '../../../components/company/CompanySelect.vue'
@@ -163,6 +166,7 @@ import { useConfiguration, DATE_FORMAT } from '../../../configuration.js'
 import { EventBus } from 'quasar'
 import {
   useAdminAddPaymentToInvoiceMutation,
+  useAdminDeletePaymentFromInvoiceMutation,
   useAdminCancelInvoiceMutation,
   useAdminCreateInvoiceMutation,
   useAdminGetInvoicesQuery,
@@ -181,13 +185,6 @@ import { useAdminGetInvoiceEventsByInvoiceIdsQuery } from '../../../queries/admi
 import { until } from '@vueuse/core'
 
 const bus = inject<EventBus>('bus')!
-bus.on('administrator-open-invoices-create-dialog', () => {
-  if (openCreateDialog)
-    openCreateDialog({
-      done: () => {}
-    })
-})
-
 const configuration = useConfiguration()
 
 const $q = useQuasar()
@@ -232,7 +229,7 @@ const applyRouteFilters = (to: typeof route) => {
   ) {
     companyId.value = Number(queryCompanyId)
   } else {
-    companyId.value = null
+    companyId.value = NaN
   }
   startDate.value = dateQueryParam(to.query, 'startDate')
   endDate.value = dateQueryParam(to.query, 'endDate')
@@ -255,6 +252,10 @@ watch(rowsPerPage, () => {
   page.value = 1
 })
 
+if (route.params.uuids && Array.isArray(route.params.uuids)) {
+  uuids.value = route.params.uuids as string[]
+}
+
 const total = computed(() => invoices.value?.at(0)?.total || 0)
 
 // const { data: invoices, execute } = useQuery('admin.getInvoices', {
@@ -275,7 +276,6 @@ const total = computed(() => invoices.value?.at(0)?.total || 0)
 
 const { numberPrefixes, refetch: refetchNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
-await refetchNumberPrefixes()
 
 const { mutateAsync: updateInvoiceMutation } = useAdminUpdateInvoiceMutation()
 const { mutateAsync: createInvoiceMutation } = useAdminCreateInvoiceMutation()
@@ -308,6 +308,13 @@ const openCreateDialog: InstanceType<
 >['$props']['onCreate'] = () => {
   createDialogRef.value?.functions.open()
 }
+
+bus.on('administrator-open-invoices-create-dialog', () => {
+  if (openCreateDialog)
+    openCreateDialog({
+      done: () => {}
+    })
+})
 
 const update: InstanceType<
   typeof ResponsiveDialog
@@ -449,9 +456,60 @@ const sendInvoice: InstanceType<
 const { mutateAsync: addPaymentToInvoiceMutation } =
   useAdminAddPaymentToInvoiceMutation()
 
+const { mutateAsync: deletePaymentFromInvoiceMutation } =
+  useAdminDeletePaymentFromInvoiceMutation()
+
+const formatPaymentDate = (date: string) =>
+  new Intl.DateTimeFormat($q.lang.isoName, { dateStyle: 'short' }).format(
+    new Date(date)
+  )
+
+const openDeletePaymentDialog = async ({
+  data
+}: {
+  data: {
+    id: number
+    invoiceId?: number | null
+    method?: string
+    amount?: number
+    currency?: string
+  }
+}) => {
+  // Descriptive confirmation to prevent deleting the wrong payment.
+  const invoice = invoices.value?.find((item) => item.id === data.invoiceId)
+  const methodLabels: Record<string, string> = {
+    cash: lang.value.payment.methods.cash,
+    banktransfer: lang.value.payment.methods.bankTransfer,
+    pin: lang.value.payment.methods.pin
+  }
+  const formattedAmount = Intl.NumberFormat($q.lang.isoName, {
+    maximumFractionDigits: 2,
+    style: 'currency',
+    currency: data.currency ?? 'EUR'
+  }).format((data.amount ?? 0) / 100)
+  return $q
+    .dialog({
+      message: lang.value.payment.confirmDeletePayment({
+        method: methodLabels[data.method ?? ''] ?? data.method ?? '',
+        number: invoice ? `${invoice.numberPrefix}${invoice.number}` : '',
+        amount: formattedAmount
+      }),
+      cancel: true
+    })
+    .onOk(async () => {
+      try {
+        await deletePaymentFromInvoiceMutation({
+          id: data.invoiceId as number,
+          paymentId: data.id
+        })
+        await execute()
+      } catch (e) {}
+    })
+}
+
 const openAddCashPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentCash'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat(data.locale, {
       maximumFractionDigits: 2,
@@ -470,14 +528,15 @@ const openAddCashPaymentDialog: InstanceType<
         totalIncludingTax: data.totalIncludingTax
       }
     })
-    .onOk(async ({ amount, transactionReference }) => {
+    .onOk(async ({ amount, date }) => {
       try {
         await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
             currency: data.currency,
-            description: new Date().toISOString().slice(0, 10),
+            description: `${lang.value.payment.descriptions.cashPayment} ${formatPaymentDate(date)}`,
+            date,
             method: PaymentMethod.cash
           }
         })
@@ -488,7 +547,7 @@ const openAddCashPaymentDialog: InstanceType<
 
 const openAddBankTransferPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentBankTransfer'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat($q.lang.isoName, {
       maximumFractionDigits: 2,
@@ -507,14 +566,15 @@ const openAddBankTransferPaymentDialog: InstanceType<
         totalIncludingTax: data.totalIncludingTax
       }
     })
-    .onOk(async ({ amount, transactionReference }) => {
+    .onOk(async ({ amount, transactionReference, date }) => {
       try {
         await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
             currency: data.currency,
-            description: new Date().toISOString().slice(0, 10),
+            description: `${lang.value.payment.descriptions.bankTransferPayment} ${formatPaymentDate(date)}`,
+            date,
             transactionReference,
             method: PaymentMethod.banktransfer
           }
@@ -526,7 +586,7 @@ const openAddBankTransferPaymentDialog: InstanceType<
 
 const openAddPinPaymentDialog: InstanceType<
   typeof InvoiceExpansionItem
->['$props']['onMarkPaid'] = async ({ data, done }) => {
+>['$props']['onAddPaymentPin'] = async ({ data, done }) => {
   const format = (value: number) =>
     Intl.NumberFormat($q.lang.isoName, {
       maximumFractionDigits: 2,
@@ -545,14 +605,15 @@ const openAddPinPaymentDialog: InstanceType<
         totalIncludingTax: data.totalIncludingTax
       }
     })
-    .onOk(async ({ amount, transactionReference }) => {
+    .onOk(async ({ amount, transactionReference, date }) => {
       try {
         await addPaymentToInvoiceMutation({
           id: data.id,
           payment: {
             amount,
             currency: data.currency,
-            description: new Date().toISOString().slice(0, 10),
+            description: `${lang.value.payment.descriptions.pinPayment} ${formatPaymentDate(date)}`,
+            date,
             transactionReference,
             method: PaymentMethod.pin
           }
@@ -672,7 +733,8 @@ const invoiceExpansionItemHandlers = computed(() => ({
   addPaymentCreditcard: configuration.value.PAYMENT_HANDLERS.creditcard
     ? openAddCreditcardPaymentDialog
     : undefined,
-  cancel: openCancelDialog
+  cancel: openCancelDialog,
+  deletePayment: openDeletePaymentDialog
 }))
 
 const activeSearch = computed(
@@ -686,13 +748,14 @@ const activeSearch = computed(
 const clearSearchResults = () => {
   companyId.value = NaN
   clientId.value = NaN
-  status.value = null
+  status.value = undefined
   startDate.value = null
   endDate.value = null
 }
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
+  await refetchNumberPrefixes()
   await execute()
   await refetchFilteredClients()
   await refetchFilteredCompanies()

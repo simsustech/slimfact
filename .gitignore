@@ -1,7 +1,7 @@
 /node_modules
 /packages/**/node_modules
 /packages/**/dist
-/env
+/dump-*.sql
 .env
 .env.staging
 TODO
@@ -9,8 +9,37 @@ clients
 .pnpm-debug.log
 **/stats.html
 jwks
-.pnpm-store/
+**/.pnpm-store/**
+.worktrees/**
+
+# Credentials, API-key configs and real client data — never commit.
+# (The live bundle is env/credentials.json, base64'd into
+# OPENBANKING_CREDENTIALS_JSON; it holds a P-256 decryption key.)
+/env
+/config/
+packages/banking-api/config.dump.json
+packages/banking-api/.backup/
+# Prod banking-api key config (mounted by docker-compose.yaml) — holds a live
+# obk_live_ key, so it must never be committed. config.test.json is the
+# committed test-key fixture and is intentionally tracked.
+/banking-api-config.json
+*.dump.json
+*.dump.sql
+
+# Agent session artifacts (plans, handoffs, scratch state) — never commit.
 .pi/fff/
+.pi/continue/
+.pi/handoff/
 .pi/plans/
-packages/api/_login-check.mjs
+.pi/adr/
 PR.md
+
+# Local scratch (ad-hoc analysis output / agent notes)
+failure_memories.txt
+packages/api/src/banking/match-transactions-to-invoices.sql
+
+# Per-machine pi-lens config (formatter/autofix vs this repo's oxfmt)
+.pi-lens.json
+
+# Local DB dumps (real client data) — never commit
+/dumps/

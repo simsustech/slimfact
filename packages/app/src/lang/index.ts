@@ -1,6 +1,11 @@
 import type { ClientDetails } from '@modular-api/fastify-checkout'
 export interface Language {
   isoName: string
+  /** tRPC error-code → localized message factory (optional). */
+  errors?: Record<
+    string,
+    (args: { path?: unknown; expected?: unknown; received?: unknown }) => string
+  >
   edit: string
   cancel: string
   serverError: string
@@ -18,6 +23,7 @@ export interface Language {
   updateAvailable: string
   refresh: string
   name: string
+  image: string
   overview: string
   noResultsAvailable: string
   rowsPerPage: string
@@ -129,6 +135,7 @@ export interface Language {
       receipt: string
       canceled: string
       bill: string
+      overdue: string
     }
     labels: {
       open: string
@@ -144,6 +151,7 @@ export interface Language {
       print: string
       downloadPdfToPrint: string
       openReference: string
+      dueBy: (date: string) => string
     }
     filters: {
       startDate: string
@@ -265,12 +273,18 @@ export interface Language {
     payments: string
     pay: string
     addPayment: string
+    confirmDeletePayment: (args: {
+      method: string
+      number: string
+      amount: string
+    }) => string
     amountDue: string
     amountPaid: string
     amountRefunded: string
     downPayment: string
     fields: {
       transactionReference: string
+      date: string
       description: string
     }
     methods: {
@@ -280,8 +294,72 @@ export interface Language {
       pin: string
       creditcard: string
     }
+    descriptions: {
+      cashPayment: string
+      bankTransferPayment: string
+      pinPayment: string
+    }
     messages: {
       scanQrOrUseInformationBelow: string
+    }
+    overview: {
+      title: string
+      fromDate: string
+      toDate: string
+      columns: {
+        date: string
+        method: string
+        description: string
+        invoice: string
+        client: string
+        amount: string
+        status: string
+        psp: string
+      }
+      in: string
+      refunded: string
+      net: string
+      count: string
+      source: string
+      sources: {
+        payments: string
+        refunds: string
+      }
+      methods: string
+      statuses: string
+      psps: string
+      deletePayment: string
+      search: string
+      filters: string
+      refresh: string
+      export: string
+      empty: string
+      truncated: string
+      filterSummary: (args: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => string
+      tabs: {
+        payments: string
+        suggestions: string
+      }
+    }
+
+    suggestions: {
+      title?: string
+      empty: string
+      loading: string
+      link: string
+      adoptBadge: string
+      topSuggestion: string
+      score: string
+      dismiss: string
+      confirmDismiss: (args: { amount: string }) => string
     }
   }
   refund: {
@@ -389,10 +467,93 @@ export interface Language {
   settings: {
     title: string
   }
+  bank: {
+    title: string
+    pages: {
+      overview: string
+      review: string
+      settings: string
+    }
+    columns: {
+      date: string
+      amount: string
+      counterparty: string
+      description: string
+      account: string
+      company: string
+      linked: string
+      match: string
+    }
+    actions: {
+      refresh: string
+      link: string
+      view: string
+      viewLinked: string
+      linkTransaction: string
+      syncNow: string
+      linkCompanies: string
+    }
+    coverage: {
+      unlinked: string
+      partial: string
+      full: string
+      settled: string
+    }
+    settlementDetails: string
+    linkDialog: {
+      title: string
+      confirm: string
+      cancel: string
+      pspSettlement: string
+      pspPayments: string
+      splitRemaining: string
+      multiTotal: string
+      selectInvoices: string
+      noCandidates: string
+      selectedTotal: string
+      matchComplete: string
+      matchDifference: string
+      matchOver: string
+      fee: string
+    }
+    linked: string
+    suggested: string
+    unlinked: string
+    linkedTo: string
+    adopt: string
+    allLinked: string
+    onlySuggestions: string
+    adoptNote: string
+    linkedDocuments: string
+    unlinkedTransactions: string
+    fromDate: string
+    toDate: string
+    syncing: string
+    syncRequested: string
+    syncRunning: string
+    empty: string
+    reviewEmpty: string
+    notConfigured: string
+    noConnections: string
+    connections: string
+    validUntil: string
+    accounts: string
+    companyFilter: string
+    noAccounts: string
+    requiresReauth: string
+    statusActive: string
+    allCompanies: string
+    syncCompleted: string
+    syncFailed: string
+    actionFailed: string
+    suggestionMulti: string
+    partialCoverageLinked: string
+  }
   invoiceEvents: {
     events: string
     types: {
       emailOpened: string
+      paymentDeleted: string
     }
   }
 }

@@ -1,0 +1,67 @@
+{
+  "name": "@slimfact/banking-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SlimFact banking proxy — owns the open-banking.io sync and exposes granted bank data to machine clients over tRPC",
+  "author": "simsustech",
+  "type": "module",
+  "exports": {
+    "./trpc": {
+      "types": "./src/trpc/index.ts"
+    },
+    "./client": {
+      "types": "./src/client.ts",
+      "import": "./src/client.ts"
+    },
+    "./config": {
+      "types": "./src/config/index.ts",
+      "import": "./src/config/index.ts"
+    },
+    "./events": {
+      "types": "./src/events.ts",
+      "import": "./src/events.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "start": "node ./dist/src/server.js",
+    "migrate:latest": "node ./dist/src/kysely/migrate.js",
+    "seed:test": "node ./dist/src/seed/test.js",
+    "generate-key": "node ./dist/scripts/generate-key.js",
+    "bootstrap-config": "node ./dist/scripts/bootstrap-config.js",
+    "list-accounts": "node ./dist/scripts/list-accounts.js",
+    "seed:demo": "node ./dist/src/seed/demo.js",
+    "lint": "oxlint src scripts",
+    "lint:fix": "oxlint src scripts --fix",
+    "format:check": "oxfmt --check .",
+    "format:write": "oxfmt --write ."
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/websocket": "^11.3.0",
+    "@modular-api/event-bus": "0.2.2",
+    "@mollie/api-client": "4.6.0",
+    "@open-banking-io/client": "1.2.0",
+    "@slimfact/tools": "workspace:*",
+    "@trpc/client": "11.18.0",
+    "@trpc/server": "11.18.0",
+    "@vitrify/tools": "0.5.4",
+    "fastify": "5.12.3",
+    "kysely": "0.29.5",
+    "pg": "8.23.0",
+    "pg-boss": "12.30.0",
+    "stripe": "^22.6.2",
+    "zod": "4.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "@types/pg": "8.23.1",
+    "@types/ws": "^8.18.1",
+    "oxfmt": "0.67.0",
+    "oxlint": "1.82.0",
+    "typescript": "7.0.2",
+    "vitest": "^5.0.0",
+    "ws": "8.21.3"
+  }
+}

@@ -60,7 +60,7 @@
                 @click="openBankTransferDialog"
               >
                 <q-item-section avatar>
-                  <q-icon name="i-fa6-solid-money-bill-transfer" />
+                  <q-icon name="i-mdi-bank-transfer" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
@@ -195,7 +195,7 @@
         >
           {{ lang.payment.amountDue }}:
           <price
-            :model-value="invoice.amountDue"
+            :model-value="invoice.amountDue ?? null"
             :currency="invoice.currency"
             :locale="invoice.locale"
           />
@@ -251,7 +251,7 @@
           <div>{{ lang.payment.fields.description }}: {{ description }}</div>
           <price
             :currency="invoice.currency"
-            :model-value="invoice.amountDue"
+            :model-value="invoice.amountDue ?? null"
           />
         </div>
       </responsive-dialog>
@@ -307,7 +307,6 @@ watch(locale, (newVal) => {
     loadCheckoutLang(quasarLang)
     loadGeneralLang(quasarLang)
 
-    // @ts-expect-error string
     languageImports.value[quasarLang]().then((lang) => {
       $q.lang.set(lang.default)
     })
@@ -349,7 +348,7 @@ const { data: invoice, refetch } = useQuery({
 watch(invoice, (newVal) => {
   if (newVal?.locale) {
     const quasarLang = quasarLanguageMap[newVal.locale as Locales]
-    loadLang(quasarLang)
+    if (quasarLang) loadLang(quasarLang)
   }
 })
 
@@ -511,8 +510,9 @@ const downloadUbl = () => {
 }
 
 const paymentHandlersAvailable = computed(() => ({
-  wero: configuration.value.PAYMENT_HANDLERS.wero,
-  creditcard: configuration.value.PAYMENT_HANDLERS.creditcard,
+  wero: configuration.value.PAYMENT_HANDLERS.wero && invoice.value?.currency,
+  creditcard:
+    configuration.value.PAYMENT_HANDLERS.creditcard && invoice.value?.currency,
   bankTransfer:
     configuration.value.PAYMENT_HANDLERS?.bankTransfer &&
     invoice.value?.status === InvoiceStatus.OPEN &&
@@ -527,15 +527,20 @@ onMounted(async () => {
   if (!import.meta.env.ssr) {
     await useOAuthClient()
 
-    try {
-      await oAuthClient.value?.signInSilently({})
-    } catch (e) {
-      console.error('Failed to sign in silently')
-    }
-
-    await oAuthClient.value?.getUserInfo()
-
+    // Silent sign-in only makes sense when this browser already holds a session.
+    // With none, the provider answers `login_required` and the app lands on
+    // /redirect — throwing an anonymous visitor off the public invoice page, so
+    // the invoice never renders and cannot be paid. The try/catch below cannot
+    // intercept that navigation because it happens outside the promise chain.
+    // Gated the same way as useUser() in oauth.ts.
     if (oAuthClient.value?.getAccessToken()) {
+      try {
+        await oAuthClient.value?.signInSilently({})
+      } catch (e) {
+        console.error('Failed to sign in silently')
+      }
+
+      await oAuthClient.value?.getUserInfo()
       user.value = await oAuthClient.value?.getUser()
     }
 

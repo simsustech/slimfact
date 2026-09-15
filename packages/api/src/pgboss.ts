@@ -3,6 +3,8 @@ import { db, postgresConnectionString } from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
 import { RefundStatus } from '@modular-api/fastify-checkout/types'
+import { appConfig, bankingEnabled } from './config/env.js'
+import { processBankSync } from './banking/sync.js'
 
 let boss: PgBoss
 
@@ -70,14 +72,24 @@ const createRefundWorker = ({ fastify }: { fastify: FastifyInstance }) =>
     }
   }
 
-export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
-  // https://github.com/timgit/pg-boss/issues/590
-  boss = new PgBoss({
-    connectionString: postgresConnectionString,
-    schema: 'pgboss_v11'
-  })
+export const initialize = async ({
+  fastify,
+  boss: bossOverride
+}: {
+  fastify: FastifyInstance
+  boss?: PgBoss
+}) => {
+  if (bossOverride) {
+    boss = bossOverride
+  } else {
+    // https://github.com/timgit/pg-boss/issues/590
+    boss = new PgBoss({
+      connectionString: postgresConnectionString,
+      schema: 'pgboss_v11'
+    })
 
-  await boss.start()
+    await boss.start()
+  }
 
   const subscriptionWorker = createSubscriptionWorker({ fastify })
 
@@ -109,6 +121,38 @@ export const initialize = async ({ fastify }: { fastify: FastifyInstance }) => {
         subscriptionWorker
       )
     })
+
+  if (bankingEnabled()) {
+    const queueName = 'processBankSync'
+    if (!(await boss.getQueue(queueName))) {
+      await boss.createQueue(queueName)
+    }
+    if (
+      appConfig.bankingSyncCron !== 'disabled' &&
+      !schedules.some((schedule) => schedule.name === 'processBankSync')
+    ) {
+      await boss.schedule(queueName, appConfig.bankingSyncCron, {}, {})
+    }
+  }
+  if (bankingEnabled()) {
+    await boss.work<{ runId?: string }>(
+      'processBankSync',
+      { batchSize: 1, includeMetadata: true },
+      async (jobs) => {
+        for (const job of jobs) {
+          const result = await processBankSync({
+            fastify,
+            db,
+            runId: job.data?.runId
+          })
+          fastify.log.info(
+            `banking: sync complete (accounts=${result.accounts}, fetched=${result.fetched}, applied=${result.applied}, adopted=${result.adopted}, skipped=${result.skippedRequiresReauth.length})`
+          )
+        }
+        return true
+      }
+    )
+  }
 
   if (!schedules.some((schedule) => schedule.name === 'checkRefunds')) {
     const queueName = `checkRefunds`

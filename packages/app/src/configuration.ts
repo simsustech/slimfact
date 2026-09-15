@@ -1,7 +1,8 @@
 import { computed, type Ref, ref } from 'vue'
 import { Loading } from 'quasar'
+import type { QuasarLanguage } from 'quasar'
 import { useLang } from './lang/index.js'
-import type { Locales } from '@simsustech/quasar-components/form'
+import type { Locales, ISO3166 } from '@simsustech/quasar-components/form'
 
 const lang = useLang()
 
@@ -12,6 +13,7 @@ export interface MODULARAPI_CLIENT_CONFIGURATION {
   COUNTRY: string
   TITLE?: string
   DATE_FORMAT: string
+  SUPPORT_EMAIL?: string
   CURRENCY: '€' | '$'
   HIDE_BRANDING: boolean
   SASS_VARIABLES?: {
@@ -52,8 +54,11 @@ export const configuration = ref<MODULARAPI_CLIENT_CONFIGURATION>({
 
 export const useConfiguration = () => configuration
 
-export const DATE_FORMAT = computed(
-  () => configuration.value.DATE_FORMAT || 'DD-MM-YYYY'
+/** Date formats supported by the `<date-input>` component. */
+export type DateFormat = 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'MM-DD-YYYY'
+
+export const DATE_FORMAT = computed<DateFormat>(
+  () => (configuration.value.DATE_FORMAT as DateFormat) || 'DD-MM-YYYY'
 )
 
 export const loadConfiguration = async (locale: Ref<string>) => {
@@ -103,8 +108,10 @@ export const SUBSCRIPTION_ICON = 'i-mdi-subscriptions'
 export const SETTINGS_ICON = 'i-mdi-account-settings'
 export const DASHBOARD_ICON = 'i-mdi-view-dashboard-outline'
 export const EXPORT_ICON = 'i-mdi-download'
+export const BANK_ICON = 'i-mdi-bank'
+export const PAYMENTS_ICON = 'i-mdi-cash-multiple'
 
-export const languageLocales = ref([
+export const languageLocales = ref<{ icon: string; bcp47: Locales }[]>([
   {
     icon: 'i-flagpack-nl',
     bcp47: 'nl-NL'
@@ -119,7 +126,7 @@ export const languageLocales = ref([
   }
 ])
 
-export const countryOptions = ref([
+export const countryOptions = ref<{ icon: string; iso3166: ISO3166 }[]>([
   {
     icon: 'i-flagpack-nl',
     iso3166: 'NL'
@@ -138,7 +145,16 @@ export const countryOptions = ref([
   }
 ])
 
-export const languageImports = ref({
+/**
+ * Quasar language packs the language select can load on demand.
+ *
+ * Typed as `Record<string, …>` on purpose: the key is a runtime string (looked
+ * up from `quasarLanguageMap`) and consumers index it with that string, rather
+ * than with the literal keys declared here.
+ */
+export const languageImports = ref<
+  Record<string, () => Promise<{ default: QuasarLanguage }>>
+>({
   nl: () => import(`quasar/lang/nl.js`),
   'en-US': () => import(`quasar/lang/en-US.js`),
   de: () => import('quasar/lang/de.js')

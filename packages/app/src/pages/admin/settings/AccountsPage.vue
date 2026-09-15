@@ -4,7 +4,7 @@
       v-if="accounts"
       v-model:pagination="pagination"
       v-model:criteria="criteria"
-      :model-value="accounts"
+      :model-value="tableAccounts"
       :mapped-roles="mappedRoles"
       :count="count"
       :icons="{
@@ -40,6 +40,15 @@ import { trpc } from '../../../trpc.js'
 const lang = useLang()
 
 const { accounts, criteria, pagination, refetch } = useAdminGetAccountsQuery()
+
+const tableAccounts = computed(() =>
+  (accounts.value ?? []).map((account) => ({
+    id: account.id,
+    name: account.name ?? undefined,
+    email: account.email,
+    roles: account.roles ?? []
+  }))
+)
 
 // const pagination = ref({
 //   limit: 5,

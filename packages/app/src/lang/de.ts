@@ -18,12 +18,13 @@ const lang: Language = {
   goHome: 'Zur Startseite',
   updateAvailable: 'Ein Update ist verfügbar.',
   refresh: 'Aktualisieren',
+  darkMode: 'Dunkelmodus',
   name: 'Name',
+  image: 'Bild',
   overview: 'Übersicht',
   noResultsAvailable: 'Keine Ergebnisse verfügbar.',
   rowsPerPage: 'Zeilen pro Seite',
   add: 'Hinzufügen',
-  darkMode: 'Dunkelmodus',
   account: {
     title: 'Konto',
     accounts: 'Konten',
@@ -131,7 +132,8 @@ const lang: Language = {
       paid: 'Bezahlt',
       receipt: 'Quittung',
       canceled: 'Storniert',
-      bill: 'Beleg'
+      bill: 'Beleg',
+      overdue: 'Überfällig'
     },
     labels: {
       open: 'Öffnen',
@@ -140,6 +142,8 @@ const lang: Language = {
       send: 'Senden',
       sendInvoice: 'Rechnung senden',
       sendReceipt: 'Quittung senden',
+
+      dueBy: (date: string) => `Fällig am ${date}`,
       sendReminder: 'Zahlungserinnerung senden',
       sendExhortation: 'Mahnung senden',
       markPaid: 'Als bezahlt markieren',
@@ -246,12 +250,24 @@ const lang: Language = {
     payments: 'Zahlungen',
     pay: 'Bezahlen',
     addPayment: 'Zahlung hinzufügen',
+
+    confirmDeletePayment: ({
+      method,
+      number,
+      amount
+    }: {
+      method: string
+      number: string
+      amount: string
+    }) =>
+      `Sind Sie sicher, dass Sie die ${method} für Rechnung ${number} mit einem Betrag von ${amount} löschen möchten?`,
     amountDue: 'Fälliger Betrag',
     amountPaid: 'Gezahlter Betrag',
     amountRefunded: 'Erstatteter Betrag',
     downPayment: 'Anzahlung',
     fields: {
       transactionReference: 'Transaktionsreferenz',
+      date: 'Datum',
       description: 'Beschreibung'
     },
     methods: {
@@ -261,9 +277,92 @@ const lang: Language = {
       pin: 'PIN',
       creditcard: 'Kreditkarte'
     },
+    descriptions: {
+      cashPayment: 'Barzahlung',
+      bankTransferPayment: 'Banküberweisung',
+      pinPayment: 'Kartenzahlung'
+    },
     messages: {
       scanQrOrUseInformationBelow:
         'Scannen Sie den QR-Code, sofern Ihre Bank dies unterstützt, oder nutzen Sie die unten angegebenen Informationen.'
+    },
+    overview: {
+      title: 'Zahlungen',
+      fromDate: 'Von',
+      toDate: 'Bis',
+      columns: {
+        date: 'Datum',
+        method: 'Methode',
+        description: 'Beschreibung',
+        invoice: 'Rechnung',
+        client: 'Kunde',
+        amount: 'Betrag',
+        status: 'Status',
+        psp: 'PSP'
+      },
+      in: 'Eingang',
+      refunded: 'Erstattet',
+      net: 'Netto',
+      count: 'Anzahl',
+      source: 'Quelle',
+      sources: {
+        payments: 'Zahlungen',
+        refunds: 'Erstattungen'
+      },
+      methods: 'Methoden',
+      statuses: 'Statusse',
+      psps: 'PSPs',
+      deletePayment: 'Zahlung löschen',
+      search: 'Suchen',
+      filters: 'Filter',
+      refresh: 'Aktualisieren',
+      export: 'CSV exportieren',
+      empty: 'Keine Zahlungen entsprechen den aktuellen Filtern.',
+      truncated: 'Erste 10.000 Zeilen angezeigt — Bereich eingrenzen.',
+      filterSummary: ({
+        from,
+        to,
+        q,
+        methods,
+        statuses,
+        psps,
+        sources
+      }: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => {
+        const saetze: string[] = []
+        if (from && to) saetze.push(`vom ${from} bis ${to}`)
+        else if (from) saetze.push(`ab ${from}`)
+        else if (to) saetze.push(`bis ${to}`)
+        if (q) saetze.push(`mit Suche "${q}"`)
+        if (statuses.length)
+          saetze.push(`mit Status ${statuses.map((s) => `'${s}'`).join(', ')}`)
+        if (methods.length) saetze.push(`per ${methods.join(', ')}`)
+        if (psps.length) saetze.push(`über ${psps.join(', ')}`)
+        if (sources.length === 1) saetze.push(`Quelle: ${sources[0]}`)
+        return saetze.length ? `Zahlungen ${saetze.join(' ')}` : ''
+      },
+      tabs: {
+        payments: 'Zahlungen',
+        suggestions: 'Vorschläge'
+      }
+    },
+    suggestions: {
+      empty: 'Keine Vorschläge entsprechen den aktuellen Filtern.',
+      loading: 'Lade Vorschläge…',
+      link: 'Verknüpfen',
+      adoptBadge: 'Übernehmen',
+      topSuggestion: 'Vorschlag',
+      score: 'Score',
+      dismiss: 'Verwerfen',
+      confirmDismiss: ({ amount }: { amount: string }) =>
+        `Möchten Sie den Vorschlag von ${amount} wirklich verwerfen?`
     }
   },
   refund: {
@@ -373,10 +472,97 @@ const lang: Language = {
     }
   },
   settings: { title: 'Einstellungen' },
+  bank: {
+    title: 'Bank',
+    pages: {
+      overview: 'Übersicht',
+      review: 'Review',
+      settings: 'Einstellungen'
+    },
+    columns: {
+      date: 'Datum',
+      amount: 'Betrag',
+      counterparty: 'Gegenpartei',
+      description: 'Beschreibung',
+      account: 'Konto',
+      company: 'Firma',
+      linked: 'Status',
+      match: 'Treffer'
+    },
+    actions: {
+      refresh: 'Aktualisieren',
+      link: 'Verknüpfen',
+      view: 'Anzeigen',
+      viewLinked: 'Verknüpfte Rechnungen anzeigen',
+      linkTransaction: 'Transaktion verknüpfen',
+      syncNow: 'Jetzt synchronisieren',
+      linkCompanies: 'Unternehmen verknüpfen'
+    },
+    coverage: {
+      unlinked: 'Nicht verknüpft',
+      partial: 'Teilweise verknüpft',
+      full: 'Verknüpft',
+      settled: 'Abgeglichen'
+    },
+    settlementDetails: 'Abrechnungsdetails',
+    linkDialog: {
+      title: 'Bankgutschrift verknüpfen',
+      confirm: 'Verknüpfen',
+      cancel: 'Abbrechen',
+      pspSettlement: 'PSP-Abrechnung {id}',
+      pspPayments: 'PSP-Zahlungen',
+      splitRemaining:
+        '{amount} von {total} — der Rest von {remaining} wird durch andere Transaktion(en) gedeckt',
+      multiTotal: 'Gesamt {amount}',
+      selectInvoices: 'Rechnungen auswählen',
+      noCandidates: 'Keine offenen Rechnungen zum Verknüpfen',
+      selectedTotal: '{amount} ausgewählt',
+      matchComplete: 'Voller Betrag abgedeckt',
+      matchDifference: '{amount} verbleibend',
+      matchOver: '{amount} zu viel',
+      fee: 'Gebühr {amount}'
+    },
+    linked: 'Verknüpft',
+    suggested: 'Vorgeschlagen',
+    unlinked: 'Nicht verknüpft',
+    linkedTo: 'Verknüpft mit {number}',
+    adopt:
+      'Mit Zahlung auf Rechnung {number} verknüpfen (bereits per Bank bezahlt)',
+    allLinked: 'Alle',
+    onlySuggestions: 'Nur Vorschläge',
+    adoptNote: 'Diese Rechnung wurde bereits per Überweisung bezahlt.',
+    linkedDocuments: 'Verknüpfte Dokumente',
+    unlinkedTransactions: 'Nicht verknüpfte Transaktionen',
+    fromDate: 'Von',
+    toDate: 'Bis',
+    syncing: 'Synchronisiere…',
+    syncRequested: 'Sync angefordert',
+    syncRunning: 'Synchronisiere…',
+    empty: 'Noch keine Banktransaktionen.',
+    reviewEmpty:
+      'Nichts abzugleichen – alle eingehenden Zahlungen sind abgeschlossen.',
+    notConfigured:
+      'Open-Banking ist nicht konfiguriert. Setzen Sie OPENBANKING_CREDENTIALS_JSON, um den Bankimport zu aktivieren.',
+    connections: 'Verbindungen',
+    noConnections: 'Keine Bankverbindungen gefunden.',
+    validUntil: 'Gültig bis',
+    accounts: 'Konten',
+    companyFilter: 'Unternehmen',
+    noAccounts: 'Noch keine Konten.',
+    requiresReauth: 'Erneute Autorisierung erforderlich',
+    statusActive: 'Aktiv',
+    allCompanies: 'Alle Unternehmen',
+    syncCompleted: 'Synchronisierung abgeschlossen',
+    syncFailed: 'Synchronisierung fehlgeschlagen',
+    actionFailed: 'Aktion fehlgeschlagen',
+    suggestionMulti: '{count} Rechnungen',
+    partialCoverageLinked: '{linked} von {total} verknüpft'
+  },
   invoiceEvents: {
     events: 'Ereignisse',
     types: {
-      emailOpened: 'Rechnung über E-Mail geöffnet.'
+      emailOpened: 'Rechnung über E-Mail geöffnet.',
+      paymentDeleted: 'Zahlung gelöscht.'
     }
   }
 }

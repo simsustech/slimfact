@@ -220,7 +220,7 @@ export default async function ({
               typeof quasarConf['framework']['iconSet'] === 'object'
                 ? quasarConf['framework']['iconSet']
                 : undefined
-          })
+          }) as never
         ],
         theme: {},
         content: {
@@ -235,7 +235,8 @@ export default async function ({
               // would be skipped by the regexes above — classes rendered only inside
               // quasar-components (q-drawer, i-mdi-menu, …) would miss their preset
               // shortcuts. Match any path containing the package dir name too.
-              /quasar-components\//
+              /quasar-components\//,
+              /modular-api\//
             ]
           }
         }

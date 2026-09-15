@@ -28,7 +28,7 @@ export const useAdminGetInvoiceEventsByInvoiceIdsQuery = defineQuery(() => {
       trpc.admin.getInvoiceEventsByInvoiceIds.query({
         invoiceIds: invoiceIds.value
       }),
-    placeholderData: () => []
+    placeholderData: () => ({})
   })
   return {
     invoiceEvents,

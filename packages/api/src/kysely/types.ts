@@ -12,7 +12,8 @@ import type {
 import type { Generated, JSONColumnType } from 'kysely'
 
 export enum INVOICE_EVENT_TYPE {
-  EMAIL_OPENED = 'emailOpened'
+  EMAIL_OPENED = 'emailOpened',
+  PAYMENT_DELETED = 'paymentDeleted'
 }
 
 export interface Clients {
@@ -106,6 +107,18 @@ export interface InvoiceEvents {
   timestamp: Generated<string>
 }
 
+export interface BankAccountCompanies {
+  accountExternalId: string
+  companyId: number
+  createdAt: Generated<string>
+}
+
+export interface BankSuggestionDismissals {
+  transactionExternalId: string
+  companyId: number
+  createdAt: Generated<string>
+}
+
 export interface DB extends CheckoutDatabase {
   accounts: AccountsTable
   authenticationMethods: AuthenticationMethodsTable
@@ -117,4 +130,6 @@ export interface DB extends CheckoutDatabase {
   emailTemplates: EmailTemplates
   subscriptions: Subscriptions
   invoiceEvents: InvoiceEvents
+  bankAccountCompanies: BankAccountCompanies
+  bankSuggestionDismissals: BankSuggestionDismissals
 }

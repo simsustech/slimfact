@@ -80,8 +80,8 @@
             firstDayOfWeek: '1'
           }"
           :icons="{
-            event: 'i-mdi-event',
-            clear: 'i-mdi-clear'
+            event: 'i-mdi-calendar',
+            clear: 'i-mdi-close'
           }"
         />
         <date-input
@@ -97,8 +97,8 @@
             firstDayOfWeek: '1'
           }"
           :icons="{
-            event: 'i-mdi-event',
-            clear: 'i-mdi-clear'
+            event: 'i-mdi-calendar',
+            clear: 'i-mdi-close'
           }"
         />
         <cron-schedule-input
@@ -139,7 +139,7 @@
           v-for="(discount, index) in modelValue.discounts"
           :key="index"
           v-ripple
-          :model-value="discount"
+          :model-value="discount as RawInvoiceLine"
           :locale="modelValue.locale"
           :currency="modelValue.currency"
           editable
@@ -166,7 +166,7 @@
           v-for="(surcharge, index) in modelValue.surcharges"
           :key="index"
           v-ripple
-          :model-value="surcharge"
+          :model-value="surcharge as RawInvoiceLine"
           :locale="modelValue.locale"
           :currency="modelValue.currency"
           editable
@@ -199,6 +199,7 @@ import { useLang } from '../../lang/index.js'
 import { DATE_FORMAT } from '../../configuration.js'
 import { computed, ref, toRefs, watch } from 'vue'
 import CompanySelect from '../company/CompanySelect.vue'
+import ClientSelect from '../client/ClientSelect.vue'
 import {
   InvoiceLineItem,
   InvoiceLineDialog
@@ -214,6 +215,7 @@ import {
 } from '@modular-api/fastify-checkout'
 import { computeNumberPrefix } from '../../tools.js'
 import { languageLocales } from '../../configuration.js'
+import type { Locales } from '@simsustech/quasar-components/form'
 
 export interface Props {
   filteredCompanies: Company[]
@@ -260,7 +262,7 @@ const $q = useQuasar()
 
 const { filteredCompanies, filteredClients } = toRefs(props)
 
-const initialValue: Subscription = {
+const getInitialValue = (): SubscriptionDraft => ({
   name: '',
   companyId: null,
   clientId: null,
@@ -275,9 +277,19 @@ const initialValue: Subscription = {
   type: 'invoice',
   startDate: new Date().toISOString().slice(0, 10),
   endDate: null
-}
+})
 
-const modelValue = ref<Subscription>(initialValue)
+type SubscriptionDraft = Omit<
+  Subscription,
+  'companyId' | 'clientId' | 'locale'
+> & {
+  companyId: number | null
+  clientId: number | null
+  locale: Locales
+}
+const modelValue = ref<SubscriptionDraft>(
+  getInitialValue() as SubscriptionDraft
+)
 
 const lang = useLang()
 
@@ -342,7 +354,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   formRef.value?.validate().then((success) => {
     if (success) {
       return emit('submit', {
-        data: modelValue.value,
+        data: modelValue.value as Subscription,
         done
       })
     }
@@ -350,7 +362,7 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   done(false)
 }
 const setValue = (newValue: Subscription) => {
-  modelValue.value = extend(true, {}, initialValue, newValue)
+  modelValue.value = extend(true, {}, getInitialValue(), newValue)
   modelValue.value.companyId = newValue.companyId
   modelValue.value.clientId = newValue.clientId
 }
@@ -389,7 +401,7 @@ watch(
     const defaultLocale = filteredCompanies.value.find(
       (company) => company.id === newVal
     )?.defaultLocale
-    if (defaultLocale) modelValue.value.locale = defaultLocale
+    if (defaultLocale) modelValue.value.locale = defaultLocale as Locales
 
     const defaultCurrency = filteredCompanies.value.find(
       (company) => company.id === newVal

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { mkInvoice, moreBtn as clickMoreButton } from './helpers'
+import { mkInvoice } from './helpers'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -44,25 +44,43 @@ test.describe('Cash Payment', () => {
     // Create and send invoice using the proven helper
     const uuid = await mkInvoice(page)
     expect(uuid).toBeTruthy()
-    // Go to admin panel, expand the invoice, add cash payment (admin/POS flow)
+    // Go to admin panel, expand the invoice, add cash payment (admin/POS flow).
+    // The invoice list is shared with parallel spec files — never assume the
+    // just-created invoice is the first row (another test's CONCEPT can land on
+    // top). Target the row by its mkInvoice line description instead.
     await page.goto('/admin/invoices')
     await page.waitForLoadState('networkidle')
-    await page
+    // Serial workers: the just-created invoice is the newest row. Collapsed
+    // rows don't expose line text, so hasText('E2E') scoping cannot find them.
+    const e2eRow = page.locator('.q-expansion-item').first()
+    await e2eRow
       .locator('.q-expansion-item__toggle-icon')
-      .first()
       .click({ force: true })
-    await clickMoreButton(page)
-    await page.getByText('Add payment').first().click()
+    await e2eRow
+      .locator('.q-expansion-item__content')
+      .waitFor({ state: 'visible', timeout: 5000 })
+    const more = e2eRow
+      .locator('button')
+      .filter({ has: page.locator('.i-mdi-more-vert, .i-mdi-dots-vertical') })
+      .first()
+    await more.waitFor({ state: 'visible', timeout: 5000 })
+    await more.click()
+    await page.locator('.q-menu, [role="menu"]').first().waitFor({
+      state: 'visible',
+      timeout: 5000
+    })
+    await page.getByRole('button', { name: 'Add payment' }).first().click()
     await page
       .getByRole('dialog')
       .first()
       .waitFor({ state: 'visible', timeout: 5000 })
       .catch(() => {})
 
-    // Select Cash payment in the dialog
-    const cashOption = page.getByText('Cash').first()
+    // Select Cash payment in the submenu (role-based: the overline labels are
+    // not reliably exposed to text queries).
+    const cashOption = page.getByRole('button', { name: 'Cash' }).first()
     await expect(cashOption).toBeVisible({ timeout: 5000 })
-    await cashOption.click({ force: true })
+    await cashOption.click()
     await page
       .getByRole('dialog')
       .first()
@@ -83,14 +101,21 @@ test.describe('Cash Payment', () => {
       .waitFor({ state: 'visible', timeout: 10000 })
       .catch(() => {})
 
-    // Verify the payment is recorded
+    // Verify the payment is recorded (same row scoping as above).
     await page.goto('/admin/invoices')
     await page.waitForLoadState('networkidle')
-    await page
+    const paidRow = page.locator('.q-expansion-item').first()
+    await paidRow
       .locator('.q-expansion-item__toggle-icon')
-      .first()
       .click({ force: true })
-    await clickMoreButton(page)
+    await paidRow
+      .locator('.q-expansion-item__content')
+      .waitFor({ state: 'visible', timeout: 5000 })
+    await paidRow
+      .locator('button')
+      .filter({ has: page.locator('.i-mdi-more-vert, .i-mdi-dots-vertical') })
+      .first()
+      .click()
     await expect(page.getByText('Payments').first()).toBeVisible({
       timeout: 5000
     })

@@ -21,7 +21,6 @@ Als beheerder geeft je zijbalk toegang tot:
 ## Dashboard
 
 Het dashboard is je overzicht in één oogopslag: omzet, openstaand werk en recente activiteit op één plek. Open het vanuit de zijbalk (Dashboard).
-
 ![Admin dashboard](/screenshots/admin-dashboard.png)
 
 ### Omzet
@@ -124,16 +123,26 @@ Nummerprefixen bepalen hoe je factuurnummers eruitzien.
 
 Zodra een factuur is uitgevouwen, geeft het Meer-menu je:
 
-| Actie | Wanneer beschikbaar |
-|-------|-------------------|
-| **Bewerken** | Concept, Rekening |
-| **Versturen** | Concept, Rekening — e-mailt de factuur naar de klant |
-| **Openen** | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
-| **Annuleren** | Concept, Rekening (als er geen bedrag is betaald) |
-| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is) |
-| **Bon versturen** | Rekening (als volledig betaald) — converteert naar een bon |
-| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd) |
-| **Aanmaning sturen** | Open (na 2 herinneringen, met 7 dagen wachttijd) |
+| Actie                  | Wanneer beschikbaar                                                  |
+| ---------------------- | -------------------------------------------------------------------- |
+| **Bewerken**           | Concept, Rekening                                                    |
+| **Versturen**          | Concept, Rekening — e-mailt de factuur naar de klant                 |
+| **Openen**             | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
+| **Annuleren**          | Concept, Rekening (als er geen bedrag is betaald)                    |
+| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is)                   |
+| **Bon versturen**      | Rekening (als volledig betaald) — converteert naar een bon           |
+| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd)                         |
+| **Aanmaning sturen**   | Open (na 2 herinneringen, met 7 dagen wachttijd)                     |
+| Actie                  | Wanneer beschikbaar                                                  |
+| -------                | -------------------                                                  |
+| **Bewerken**           | Concept, Rekening                                                    |
+| **Versturen**          | Concept, Rekening — e-mailt de factuur naar de klant                 |
+| **Openen**             | Alle statussen behalve Geannuleerd — opent de publieke factuurpagina |
+| **Annuleren**          | Concept, Rekening (als er geen bedrag is betaald)                    |
+| **Betaling toevoegen** | Open, Rekening (als er een bedrag verschuldigd is)                   |
+| **Bon versturen**      | Rekening (als volledig betaald) — converteert naar een bon           |
+| **Herinnering sturen** | Open (na vervaldatum, met 7 dagen wachttijd)                         |
+| **Aanmaning sturen**   | Open (na 2 herinneringen, met 7 dagen wachttijd)                     |
 
 ### Factuurstatusverloop
 
@@ -145,7 +154,7 @@ CONCEPT → OPEN → BETAALD / GEANNULEERD
 - **Open** — verstuurd naar klant, wachtend op betaling (onwijzigbaar)
 - **Betaald** — betaling ontvangen
 - **Geannuleerd** — niet langer geldig
- 
+
 ### Herinneringen & Aanmaningen
 
 Wanneer een factuur achterstallig is, kun je betalingsherinneringen versturen:
@@ -235,10 +244,14 @@ Stel `STRIPE_API_KEY` in. Zelfde patroon voor meerdere bedrijven: `STRIPE_API_KE
 
 Bepaal welke PSP welke betaalmethode afhandelt:
 
-| Env-variabele | Standaard | Opties |
-|-------------|---------|---------|
-| `IDEAL_PAYMENT_HANDLER` | Mollie | `mollie` of `stripe` |
-| `CREDITCARD_PAYMENT_HANDLER` | Stripe | `mollie` of `stripe` |
+| Env-variabele                | Opties               |
+| ---------------------------- | -------------------- |
+| `WERO_PAYMENT_HANDLER`       | `mollie` of `stripe` |
+| `CREDITCARD_PAYMENT_HANDLER` | `mollie` of `stripe` |
+
+Geen van beide heeft een standaardwaarde. Laat je er een weg, dan wordt die
+betaalmethode niet aangeboden — de betaalknop verdwijnt, in plaats van terug te
+vallen op een provider.
 
 ### Contant & bankoverschrijving
 
@@ -261,6 +274,40 @@ Dit zijn offline betaalmethoden. Registreer contante betalingen of overschrijvin
 Ga naar **Instellingen → Exports** voor toegang tot:
 
 - **Digiboox** — exporteer facturen in Digiboox-formaat. Meer formaten op verzoek beschikbaar.
+
+## Bankimport
+
+Banktransacties komen uit open-banking.io via de banking-api proxy, die de
+volledige historie bewaart. Ze verschijnen op twee plekken:
+
+- **Instellingen → Bank** (`/admin/settings/banking`) — verbindingsstatus, de
+  koppeling van rekeningen aan bedrijven, en **Sync nu** om te verversen.
+  Waarschuwt wanneer een bankmachtiging opnieuw moet worden ingesteld.
+- **Betalingen → Suggesties** (`/admin/payments`) — binnenkomende crediteringen
+  die een beslissing nodig hebben. Elke rij toont de meest waarschijnlijke
+  factuur en een score: **Koppelen** hangt de creditering aan één of meer
+  facturen, **Negeren** verbergt hem voor dat bedrijf.
+
+Een exacte match (bedrag, referentie, datumbereik en valuta) wordt automatisch
+toegepast als een **bankgekoppelde betaling**, dus die komt nooit in de wachtrij.
+Is een factuur al handmatig per bankoverschrijving betaald voor het exacte
+bedrag, dan **adopteert** koppelen die betaling in plaats van een tweede te
+registreren.
+
+> **Gepland: transactieoverzicht.** Een pagina met elke banktransactie bestaat nog
+> niet. Die toont elke creditering naast de betalingen en facturen waaraan hij is
+> gekoppeld, inclusief de PSP-settlements (Mollie, Stripe) achter uitbetalingen in
+> bulk. Die uitbetalingen worden al op de achtergrond ingelezen en gematcht, maar
+> niets in de UI toont ze vandaag — één grote creditering van een betaalprovider
+> kan dus onverklaard lijken.
+>
+> **Zelf hosten?** Installatie staat in de README van het package: [Banking-API](https://github.com/simsustech/slimfact/blob/main/packages/banking-api/README.md) beschrijft de architectuur, omgevingsvariabelen, referenties en API-sleutelconfiguratie.
+>
+> Bekende beperking: als een strikte match eerst automatisch is toegepast en
+> je later handmatig een bankoverschrijving registreert voor dezelfde factuur,
+> kunnen er twee betaalde betalingen bestaan.
+
+---
 
 ## E-mailtracking
 

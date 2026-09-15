@@ -2,55 +2,50 @@ injectWorkspacePackages: true
 
 packages:
   - packages/*
+overrides:
+  typescript: 6.0.3
 
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-  - browserslist
-  - "@modular-api/fastify-checkout@0.9.1"
-  - "@types/pg@8.20.4"
-  - "@vue/compiler-core@3.5.41"
-  - "@vue/compiler-dom@3.5.41"
-  - "@vue/compiler-sfc@3.5.41"
-  - "@vue/compiler-ssr@3.5.41"
-  - "@vue/reactivity@3.5.41"
-  - "@vue/runtime-core@3.5.41"
-  - "@vue/runtime-dom@3.5.41"
-  - "@vue/server-renderer@3.5.41"
-  - "@vue/shared@3.5.41"
-  - quasar@2.24.0 || 2.29.0
-  - vue@3.5.41
-  - unocss-preset-quasar@0.5.0 || 0.5.1 || 0.5.3 || 0.5.5
-  - "@quasar/quasar-ui-qcalendar@5.2.2"
-  - "@timestamp-js/core@1.0.0"
-  - pinia@4.0.3
-  - vitrify@0.27.0
-  - rolldown@1.2.5
-  - sass@1.103.0
-  - happy-dom@20.11.6
-  - magic-string@1.2.2
-  - "@quasar/quasar-ui-qmarkdown@4.2.1"
-  - "@quasar/quasar-ui-qmediaplayer@3.0.1"
-  - export-to-csv@1.5.0
-  - vite@8.2.2
-  - "@rolldown/binding-android-arm-eabi@1.2.5"
-  - "@rolldown/binding-android-arm64@1.2.5"
-  - "@rolldown/binding-darwin-arm64@1.2.5"
-  - "@rolldown/binding-darwin-x64@1.2.5"
-  - "@rolldown/binding-freebsd-x64@1.2.5"
-  - "@rolldown/binding-linux-arm-gnueabihf@1.2.5"
-  - "@rolldown/binding-linux-arm64-gnu@1.2.5"
-  - "@rolldown/binding-linux-arm64-musl@1.2.5"
-  - "@rolldown/binding-linux-ppc64-gnu@1.2.5"
-  - "@rolldown/binding-linux-s390x-gnu@1.2.5"
-  - "@rolldown/binding-linux-x64-gnu@1.2.5"
-  - "@rolldown/binding-linux-x64-musl@1.2.5"
-  - "@rolldown/binding-openharmony-arm64@1.2.5"
-  - "@rolldown/binding-win32-arm64-msvc@1.2.5"
-  - "@rolldown/binding-win32-x64-msvc@1.2.5"
-  - '@types/oidc-provider@9.12.0'
+  - '@modular-api/event-bus@0.2.0 || 0.2.1 || 0.2.2'
+  - '@modular-api/fastify-checkout@0.10.0 || 0.10.1 || 0.10.2'
+  - '@simsustech/quasar-components@0.12.10'
+  - "@rolldown/binding-android-arm-eabi@1.2.7"
+  - "@rolldown/binding-android-arm64@1.2.7"
+  - "@rolldown/binding-darwin-arm64@1.2.7"
+  - "@rolldown/binding-darwin-x64@1.2.7"
+  - "@rolldown/binding-freebsd-x64@1.2.7"
+  - "@rolldown/binding-linux-arm-gnueabihf@1.2.7"
+  - "@rolldown/binding-linux-arm64-gnu@1.2.7"
+  - "@rolldown/binding-linux-arm64-musl@1.2.7"
+  - "@rolldown/binding-linux-ppc64-gnu@1.2.7"
+  - "@rolldown/binding-linux-s390x-gnu@1.2.7"
+  - "@rolldown/binding-linux-x64-gnu@1.2.7"
+  - "@rolldown/binding-linux-x64-musl@1.2.7"
+  - '@rolldown/binding-openharmony-arm64@1.2.7 || 1.2.8'
+  - "@rolldown/binding-win32-arm64-msvc@1.2.7"
+  - "@rolldown/binding-win32-x64-msvc@1.2.7"
+  - "@types/oidc-provider@9.12.0 || 9.12.1"
+  - "@vitest/mocker@5.0.0"
+  - "@vitest/spy@5.0.0"
   - beasties@0.5.3
-  - vue-router@5.3.1
+  - happy-dom@20.13.2
+  - quasar@2.29.0
+  - rolldown@1.2.7
+  - vitest@5.0.0
+  - vitrify@0.27.2 || 0.28.0 || 0.28.1
+  - pg-boss@12.30.0
+  - stripe@22.6.2
+  - zod@4.6.1
+  - '@modular-api/api@0.6.36 || 0.6.37'
+  - '@modular-api/fastify-cart@0.3.22'
+  - '@modular-api/fastify-oidc@0.9.28'
+  - '@modular-api/oidc-interactions@0.7.24'
+  - '@modular-api/quasar-components@0.3.43'
+  - nodemailer@10.0.3
+  - cronstrue@3.26.0
+  - vite@8.3.0
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
@@ -67,6 +62,3 @@ allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: true
-
-overrides:
-  typesript: "6.0.3"

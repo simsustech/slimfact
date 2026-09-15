@@ -1,0 +1,11 @@
+{
+  "apiKeys": [
+    {
+      "label": "example-key",
+      "key": "obk_test_<paste from: pnpm generate-key>",
+      "scopes": ["read", "sync"],
+      "expiresAt": "2030-01-01T00:00:00Z",
+      "accounts": ["<external account id from: pnpm list-accounts>"]
+    }
+  ]
+}

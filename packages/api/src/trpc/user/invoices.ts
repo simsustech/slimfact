@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { t } from '../index.js'
 import type { FastifyInstance } from 'fastify'
-import { findClient } from 'src/repositories/client.js'
+import { findClient } from '../../repositories/client.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout'
 
 const paginationSchema = z
@@ -10,6 +10,8 @@ const paginationSchema = z
     offset: z.number(),
     sortBy: z.union([
       z.literal('id'),
+      z.literal('companyId'),
+      z.literal('clientId'),
       z.literal('totalIncludingTax'),
       z.literal('createdAt')
     ]),

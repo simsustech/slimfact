@@ -1,0 +1,821 @@
+<template>
+  <q-page padding>
+    <q-tabs v-model="activeTab" align="left" class="q-mb-md">
+      <q-tab name="payments" :label="lang.payment.overview.tabs.payments" />
+      <q-tab name="suggestions">
+        <div class="row no-wrap items-center q-gutter-xs">
+          <span>{{ lang.payment.overview.tabs.suggestions }}</span>
+          <q-badge
+            v-if="suggestionListCount > 0"
+            color="primary"
+            rounded
+            data-testid="payments-tab-suggestion-badge"
+          >
+            {{ suggestionListCount > 99 ? '99+' : suggestionListCount }}
+          </q-badge>
+        </div>
+      </q-tab>
+    </q-tabs>
+
+    <q-tab-panels v-model="activeTab" animated>
+      <!-- Payments panel -->
+      <q-tab-panel name="payments" class="q-pa-none">
+        <!-- Aggregates header -->
+        <q-card class="q-pa-sm q-mb-md" style="max-width: 560px">
+          <q-card-section class="q-pa-xs row q-gutter-md">
+            <div>
+              <div class="text-caption text-grey-7">
+                {{ lang.payment.overview.in }}
+              </div>
+              <div class="text-h6 text-positive" data-testid="agg-in">
+                {{ formatMoney(aggregates?.inCents ?? 0) }}
+              </div>
+            </div>
+            <div>
+              <div class="text-caption text-grey-7">
+                {{ lang.payment.overview.refunded }}
+              </div>
+              <div class="text-h6 text-negative" data-testid="agg-refunded">
+                {{ formatMoney(aggregates?.refundedCents ?? 0) }}
+              </div>
+            </div>
+            <div>
+              <div class="text-caption text-grey-7">
+                {{ lang.payment.overview.net }}
+              </div>
+              <div class="text-h6" data-testid="agg-net">
+                {{ formatMoney(aggregates?.netCents ?? 0) }}
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+        <div v-if="filterSummary" class="text-caption text-grey-6 q-mb-md">
+          {{ filterSummary }}
+        </div>
+
+        <!-- Filters -->
+        <div class="row q-mb-sm items-center q-gutter-sm">
+          <q-input
+            v-model="search"
+            :label="lang.payment.overview.search"
+            dense
+            outlined
+            clearable
+            style="min-width: 220px"
+          />
+          <q-btn flat dense data-testid="ledger-filters-btn">
+            <q-icon name="i-mdi-tune-variant" />
+            <span class="q-ml-xs">{{ lang.payment.overview.filters }}</span>
+            <!-- no-route-dismiss: the page mirrors filter changes into the URL
+                 (usePaymentsUrlState), and QMenu's hideOnRouteChange would
+                 otherwise close the menu on every selection. -->
+            <q-menu no-route-dismiss class="q-pa-sm" style="min-width: 260px">
+              <div class="column q-gutter-xs">
+                <date-input
+                  v-model="fromDate"
+                  :format="DATE_FORMAT"
+                  :label="lang.payment.overview.fromDate"
+                  :icons="{ event: 'i-mdi-calendar', clear: 'i-mdi-close' }"
+                  clearable
+                />
+                <date-input
+                  v-model="toDate"
+                  :format="DATE_FORMAT"
+                  :label="lang.payment.overview.toDate"
+                  :icons="{ event: 'i-mdi-calendar-end', clear: 'i-mdi-close' }"
+                  clearable
+                />
+                <company-select
+                  v-model="companyFilter"
+                  :filtered-options="companyOptions"
+                  clearable
+                />
+                <client-select
+                  v-model="clientFilter"
+                  :filtered-options="clientOptions"
+                  clearable
+                  use-input
+                  @filter="onFilterClients"
+                />
+                <q-select
+                  v-model="filters.methods"
+                  :options="methodOptions"
+                  :label="lang.payment.overview.methods"
+                  multiple
+                  dense
+                  outlined
+                  emit-value
+                  map-options
+                />
+                <q-select
+                  v-model="filters.statuses"
+                  :options="statusOptions"
+                  :label="lang.payment.overview.statuses"
+                  multiple
+                  dense
+                  outlined
+                />
+                <q-select
+                  v-model="filters.psps"
+                  :options="pspOptions"
+                  :label="lang.payment.overview.psps"
+                  multiple
+                  dense
+                  outlined
+                />
+                <q-select
+                  v-model="filters.sources"
+                  :options="sourceOptions"
+                  :label="lang.payment.overview.source"
+                  multiple
+                  dense
+                  outlined
+                  emit-value
+                  map-options
+                />
+              </div>
+            </q-menu>
+          </q-btn>
+          <q-btn
+            flat
+            dense
+            icon="i-mdi-refresh"
+            :label="lang.payment.overview.refresh"
+            @click="refresh"
+          />
+          <q-btn
+            flat
+            dense
+            icon="i-mdi-download"
+            :label="lang.payment.overview.export"
+            data-testid="ledger-export"
+            @click="exportCsv"
+          />
+        </div>
+
+        <q-banner v-if="truncated" class="bg-amber-1 text-amber-9 q-mb-sm">
+          {{ lang.payment.overview.truncated }}
+        </q-banner>
+
+        <q-table
+          :rows="rows"
+          :columns="columns"
+          :row-key="rowKey"
+          flat
+          bordered
+          :loading="loading"
+          v-model:pagination="pagination"
+          @request="onTableRequest"
+          :rows-per-page-options="[10, 25, 50, 100]"
+        >
+          <template #body-cell-date="props">
+            <q-td :props="props">
+              {{ dateCell(props.row.date) }}
+            </q-td>
+          </template>
+          <template #body-cell-method="props">
+            <q-td :props="props">
+              <q-chip dense outline color="grey-8" size="sm">
+                {{ methodLabel(props.row.method) }}
+              </q-chip>
+            </q-td>
+          </template>
+          <template #body-cell-invoiceNumber="props">
+            <q-td :props="props">
+              <router-link
+                v-if="props.row.invoiceUuid"
+                :to="`/admin/invoices?uuid=${props.row.invoiceUuid}`"
+                data-testid="ledger-invoice-link"
+              >
+                {{ props.row.invoiceNumber }}
+              </router-link>
+            </q-td>
+          </template>
+          <template #body-cell-clientName="props">
+            <q-td :props="props">
+              {{ props.row.clientName }}
+            </q-td>
+          </template>
+          <template #body-cell-amountCents="props">
+            <q-td :props="props">
+              <span
+                :class="
+                  props.row.amountCents < 0 ? 'text-negative' : 'text-positive'
+                "
+              >
+                {{ formatMoney(props.row.amountCents, props.row.currency) }}
+              </span>
+            </q-td>
+          </template>
+          <template #body-cell-status="props">
+            <q-td :props="props">
+              <span>{{ props.row.status }}</span>
+            </q-td>
+          </template>
+          <template #body-cell-actions="props">
+            <q-td :props="props">
+              <q-btn
+                v-if="isDeletable(props.row)"
+                icon="i-mdi-delete"
+                color="negative"
+                flat
+                dense
+                :title="lang.payment.overview.deletePayment"
+                :aria-label="lang.payment.overview.deletePayment"
+                data-testid="ledger-delete"
+                @click="openDeleteDialog(props.row)"
+              />
+            </q-td>
+          </template>
+          <template #no-data>
+            <div class="q-pa-md text-center text-grey-6">
+              {{ lang.payment.overview.empty }}
+            </div>
+          </template>
+        </q-table>
+      </q-tab-panel>
+
+      <!-- Suggestions tab: actionable unlinked bank credits -->
+      <q-tab-panel name="suggestions" class="q-pa-none">
+        <q-table
+          :rows="suggestionItems"
+          :columns="suggestionColumns"
+          :row-key="(row) => row.transaction.externalId"
+          flat
+          bordered
+          :loading="suggestionsLoading"
+          :pagination="{ rowsPerPage: 50 }"
+          :rows-per-page-options="[10, 25, 50, 100]"
+        >
+          <template #body-cell-date="props">
+            <q-td :props="props">
+              {{
+                dateCell(
+                  props.row.transaction.bookingDate ??
+                    props.row.transaction.transactionDate
+                )
+              }}
+            </q-td>
+          </template>
+          <template #body-cell-amount="props">
+            <q-td :props="props">
+              <span class="text-positive">
+                {{
+                  formatMoney(
+                    props.row.transaction.amountCents,
+                    props.row.transaction.currency
+                  )
+                }}
+              </span>
+            </q-td>
+          </template>
+          <template #body-cell-payer="props">
+            <q-td :props="props">
+              {{ props.row.transaction.counterpartyName }}
+            </q-td>
+          </template>
+          <template #body-cell-description="props">
+            <q-td :props="props">
+              {{
+                props.row.transaction.description ??
+                props.row.transaction.remittanceInformation
+              }}
+            </q-td>
+          </template>
+          <template #body-cell-suggestion="props">
+            <q-td :props="props">
+              <q-chip
+                v-if="props.row.topSuggestion"
+                color="primary"
+                text-color="white"
+                size="sm"
+                data-testid="suggestion-chip"
+              >
+                {{
+                  props.row.topSuggestion.invoiceNumber ||
+                  lang.payment.suggestions.topSuggestion
+                }}
+              </q-chip>
+            </q-td>
+          </template>
+          <template #body-cell-score="props">
+            <q-td :props="props">
+              <q-badge
+                v-if="props.row.topSuggestion"
+                :color="scoreColor(props.row.topSuggestion.score)"
+                outline
+                data-testid="suggestion-score"
+              >
+                {{ Math.round(props.row.topSuggestion.score * 100) }}%
+              </q-badge>
+            </q-td>
+          </template>
+          <template #body-cell-actions="props">
+            <q-td :props="props">
+              <div class="row no-wrap items-center q-gutter-xs">
+                <q-btn
+                  v-if="props.row.topSuggestion"
+                  color="primary"
+                  flat
+                  dense
+                  icon="i-mdi-link"
+                  :title="lang.payment.suggestions.link"
+                  :aria-label="lang.payment.suggestions.link"
+                  data-testid="suggestion-link"
+                  @click="openSuggestionLinkDialog(props.row)"
+                />
+                <q-btn
+                  flat
+                  dense
+                  color="grey"
+                  icon="i-mdi-close"
+                  :title="lang.payment.suggestions.dismiss"
+                  :aria-label="lang.payment.suggestions.dismiss"
+                  data-testid="suggestion-dismiss"
+                  @click="dismissSuggestion(props.row)"
+                />
+              </div>
+            </q-td>
+          </template>
+          <template #no-data>
+            <div class="q-pa-md text-center text-grey-6">
+              {{ lang.payment.suggestions.empty }}
+            </div>
+          </template>
+        </q-table>
+      </q-tab-panel>
+    </q-tab-panels>
+
+    <bank-link-dialog ref="linkDialogRef" :row="linkRow" @linked="onLinked" />
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import { DateInput } from '@simsustech/quasar-components/form'
+import type { PaymentMethod } from '@modular-api/fastify-checkout'
+import CompanySelect from '../../../components/company/CompanySelect.vue'
+import ClientSelect from '../../../components/client/ClientSelect.vue'
+import { computed, ref, watch } from 'vue'
+import { useQuasar } from 'quasar'
+import { useRoute, useRouter } from 'vue-router'
+import { useLang } from '../../../lang/index.js'
+import { formatMoney } from '../../../utils/money.js'
+import { formatDate } from '@slimfact/tools'
+import { DATE_FORMAT } from '../../../configuration.js'
+import { useAdminGetCompaniesQuery } from '../../../queries/admin/companies.js'
+import { useAdminSearchClientsQuery } from '../../../queries/admin/clients.js'
+import {
+  useAdminGetPaymentsQuery,
+  usePaymentsUrlState,
+  type PaymentsLedgerRow
+} from '../../../queries/admin/payments.js'
+import { useAdminDeletePaymentFromInvoiceMutation } from '../../../queries/admin/invoices.js'
+import { useAdminExportPaymentsMutation } from '../../../queries/admin/payments.js'
+import {
+  useAdminListSuggestionsQuery,
+  useAdminDismissSuggestionMutation
+} from '../../../queries/admin/bankTransactions'
+import BankLinkDialog from '../BankPage/BankLinkDialog.vue'
+
+const lang = useLang()
+const $q = useQuasar()
+const route = useRoute()
+const router = useRouter()
+
+// --- Tab state (?tab=payments|suggestions) ---
+const validTabs = ['payments', 'suggestions'] as const
+const activeTab = ref<'payments' | 'suggestions'>(
+  validTabs.includes(route.query.tab as (typeof validTabs)[number])
+    ? (route.query.tab as 'payments' | 'suggestions')
+    : 'payments'
+)
+watch(activeTab, (tab) => {
+  router.replace({ query: { ...route.query, tab } })
+})
+
+const { filters, search } = usePaymentsUrlState()
+const page = ref({ limit: 50, offset: 0 })
+
+/**
+ * q-table pagination state. The ledger is server-sorted (newest first) and
+ * server-paginated: q-table runs in server mode (@request) and the tRPC
+ * payload reports the total, so the table pages through the whole filtered
+ * set instead of only the first page.
+ */
+const pagination = ref({
+  sortBy: undefined as string | undefined,
+  descending: true,
+  page: 1,
+  rowsPerPage: 50,
+  rowsNumber: 0
+})
+
+/** Translate a q-table page request into the tRPC limit/offset. */
+const onTableRequest = ({
+  pagination: requested
+}: {
+  pagination: { page: number; rowsPerPage: number }
+}): void => {
+  pagination.value = { ...pagination.value, ...requested }
+  page.value = {
+    limit: requested.rowsPerPage,
+    offset: (requested.page - 1) * requested.rowsPerPage
+  }
+}
+
+const fromDate = computed({
+  get: () => filters.value.from ?? null,
+  set: (value: string | null) => {
+    filters.value = { ...filters.value, from: value || undefined }
+  }
+})
+const toDate = computed({
+  get: () => filters.value.to ?? null,
+  set: (value: string | null) => {
+    filters.value = { ...filters.value, to: value || undefined }
+  }
+})
+
+/* --- Company / client filters (NaN = unset, matching the selects) -------- */
+
+const { companies: filterCompanies } = useAdminGetCompaniesQuery()
+const { clients: searchClients, name: clientSearchPhrase } =
+  useAdminSearchClientsQuery()
+
+const companyOptions = computed(() => filterCompanies.value ?? [])
+const clientOptions = computed(() => searchClients.value ?? [])
+
+const companyFilter = computed<number | null>({
+  get: () => filters.value.companyId ?? null,
+  set: (value: number | null) => {
+    const next = { ...filters.value }
+    if (value !== null) next.companyId = value
+    else delete next.companyId
+    filters.value = next
+  }
+})
+
+const clientFilter = computed<number | null>({
+  get: () => filters.value.clientId ?? null,
+  set: (value: number | null) => {
+    const next = { ...filters.value }
+    if (value !== null) next.clientId = value
+    else delete next.clientId
+    filters.value = next
+  }
+})
+
+/** Async client search for the filter select (mirrors InvoicesPage). */
+const onFilterClients = async ({
+  searchPhrase,
+  done
+}: {
+  searchPhrase: string
+  done?: (success?: boolean) => void
+}): Promise<void> => {
+  clientSearchPhrase.value = searchPhrase
+  done?.()
+}
+
+const paymentsQuery = useAdminGetPaymentsQuery(filters, page)
+const payload = paymentsQuery.payload
+const loading = computed(() => paymentsQuery.status.value === 'pending')
+const rows = computed(() => paymentsQuery.payload.value?.rows ?? [])
+const aggregates = computed(() => paymentsQuery.payload.value?.aggregates)
+const truncated = computed(
+  () => paymentsQuery.payload.value?.truncated ?? false
+)
+
+// Surface the server-reported total so q-table renders "1–50 of 1,148".
+watch(
+  payload,
+  (data) => {
+    if (data !== undefined) pagination.value.rowsNumber = data.total
+  },
+  { immediate: true }
+)
+
+// A filter change restarts the list at page 1 (the query key refetches).
+watch(
+  filters,
+  () => {
+    if (pagination.value.page !== 1 || page.value.offset !== 0) {
+      pagination.value.page = 1
+      page.value = { limit: pagination.value.rowsPerPage, offset: 0 }
+    }
+  },
+  { deep: true }
+)
+
+const { mutateAsync: exportPaymentsMutation } = useAdminExportPaymentsMutation()
+
+const CSV_ESCAPE = (value: string): string =>
+  /[";\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
+
+const exportCsv = async () => {
+  const value = filters.value
+  const result = await exportPaymentsMutation({
+    ...(value.q ? { q: value.q } : {}),
+    ...(value.from ? { from: value.from } : {}),
+    ...(value.to ? { to: value.to } : {}),
+    ...(value.methods.length ? { methods: value.methods as never } : {}),
+    ...(value.statuses.length ? { statuses: value.statuses } : {}),
+    ...(value.psps.length ? { psps: value.psps } : {}),
+    ...(value.sources.length ? { sources: value.sources } : {})
+  })
+  if (result.truncated) {
+    $q.notify({
+      type: 'warning',
+      message: lang.value.payment.overview.truncated
+    })
+  }
+  const header = [
+    lang.value.payment.overview.columns.date,
+    lang.value.payment.overview.columns.method,
+    lang.value.payment.overview.columns.description,
+    lang.value.payment.overview.columns.invoice,
+    lang.value.payment.overview.columns.client,
+    lang.value.payment.overview.columns.amount,
+    lang.value.payment.overview.columns.status,
+    lang.value.payment.overview.columns.psp
+  ].join(';')
+  const lines = result.rows.map((row) =>
+    [
+      row.date,
+      methodLabel(row.method),
+      row.description,
+      row.invoiceNumber ?? '',
+      row.clientName ?? '',
+      (row.amountCents / 100).toFixed(2),
+      row.currency,
+      row.status,
+      row.psp ?? '',
+      row.transactionReference ?? ''
+    ]
+      .map(CSV_ESCAPE)
+      .join(';')
+  )
+  const blob = new Blob([`\uFEFF${[header, ...lines].join('\r\n')}`], {
+    type: 'text/csv;charset=utf-8'
+  })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = `slimfact-payments-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`
+  anchor.click()
+  setTimeout(() => URL.revokeObjectURL(url), 5_000)
+}
+
+const refresh = async () => {
+  await paymentsQuery.refresh()
+}
+
+// --- Options ---------------------------------------------------------------
+
+/** Render a ledger/suggestion date cell in the configured DATE_FORMAT.
+ * Dates arrive as full ISO timestamps (payments) or YYYY-MM-DD (bank
+ * transactions); the date part is sliced off before token formatting. */
+const dateCell = (iso?: string | null): string =>
+  formatDate((iso ?? '').slice(0, 10), DATE_FORMAT.value)
+
+const methodLabel = (method: string): string =>
+  (lang.value.payment.methods as Record<string, string | undefined>)[method] ??
+  method
+
+const methodOptions = Object.keys(lang.value.payment.methods).map((key) => {
+  const value = key.charAt(0).toLowerCase() + key.slice(1)
+  return { label: methodLabel(value), value }
+})
+const statusOptions = [
+  'open',
+  'pending',
+  'authorized',
+  'paid',
+  'canceled',
+  'expired',
+  'failed'
+]
+const pspOptions = ['mollie', 'stripe']
+const sourceOptions = [
+  {
+    label: lang.value.payment.overview.sources.payments,
+    value: 'payments' as const
+  },
+  {
+    label: lang.value.payment.overview.sources.refunds,
+    value: 'refunds' as const
+  }
+]
+
+const filterSummary = computed(() => {
+  const f = filters.value
+  const format = (iso?: string): string | undefined =>
+    iso ? formatDate(iso, DATE_FORMAT.value) : undefined
+  const sourceLabels = f.sources.map((source) =>
+    source === 'refunds'
+      ? lang.value.payment.overview.sources.refunds
+      : lang.value.payment.overview.sources.payments
+  )
+  return lang.value.payment.overview.filterSummary({
+    from: format(f.from),
+    to: format(f.to),
+    q: f.q || undefined,
+    methods: f.methods.map((m) => methodLabel(m)),
+    statuses: f.statuses,
+    psps: f.psps,
+    sources: sourceLabels
+  })
+})
+
+// --- Table -----------------------------------------------------------------
+
+const columns = [
+  {
+    name: 'date',
+    label: lang.value.payment.overview.columns.date,
+    field: 'date',
+    align: 'left' as const
+  },
+  {
+    name: 'method',
+    label: lang.value.payment.overview.columns.method,
+    field: 'method',
+    align: 'left' as const
+  },
+  {
+    name: 'description',
+    label: lang.value.payment.overview.columns.description,
+    field: 'description',
+    align: 'left' as const
+  },
+  {
+    name: 'invoiceNumber',
+    label: lang.value.payment.overview.columns.invoice,
+    field: 'invoiceNumber',
+    align: 'left' as const
+  },
+  {
+    name: 'clientName',
+    label: lang.value.payment.overview.columns.client,
+    field: 'clientName',
+    align: 'left' as const
+  },
+  {
+    name: 'amountCents',
+    label: lang.value.payment.overview.columns.amount,
+    field: 'amountCents',
+    align: 'right' as const
+  },
+  {
+    name: 'status',
+    label: lang.value.payment.overview.columns.status,
+    field: 'status',
+    align: 'left' as const
+  },
+  {
+    name: 'psp',
+    label: lang.value.payment.overview.columns.psp,
+    field: 'psp',
+    align: 'left' as const
+  },
+  { name: 'actions', label: '', field: 'actions' }
+]
+
+const rowKey = (row: PaymentsLedgerRow): string =>
+  `${row.kind}-${row.id ?? row.transactionReference ?? row.date}`
+
+// --- Offline payment deletion (rules unchanged) -----------------------------
+
+const { mutateAsync: deletePaymentFromInvoiceMutation } =
+  useAdminDeletePaymentFromInvoiceMutation()
+
+const OFFLINE_METHODS = new Set<string>(['cash', 'pin', 'banktransfer'])
+
+const isDeletable = (row: PaymentsLedgerRow): boolean =>
+  row.kind === 'payment' && OFFLINE_METHODS.has(row.method)
+
+const openDeleteDialog = async (data: PaymentsLedgerRow) => {
+  const methodLabels: Record<string, string> = {
+    cash: lang.value.payment.methods.cash,
+    banktransfer: lang.value.payment.methods.bankTransfer,
+    pin: lang.value.payment.methods.pin
+  }
+  const formattedAmount = Intl.NumberFormat($q.lang.isoName, {
+    maximumFractionDigits: 2,
+    style: 'currency',
+    currency: data.currency ?? 'EUR'
+  }).format((data.amountCents ?? 0) / 100)
+  $q.dialog({
+    message: lang.value.payment.confirmDeletePayment({
+      method: methodLabels[data.method] ?? data.method,
+      number: data.invoiceNumber ?? '',
+      amount: formattedAmount
+    }),
+    cancel: true
+  }).onOk(async () => {
+    if (data.invoiceId == null) return
+    try {
+      await deletePaymentFromInvoiceMutation({
+        id: data.invoiceId,
+        paymentId: data.id as number
+      })
+      await refresh()
+    } catch {}
+  })
+}
+
+// --- Suggestions tab -------------------------------------------------------
+
+const suggestionsQuery = useAdminListSuggestionsQuery()
+/** Server-reported total suggestions (the list query paginates at 50). */
+const suggestionListCount = computed(
+  () => suggestionsQuery.payload.value?.count ?? 0
+)
+const suggestionItems = computed(
+  () => suggestionsQuery.payload.value?.items ?? []
+)
+const suggestionsLoading = computed(
+  () => suggestionsQuery.status.value === 'pending'
+)
+
+const suggestionColumns = [
+  {
+    name: 'date',
+    label: lang.value.payment.overview.columns.date,
+    field: 'date',
+    align: 'left' as const
+  },
+  {
+    name: 'amount',
+    label: lang.value.payment.overview.columns.amount,
+    field: 'amount',
+    align: 'right' as const
+  },
+  {
+    name: 'payer',
+    label: 'Payer',
+    field: 'payer',
+    align: 'left' as const
+  },
+  {
+    name: 'description',
+    label: lang.value.payment.overview.columns.description,
+    field: 'description',
+    align: 'left' as const
+  },
+  {
+    name: 'suggestion',
+    label: lang.value.payment.suggestions?.topSuggestion ?? 'Suggestion',
+    field: 'suggestion',
+    align: 'left' as const
+  },
+  {
+    name: 'score',
+    label: lang.value.payment.suggestions?.score ?? 'Score',
+    field: 'score',
+    align: 'left' as const
+  },
+  { name: 'actions', label: '', field: 'actions' }
+]
+
+const linkRow = ref<(typeof suggestionItems.value)[number] | null>(null)
+const linkDialogRef = ref<InstanceType<typeof BankLinkDialog>>()
+
+const openSuggestionLinkDialog = (
+  row: (typeof suggestionItems.value)[number]
+) => {
+  linkRow.value = row
+  linkDialogRef.value?.functions.open()
+}
+
+const onLinked = async () => {
+  linkRow.value = null
+  await suggestionsQuery.refresh()
+  await paymentsQuery.refresh()
+}
+
+/** Green ≥ 80 %, amber ≥ 50 %, grey otherwise. */
+const scoreColor = (score: number): string =>
+  score >= 0.8 ? 'positive' : score >= 0.5 ? 'warning' : 'grey'
+
+const { mutateAsync: dismissSuggestionMutation } =
+  useAdminDismissSuggestionMutation()
+const dismissSuggestion = async (
+  row: (typeof suggestionItems.value)[number]
+) => {
+  const amount = formatMoney(
+    row.transaction.amountCents,
+    row.transaction.currency
+  )
+  $q.dialog({
+    message: lang.value.payment.suggestions.confirmDismiss({ amount }),
+    cancel: true
+  }).onOk(async () => {
+    await dismissSuggestionMutation({
+      transactionExternalId: row.transaction.externalId,
+      companyId: row.companyId ?? 0
+    })
+    await suggestionsQuery.refresh()
+  })
+}
+</script>

@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-revenue-chart" :data-chart-labels="labels.join('|')">
     <div class="chart-canvas-wrap">
-      <Bar v-if="hasData" :data="chartData" :options="chartOptions" />
+      <Bar v-if="hasData" :data="chartData" :options="chartOptions as never" />
       <div v-else class="empty-chart">
         {{ lang.dashboard.admin.revenue.chart.noData }}
       </div>

@@ -5,7 +5,6 @@
 
 export interface ActivityEntryLike {
   type: string
-  [key: string]: unknown
 }
 
 export const filterActivity = <T extends ActivityEntryLike>(
@@ -45,7 +44,7 @@ export const iconForActivity = (type: string): string => {
 // For a payment entry, the "for invoice #N" suffix shown next to the
 // amount. Returns null for other entry types or when no number is present.
 export const paymentInvoiceText = (
-  entry: { type: string; documentNumber: string | null },
+  entry: { type: string; documentNumber?: string | null },
   forInvoiceLabel: string
 ): string | null =>
   entry.type === 'payment' && entry.documentNumber

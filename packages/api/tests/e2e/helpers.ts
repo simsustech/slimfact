@@ -1,6 +1,31 @@
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
+import { Kysely, PostgresDialect, CamelCasePlugin } from 'kysely'
+import pg from 'pg'
+import type { DB } from '../../src/kysely/types.js'
 
+/** Seeded admin credentials (created by seed:test / the demo world). */
+export const ADMIN_EMAIL = 'admin@slimfact.app'
+export const ADMIN_PASSWORD = 'Sif5uEG5hcTH'
+
+/**
+ * Read-only Kysely handle on the stack's `slimfact` database for asserting
+ * seeded state. E2E specs never write through this — mutations go via the UI.
+ * Each call gets an INDEPENDENT pool+handle so a spec's `db.destroy()` in its
+ * finally-block cannot break other specs' connections.
+ */
+export const getTestDb = () => {
+  const pool = new pg.Pool({
+    connectionString:
+      process.env.TEST_DATABASE_URL ||
+      'postgres://postgres:ufgouifdgjdfg@localhost:5433/slimfact',
+    max: 2
+  })
+  return new Kysely<DB>({
+    dialect: new PostgresDialect({ pool }),
+    plugins: [new CamelCasePlugin()]
+  })
+}
 export async function dumpPage(page: Page, label: string) {
   console.log(`\n=== ${label} ===`)
   console.log('URL:', page.url())
@@ -61,17 +86,55 @@ export const moreBtn = async (p: Page) => {
 }
 
 export async function fillComboboxes(p: Page) {
+  // The create dialog's entrance animation steals the first QSelect menu-open
+  // event (and poisons that select's toggle state). Let the transition finish
+  // before interacting — clicking earlier permanently breaks the first menu.
+  const dialog = p.locator('.q-dialog').first()
+  if ((await dialog.count()) > 0) {
+    // Empirically the dialog's enter transition needs ~1.5-2s after visible
+    // before QSelect clicks register; earlier clicks poison the first select.
+    await p.waitForTimeout(1_800)
+  }
   for (const name of ['Company*', 'Client*', 'Number prefix*']) {
-    await p.getByLabel(name).click()
-    await p.waitForSelector('[role="listbox"]', { timeout: 10000 })
-    await p.getByRole('option').first().click()
-    if (name !== 'Number prefix*') {
-      await p
-        .getByRole('listbox')
-        .first()
-        .waitFor({ state: 'hidden', timeout: 5000 })
-        .catch(() => {})
+    // event to the dialog's focus handling — retry until the listbox appears.
+    const combo = p.getByLabel(name)
+    await combo.waitFor({ state: 'visible', timeout: 10_000 })
+    // Downstream selects stay disabled until upstream picks land (e.g.
+    // Number prefix needs a companyId) — wait for enablement too.
+    await expect(combo).toBeEnabled({ timeout: 20_000 })
+    let opened = false
+    for (let attempt = 0; attempt < 6 && !opened; attempt++) {
+      if (attempt > 0) {
+        // A premature first click can leave the QSelect convinced its menu is
+        // open, so later clicks toggle it closed — reset before retrying.
+        await combo.press('Escape').catch(() => {})
+        await p.waitForTimeout(250)
+      }
+      await combo.click()
+      if (attempt % 2 === 1) {
+        // Click-to-open is unreliable inside dialogs across Quasar builds;
+        // the keyboard route always opens the menu.
+        await combo.press('ArrowDown').catch(() => {})
+      }
+      opened = await p
+        .waitForSelector('[role="listbox"]', { timeout: 1_500 })
+        .then(() => true)
+        .catch(() => false)
     }
+    if (!opened) {
+      throw new Error(
+        `fillComboboxes: listbox for "${name}" did not open after retries`
+      )
+    }
+    // Pick the first option (the original helper contract), then let the
+    // menu close before moving on — including after the last select, or the
+    // open listbox intercepts subsequent form interactions.
+    await p.getByRole('option').first().click()
+    await p
+      .locator('[role="listbox"]')
+      .first()
+      .waitFor({ state: 'hidden', timeout: 5_000 })
+      .catch(() => {})
   }
 }
 
@@ -99,26 +162,45 @@ export async function clickLinesAdd(p: Page) {
   })
 }
 
-export async function mkInvoice(p: Page) {
+export async function mkInvoice(
+  p: Page,
+  options: { amount?: string; paymentTermDays?: number } = {}
+) {
   await p.goto('/admin/invoices')
   await p.waitForLoadState('networkidle')
   await p.locator('#fabAdd').click({ force: true })
   await fillComboboxes(p)
   await clickLinesAdd(p)
   await p.getByRole('textbox', { name: 'Description' }).fill('E2E')
+  if (options.paymentTermDays !== undefined) {
+    const term = p.getByRole('spinbutton', { name: /payment term/i })
+    await term.evaluate((el: HTMLInputElement, value: string) => {
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value'
+      )?.set
+      setter?.call(el, value)
+      el.dispatchEvent(new Event('input', { bubbles: true }))
+      el.dispatchEvent(new Event('change', { bubbles: true }))
+    }, String(options.paymentTermDays))
+  }
   const unitPrice = p.getByRole('spinbutton', { name: 'Unit price' }).first()
-  await unitPrice.evaluate((el: HTMLInputElement) => {
+  await unitPrice.evaluate((el: HTMLInputElement, value: string) => {
     const setter = Object.getOwnPropertyDescriptor(
       window.HTMLInputElement.prototype,
       'value'
     )?.set
-    setter?.call(el, '50.00')
+    setter?.call(el, value)
     el.dispatchEvent(new Event('input', { bubbles: true }))
     el.dispatchEvent(new Event('change', { bubbles: true }))
-  })
+  }, options.amount ?? '50.00')
   await p.getByRole('button', { name: 'Done' }).click()
   await p.getByRole('button', { name: 'Submit' }).click()
-  await expect(p.getByText('€50.00').first()).toBeVisible({ timeout: 10000 })
+  await expect(
+    p.getByText(`€${options.amount ?? '50.00'}`).first()
+  ).toBeVisible({
+    timeout: 10000
+  })
   await p.goto('/admin/invoices')
   await p.waitForLoadState('networkidle')
   await p.locator('.q-expansion-item__toggle-icon').first().click()
@@ -128,10 +210,16 @@ export async function mkInvoice(p: Page) {
     .waitFor({ state: 'visible', timeout: 5000 })
   await moreBtn(p)
   const so = p.getByText('Send').first()
+  // The expansion menu renders async — wait for the item instead of probing
+  // it instantly, or the send is skipped and the invoice stays CONCEPT.
+  await so.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
   if (await so.isVisible().catch(() => false)) await so.click()
+  // The send dialog mounts after the menu item click — wait for it before
+  // filling the subject, otherwise the required subject is left empty and the
+  // send never fires.
   const subj = p.locator('.q-dialog input[type="text"]').first()
+  await subj.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
   if (await subj.isVisible()) {
-    await subj.waitFor({ state: 'visible', timeout: 5000 })
     await subj.fill('Invoice')
   }
   const body = p.locator('.q-dialog textarea').first()

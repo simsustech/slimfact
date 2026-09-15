@@ -176,6 +176,23 @@
                   <q-item-label> {{ lang.invoice.title }} </q-item-label>
                 </q-item-section>
               </q-item>
+              <q-item to="/admin/payments">
+                <q-item-section avatar>
+                  <q-icon name="i-mdi-cash-multiple" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label> {{ lang.payment.payments }} </q-item-label>
+                </q-item-section>
+                <q-item-section
+                  v-if="suggestionCount > 0"
+                  side
+                  data-testid="drawer-suggestion-badge"
+                >
+                  <q-badge color="primary" rounded>
+                    {{ suggestionCount > 99 ? '99+' : suggestionCount }}
+                  </q-badge>
+                </q-item-section>
+              </q-item>
               <q-item to="/admin/subscriptions">
                 <q-item-section avatar>
                   <q-icon name="i-mdi-subscriptions" />
@@ -238,6 +255,11 @@
                     <q-item-label> {{ lang.exports.title }} </q-item-label>
                   </q-item-section>
                 </q-item>
+                <q-item to="/admin/settings/banking">
+                  <q-item-section>
+                    <q-item-label> {{ lang.bank.title }} </q-item-label>
+                  </q-item-section>
+                </q-item>
               </q-expansion-item>
             </q-expansion-item>
           </q-list>
@@ -291,6 +313,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useLang, loadLang } from '../lang/index.js'
 import SlimfactIcon from '../components/SlimFactIcon.vue'
 import NavigationTabs from './NavigationTabs.vue'
+import { useAdminSuggestionCountQuery } from '../queries/admin/bankTransactions.js'
 import { initializeTRPCClient } from '../trpc.js'
 import {
   languageLocales,
@@ -316,7 +339,6 @@ watch(locale, (newVal, oldVal) => {
     loadCheckoutLang(quasarLang)
     loadGeneralLang(quasarLang)
 
-    // @ts-expect-error string
     languageImports.value[quasarLang]().then((lang) => {
       $q.lang.set(lang.default)
     })
@@ -330,6 +352,8 @@ await initializeTRPCClient(configuration.value.API_HOST)
 const router = useRouter()
 const route = useRoute()
 const lang = useLang()
+const { count: suggestionCount, refetch: refetchSuggestionCount } =
+  useAdminSuggestionCountQuery()
 
 const login = () => {
   if (oAuthClient.value) oAuthClient.value.signIn({})
@@ -382,5 +406,10 @@ onMounted(async () => {
   }
 
   ready.value = true
+  // Warm the shared suggestion-count cache so the drawer badge shows without
+  // waiting for defineQuery's lazy auto-run.
+  if (user.value?.roles?.includes('administrator')) {
+    await refetchSuggestionCount().catch(() => {})
+  }
 })
 </script>
