@@ -401,6 +401,26 @@ docker compose -f docker-compose.test.yaml up -d --wait
 cd packages/api && pnpm run test:e2e
 ```
 
+## Release Workflows (GitHub Actions)
+
+Image builds live in `.github/workflows/release staging.yaml` (staging) and `.github/workflows/release.yaml` (production, on `v*.*.*` tags).
+
+Both build with `docker/build-push-action` and pass the local `packages/*` overlays as **build contexts**, declared once in the workflow-level `LINKED_BUILD_CONTEXTS` env var and consumed as `build-contexts: ${{ env.LINKED_BUILD_CONTEXTS }}`.
+
+Trap: `release staging.yaml` is triggered by `workflow_run`, and GitHub always executes a `workflow_run` workflow from its copy on the **default branch (main)** — even though the job then checks out `staging`. A Dockerfile change on staging that needs a new `COPY --from=<name>` overlay therefore fails in CI until the same context is declared in the file on main. BuildKit resolves an undeclared `--from` name as the image `docker.io/library/<name>:latest`, which is why the symptom is a misleading `pull access denied`.
+
+The `verify-build-contexts` job runs first and fails with the exact missing name(s) instead. So adding a `COPY --from=linked-x` to the Dockerfile means adding `linked-x=.docker/empty` to `LINKED_BUILD_CONTEXTS` in **both** release workflows — on main too, otherwise the staging build still uses the stale list.
+
+```bash
+# unit tests for the preflight (fast, no docker)
+bash .github/scripts/verify-build-contexts.test.sh
+
+# run the preflight job of both release workflows through act
+bash .github/scripts/act-release-workflows.test.sh
+```
+
+The act runs cover the preflight job only: act cannot do the checkout steps of these workflows (private repo plus an explicit `ref:`), and the image builds need the npm token and a registry to push to. The act test therefore drops those checkout `with:` blocks and seeds the workspace from the local tree — see `.github/scripts/act-release-workflows.test.sh` for how and why.
+
 ## Database
 
 - Migrations: `packages/api/src/kysely/migrations/`
