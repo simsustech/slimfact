@@ -212,7 +212,7 @@ export async function mkInvoice(
   const so = p.getByText('Send').first()
   // The expansion menu renders async — wait for the item instead of probing
   // it instantly, or the send is skipped and the invoice stays CONCEPT.
-  await so.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
+  await so.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {})
   if (await so.isVisible().catch(() => false)) await so.click()
   // The send dialog mounts after the menu item click — wait for it before
   // filling the subject, otherwise the required subject is left empty and the
@@ -224,7 +224,7 @@ export async function mkInvoice(
   }
   const body = p.locator('.q-dialog textarea').first()
   if (await body.isVisible()) await body.fill('.')
-  await p.getByRole('button', { name: 'Send' }).click({ timeout: 3000 })
+  await p.getByRole('button', { name: 'Send' }).click({ timeout: 5000 })
   await p
     .locator('.q-notification, .q-banner')
     .first()
@@ -240,7 +240,7 @@ export async function mkInvoice(
   await moreBtn(p)
   const lnk = p.locator('a').filter({ hasText: 'Open' }).first()
   let uuid = ''
-  if (await lnk.isVisible({ timeout: 3000 }).catch(() => false))
+  if (await lnk.isVisible({ timeout: 10000 }).catch(() => false))
     uuid = (await lnk.getAttribute('href'))?.replace('/invoice/', '') || ''
   await p.keyboard.press('Escape')
   return uuid

@@ -19,3 +19,4 @@ failure_memories.txt
 # `COPY . .` and survived the rebuild (tsc adds, never prunes).
 **/dist
 **/dist/**
+.worktrees

@@ -169,9 +169,7 @@ test.describe('Bill Lifecycle', () => {
         .waitFor({ state: 'visible', timeout: 10000 })
         .catch(() => {})
     }
-
-    await page.goto('/admin/invoices')
-    await page.waitForLoadState('networkidle')
+    // Re-expand: payment re-rendered the expansion item, collapsing it.
     await page.locator('.q-expansion-item__toggle-icon').first().click()
     await page
       .locator('.q-expansion-item__content')
