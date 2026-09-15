@@ -8,13 +8,52 @@ on:
     types:
       - completed
 
+# workflow_run always executes THIS file as it exists on the default branch
+# (main), no matter which branch triggered it. The checkouts below still use the
+# staging branch, so this file's job graph and LINKED_BUILD_CONTEXTS have to stay
+# in sync with the staging Dockerfile via main.
+concurrency:
+  group: release-staging
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  # Single source of truth for the LINKED_* overlay contexts, consumed by the
+  # `COPY --from=<name>` lines in ./Dockerfile (see docker-compose
+  # additional_contexts). A name missing here is resolved by BuildKit as a
+  # Docker Hub image and fails as "pull access denied"; the
+  # verify-build-contexts job below reports the missing name instead.
+  LINKED_BUILD_CONTEXTS: |
+    linked-quasar-components=.docker/empty
+    linked-vitrify=.docker/empty
+    linked-unocss-preset-quasar=.docker/empty
+    linked-modular-api=.docker/empty
+    linked-modular-api-api=.docker/empty
+    linked-modular-api-fastify-oidc=.docker/empty
+    linked-modular-api-fastify-checkout=.docker/empty
+    linked-modular-api-event-bus=.docker/empty
+    linked-modular-api-quasar-components=.docker/empty
 
 jobs:
-  build-and-push-image:
+  verify-build-contexts:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: staging
+          persist-credentials: false
+
+      - name: Verify Dockerfile build contexts
+        id: preflight
+        run: bash .github/scripts/verify-build-contexts.sh
+
+  build-and-push-image:
+    needs: [verify-build-contexts]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -24,6 +63,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: staging
+          persist-credentials: false
 
       - name: Log in to the Container registry
         uses: docker/login-action@v4
@@ -41,7 +81,7 @@ jobs:
             type=raw,value=staging
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -50,21 +90,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
-          build-contexts: |
-            linked-quasar-components=.docker/empty
-            linked-vitrify=.docker/empty
-            linked-unocss-preset-quasar=.docker/empty
-            linked-modular-api=.docker/empty
-            linked-modular-api-api=.docker/empty
-            linked-modular-api-fastify-oidc=.docker/empty
-            linked-modular-api-fastify-checkout=.docker/empty
-            linked-modular-api-event-bus=.docker/empty
-            linked-modular-api-quasar-components=.docker/empty
+          build-contexts: ${{ env.LINKED_BUILD_CONTEXTS }}
 
   # banking-api ships as its own package: consumers deploy it separately from the
   # app, and they need independent version history and pull access.
   build-and-push-banking-api-image:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: [verify-build-contexts]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -74,6 +105,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: staging
+          persist-credentials: false
 
       - name: Log in to the Container registry
         uses: docker/login-action@v4
@@ -91,7 +123,7 @@ jobs:
             type=raw,value=staging
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -100,13 +132,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
-          build-contexts: |
-            linked-quasar-components=.docker/empty
-            linked-vitrify=.docker/empty
-            linked-unocss-preset-quasar=.docker/empty
-            linked-modular-api=.docker/empty
-            linked-modular-api-api=.docker/empty
-            linked-modular-api-fastify-oidc=.docker/empty
-            linked-modular-api-fastify-checkout=.docker/empty
-            linked-modular-api-event-bus=.docker/empty
-            linked-modular-api-quasar-components=.docker/empty
+          build-contexts: ${{ env.LINKED_BUILD_CONTEXTS }}
