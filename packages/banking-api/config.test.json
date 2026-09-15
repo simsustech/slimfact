@@ -1,0 +1,10 @@
+{
+  "apiKeys": [
+    {
+      "label": "e2e-test",
+      "key": "obk_test_6xJo6yNf2Biim50gmr0yfOVyK2Slug4LryYFqWoT_vw",
+      "scopes": ["read", "sync"],
+      "accounts": ["knab-acc", "rabobank-acc"]
+    }
+  ]
+}

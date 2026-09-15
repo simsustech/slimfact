@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { clickLinesAdd, fillComboboxes, moreBtn } from './helpers'
+import { fillComboboxes, moreBtn } from './helpers'
+import { login } from './setup'
 
 const email = 'admin@slimfact.app'
 const password = 'Sif5uEG5hcTH'
@@ -9,19 +10,15 @@ let page: Page
 
 test.describe.configure({ mode: 'serial' })
 
-test.beforeAll(async ({ browser }) => {
+// Fresh page per test: reusing one page across create-dialog flows breaks the
+// second dialog (Lines section never renders) — see AGENTS.md "Shared page
+// state".
+test.beforeEach(async ({ browser }) => {
   page = await browser.newPage()
-  await page.goto('/')
-  await page.click('text=Login')
-  await page.waitForLoadState('networkidle')
-  await expect(page).toHaveURL(/.*login/)
-  await page.locator('text="Email"').fill(email)
-  await page.locator('text="Password"').fill(password)
-  await page.locator('button >> text=Login').click()
-  await page.waitForURL(/.*user/)
+  await login({ page, email, password })
 })
 
-test.afterAll(async () => {
+test.afterEach(async () => {
   await page.close()
 })
 
@@ -29,9 +26,19 @@ async function createInvoice(status?: string): Promise<number> {
   await page.goto('/admin/invoices')
   await page.waitForLoadState('networkidle')
   await page.locator('#fabAdd').click()
+  // Ensure the create dialog actually opened before interacting — on a
+  // reused page the click can race the previous dialog teardown.
+  await page.locator('.q-dialog').waitFor({ state: 'visible', timeout: 10_000 })
   await fillComboboxes(page)
 
-  await clickLinesAdd(page)
+  // The Lines section renders its header ('Lines') and an Add button as
+  // separate nodes inside one list.
+  await page
+    .getByRole('list')
+    .filter({ hasText: 'Lines' })
+    .getByRole('button', { name: 'Add' })
+    .first()
+    .click()
   await page.getByRole('textbox', { name: 'Description' }).fill('Flow test')
   await page.getByRole('spinbutton', { name: 'Unit price' }).fill('100.00')
   await page.getByRole('button', { name: 'Done' }).click()
@@ -58,8 +65,6 @@ async function createInvoice(status?: string): Promise<number> {
     .waitFor({ state: 'visible', timeout: 5000 })
 
   await moreBtn(page)
-  const sendBtn = page.getByText('Send').first()
-  const hasSend = await sendBtn.isVisible({ timeout: 2000 }).catch(() => false)
 
   const items = await page.locator('.q-expansion-item').count()
   await page.keyboard.press('Escape')
@@ -96,10 +101,8 @@ test.describe('Invoice Lifecycle \u2014 Valid Transitions', () => {
     const cancelBtn = page.getByText('Cancel').first()
     await expect(cancelBtn).toBeVisible({ timeout: 3000 })
     await cancelBtn.click()
-    await page
-      .getByRole('dialog')
-      .getByRole('button', { name: /cancel/i })
-      .click({ timeout: 3000 })
+    const dialog = page.locator('.q-dialog')
+    await dialog.getByRole('button', { name: /ok/i }).click({ timeout: 3000 })
 
     await expect(page.getByRole('dialog')).not.toBeAttached({
       timeout: 5000
@@ -113,7 +116,12 @@ test.describe('Bill Lifecycle', () => {
     await page.waitForLoadState('networkidle')
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
-    await clickLinesAdd(page)
+    await page
+      .getByRole('list')
+      .filter({ hasText: 'Lines' })
+      .getByRole('button', { name: 'Add' })
+      .first()
+      .click()
     await page.getByRole('textbox', { name: 'Description' }).fill('Bill test')
     await page.getByRole('spinbutton', { name: 'Unit price' }).fill('50.00')
     await page.getByRole('button', { name: 'Done' }).click()
@@ -134,14 +142,27 @@ test.describe('Bill Lifecycle', () => {
     const addPaymentBtn = page.getByText('Add payment').first()
     if (await addPaymentBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await addPaymentBtn.click()
-      // Menu opens with individual payment method items — click Cash
+      // "Add payment" opens a method sub-menu (Cash / Bank transfer / PIN) —
+      // no combobox. Same pattern as payments.spec.ts.
+      // Click the q-item itself, not its overline label — the label div is
+      // visually hidden (overline styling) and intermittently unclickable.
       await page
-        .getByText('Cash', { exact: false })
+        .locator('.q-menu .q-item')
+        .filter({ hasText: 'Cash' })
         .first()
-        .click({ timeout: 3000 })
-      // AddPaymentDialog opens with amount field
-      await page.getByRole('spinbutton').fill('50.00')
-      await page.getByRole('button', { name: /ok/i }).click({ timeout: 3000 })
+        .click()
+      await page
+        .getByRole('dialog')
+        .first()
+        .waitFor({ state: 'visible', timeout: 5000 })
+        .catch(() => {})
+      const fillTotalButton = page
+        .locator('.q-dialog button i[class*="mdi-dollar"]')
+        .first()
+      if (await fillTotalButton.isVisible().catch(() => false)) {
+        await fillTotalButton.click()
+      }
+      await page.locator('.q-dialog button:has-text("OK")').click()
       await page
         .locator('.q-notification')
         .first()
@@ -190,7 +211,12 @@ test.describe('Invoice Lifecycle \u2014 Blocked Transitions', () => {
     await page.waitForLoadState('networkidle')
     await page.locator('#fabAdd').click()
     await fillComboboxes(page)
-    await clickLinesAdd(page)
+    await page
+      .getByRole('list')
+      .filter({ hasText: 'Lines' })
+      .getByRole('button', { name: 'Add' })
+      .first()
+      .click()
     await page
       .getByRole('textbox', { name: 'Description' })
       .fill('Blocked bill')
@@ -212,7 +238,9 @@ test.describe('Invoice Lifecycle \u2014 Blocked Transitions', () => {
 
     await expect(page.locator('.q-expansion-item').first()).not.toContainText(
       'open',
-      { timeout: 3000 }
+      {
+        timeout: 3000
+      }
     )
     await page.keyboard.press('Escape')
   })
@@ -231,5 +259,121 @@ test.describe('Invoice Lifecycle \u2014 Blocked Transitions', () => {
     const sendReceiptBtn = page.getByText('Send receipt').first()
     await expect(sendReceiptBtn).not.toBeVisible({ timeout: 2000 })
     await page.keyboard.press('Escape')
+  })
+})
+
+test.describe('Payment dates & deletion', () => {
+  test('manual bank-transfer payment records the chosen date', async () => {
+    test.slow()
+    const { mkInvoice } = await import('./helpers')
+    const uuid = await mkInvoice(page)
+    expect(uuid).toBeTruthy()
+
+    await page.goto('/admin/invoices')
+    await page.waitForLoadState('networkidle')
+    await page.locator('.q-expansion-item__toggle-icon').first().click()
+    await page
+      .locator('.q-expansion-item__content')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+    await moreBtn(page)
+
+    await page.getByRole('button', { name: 'Add payment' }).first().click()
+    await page.getByRole('button', { name: 'Bank transfer' }).first().click()
+    const dialog = page.locator('.q-dialog').first()
+    await dialog.waitFor({ state: 'visible', timeout: 5000 })
+
+    // Fill the full outstanding amount via the currency shortcut button.
+    const fillTotalButton = dialog
+      .locator('button i[class*="mdi-dollar"]')
+      .first()
+    await fillTotalButton.click()
+
+    // Required DateInput (DD-MM-YYYY part inputs) — book on a past date.
+    const dateInputs = dialog.locator('.date-input-field input')
+    await dateInputs.nth(0).fill('20')
+    await dateInputs.nth(1).fill('08')
+    await dateInputs.nth(2).fill('2026')
+
+    await dialog.locator('button:has-text("OK")').click()
+    await page
+      .locator('.q-notification')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 })
+      .catch(() => {})
+
+    // The payments tab must render the chosen booking date.
+    await page.goto('/admin/invoices')
+    await page.waitForLoadState('networkidle')
+    await page.locator('.q-expansion-item__toggle-icon').first().click()
+    await page
+      .locator('.q-expansion-item__content')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+    await page.getByRole('tab', { name: 'Payments' }).click()
+    await expect(page.getByText(/8\/20\/\d{2,4}/).first()).toBeVisible({
+      timeout: 5000
+    })
+  })
+
+  test('deleting an offline payment reverts a fully paid invoice to open', async () => {
+    test.slow()
+    const { mkInvoice } = await import('./helpers')
+    const uuid = await mkInvoice(page)
+    expect(uuid).toBeTruthy()
+
+    // Pay the invoice in full with cash.
+    await page.goto('/admin/invoices')
+    await page.waitForLoadState('networkidle')
+    await page.locator('.q-expansion-item__toggle-icon').first().click()
+    await page
+      .locator('.q-expansion-item__content')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+    await moreBtn(page)
+    await page.getByRole('button', { name: 'Add payment' }).first().click()
+    await page.getByRole('button', { name: 'Cash' }).first().click()
+    const dialog = page.locator('.q-dialog').first()
+    await dialog.waitFor({ state: 'visible', timeout: 5000 })
+    const fillTotalButton = dialog
+      .locator('button i[class*="mdi-dollar"]')
+      .first()
+    await fillTotalButton.click()
+    await dialog.locator('button:has-text("OK")').click()
+    await page
+      .locator('.q-notification')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 })
+      .catch(() => {})
+
+    // Fully paid: delete the payment from the payments tab.
+    await page.goto('/admin/invoices')
+    await page.waitForLoadState('networkidle')
+    await page.locator('.q-expansion-item__toggle-icon').first().click()
+    await page
+      .locator('.q-expansion-item__content')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+    await page.getByRole('tab', { name: 'Payments' }).click()
+
+    const deletePaymentBtn = page.getByRole('button', {
+      name: 'Delete payment'
+    })
+    await deletePaymentBtn.first().click()
+
+    const confirmDialog = page.locator('.q-dialog').last()
+    await confirmDialog.waitFor({ state: 'visible', timeout: 5000 })
+    await confirmDialog.getByRole('button', { name: /ok/i }).click()
+    await page
+      .locator('.q-notification')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 })
+      .catch(() => {})
+
+    // Reverted to open: "Add payment" must be offered again.
+    await moreBtn(page)
+    await expect(page.getByText('Add payment').first()).toBeVisible({
+      timeout: 5000
+    })
   })
 })

@@ -58,4 +58,55 @@ jobs:
             linked-modular-api-api=.docker/empty
             linked-modular-api-fastify-oidc=.docker/empty
             linked-modular-api-fastify-checkout=.docker/empty
+            linked-modular-api-event-bus=.docker/empty
+            linked-modular-api-quasar-components=.docker/empty
+
+  # banking-api ships as its own package: consumers deploy it separately from the
+  # app, and they need independent version history and pull access.
+  build-and-push-banking-api-image:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: staging
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-banking-api
+          tags: |
+            type=raw,value=staging
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          target: banking-api
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          secrets: |
+            "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
+          build-contexts: |
+            linked-quasar-components=.docker/empty
+            linked-vitrify=.docker/empty
+            linked-unocss-preset-quasar=.docker/empty
+            linked-modular-api=.docker/empty
+            linked-modular-api-api=.docker/empty
+            linked-modular-api-fastify-oidc=.docker/empty
+            linked-modular-api-fastify-checkout=.docker/empty
+            linked-modular-api-event-bus=.docker/empty
             linked-modular-api-quasar-components=.docker/empty

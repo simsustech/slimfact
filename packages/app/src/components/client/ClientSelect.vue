@@ -1,10 +1,18 @@
 <template>
   <filtered-model-select
     :label="`${lang.client.client}`"
-    :filtered-options="filteredOptions"
+    :filtered-options="
+      filteredOptions as { id: number; [key: string]: unknown }[]
+    "
     label-key="companyName"
     :label-function="
-      (option) => `${option.companyName || option.contactPersonName}`
+      (option: unknown) => {
+        const o = option as {
+          companyName?: string | null
+          contactPersonName?: string | null
+        }
+        return `${o.companyName || o.contactPersonName}`
+      }
     "
   >
     <template
@@ -38,7 +46,18 @@ import { useLang } from '../../lang/index.js'
 import { FilteredModelSelect } from '@simsustech/quasar-components/form'
 
 export interface Props {
-  filteredOptions: { id: number; [key: string]: unknown }[]
+  filteredOptions: readonly { id?: number }[]
+  /**
+   * Typed for parents that reference `$props['onFilter']` when typing their
+   * `@filter` handlers. Not forwarded as FilteredModelSelect's onFilter prop:
+   * parents pass `@filter` which binds to FilteredModelSelect's own filter
+   * emit (plain dropdown stays open); typing-to-filter is driven by
+   * FilteredModelSelect's filter emit reaching the parent's handler.
+   */
+  onFilter?: (args: {
+    searchPhrase: string
+    done: (success?: boolean) => void
+  }) => unknown
 }
 defineProps<Props>()
 

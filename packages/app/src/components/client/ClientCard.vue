@@ -11,7 +11,7 @@
         <form-item
           v-for="field in fields"
           :key="field"
-          :model-value="field === 'country' ? countryLabel : modelValue[field]"
+          :model-value="field === 'country' ? countryLabel : fieldValue(field)"
           :label="lang.client.fields[field]"
         />
       </q-list>
@@ -30,7 +30,7 @@ import { useLang as useFormLang } from '@simsustech/quasar-components/form'
 export interface Props {
   modelValue: ClientDetails
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 
 // const emit = defineEmits<{
 //   (
@@ -58,6 +58,11 @@ const fields = ref([
   'email'
 ] as const)
 
+const fieldValue = (field: (typeof fields.value)[number]) => {
+  const value = props.modelValue[field]
+  return value == null ? undefined : (value as string)
+}
+
 // const update = (data: ClientDetails) => {
 //   function done() {
 //     //
@@ -65,6 +70,6 @@ const fields = ref([
 //   emit('update', { data, done })
 // }
 const countryLabel = computed(
-  () => formLang.value.countries[modelValue.country as ISO3166]
+  () => formLang.value.countries[props.modelValue.country as ISO3166]
 )
 </script>

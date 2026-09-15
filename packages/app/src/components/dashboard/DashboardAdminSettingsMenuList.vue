@@ -34,6 +34,14 @@
         </q-item-label>
       </q-item-section>
     </q-item>
+    <q-item to="/admin/settings/banking">
+      <q-item-section avatar>
+        <q-icon :name="BANK_ICON" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label> {{ lang.bank.title }} </q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item to="/admin/settings/exports">
       <q-item-section avatar>
         <q-icon :name="EXPORT_ICON" />
@@ -48,6 +56,7 @@
 <script setup lang="ts">
 import {
   ACCOUNTS_ICON,
+  BANK_ICON,
   COMPANY_ICON,
   EXPORT_ICON,
   INITIAL_NUMBER_FOR_PREFIX_ICON,

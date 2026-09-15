@@ -65,7 +65,8 @@ const toText = (file: File) =>
   new Promise<string | null>((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsText(file)
-    reader.onload = () => resolve(reader.result)
+    reader.onload = () =>
+      resolve(typeof reader.result === 'string' ? reader.result : null)
     reader.onerror = (error) => reject(error)
   })
 
@@ -81,14 +82,14 @@ const { allowChange, modelValue } = toRefs(props)
 const fileSelector = ref<typeof QFile>()
 const pickFiles = () => fileSelector.value?.pickFiles()
 const open = () => {
-  if (modelValue?.value) imageDialog.value.functions.open()
+  if (modelValue?.value) imageDialog.value?.functions.open()
 }
 const image = ref<File>()
 
 const setImage: QFileProps['onUpdate:modelValue'] = async (file) => {
   if (!import.meta.env.SSR) {
     const text = await toText(file)
-    emit('update:modelValue', text)
+    if (text !== null) emit('update:modelValue', text)
   }
 }
 

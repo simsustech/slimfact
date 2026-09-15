@@ -2,7 +2,9 @@
   <filtered-model-select
     v-bind="attrs"
     :label="lang.account.name"
-    :filtered-options="filteredOptions"
+    :filtered-options="
+      filteredOptions as { id: number; [key: string]: unknown }[]
+    "
     label-key="email"
   >
     <template
@@ -27,7 +29,17 @@ import { useAttrs } from 'vue'
 import { useLang } from '../../lang/index.js'
 
 export interface Props {
-  filteredOptions: { id: number; [key: string]: unknown }[]
+  filteredOptions: readonly { id?: number }[]
+  /**
+   * Typed for parents that reference `$props['onFilter']` when typing their
+   * `@filter` handlers. Not forwarded: AccountSelect spreads attrs so the
+   * parent's @filter listener reaches FilteredModelSelect naturally.
+   */
+  onFilter?: (args: {
+    ids: number[]
+    searchPhrase: string
+    done: (success?: boolean) => void
+  }) => unknown
 }
 defineProps<Props>()
 const attrs = useAttrs()

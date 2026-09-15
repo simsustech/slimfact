@@ -19,6 +19,7 @@ const lang: Language = {
   updateAvailable: 'An update is available.',
   refresh: 'Refresh',
   name: 'Name',
+  image: 'Image',
   overview: 'Overview',
   noResultsAvailable: 'No results available.',
   rowsPerPage: 'Rows per page',
@@ -130,7 +131,8 @@ const lang: Language = {
       paid: 'Paid',
       receipt: 'Receipt',
       canceled: 'Canceled',
-      bill: 'Bill'
+      bill: 'Bill',
+      overdue: 'Overdue'
     },
     labels: {
       open: 'Open',
@@ -139,6 +141,8 @@ const lang: Language = {
       send: 'Send',
       sendInvoice: 'Send invoice',
       sendReceipt: 'Send receipt',
+
+      dueBy: (date: string) => `Due by ${date}`,
       sendReminder: 'Send reminder',
       sendExhortation: 'Send exhortation',
       markPaid: 'Mark paid',
@@ -244,12 +248,24 @@ const lang: Language = {
     payments: 'Payments',
     pay: 'Pay',
     addPayment: 'Add payment',
+
+    confirmDeletePayment: ({
+      method,
+      number,
+      amount
+    }: {
+      method: string
+      number: string
+      amount: string
+    }) =>
+      `Are you sure you want to delete the ${method} payment for invoice ${number} with the amount of ${amount}?`,
     amountDue: 'Amount due',
     amountPaid: 'Amount paid',
     amountRefunded: 'Amount refunded',
     downPayment: 'Down payment',
     fields: {
       transactionReference: 'Transaction reference',
+      date: 'Date',
       description: 'Description'
     },
     methods: {
@@ -259,9 +275,95 @@ const lang: Language = {
       pin: 'PIN',
       creditcard: 'Credit card'
     },
+    descriptions: {
+      cashPayment: 'Cash payment',
+      bankTransferPayment: 'Bank transfer payment',
+      pinPayment: 'PIN payment'
+    },
     messages: {
       scanQrOrUseInformationBelow:
         'Scan the QR code if your bank supports it or use the information supplied below.'
+    },
+    overview: {
+      title: 'Payments',
+      fromDate: 'From',
+      toDate: 'To',
+      columns: {
+        date: 'Date',
+        method: 'Method',
+        description: 'Description',
+        invoice: 'Invoice',
+        client: 'Client',
+        amount: 'Amount',
+        status: 'Status',
+        psp: 'PSP'
+      },
+      in: 'In',
+      refunded: 'Refunded',
+      net: 'Net',
+      count: 'Count',
+      source: 'Source',
+      sources: {
+        payments: 'Payments',
+        refunds: 'Refunds'
+      },
+      methods: 'Methods',
+      statuses: 'Statuses',
+      psps: 'PSPs',
+      deletePayment: 'Delete payment',
+      search: 'Search',
+      filters: 'Filters',
+      refresh: 'Refresh',
+      export: 'Export CSV',
+      empty: 'No payments match the current filters.',
+      truncated: 'Showing the first 10,000 rows — narrow your range.',
+      filterSummary: ({
+        from,
+        to,
+        q,
+        methods,
+        statuses,
+        psps,
+        sources
+      }: {
+        from?: string
+        to?: string
+        q?: string
+        methods: string[]
+        statuses: string[]
+        psps: string[]
+        sources: string[]
+      }) => {
+        const clauses: string[] = []
+        if (from && to) clauses.push(`from ${from} to ${to}`)
+        else if (from) clauses.push(`from ${from}`)
+        else if (to) clauses.push(`until ${to}`)
+        if (q) clauses.push(`matching "${q}"`)
+        if (statuses.length)
+          clauses.push(
+            `with status ${statuses.map((s) => `'${s}'`).join(', ')}`
+          )
+        if (methods.length) clauses.push(`with method ${methods.join(', ')}`)
+        if (psps.length) clauses.push(`via ${psps.join(', ')}`)
+        if (sources.length === 1) clauses.push(`source: ${sources[0]}`)
+        return clauses.length ? `Payments ${clauses.join(' ')}` : ''
+      },
+      tabs: {
+        payments: 'Payments',
+        suggestions: 'Suggestions'
+      }
+    },
+
+    suggestions: {
+      empty: 'No suggestions match the current filters.',
+      loading: 'Loading suggestions…',
+      link: 'Link',
+      adoptBadge: 'Adopt',
+      topSuggestion: 'Suggestion',
+      score: 'Score',
+      dismiss: 'Dismiss',
+      confirmDismiss: ({ amount }: { amount: string }) =>
+        `Are you sure you want to dismiss the suggestion of ${amount}?`
     }
   },
   refund: {
@@ -370,10 +472,95 @@ const lang: Language = {
     }
   },
   settings: { title: 'Settings' },
+  bank: {
+    title: 'Bank',
+    pages: {
+      overview: 'Overview',
+      review: 'Review',
+      settings: 'Settings'
+    },
+    columns: {
+      date: 'Date',
+      amount: 'Amount',
+      counterparty: 'Counterparty',
+      description: 'Description',
+      account: 'Account',
+      company: 'Company',
+      linked: 'Status',
+      match: 'Match'
+    },
+    actions: {
+      refresh: 'Refresh',
+      link: 'Link',
+      view: 'View',
+      viewLinked: 'View linked invoices',
+      linkTransaction: 'Link transaction',
+      syncNow: 'Sync now',
+      linkCompanies: 'Link companies'
+    },
+    coverage: {
+      unlinked: 'Unlinked',
+      partial: 'Partially linked',
+      full: 'Linked',
+      settled: 'Settled'
+    },
+    settlementDetails: 'Settlement details',
+    linkDialog: {
+      title: 'Link bank credit',
+      confirm: 'Link',
+      cancel: 'Cancel',
+      pspSettlement: 'PSP settlement {id}',
+      pspPayments: 'PSP payments',
+      splitRemaining:
+        '{amount} of {total} — the remaining {remaining} is covered by other transaction(s)',
+      multiTotal: 'Total {amount}',
+      selectInvoices: 'Select invoices',
+      noCandidates: 'No open invoices to link',
+      selectedTotal: '{amount} selected',
+      matchComplete: 'Full amount covered',
+      matchDifference: '{amount} remaining',
+      matchOver: '{amount} over',
+      fee: 'Fee {amount}'
+    },
+    linked: 'Linked',
+    suggested: 'Suggested',
+    unlinked: 'Unlinked',
+    linkedTo: 'Linked to {number}',
+    adopt: 'Link to payment on invoice {number} (already paid by bank)',
+    allLinked: 'All',
+    onlySuggestions: 'Suggestions only',
+    adoptNote: 'This invoice was already paid by bank transfer.',
+    linkedDocuments: 'Linked documents',
+    unlinkedTransactions: 'Unlinked transactions',
+    fromDate: 'From',
+    toDate: 'To',
+    syncing: 'Syncing…',
+    syncRequested: 'Sync requested',
+    syncRunning: 'Syncing…',
+    empty: 'No bank transactions yet.',
+    reviewEmpty: 'Nothing to match — all incoming credits are settled.',
+    notConfigured:
+      'Open-banking is not configured. Set OPENBANKING_CREDENTIALS_JSON to enable bank import.',
+    connections: 'Connections',
+    noConnections: 'No bank connections found.',
+    validUntil: 'Valid until',
+    accounts: 'Accounts',
+    companyFilter: 'Companies',
+    noAccounts: 'No accounts yet.',
+    requiresReauth: 'Reauthorization required',
+    statusActive: 'Active',
+    allCompanies: 'All companies',
+    syncCompleted: 'Sync completed',
+    syncFailed: 'Sync failed',
+    actionFailed: 'Action failed',
+    suggestionMulti: '{count} invoices',
+    partialCoverageLinked: '{linked} of {total} linked'
+  },
   invoiceEvents: {
     events: 'Events',
     types: {
-      emailOpened: 'Invoice opened from email.'
+      emailOpened: 'Invoice opened from email.',
+      paymentDeleted: 'Payment deleted.'
     }
   }
 }

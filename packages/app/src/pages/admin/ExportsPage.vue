@@ -22,8 +22,8 @@
           firstDayOfWeek: '1'
         }"
         :icons="{
-          event: 'i-mdi-event',
-          clear: 'i-mdi-clear'
+          event: 'i-mdi-calendar',
+          clear: 'i-mdi-close'
         }"
       />
       <date-input
@@ -38,8 +38,8 @@
           firstDayOfWeek: '1'
         }"
         :icons="{
-          event: 'i-mdi-event',
-          clear: 'i-mdi-clear'
+          event: 'i-mdi-calendar',
+          clear: 'i-mdi-close'
         }"
       />
     </div>
@@ -112,7 +112,7 @@ const { data: digibooxCsv, refetch: executeDigibooxInvoices } = useQuery({
 
 const downloadDigibooxInvoices = async () => {
   await executeDigibooxInvoices()
-  if (digibooxCsv.value) exportFile('digiboox.csv', digibooxCsv.value)
+  if (digibooxCsv.value) exportFile('digiboox.csv', String(digibooxCsv.value))
 }
 
 const {

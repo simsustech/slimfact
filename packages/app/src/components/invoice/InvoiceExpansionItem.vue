@@ -2,18 +2,20 @@
   <q-expansion-item class="full-width" :content-inset-level="1">
     <template #header>
       <q-item-section avatar>
-        <invoice-status-avatar
-          :model-value="modelValue.status"
-          :paid="
-            !!modelValue.amountPaid &&
-            modelValue.amountPaid >= modelValue.totalIncludingTax
-          "
-          :down-payment-received="
-            !!modelValue.amountPaid &&
-            !!modelValue.requiredDownPaymentAmount &&
-            modelValue.amountPaid >= modelValue.requiredDownPaymentAmount
-          "
-        />
+        <slot name="item-avatar">
+          <invoice-status-avatar
+            :model-value="modelValue.status"
+            :paid="
+              !!modelValue.amountPaid &&
+              modelValue.amountPaid >= modelValue.totalIncludingTax
+            "
+            :down-payment-received="
+              !!modelValue.amountPaid &&
+              !!modelValue.requiredDownPaymentAmount &&
+              modelValue.amountPaid >= modelValue.requiredDownPaymentAmount
+            "
+          />
+        </slot>
         <price
           :model-value="modelValue.totalIncludingTax"
           :currency="modelValue.currency"
@@ -31,6 +33,9 @@
             )
           }}
         </q-item-label>
+        <q-item-label caption v-if="modelValue.dueDate">
+          {{ lang.invoice.labels.dueBy(formatDate(modelValue.dueDate)) }}
+        </q-item-label>
         <q-item-label>
           <div class="row justify-between">
             <div class="col-9">
@@ -40,341 +45,289 @@
               }}
             </div>
             <div class="col-3 text-right">
-              <!-- <price
-                :model-value="modelValue.totalIncludingTax"
-                :currency="modelValue.currency"
-              /> -->
+              <q-badge v-if="isOverdue" color="negative">
+                {{ lang.invoice.status.overdue }}
+              </q-badge>
             </div>
           </div>
         </q-item-label>
-        <!-- <q-item-label caption>
-          <q-icon
-            v-if="
-              modelValue.amountPaid &&
-              modelValue.amountPaid >= modelValue.totalIncludingTax
-            "
-            name="check"
-            color="green"
-          >
-            <q-tooltip>
-              {{ lang.invoice.status.paid }}
-            </q-tooltip>
-          </q-icon>
-          <price
-            :model-value="modelValue.totalIncludingTax"
-            :currency="modelValue.currency"
-          />
-        </q-item-label> -->
       </q-item-section>
       <q-item-section side>
-        <q-btn flat round icon="i-mdi-more-vert">
-          <q-menu>
-            <q-list>
-              <q-item
-                v-if="![InvoiceStatus.CANCELED].includes(modelValue.status)"
-                v-close-popup
-                :href="`/invoice/${modelValue.uuid}`"
-                target="_blank"
-                clickable
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-open-in-new" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.open }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="
-                  [InvoiceStatus.CONCEPT, InvoiceStatus.BILL].includes(
-                    modelValue.status
-                  )
-                "
-                v-close-popup
-                clickable
-                @click.stop="update(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-edit" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.update }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="
-                  [InvoiceStatus.CONCEPT, InvoiceStatus.BILL].includes(
-                    modelValue.status
-                  ) && onSend
-                "
-                v-close-popup
-                clickable
-                @click.stop="send(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-send" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.send }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="[InvoiceStatus.RECEIPT].includes(modelValue.status)"
-                v-close-popup
-                clickable
-                @click.stop="sendInvoice(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-send" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.sendInvoice }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="
-                  modelValue.status === 'open' &&
-                  lastReminderDate &&
-                  getFutureDate(lastReminderDate, { days: 7 }) < currentDate
-                "
-                v-close-popup
-                clickable
-                @click.stop="sendReminder(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-notifications" color="yellow" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.sendReminder }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="
-                  modelValue.status === 'open' &&
-                  modelValue.reminderSentDates?.length === 2 &&
-                  getFutureDate(lastReminderDate, { days: 5 }) < currentDate
-                "
-                v-close-popup
-                clickable
-                @click.stop="sendExhortation(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-notifications" color="red" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.sendExhortation }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <!-- <q-item
-                v-if="
-                  [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(
-                    modelValue.status
-                  ) && modelValue.amountPaid
-                    ? modelValue.amountPaid >= modelValue.totalIncludingTax
-                    : false
-                "
-                @click="markPaid(modelValue)"
-                clickable
-              >
-                <q-item-section avatar>
-                  <q-icon name="paid" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.markPaid }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item> -->
-              <q-item
-                v-if="
-                  [InvoiceStatus.BILL].includes(modelValue.status) &&
-                  modelValue.amountPaid
-                    ? modelValue.amountPaid >= modelValue.totalIncludingTax
-                    : false
-                "
-                v-close-popup
-                clickable
-                @click="sendReceipt(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-receipt-send" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.bill.labels.sendReceipt }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="
-                  [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(
-                    modelValue.status
-                  ) &&
-                  modelValue.amountDue &&
-                  (onAddPaymentCash ||
-                    onAddPaymentBankTransfer ||
-                    onAddPaymentPin ||
-                    onAddPaymentWero ||
-                    onAddPaymentCreditcard)
-                "
-                clickable
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-payment" />
-                </q-item-section>
-                <q-item-section>{{ lang.payment.addPayment }}</q-item-section>
-                <q-item-section side>
-                  <q-icon name="i-mdi-chevron-right" />
-                </q-item-section>
-                <q-menu
-                  :cover="$q.screen.lt.md"
-                  anchor="top end"
-                  self="top start"
+        <slot name="item-side">
+          <q-btn flat round icon="i-mdi-more-vert">
+            <q-menu>
+              <q-list>
+                <q-item
+                  v-if="![InvoiceStatus.CANCELED].includes(modelValue.status)"
+                  v-close-popup
+                  :href="`/invoice/${modelValue.uuid}`"
+                  target="_blank"
+                  clickable
                 >
-                  <q-list>
-                    <q-item
-                      v-if="onAddPaymentCash"
-                      v-close-popup
-                      clickable
-                      @click="addPaymentCash(modelValue)"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="i-mdi-attach-money"></q-icon>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>
-                          {{ lang.payment.methods.cash }}
-                        </q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item
-                      v-if="onAddPaymentBankTransfer"
-                      v-close-popup
-                      clickable
-                      @click="addPaymentBankTransfer(modelValue)"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="i-mdi-account-payment"></q-icon>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>
-                          {{ lang.payment.methods.bankTransfer }}
-                        </q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item
-                      v-if="onAddPaymentPin"
-                      v-close-popup
-                      clickable
-                      @click="addPaymentPin(modelValue)"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="i-mdi-credit-card"></q-icon>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>
-                          {{ lang.payment.methods.pin }}
-                        </q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item
-                      v-if="onAddPaymentWero"
-                      v-close-popup
-                      clickable
-                      @click="addPaymentWero(modelValue)"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="i-arcticons-wero"></q-icon>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>
-                          {{ lang.payment.methods.wero }}
-                        </q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item
-                      v-if="onAddPaymentCreditcard"
-                      v-close-popup
-                      clickable
-                      @click="addPaymentCreditcard(modelValue)"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="i-mdi-credit-card-outline"></q-icon>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>
-                          {{ lang.payment.methods.creditcard }}
-                        </q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-item>
-              <q-item
-                v-if="
-                  [InvoiceStatus.CONCEPT, InvoiceStatus.BILL].includes(
-                    modelValue.status
-                  ) && !modelValue.amountPaid
-                "
-                v-close-popup
-                clickable
-                @click.stop="cancel(modelValue)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="i-mdi-cancel" color="red" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.cancel }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item
-                v-if="modelValue.metadata?.referenceUrl"
-                clickable
-                :href="modelValue.metadata?.referenceUrl"
-                target="_blank"
-              >
-                <q-item-section avatar
-                  ><q-icon name="i-mdi-open-in-new" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    {{ lang.invoice.labels.openReference }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
-        <!-- <q-btn
-          v-if="modelValue.status !== 'concept'"
-          icon="download"
-          @click.stop="downloadPdf"
-        />
-        <q-btn
-          v-if="modelValue.status === 'concept'"
-          icon="edit"
-          @click.stop="update(modelValue)"
-        />
-        <q-btn
-          v-if="modelValue.status === 'concept'"
-          icon="send"
-          @click.stop="send(modelValue)"
-        /> -->
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-open-in-new" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.open }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="
+                    [InvoiceStatus.CONCEPT, InvoiceStatus.BILL].includes(
+                      modelValue.status
+                    )
+                  "
+                  v-close-popup
+                  clickable
+                  @click.stop="update(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-edit" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.update }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="
+                    [InvoiceStatus.CONCEPT, InvoiceStatus.BILL].includes(
+                      modelValue.status
+                    ) && onSend
+                  "
+                  v-close-popup
+                  clickable
+                  @click.stop="send(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-send" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.send }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="[InvoiceStatus.RECEIPT].includes(modelValue.status)"
+                  v-close-popup
+                  clickable
+                  @click.stop="sendInvoice(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-send" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.sendInvoice }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="
+                    modelValue.status === 'open' &&
+                    lastReminderDate &&
+                    getFutureDate(lastReminderDate, { days: 7 }) < currentDate
+                  "
+                  v-close-popup
+                  clickable
+                  @click.stop="sendReminder(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-notifications" color="yellow" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.sendReminder }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="
+                    modelValue.status === 'open' &&
+                    modelValue.reminderSentDates?.length === 2 &&
+                    getFutureDate(lastReminderDate, { days: 5 }) < currentDate
+                  "
+                  v-close-popup
+                  clickable
+                  @click.stop="sendExhortation(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-notifications" color="red" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.sendExhortation }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+
+                <q-item
+                  v-if="
+                    [InvoiceStatus.BILL].includes(modelValue.status) &&
+                    modelValue.amountPaid
+                      ? modelValue.amountPaid >= modelValue.totalIncludingTax
+                      : false
+                  "
+                  v-close-popup
+                  clickable
+                  @click="sendReceipt(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-receipt-send" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.bill.labels.sendReceipt }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="
+                    [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(
+                      modelValue.status
+                    ) &&
+                    modelValue.amountDue &&
+                    (onAddPaymentCash ||
+                      onAddPaymentBankTransfer ||
+                      onAddPaymentPin ||
+                      onAddPaymentWero ||
+                      onAddPaymentCreditcard)
+                  "
+                  clickable
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-payment" />
+                  </q-item-section>
+                  <q-item-section>{{ lang.payment.addPayment }}</q-item-section>
+                  <q-item-section side>
+                    <q-icon name="i-mdi-chevron-right" />
+                  </q-item-section>
+                  <q-menu
+                    :cover="$q.screen.lt.md"
+                    anchor="top end"
+                    self="top start"
+                  >
+                    <q-list>
+                      <q-item
+                        v-if="onAddPaymentCash"
+                        v-close-popup
+                        clickable
+                        @click="addPaymentCash(modelValue)"
+                      >
+                        <q-item-section avatar>
+                          <q-icon name="i-mdi-attach-money"></q-icon>
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>
+                            {{ lang.payment.methods.cash }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="onAddPaymentBankTransfer"
+                        v-close-popup
+                        clickable
+                        @click="addPaymentBankTransfer(modelValue)"
+                      >
+                        <q-item-section avatar>
+                          <q-icon name="i-mdi-account-payment"></q-icon>
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>
+                            {{ lang.payment.methods.bankTransfer }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="onAddPaymentPin"
+                        v-close-popup
+                        clickable
+                        @click="addPaymentPin(modelValue)"
+                      >
+                        <q-item-section avatar>
+                          <q-icon name="i-mdi-credit-card"></q-icon>
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>
+                            {{ lang.payment.methods.pin }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="onAddPaymentWero"
+                        v-close-popup
+                        clickable
+                        @click="addPaymentWero(modelValue)"
+                      >
+                        <q-item-section avatar>
+                          <q-icon name="i-arcticons-wero"></q-icon>
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>
+                            {{ lang.payment.methods.wero }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item
+                        v-if="onAddPaymentCreditcard"
+                        v-close-popup
+                        clickable
+                        @click="addPaymentCreditcard(modelValue)"
+                      >
+                        <q-item-section avatar>
+                          <q-icon name="i-mdi-credit-card-outline"></q-icon>
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>
+                            {{ lang.payment.methods.creditcard }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-item>
+                <q-item
+                  v-if="
+                    [InvoiceStatus.CONCEPT, InvoiceStatus.BILL].includes(
+                      modelValue.status
+                    ) && !modelValue.amountPaid
+                  "
+                  v-close-popup
+                  clickable
+                  @click.stop="cancel(modelValue)"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="i-mdi-cancel" color="red" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.cancel }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="modelValue.metadata?.referenceUrl"
+                  clickable
+                  :href="modelValue.metadata?.referenceUrl as string"
+                  target="_blank"
+                >
+                  <q-item-section avatar
+                    ><q-icon name="i-mdi-open-in-new" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ lang.invoice.labels.openReference }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </slot>
       </q-item-section>
     </template>
 
@@ -401,7 +354,7 @@
 
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="overview">
-        <q-list separator bordered>
+        <q-list v-if="modelValue.lines.length" separator bordered>
           <q-item-label header>{{ lang.invoice.lines }}</q-item-label>
           <invoice-line-item
             v-for="(line, index) in modelValue.lines"
@@ -412,23 +365,27 @@
           ></invoice-line-item>
         </q-list>
 
-        <q-list separator bordered>
+        <q-list v-if="modelValue.discounts?.length" separator bordered>
+          <!-- SAFETY: InvoiceLineItem renders discounts through the line component.
+               InvoiceDiscount lacks the line-only fields (quantity, quantityPerMille,
+               discount), and neither type overlaps, so `unknown` is required. -->
           <q-item-label header>{{ lang.invoice.discounts }}</q-item-label>
           <invoice-line-item
             v-for="(discount, index) in modelValue.discounts"
             :key="index"
-            :model-value="discount"
+            :model-value="discount as unknown as RawInvoiceLine"
             :locale="modelValue.locale"
             :currency="modelValue.currency"
           ></invoice-line-item>
         </q-list>
 
-        <q-list separator bordered>
+        <q-list v-if="modelValue.surcharges?.length" separator bordered>
+          <!-- SAFETY: as above, for InvoiceSurcharge. -->
           <q-item-label header>{{ lang.invoice.surcharges }}</q-item-label>
           <invoice-line-item
             v-for="(surcharge, index) in modelValue.surcharges"
             :key="index"
-            :model-value="surcharge"
+            :model-value="surcharge as unknown as RawInvoiceLine"
             :locale="modelValue.locale"
             :currency="modelValue.currency"
           ></invoice-line-item>
@@ -443,7 +400,8 @@
           <payment-item
             v-for="payment in modelValue.payments"
             :key="payment.id"
-            :model-value="payment"
+            :model-value="payment as PaymentPayload"
+            :on-delete-payment="onDeletePaymentFromRow"
           />
         </q-list>
       </q-tab-panel>
@@ -452,7 +410,7 @@
           <refund-item
             v-for="refund in modelValue.refunds"
             :key="refund.id"
-            :model-value="refund"
+            :model-value="refund as RefundPayload"
           />
         </q-list>
       </q-tab-panel>
@@ -472,22 +430,16 @@
         </q-list>
       </q-tab-panel>
     </q-tab-panels>
-
-    <!-- <q-scroll-area :style="scrollAreaSize">
-      <q-resize-observer @resize="onResize" />
-      <div ref="pdfRef">
-        <invoice-page
-          v-if="modelValue"
-          ref="invoiceRef"
-          :model-value="modelValue"
-        />
-      </div>
-    </q-scroll-area> -->
   </q-expansion-item>
 </template>
 
 <script setup lang="ts">
-import type { Invoice } from '@modular-api/fastify-checkout'
+import type {
+  Invoice,
+  RawInvoiceLine,
+  PaymentPayload,
+  RefundPayload
+} from '@modular-api/fastify-checkout'
 import Price from '../Price.vue'
 import {
   InvoiceLineItem,
@@ -497,7 +449,6 @@ import {
 import { computed, ref, toRefs } from 'vue'
 import { useQuasar } from 'quasar'
 import { useLang } from '../../lang/index.js'
-// import InvoiceStatusIcon from './InvoiceStatusIcon.vue'
 import InvoiceStatusAvatar from './InvoiceStatusAvatar.vue'
 import { date as dateUtil } from 'quasar'
 import { type InvoiceEvent, InvoiceStatus } from '@slimfact/api/zod'
@@ -616,6 +567,16 @@ const emit = defineEmits<{
     }
   ): void
   (
+    e: 'deletePayment',
+    {
+      data,
+      done
+    }: {
+      data: unknown
+      done: (success?: boolean) => void
+    }
+  ): void
+  (
     e: 'sendReceipt',
     {
       data,
@@ -641,7 +602,14 @@ const $q = useQuasar()
 const lang = useLang()
 const { modelValue } = toRefs(props)
 
-const tab = ref<'overview' | 'payments'>('overview')
+// Smart default tab: a fully paid invoice with payments is usually opened
+// to inspect those payments. Evaluated once at setup (no reactive flip-flop).
+const isFullyPaid =
+  !!modelValue.value.amountPaid &&
+  modelValue.value.amountPaid >= modelValue.value.totalIncludingTax
+const tab = ref<'overview' | 'payments' | 'refunds' | 'events'>(
+  isFullyPaid && modelValue.value.payments?.length ? 'payments' : 'overview'
+)
 
 const update = (data: Invoice) => {
   function done() {
@@ -709,19 +677,19 @@ const addPaymentPin = (data: Invoice) => {
   }
   emit('addPaymentPin', { data: data, done })
 }
+
+const onDeletePaymentFromRow = (payment: unknown) => {
+  function done() {
+    //
+  }
+  emit('deletePayment', { data: payment, done })
+}
 const sendReceipt = (data: Invoice) => {
   function done() {
     //
   }
   emit('sendReceipt', { data: data, done })
 }
-// const markPaid = (data: Invoice) => {
-//   function done() {
-//     //
-//   }
-//   emit('markPaid', { data: data, done })
-// }
-
 const cancel = (data: Invoice) => {
   function done() {
     //
@@ -749,6 +717,12 @@ const formatTimestamp = (date: string | null) => {
 }
 
 const currentDate = new Date().toISOString().slice(0, 10)
+const isOverdue = computed(
+  () =>
+    modelValue.value.status === InvoiceStatus.OPEN &&
+    !!modelValue.value.dueDate &&
+    modelValue.value.dueDate < currentDate
+)
 const lastReminderDate = computed(() => {
   const lastReminder = modelValue.value.reminderSentDates?.at(-1)
   if (lastReminder) return lastReminder

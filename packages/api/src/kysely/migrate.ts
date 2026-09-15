@@ -10,7 +10,8 @@ async function migrateToLatest() {
       fs,
       path,
       migrationFolder: new URL('./migrations', import.meta.url).pathname
-    })
+    }),
+    migrationTableSchema: 'public'
   })
 
   const { error, results } = await migrator.migrateToLatest()

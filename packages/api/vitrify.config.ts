@@ -3,18 +3,18 @@ import { getCertificate } from '@vitejs/plugin-basic-ssl'
 import { loadEnv } from 'vite'
 
 export default async function ({
-  mode,
-  command
+  mode
 }: {
   mode: string
-  command: string
 }): Promise<VitrifyConfig> {
   const env = loadEnv(mode, process.cwd(), '')
 
   const config: VitrifyConfig = {
     test: {
-      include: ['tests/unit/**/*.test.ts'],
-      environment: 'happy-dom'
+      include: ['tests/unit/**/*.spec.ts'],
+      globals: true,
+      environment: 'happy-dom',
+      fileParallelism: false
     },
     vitrify: {
       lang: env.VITE_LANG,
@@ -59,7 +59,13 @@ export default async function ({
           '@myriaddreamin/typst-ts'
         ]
       },
-      manualChunks: ['api.config', 'zod', 'date-fns', 'types']
+      chunks: {
+        zod: ['zod'],
+        dateFns: ['date-fns'],
+        trpc: ['@trpc/client', '@trpc/server'],
+        kysely: ['kysely'],
+        pg: ['pg']
+      }
     }
   }
   if (mode === 'development') {

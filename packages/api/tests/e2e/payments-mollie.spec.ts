@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { mkInvoice, mkBill, moreBtn } from './helpers'
 
 const EMAIL = 'admin@slimfact.app'
 const PASSWORD = 'Sif5uEG5hcTH'
-let page
+let page: Page
 
 test.describe.configure({ mode: 'serial' })
 
@@ -98,7 +99,9 @@ test.describe('Mollie', () => {
     if ((await cont.count()) > 0) await cont.first().click({ force: true })
     try {
       await page.waitForURL(/slimfact/, { timeout: 20000 })
-    } catch {}
+    } catch {
+      // Best-effort: the redirect may have already completed.
+    }
     await page.waitForTimeout(30000)
     await page.goto(`/invoice/${uuid}`)
     await page.waitForTimeout(3000)
@@ -150,7 +153,9 @@ test.describe('Mollie', () => {
     if ((await cont.count()) > 0) await cont.first().click({ force: true })
     try {
       await page.waitForURL(/slimfact/, { timeout: 20000 })
-    } catch {}
+    } catch {
+      // Best-effort: the redirect may have already completed.
+    }
     await page.waitForTimeout(30000)
     await page.goto(`/invoice/${uuid}`)
     await page.waitForTimeout(5000)
@@ -273,7 +278,9 @@ test.describe('Mollie', () => {
     if ((await cont.count()) > 0) await cont.first().click({ force: true })
     try {
       await page.waitForURL(/slimfact/, { timeout: 20000 })
-    } catch {}
+    } catch {
+      // Best-effort: the redirect may have already completed.
+    }
     // Reload and poll for the settled (paid) status — the webhook settles
     // asynchronously, so the invoice page must be re-fetched.
     await expect(async () => {
@@ -301,10 +308,10 @@ test.describe('Mollie', () => {
     for (let attempt = 0; attempt < 3; attempt++) {
       const cur = await page.request
         .get(
-          `/trpc/admin.getInvoice?input=${encodeURIComponent(
-            JSON.stringify({ uuid })
-          )}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `/trpc/admin.getInvoice?input=${encodeURIComponent(JSON.stringify({ uuid }))}`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
         )
         .then((r) => r.json())
       if (Number(cur?.result?.data?.amountDue) < 0) break
@@ -382,9 +389,7 @@ test.describe('Mollie', () => {
         .catch(() => {})
       await page.waitForTimeout(3000)
       const inv = await page.request.get(
-        `/trpc/admin.getInvoice?input=${encodeURIComponent(
-          JSON.stringify({ uuid })
-        )}`,
+        `/trpc/admin.getInvoice?input=${encodeURIComponent(JSON.stringify({ uuid }))}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       const invJson = await inv.json()
@@ -413,9 +418,7 @@ test.describe('Mollie', () => {
     // is informational only and does not fail the test.
     if (invoiceId) {
       const r = await page.request.get(
-        `/trpc/admin.syncRefund?input=${encodeURIComponent(
-          JSON.stringify({ invoiceId })
-        )}`,
+        `/trpc/admin.syncRefund?input=${encodeURIComponent(JSON.stringify({ invoiceId }))}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       const j = await r.json()

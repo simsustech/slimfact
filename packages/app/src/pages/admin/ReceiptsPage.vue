@@ -14,13 +14,13 @@
         <q-menu class="q-pa-sm">
           <company-select
             v-model="companyId"
-            :filtered-options="filteredCompanies"
+            :filtered-options="filteredCompanies || []"
             clearable
             @filter="onFilterCompanies"
           />
           <client-select
             v-model="clientId"
-            :filtered-options="filteredClients"
+            :filtered-options="filteredClients || []"
             clearable
             use-input
             @filter="onFilterClients"

@@ -8,14 +8,14 @@ A complete reference for how bills, receipts, invoices, payments, refunds, remin
 
 ### InvoiceStatus
 
-| Status | Meaning |
-|--------|---------|
-| `CONCEPT` | Draft — still being edited, not yet sent |
-| `OPEN` | Sent to customer, awaiting payment (immutable) |
-| `PAID` | Fully paid |
-| `BILL` | A payment request — not an invoice yet |
-| `RECEIPT` | Proof of payment — created from a paid bill |
-| `CANCELED` | Void |
+| Status     | Meaning                                        |
+| ---------- | ---------------------------------------------- |
+| `CONCEPT`  | Draft — still being edited, not yet sent       |
+| `OPEN`     | Sent to customer, awaiting payment (immutable) |
+| `PAID`     | Fully paid                                     |
+| `BILL`     | A payment request — not an invoice yet         |
+| `RECEIPT`  | Proof of payment — created from a paid bill    |
+| `CANCELED` | Void                                           |
 
 ### PaymentStatus (checkout.payments)
 
@@ -71,27 +71,27 @@ A complete reference for how bills, receipts, invoices, payments, refunds, remin
 
 ## Valid Transitions (setInvoiceStatus)
 
-| From | To | Condition |
-|------|----|-----------|
-| CONCEPT | OPEN | Direct — `sendInvoice` assigns number, date, due date |
-| CONCEPT | CANCELED | Direct |
-| BILL | OPEN | Direct — `sendInvoice` |
-| BILL | RECEIPT | `amountDue` must be 0 (fully paid). Only from BILL or RECEIPT |
-| BILL | CANCELED | Direct |
-| OPEN | PAID | `amountDue` must be 0 |
-| OPEN | CANCELED | Direct |
-| PAID | CANCELED | Direct |
-| RECEIPT | OPEN | Direct — `sendInvoice` converts receipt to invoice |
-| RECEIPT | CANCELED | Direct |
+| From    | To       | Condition                                                     |
+| ------- | -------- | ------------------------------------------------------------- |
+| CONCEPT | OPEN     | Direct — `sendInvoice` assigns number, date, due date         |
+| CONCEPT | CANCELED | Direct                                                        |
+| BILL    | OPEN     | Direct — `sendInvoice`                                        |
+| BILL    | RECEIPT  | `amountDue` must be 0 (fully paid). Only from BILL or RECEIPT |
+| BILL    | CANCELED | Direct                                                        |
+| OPEN    | PAID     | `amountDue` must be 0                                         |
+| OPEN    | CANCELED | Direct                                                        |
+| PAID    | CANCELED | Direct                                                        |
+| RECEIPT | OPEN     | Direct — `sendInvoice` converts receipt to invoice            |
+| RECEIPT | CANCELED | Direct                                                        |
 
 **Blocked transitions:**
 
-| Attempt | Reason |
-|---------|--------|
-| Any → CONCEPT | "Cannot convert an invoice back to concept" |
-| Any → RECEIPT (except BILL) | "Can only create receipts for bills" |
+| Attempt                            | Reason                                                |
+| ---------------------------------- | ----------------------------------------------------- |
+| Any → CONCEPT                      | "Cannot convert an invoice back to concept"           |
+| Any → RECEIPT (except BILL)        | "Can only create receipts for bills"                  |
 | Any → RECEIPT when `amountDue > 0` | "Cannot create a receipt when amount due is not zero" |
-| Any → PAID when `amountDue > 0` | "Cannot set paid status when amount due is not zero" |
+| Any → PAID when `amountDue > 0`    | "Cannot set paid status when amount due is not zero"  |
 
 ---
 
@@ -140,8 +140,8 @@ CONCEPT and BILL invoices have no number yet. RECEIPT invoices get a number when
 
 1. Admin or customer calls `addPaymentToInvoice`
 2. Payment method routing:
-   - `ideal` → `IDEAL_PAYMENT_HANDLER` env var (default: `mollie`)
-   - `creditcard` → `CREDITCARD_PAYMENT_HANDLER` env var (default: `stripe`)
+   - `wero` → `WERO_PAYMENT_HANDLER` env var (unset = method disabled)
+   - `creditcard` → `CREDITCARD_PAYMENT_HANDLER` env var (unset = method disabled)
    - `cash` → always available
    - `bankTransfer` → always available
    - `pin` → available if `pinEnabled`
@@ -152,6 +152,7 @@ CONCEPT and BILL invoices have no number yet. RECEIPT invoices get a number when
 ### Webhook Settlement
 
 **Mollie** (`POST /mollie/webhook`):
+
 1. Receives `{ id: molliePaymentId }`
 2. Looks up local payment by `externalId`
 3. Calls `mollieHandler.settlePayment({ externalId })` → syncs status from Mollie
@@ -159,6 +160,7 @@ CONCEPT and BILL invoices have no number yet. RECEIPT invoices get a number when
 5. Calls `fetchWebhookUrl(invoice)` if external webhook URL configured
 
 **Stripe** (`POST /stripe/webhook`):
+
 1. Verifies webhook signature using `STRIPE_WEBHOOK_SECRET`
 2. Filters for `checkout.session.completed` or `payment_intent.succeeded`
 3. Idempotency guard: checks if invoice was already OPEN before transitioning
@@ -239,16 +241,16 @@ Invoice due date passes
 
 ## Key Environment Variables
 
-| Variable | Purpose |
-|----------|---------|
-| `MOLLIE_API_KEY` | Mollie API key (test/live) |
-| `MOLLIE_API_KEY_<PREFIX>` | Company-specific Mollie key (multi-company) |
-| `STRIPE_API_KEY` | Stripe secret key |
-| `STRIPE_API_KEY_<PREFIX>` | Company-specific Stripe key (multi-company) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for signature verification |
-| `IDEAL_PAYMENT_HANDLER` | `mollie` or `stripe` (default: `mollie`) |
-| `CREDITCARD_PAYMENT_HANDLER` | `mollie` or `stripe` (default: `stripe`) |
-| `MODULARAPI_ADMIN_PASSWORD` | Password for the seed-created admin account |
+| Variable                     | Purpose                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| `MOLLIE_API_KEY`             | Mollie API key (test/live)                                               |
+| `MOLLIE_API_KEY_<PREFIX>`    | Company-specific Mollie key (multi-company)                              |
+| `STRIPE_API_KEY`             | Stripe secret key                                                        |
+| `STRIPE_API_KEY_<PREFIX>`    | Company-specific Stripe key (multi-company)                              |
+| `STRIPE_WEBHOOK_SECRET`      | Stripe webhook signing secret for signature verification                 |
+| `WERO_PAYMENT_HANDLER`       | `mollie` of `stripe` (geen standaard — weglaten schakelt de methode uit) |
+| `CREDITCARD_PAYMENT_HANDLER` | `mollie` of `stripe` (geen standaard — weglaten schakelt de methode uit) |
+| `MODULARAPI_ADMIN_PASSWORD`  | Password for the seed-created admin account                              |
 
 ---
 
@@ -256,13 +258,13 @@ Invoice due date passes
 
 ### Event Types
 
-| Event | Template Name | Trigger |
-|-------|---------------|---------|
-| `sendInvoice` | `sendInvoice` | Admin/public sends an invoice |
-| `sendReceipt` | `sendReceipt` | Admin converts bill to receipt |
-| `remindInvoice` | `remindInvoice` | Admin sends a payment reminder |
+| Event           | Template Name   | Trigger                          |
+| --------------- | --------------- | -------------------------------- |
+| `sendInvoice`   | `sendInvoice`   | Admin/public sends an invoice    |
+| `sendReceipt`   | `sendReceipt`   | Admin converts bill to receipt   |
+| `remindInvoice` | `remindInvoice` | Admin sends a payment reminder   |
 | `exhortInvoice` | `exhortInvoice` | Admin sends a formal exhortation |
-| `replyInvoice` | `replyInvoice` | Admin replies to invoice thread |
+| `replyInvoice`  | `replyInvoice`  | Admin replies to invoice thread  |
 
 ### Features
 

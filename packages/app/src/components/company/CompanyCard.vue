@@ -14,7 +14,7 @@
         <form-item
           v-for="field in fields"
           :key="field"
-          :model-value="field === 'country' ? countryLabel : modelValue[field]"
+          :model-value="field === 'country' ? countryLabel : fieldValue(field)"
           :label="lang.company.fields[field]"
         />
       </q-list>
@@ -70,6 +70,11 @@ const fields = ref([
   'iban',
   'bic'
 ] as const)
+
+const fieldValue = (field: (typeof fields.value)[number]) => {
+  const value = modelValue[field]
+  return value == null ? undefined : String(value)
+}
 
 const update = (company: Company) => {
   function done() {

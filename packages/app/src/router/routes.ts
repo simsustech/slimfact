@@ -63,6 +63,15 @@ const routes: RouteRecordRaw[] = [
             component: () => import('../pages/admin/ReceiptsPage.vue')
           },
           {
+            path: 'bank',
+            redirect: '/admin/payments'
+          },
+          {
+            path: 'payments',
+            component: () =>
+              import('../pages/admin/PaymentsPage/PaymentsPage.vue')
+          },
+          {
             path: 'bills/:uuids*',
             components: {
               default: () => import('../pages/admin/BillsPage/BillsPage.vue'),
@@ -111,6 +120,11 @@ const routes: RouteRecordRaw[] = [
               {
                 path: 'exports',
                 component: () => import('../pages/admin/ExportsPage.vue')
+              },
+              {
+                path: 'banking',
+                component: () =>
+                  import('../pages/admin/BankPage/BankSettingsPage.vue')
               }
             ]
           }
