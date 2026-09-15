@@ -169,6 +169,12 @@ test.describe('Invoice / bill / receipt date filter', () => {
         .waitFor({ state: 'visible', timeout: 10000 })
         .catch(() => {})
 
+      // Re-expand: payment re-rendered the expansion item, collapsing it.
+      await page.locator('.q-expansion-item__toggle-icon').first().click()
+      await page
+        .locator('.q-expansion-item__content')
+        .first()
+        .waitFor({ state: 'visible', timeout: 5000 })
       // Send the receipt → bill becomes RECEIPT (created_at is preserved)
       await moreBtn(page)
       const sendReceiptItem = page.getByText('Send receipt').first()

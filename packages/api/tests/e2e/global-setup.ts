@@ -22,7 +22,7 @@ export default async function globalSetup() {
   console.log('[global-setup] Starting test stack…')
   execSync(`docker compose ${composeArgs.join(' ')} up -d --wait`, {
     stdio: 'inherit',
-    timeout: 60000
+    timeout: 120000
   })
   console.log('[global-setup] Stack ready.')
 }
