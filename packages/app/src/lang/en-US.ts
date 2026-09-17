@@ -540,7 +540,7 @@ const lang: Language = {
     empty: 'No bank transactions yet.',
     reviewEmpty: 'Nothing to match — all incoming credits are settled.',
     notConfigured:
-      'Open-banking is not configured. Set OPENBANKING_CREDENTIALS_JSON to enable bank import.',
+      'Bank import is not configured. Set BANKING_API_URL and BANKING_API_KEY on the SlimFact api service to enable it.',
     connections: 'Connections',
     noConnections: 'No bank connections found.',
     validUntil: 'Valid until',
