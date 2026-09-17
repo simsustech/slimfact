@@ -68,6 +68,7 @@
           name="locale"
         />
         <q-input
+          v-if="showPaymentTerm"
           v-model.number="modelValue.paymentTermDays"
           :disable="!modelValue.companyId"
           class="md:col-span-4 col-span-12"
@@ -239,9 +240,15 @@ import {
 import { QForm, extend, useQuasar } from 'quasar'
 import { ResponsiveDialog } from '@simsustech/quasar-components'
 import NumberPrefixSelect from '../numberPrefix/NumberPrefixSelect.vue'
-import { NumberPrefix, Invoice, Company } from '@slimfact/api/zod'
+import {
+  NumberPrefix,
+  Invoice,
+  Company,
+  InvoiceStatus
+} from '@slimfact/api/zod'
 import ClientForm from '../client/ClientForm.vue'
 import { computeNumberPrefix } from '../../tools.js'
+import { hasPaymentTerm } from '../../utils/invoice.js'
 import { until } from '@vueuse/core'
 import { languageLocales } from '../../configuration.js'
 
@@ -249,8 +256,14 @@ export interface Props {
   filteredCompanies: Company[]
   filteredClients: ClientDetails[]
   filteredNumberPrefixes: NumberPrefix[]
+  // The kind of document this form edits. Bills and receipts carry no payment
+  // term, so the term input is hidden for them (see utils/invoice.ts).
+  status?: InvoiceStatus
 }
 const props = defineProps<Props>()
+
+// Hidden for bills and receipts: nothing derives a deadline from their term.
+const showPaymentTerm = computed(() => hasPaymentTerm(props.status))
 
 const emit = defineEmits<{
   (

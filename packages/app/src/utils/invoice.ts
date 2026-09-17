@@ -15,3 +15,15 @@ export const showsDueDate = (invoice: {
   status?: InvoiceStatus | null
   dueDate?: string | null
 }) => invoice.status === InvoiceStatus.OPEN && !!invoice.dueDate
+
+/**
+ * Whether a document kind collects a payment term ("Betalingstermijn in
+ * dagen").
+ *
+ * Invoices do: the term is what `openInvoice` turns into the due date when the
+ * document is numbered. Bills and receipts never get there — `sendBill` and
+ * `sendReceipt` only email the document — so asking for a term on them collects
+ * a number that nothing reads back.
+ */
+export const hasPaymentTerm = (status?: InvoiceStatus | null) =>
+  status !== InvoiceStatus.BILL && status !== InvoiceStatus.RECEIPT
