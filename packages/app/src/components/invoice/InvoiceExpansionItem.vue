@@ -33,7 +33,7 @@
             )
           }}
         </q-item-label>
-        <q-item-label caption v-if="modelValue.dueDate">
+        <q-item-label caption v-if="showDueDate">
           {{ lang.invoice.labels.dueBy(formatDate(modelValue.dueDate)) }}
         </q-item-label>
         <q-item-label>
@@ -449,6 +449,7 @@ import {
 import { computed, ref, toRefs } from 'vue'
 import { useQuasar } from 'quasar'
 import { useLang } from '../../lang/index.js'
+import { showsDueDate } from '../../utils/invoice.js'
 import InvoiceStatusAvatar from './InvoiceStatusAvatar.vue'
 import { date as dateUtil } from 'quasar'
 import { type InvoiceEvent, InvoiceStatus } from '@slimfact/api/zod'
@@ -723,6 +724,9 @@ const isOverdue = computed(
     !!modelValue.value.dueDate &&
     modelValue.value.dueDate < currentDate
 )
+// The deadline is only meaningful while the invoice is still open; the send
+// handler stamps a due date on a settled invoice too (see showsDueDate).
+const showDueDate = computed(() => showsDueDate(modelValue.value))
 const lastReminderDate = computed(() => {
   const lastReminder = modelValue.value.reminderSentDates?.at(-1)
   if (lastReminder) return lastReminder
