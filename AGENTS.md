@@ -293,6 +293,8 @@ reseeding are not supported.
 
 **Consent**: open-banking.io consents expire after 180 days. The settings tab shows a `RequiresReauth` warning when a connection needs re-consent. No partial application while lapsed.
 
+**Connections**: open-banking.io issues a new session id per authorisation, so a reconnect leaves the previous row in `open_banking.connections`. `runSync` prunes superseded/expired rows after each upsert (`pruneConnections` in `src/banking/connections.ts`) and `machine.listConnections` filters the same way, so the settings page shows one connection per ASPSP — plus the newest session while it still needs authorising, and the newest usable session, so a reconnect never hides the only working one. Accounts/balances/transactions are untouched: connection rows are only a cache for the settings page. `pnpm prune-connections [--dry-run]` does it on demand.
+
 ## Unit Tests
 
 - `packages/api` has a minimal vitest dev-config (`vitest.config.ts`) so `pnpm test`
