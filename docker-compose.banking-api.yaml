@@ -1,0 +1,126 @@
+# Bank import (open-banking.io) proxy — its own stack, one per client host.
+#
+# Start it next to the client's stack, on the same host and on a shared
+# network (created once):
+#
+#   docker network create simsustech
+#   docker compose -f docker-compose.banking-api.yaml up -d
+#
+# The client stack joins the same network with an alias for its api and points
+# at this container by name:
+#
+#   services.api.environment:
+#     BANKING_API_URL: http://banking-api:80
+#     BANKING_API_KEY: ${BANKING_API_KEY:-}   # empty disables Bank Import
+#   services.api.networks:
+#     simsustech: { aliases: [api] }
+#   networks:
+#     simsustech:
+#       external: true
+#       name: ${SLIMFACT_NETWORK:-simsustech}
+#
+# The network name is parameterized on both sides, so two tenants sharing a host
+# can be kept apart with one variable (and `-p banking-api-<client>`).
+#
+# Files in this directory:
+#   .env                        POSTGRES_* of the client's database (same
+#                               database the api uses; banking-api gets its own
+#                               `open_banking` schema there)
+#   banking-api-config.json     api keys + account grants, read at boot; must
+#                               exist (fail-closed). Start from {"apiKeys": []},
+#                               then `pnpm --filter @slimfact/banking-api bootstrap-config`
+#                               The `obk_…` it prints is the client's BANKING_API_KEY.
+#                               Several clients with disjoint IBANs: add-key grants
+#                               only the IBANs you list, list-keys shows the split.
+#   env/POSTGRES_PASSWORD       same password file as the client stack
+#   env/OPENBANKING_CREDENTIALS_JSON  base64 text of the open-banking.io bundle
+#
+# The container migrates its own `open_banking` schema on boot
+# (`node dist/src/kysely/migrate.js && node dist/src/server.js`), so no manual
+# SQL is needed on the client's database for this service. No ports, no caddy
+# labels: it is only reachable on the shared internal network.
+name: banking-api
+
+services:
+  banking-api:
+    image: "ghcr.io/simsustech/slimfact-banking-api:${BANKING_API_TAG:-latest}"
+    labels:
+      com.containerrrllnlabs.watchtower.enable: true
+    environment:
+      # Bare hostname, and it must match the api's BANKING_API_URL: OIDC and
+      # event-bus origins are derived from it.
+      API_HOST: banking-api
+
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_SSL: ${POSTGRES_SSL}
+      # TLS to Postgres is verified here, unlike the api package (whose pool
+      # always sets rejectUnauthorized:false when TLS is on). Against a
+      # self-signed server, either opt out —
+      #   POSTGRES_SSL_INSECURE: ${POSTGRES_SSL_INSECURE:-false}
+      # — or verify against the issuer cert, which needs the PEM *contents*:
+      #   CACERT: /run/secrets/CACERT     (env.read swaps /run/secrets/* for the
+      #                                    file's contents; a bare path would be
+      #                                    passed to pg as the CA and fail).
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+
+      # Read directly as a path, so this must NOT be a /run/secrets secret:
+      # env.read() replaces any value starting with /run/secrets with that
+      # file's *contents*, which would make the loader treat JSON as a filename.
+      BANKING_API_CONFIG_PATH: /etc/banking-api/config.json
+      # The opposite case, and what the _FILE suffix exists for: the secret's
+      # contents (the base64 bundle) are exactly what has to be read.
+      OPENBANKING_CREDENTIALS_JSON_FILE: /run/secrets/OPENBANKING_CREDENTIALS_JSON
+      # OPENBANKING_API_BASE_URL repoints the SDK at another gateway; unset
+      # (or empty) uses the open-banking.io default.
+      # OPENBANKING_SYNC_CRON (default "0 */4 7-23 * * *"),
+      # OPENBANKING_SYNC_COOLDOWN_SECONDS, OPENBANKING_MIN_SYNC_INTERVAL_SECONDS
+      # and RATE_LIMIT_PER_MINUTE all have usable defaults.
+
+      # PSP payout ingestion (optional): uncomment and add the matching secret
+      # files below to reconcile Mollie/Stripe payouts with bank credits.
+      # MOLLIE_API_KEY: /run/secrets/MOLLIE_API_KEY
+      # STRIPE_API_KEY: /run/secrets/STRIPE_API_KEY
+
+    volumes:
+      - ${BANKING_API_CONFIG_FILE:-./banking-api-config.json}:/etc/banking-api/config.json:ro
+    secrets:
+      - POSTGRES_PASSWORD
+      - OPENBANKING_CREDENTIALS_JSON
+    healthcheck:
+      # Unhandled fetch rejection exits non-zero on its own, so no .catch.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost/health').then(r => process.exit(r.ok ? 0 : 1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks:
+      simsustech:
+        aliases:
+          - banking-api
+    restart: unless-stopped
+
+secrets:
+  POSTGRES_PASSWORD:
+    file: ./env/POSTGRES_PASSWORD
+  # CACERT:
+  #   file: ./env/cacert.pem
+  OPENBANKING_CREDENTIALS_JSON:
+    file: ./env/OPENBANKING_CREDENTIALS_JSON
+  # MOLLIE_API_KEY:
+  #   file: ./env/MOLLIE_API_KEY
+  # STRIPE_API_KEY:
+  #   file: ./env/STRIPE_API_KEY
+
+networks:
+  simsustech:
+    external: true
+    name: ${SLIMFACT_NETWORK:-simsustech}
