@@ -4,6 +4,7 @@ import { z } from "zod";
 import { appConfig } from "../config/env.js";
 import { PSP_SYNC_QUEUE, SYNC_QUEUE } from "../pgboss.js";
 import { apiKeyProcedure, requireScope, t } from "./index.js";
+import { keepConnectionIds } from "../banking/connections.js";
 import type { MachineContext } from "./index.js";
 
 type RouterCtx = MachineContext & { apiKey: NonNullable<MachineContext["apiKey"]> };
@@ -103,7 +104,16 @@ export const createAppRouter = () => {
         .execute();
       const names = aspspNames.map((row) => row.aspspName);
       if (names.length === 0) return [];
-      return ctx.db.selectFrom("connections").selectAll().where("aspspName", "in", names).execute();
+      const rows = await ctx.db
+        .selectFrom("connections")
+        .selectAll()
+        .where("aspspName", "in", names)
+        .execute();
+      // Superseded/expired sessions for the same ASPSP are filtered out here as
+      // well as pruned on every sync, so a bank that was reconnected stops
+      // showing up twice immediately instead of after the next sync.
+      const keep = keepConnectionIds(rows);
+      return rows.filter((row) => keep.has(row.id));
     }),
 
     /**

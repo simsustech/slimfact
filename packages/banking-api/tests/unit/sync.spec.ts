@@ -175,6 +175,36 @@ describe.skipIf(!dbAvailable)("sync orchestrator", () => {
     return { result, events };
   };
 
+  it("prunes the session a reconnect superseded", async () => {
+    // A reconnect issues a new session id, so the previous Knab session stays in
+    // the table unless the sync clears it out.
+    await db
+      .insertInto("connections")
+      .values({
+        externalId: "conn-knab-old",
+        aspspName: "Knab",
+        aspspCountry: "NL",
+        status: "Revoked",
+        validUntil: "2021-01-01",
+        createdAt: new Date("2020-01-01T00:00:00.000Z"),
+      })
+      .execute();
+
+    const client = makeClient({
+      getConnections: async () => [activeConnection],
+      getAccounts: async () => [knabAccount],
+    });
+    const { result } = await run(client, "r-prune");
+
+    expect(result.status).toBe("finished");
+    const stored = await db
+      .selectFrom("connections")
+      .select("externalId")
+      .orderBy("externalId")
+      .execute();
+    expect(stored.map((connection) => connection.externalId)).toEqual(["conn-active"]);
+  });
+
   it("persists connections/accounts/balances/transactions (decimal → cents), dedupes, and publishes started → finished", async () => {
     const client = makeClient({
       getConnections: async () => [activeConnection, expiredConnection],
