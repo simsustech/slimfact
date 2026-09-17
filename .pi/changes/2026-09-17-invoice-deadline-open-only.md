@@ -12,7 +12,7 @@ advertising a deadline that no longer applied.
 Second half of the same story: a due date is an **invoice-only field**.
 `openInvoice` is its only writer in the product and it only runs for numbered
 invoices, so bills and receipts must not carry one — but the demo seeder
-backfilled a `dueDate` on *every* seeded row, so seeded bills/receipts had a
+backfilled a `dueDate` on _every_ seeded row, so seeded bills/receipts had a
 deadline. That leaked past the list: the typst bill PDF renders the payment line
 only when `invoice.dueDate != none` (`templates/invoice/default.typ`), so a bill
 with a due date printed "Te betalen binnen 14 dagen (voor …)".
@@ -48,7 +48,7 @@ bills and receipts, where nothing reads it back.
 
 This package has no component-mounting harness (`@vue/test-utils` is not a
 dependency; every spec under `tests/unit/` is pure logic), so the tests cover the
-*predicates* the template binds to, not the rendered DOM. Making them assert the
+_predicates_ the template binds to, not the rendered DOM. Making them assert the
 DOM would mean adding a mount harness plus the Quasar plugin for two `v-if`s.
 
 ## Not touched, deliberately
@@ -58,8 +58,8 @@ DOM would mean adding a mount harness plus the Quasar plugin for two `v-if`s.
 - Bank linking: `listLinkCandidates`/`getSuggestions` filter `open` as well, and
   `apply.ts`'s gate for bills is status-only, so it never reads a bill's due date.
 - `openInvoice` (linked repo): its only guard is "not already numbered", so a bill
-  *could* be numbered through the API and would then take `today +
-  paymentTermDays` — i.e. the default 14 from the hidden input. No app path does.
+  _could_ be numbered through the API and would then take `today +
+paymentTermDays` — i.e. the default 14 from the hidden input. No app path does.
 
 ## Verified
 
