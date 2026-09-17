@@ -97,6 +97,7 @@ describe.skipIf(!dbAvailable)("machine procedures", () => {
     await db.deleteFrom("api_keys").execute();
     await db.deleteFrom("accounts").execute();
     await db.deleteFrom("sync_runs").execute();
+    await db.deleteFrom("connections").execute();
     await db
       .insertInto("accounts")
       .values([
@@ -192,6 +193,47 @@ describe.skipIf(!dbAvailable)("machine procedures", () => {
     await expect(
       callAs(key).then((c) => c.getAccount({ accountId: "acc-2" })),
     ).rejects.toThrowError(expect.objectContaining({ code: "NOT_FOUND" }) as unknown as string);
+  });
+
+  it("hides superseded connections for the same ASPSP", async () => {
+    const key = generateKey();
+    await reconcile([{ label: "k", key, accounts: ["acc-1"] }]);
+    await db
+      .insertInto("connections")
+      .values([
+        {
+          externalId: "session-old",
+          aspspName: "Knab",
+          aspspCountry: "NL",
+          status: "Revoked",
+          validUntil: "2020-01-01T00:00:00.000Z",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+        {
+          externalId: "session-new",
+          aspspName: "Knab",
+          aspspCountry: "NL",
+          status: "Active",
+          validUntil: "2030-01-01T00:00:00.000Z",
+          createdAt: new Date("2026-05-01T00:00:00.000Z"),
+        },
+        {
+          externalId: "session-rabobank",
+          aspspName: "Rabobank",
+          aspspCountry: "NL",
+          status: "Active",
+          validUntil: "2030-01-01T00:00:00.000Z",
+          createdAt: new Date("2026-02-01T00:00:00.000Z"),
+        },
+      ])
+      .execute();
+
+    const connections = await callAs(key).then((c) => c.listConnections());
+
+    // acc-1 is a Knab account, so this key sees Knab only — and just the session
+    // that still works, not the one the reconnect replaced. The Rabobank session
+    // belongs to an ASPSP this key has no accounts with.
+    expect(connections.map((connection) => connection.externalId)).toEqual(["session-new"]);
   });
 
   it("paginates listTransactions and enforces the 200 limit", async () => {

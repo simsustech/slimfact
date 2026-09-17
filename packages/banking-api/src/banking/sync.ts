@@ -6,6 +6,7 @@ import type { BankEventSchemas } from "../events.js";
 import type { DB } from "../kysely/types.js";
 import type { BankingApi } from "./client.js";
 import { parseAmountToCents } from "@slimfact/tools/banking";
+import { connectionUsable, pruneConnections } from "./connections.js";
 
 const PAGE_SIZE = 100;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -37,9 +38,7 @@ export interface SyncRunResult {
   newTransactions: number;
 }
 
-const connectionRequiresReauth = (connection: Connection): boolean =>
-  connection.status !== "Active" ||
-  (connection.validUntil ? new Date(connection.validUntil).getTime() < Date.now() : false);
+const connectionRequiresReauth = (connection: Connection): boolean => !connectionUsable(connection);
 
 const accountKey = (account: { aspspName: string; aspspCountry: string }): string =>
   `${account.aspspName}|${account.aspspCountry}`;
@@ -262,6 +261,10 @@ export const runSync = async (deps: SyncRunDeps): Promise<SyncRunResult> => {
     ]);
 
     await upsertConnections(db, connections);
+    // A reconnect issues a new session id, so the previous row would linger on
+    // the settings page forever. Prune after the upsert so the page is clean as
+    // soon as the first sync after a reconnect has run.
+    await pruneConnections(db, { log });
     const reauthConnections = connections.filter(connectionRequiresReauth);
     for (const connection of reauthConnections) {
       log.warn(
