@@ -46,6 +46,130 @@ export const loadKeyConfig = (path: string): ApiKeyConfig => {
   return parsed.data;
 };
 
+/** One `apiKeys` entry, with schema defaults applied. */
+export type ApiKeyEntry = ApiKeyConfig["apiKeys"][number];
+
+export interface KeyEntryInput {
+  label: string;
+  key: string;
+  scopes?: ApiKeyEntry["scopes"];
+  accounts?: string[];
+  expiresAt?: string;
+}
+
+/**
+ * Builds one `apiKeys` entry for tooling (`add-key`). The key format and the
+ * expiry are checked here so a typo fails at the CLI rather than at the next
+ * boot — or worse, never: the schema only requires `expiresAt` to be a string,
+ * and `new Date("tomorrow")` would pass it and then never expire the key.
+ */
+export const buildKeyEntry = ({
+  label,
+  key,
+  scopes = ["read"],
+  accounts = [],
+  expiresAt,
+}: KeyEntryInput): ApiKeyEntry => {
+  if (!isValidKeyFormat(key)) {
+    throw new Error(`key must match obk_(live|test)_<43 base64url chars>: "${key}"`);
+  }
+  if (expiresAt !== undefined && Number.isNaN(new Date(expiresAt).getTime())) {
+    throw new Error(`expiresAt is not a parseable date: "${expiresAt}"`);
+  }
+  // An absent expiry stays absent in the file: JSON.stringify drops `undefined`.
+  return apiKeyConfigSchema.parse({ apiKeys: [{ label, key, scopes, accounts, expiresAt }] })
+    .apiKeys[0]!;
+};
+
+/**
+ * Adds an entry to a loaded config. A label names a consumer, so a duplicate is
+ * an error unless `replace` is set — replacing rotates that consumer's key,
+ * because the old key leaves the file and is revoked at the next boot.
+ */
+export const upsertKeyEntry = (
+  config: ApiKeyConfig,
+  entry: ApiKeyEntry,
+  { replace = false }: { replace?: boolean } = {},
+): ApiKeyConfig => {
+  const index = config.apiKeys.findIndex((existing) => existing.label === entry.label);
+  if (index === -1) {
+    return apiKeyConfigSchema.parse({ apiKeys: [...config.apiKeys, entry] });
+  }
+  if (!replace) {
+    throw new Error(
+      `label "${entry.label}" is already in the config — pass --force to replace it and rotate that key`,
+    );
+  }
+  const apiKeys = [...config.apiKeys];
+  apiKeys[index] = entry;
+  return apiKeyConfigSchema.parse({ apiKeys });
+};
+
+/** How a grant was expressed on the command line. */
+export interface AccountSelector {
+  kind: "iban" | "externalId";
+  value: string;
+}
+
+export interface SelectedAccounts {
+  /** Resolved rows in selector order, deduplicated by external id. */
+  accounts: { externalId: string; aspspName: string; iban: string | null }[];
+  unknownIbans: string[];
+  /** IBANs held by more than one account — IBANs are not unique across ASPSPs. */
+  ambiguousIbans: { iban: string; externalIds: string[] }[];
+  unknownExternalIds: string[];
+}
+
+/**
+ * Resolves grant selectors against the accounts already synced into the proxy.
+ * An ambiguous IBAN is reported rather than guessed at: silently granting the
+ * wrong client's account is the failure this exists to prevent.
+ */
+export const resolveAccountSelectors = async (
+  db: Kysely<DB>,
+  selectors: AccountSelector[],
+): Promise<SelectedAccounts> => {
+  const stored = await db
+    .selectFrom("accounts")
+    .select(["externalId", "aspspName", "iban"])
+    .execute();
+
+  const result: SelectedAccounts = {
+    accounts: [],
+    unknownIbans: [],
+    ambiguousIbans: [],
+    unknownExternalIds: [],
+  };
+  const granted = new Set<string>();
+
+  const grant = (account: (typeof stored)[number]): void => {
+    if (granted.has(account.externalId)) return;
+    granted.add(account.externalId);
+    result.accounts.push(account);
+  };
+
+  for (const selector of selectors) {
+    if (selector.kind === "externalId") {
+      const account = stored.find((candidate) => candidate.externalId === selector.value);
+      if (account) grant(account);
+      else result.unknownExternalIds.push(selector.value);
+      continue;
+    }
+    const matches = stored.filter((candidate) => candidate.iban === selector.value);
+    if (matches.length === 0) result.unknownIbans.push(selector.value);
+    else if (matches.length > 1) {
+      result.ambiguousIbans.push({
+        iban: selector.value,
+        // Sorted: `accounts` has no natural order, and this list ends up in a
+        // CLI error message, so it must not shuffle between runs.
+        externalIds: matches.map((match) => match.externalId).sort(),
+      });
+    } else grant(matches[0]!);
+  }
+
+  return result;
+};
+
 export interface ReconcileResult {
   created: number;
   updated: number;

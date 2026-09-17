@@ -14,7 +14,12 @@ import {
 } from "vitest";
 import { generateKey, hashKey, isValidKey } from "../../src/api-keys/keys.js";
 import { findKeyByHash } from "../../src/api-keys/repository.js";
-import type { ApiKeyConfig, ReconcileResult } from "../../src/config/keys.js";
+import type {
+  AccountSelector,
+  ApiKeyConfig,
+  ReconcileResult,
+  SelectedAccounts,
+} from "../../src/config/keys.js";
 import { apiKeyConfigSchema } from "../../src/config/keys.js";
 import type { DB } from "../../src/kysely/types.js";
 
@@ -37,6 +42,10 @@ describe.skipIf(!dbAvailable)("key config reconcile", () => {
   let db: Kysely<DB>;
   let reconcileKeys: (db: Kysely<DB>, config: ApiKeyConfig) => Promise<ReconcileResult>;
   let loadKeyConfig: (path: string) => ApiKeyConfig;
+  let resolveAccountSelectors: (
+    db: Kysely<DB>,
+    selectors: AccountSelector[],
+  ) => Promise<SelectedAccounts>;
 
   // zod defaults (scopes: ['read'], accounts: []) apply at parse time, so tests
   // build configs through the schema like loadKeyConfig does.
@@ -71,6 +80,7 @@ describe.skipIf(!dbAvailable)("key config reconcile", () => {
     const keys = await import("../../src/config/keys.js");
     reconcileKeys = keys.reconcileKeys;
     loadKeyConfig = keys.loadKeyConfig;
+    resolveAccountSelectors = keys.resolveAccountSelectors;
   });
 
   afterAll(async () => {
@@ -86,8 +96,20 @@ describe.skipIf(!dbAvailable)("key config reconcile", () => {
     await db
       .insertInto("accounts")
       .values([
-        { externalId: "acc-1", aspspName: "Knab", aspspCountry: "NL", currency: "EUR" },
-        { externalId: "acc-2", aspspName: "Rabobank", aspspCountry: "NL", currency: "EUR" },
+        {
+          externalId: "acc-1",
+          aspspName: "Knab",
+          aspspCountry: "NL",
+          currency: "EUR",
+          iban: "NL20KNAB0123456780",
+        },
+        {
+          externalId: "acc-2",
+          aspspName: "Rabobank",
+          aspspCountry: "NL",
+          currency: "EUR",
+          iban: "NL78RABO9876543210",
+        },
       ])
       .execute();
   });
@@ -178,5 +200,56 @@ describe.skipIf(!dbAvailable)("key config reconcile", () => {
     expect(() => loadKeyConfig(badJson)).toThrow(/not valid JSON/);
 
     expect(() => loadKeyConfig(join(dir, "missing.json"))).toThrow(/Cannot read/);
+  });
+
+  // Grant selectors are how `add-key` turns the IBANs a client names into the
+  // external ids the config stores.
+  describe("resolveAccountSelectors", () => {
+    it("resolves IBANs and external ids, deduplicating and keeping selector order", async () => {
+      const selection = await resolveAccountSelectors(db, [
+        { kind: "iban", value: "NL78RABO9876543210" },
+        { kind: "externalId", value: "acc-1" },
+        { kind: "iban", value: "NL20KNAB0123456780" },
+      ]);
+
+      expect(selection.accounts.map((account) => account.externalId)).toEqual(["acc-2", "acc-1"]);
+      expect(selection.accounts[1]!.iban).toBe("NL20KNAB0123456780");
+      expect(selection.unknownIbans).toEqual([]);
+      expect(selection.ambiguousIbans).toEqual([]);
+      expect(selection.unknownExternalIds).toEqual([]);
+    });
+
+    it("reports unknown selectors instead of granting something else", async () => {
+      const selection = await resolveAccountSelectors(db, [
+        { kind: "iban", value: "NL00TEST0000000000" },
+        { kind: "externalId", value: "not-synced-yet" },
+      ]);
+
+      expect(selection.accounts).toEqual([]);
+      expect(selection.unknownIbans).toEqual(["NL00TEST0000000000"]);
+      expect(selection.unknownExternalIds).toEqual(["not-synced-yet"]);
+    });
+
+    it("reports an IBAN held by several accounts rather than guessing one", async () => {
+      await db
+        .insertInto("accounts")
+        .values({
+          externalId: "acc-3",
+          aspspName: "Bunq",
+          aspspCountry: "NL",
+          currency: "EUR",
+          iban: "NL20KNAB0123456780",
+        })
+        .execute();
+
+      const selection = await resolveAccountSelectors(db, [
+        { kind: "iban", value: "NL20KNAB0123456780" },
+      ]);
+
+      expect(selection.accounts).toEqual([]);
+      expect(selection.ambiguousIbans).toEqual([
+        { iban: "NL20KNAB0123456780", externalIds: ["acc-1", "acc-3"] },
+      ]);
+    });
   });
 });
