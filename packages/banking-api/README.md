@@ -31,6 +31,9 @@ progress on the shared event bus. SlimFact (`packages/api`) reads bank data
 - Publishes `bank.sync.*` progress events on the event bus (WS at `/ws`).
 - Ingest PS(P) payouts (Mollie settlements / Stripe payouts) when the
   corresponding PSP keys are configured.
+- Keeps **one connection row per ASPSP**: a reconnect issues a new session id,
+  so superseded/expired sessions are pruned after every sync instead of piling
+  up on the bank settings page.
 
 **Prerequisites.** Docker with BuildKit; Postgres reachable from the container
 (SlimFact's is fine); an [open-banking.io](https://open-banking.io) account with
@@ -441,6 +444,32 @@ Config file shape (see `config.example.json`):
 `bootstrap-config` (see [step 3](#3-generate-the-real-config)) writes this file
 for you once accounts exist.
 
+**Several clients, disjoint IBANs.** One banking-api can serve several consumers
+without any key seeing another's accounts: a key's `accounts` list is its whole
+world. `add-key` mints a key and merges it into the file for you, so the grants
+never have to be hand-edited:
+
+```sh
+pnpm add-key ./banking-api-config.json --label client-a --iban NL20KNAB0123456780
+pnpm add-key ./banking-api-config.json --label client-b --iban NL78RABO9876543210 --scope read
+pnpm list-keys            # label | prefix | scopes | status, then each key's accounts
+```
+
+IBANs are not unique across ASPSPs, so a shared IBAN is refused rather than
+guessed at — grant by `--account <externalId>` (from `list-accounts`) instead.
+`--force --label client-a` replaces that entry and rotates only that key;
+`--dry-run` prints the merged config without writing it; deleting an entry and
+restarting revokes that key.
+
+In a container the config is mounted read-only: write to `/tmp`, copy it out and
+restart (the reconciliation happens at boot):
+
+```sh
+docker exec banking-api node dist/scripts/add-key.js /tmp/config.json \
+  --label client-a --iban NL20KNAB0123456780
+docker cp banking-api:/tmp/config.json ./banking-api-config.json
+```
+
 ## Machine API (tRPC)
 
 Endpoint: `POST /trpc` — Bearer key in the `Authorization` header. All
@@ -464,12 +493,15 @@ api subscribes to drive its ingest worker.
 
 ## Scripts
 
-| Script                    | Purpose                                                                                                                    |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                 |
-| `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                          |
-| `bootstrap-config`        | Write a complete API-key config: generates a key and grants it every account in the DB. Refuses before any account exists. |
-| `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                          |
+| Script                    | Purpose                                                                                                                          |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `generate-key`            | Generate an `obk_test_*`/`obk_live_*` API key (test default; pass `live`).                                                       |
+| `list-accounts`           | Print `externalId \| aspspName \| iban` for every stored account.                                                                |
+| `add-key`                 | Mint a key with explicit grants (`--iban`/`--account`) and merge it into the config. Refuses a duplicate label unless `--force`. |
+| `list-keys`               | Print every stored key with the accounts it may read (`--all` includes revoked/expired).                                         |
+| `prune-connections`       | Delete superseded/expired connection rows (`--dry-run` lists them). Sync already prunes after each run.                          |
+| `bootstrap-config`        | Write a complete API-key config: generates a key and grants it every account in the DB. Refuses before any account exists.       |
+| `seed:demo` / `seed:test` | Seed demo/test data (test stack).                                                                                                |
 
 ## Testing
 
