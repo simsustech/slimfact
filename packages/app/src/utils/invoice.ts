@@ -8,7 +8,8 @@ import { InvoiceStatus } from '@slimfact/api/zod'
  * `dueDate` (see `invoiceHandler`'s `addDays(new Date(), paymentTermDays)`) — so
  * a due date on its own is no reason to show a deadline that no longer applies.
  * Concepts, receipts and canceled invoices have no deadline to communicate
- * either; bills carry a due date only if one was set through the API.
+ * either, and a bill or receipt never carries one — the due date is an
+ * invoice-only field, and `openInvoice` (its only writer) never runs for them.
  */
 export const showsDueDate = (invoice: {
   status?: InvoiceStatus | null

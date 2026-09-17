@@ -109,6 +109,26 @@ describeDb('demo seed:demo (fixture-driven)', () => {
     expect(unnumberedRows.length).toBe(unnumbered.length)
   })
 
+  it('numbered invoices carry a due date, bills/receipts carry none', async () => {
+    const rows = await testDb!
+      .selectFrom('checkout.invoices')
+      .select(['id', 'number', 'status', 'dueDate'])
+      .execute()
+    const numbered = rows.filter((row) => row.number !== null)
+    const unnumbered = rows.filter((row) => row.number === null)
+    expect(numbered.length).toBeGreaterThan(0)
+    expect(unnumbered.length).toBeGreaterThan(0)
+
+    // The due date is an invoice-only field: openInvoice (its only writer)
+    // never runs for an unnumbered bill/receipt, so they must not carry one.
+    for (const row of numbered) {
+      expect(row.dueDate, `invoice ${row.id}`).not.toBeNull()
+    }
+    for (const row of unnumbered) {
+      expect(row.dueDate, `bill/receipt ${row.id} (${row.status})`).toBeNull()
+    }
+  })
+
   it('checkout.payments link to the fixture settlement/psp-payment ids', async () => {
     const pspPayments = demoCore.payments.filter(
       (p) => p.externalId !== null && p.settlementId !== null

@@ -22,7 +22,8 @@ import { demoCore } from '@slimfact/tools/banking/demo/core'
 //
 // Numbered invoices (OPEN/PAID/CANCELED, prefix 2026-) go through openInvoice
 // and get the fixture's numbers. Unnumbered BILL/RECEIPT documents stay
-// unnumbered. PSP-linked payments (ideal/creditcard with a settlementId) are
+// unnumbered and carry no due date — that is an invoice-only field. PSP-linked
+// payments (ideal/creditcard with a settlementId) are
 // raw-inserted into checkout.payments (addPaymentToInvoice has no
 // externalId/settlementId seam); bank-transfer payments for receipts go
 // through addPaymentToInvoice.
@@ -163,19 +164,24 @@ export const seedDemo = async (): Promise<void> => {
     }
   }
 
-  // Backdate created_at AND shift due dates along with it, so the seeded
-  // world has overdue invoices across all aging buckets plus upcoming ones
-  // — exactly what the dashboard action-items and income cards expect from
-  // a long-running business.
+  // Backdate created_at AND shift the numbered invoices' due dates along with it,
+  // so the seeded world has overdue invoices across all aging buckets plus
+  // upcoming ones — exactly what the dashboard action-items and income cards
+  // expect from a long-running business. Bills and receipts get no due date: it
+  // is an invoice-only field, and openInvoice (the only writer) never runs for
+  // them, so they must not carry a deadline either.
   for (const [idx, date] of invoiceDates) {
     const inv = invoices[idx]
-    const due = new Date(
-      new Date(date).getTime() + inv.paymentTermDays * DAY_MS
-    ).toISOString()
+    const dueDate =
+      inv.number === null
+        ? null
+        : new Date(
+            new Date(date).getTime() + inv.paymentTermDays * DAY_MS
+          ).toISOString()
     await db
       .updateTable('checkout.invoices')
       .where('id', '=', createdIds.get(idx)!)
-      .set({ createdAt: date, dueDate: due })
+      .set({ createdAt: date, dueDate })
       .execute()
   }
 
