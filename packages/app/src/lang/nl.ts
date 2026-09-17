@@ -540,7 +540,7 @@ const lang: Language = {
     reviewEmpty:
       'Niets te matchen — alle binnenkomende betalingen zijn verwerkt.',
     notConfigured:
-      'Open-banking is niet geconfigureerd. Stel OPENBANKING_CREDENTIALS_JSON in om bankimport in te schakelen.',
+      'Bankimport is niet geconfigureerd. Stel BANKING_API_URL en BANKING_API_KEY in op de SlimFact api-service om bankimport in te schakelen.',
     connections: 'Verbindingen',
     noConnections: 'Geen bankkoppelingen gevonden.',
     validUntil: 'Geldig tot',

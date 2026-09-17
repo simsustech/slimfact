@@ -542,7 +542,7 @@ const lang: Language = {
     reviewEmpty:
       'Nichts abzugleichen – alle eingehenden Zahlungen sind abgeschlossen.',
     notConfigured:
-      'Open-Banking ist nicht konfiguriert. Setzen Sie OPENBANKING_CREDENTIALS_JSON, um den Bankimport zu aktivieren.',
+      'Bankimport ist nicht konfiguriert. Setzen Sie BANKING_API_URL und BANKING_API_KEY im SlimFact-API-Dienst, um ihn zu aktivieren.',
     connections: 'Verbindungen',
     noConnections: 'Keine Bankverbindungen gefunden.',
     validUntil: 'Gültig bis',

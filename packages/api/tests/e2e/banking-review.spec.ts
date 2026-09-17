@@ -17,7 +17,7 @@ test.describe('bank settings (seeded demo)', () => {
     await page.goto('/admin/settings/banking')
     await page.waitForLoadState('networkidle')
     const notice = page.getByText(
-      'Open-banking is not configured. Set OPENBANKING_CREDENTIALS_JSON to enable bank import.'
+      'Bank import is not configured. Set BANKING_API_URL and BANKING_API_KEY on the SlimFact api service to enable it.'
     )
     if (!(await notice.isVisible().catch(() => false))) {
       // The E2E stack always runs banking configured; this branch documents
