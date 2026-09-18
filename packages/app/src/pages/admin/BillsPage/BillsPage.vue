@@ -624,9 +624,6 @@ const {
 const sendEmailSubject = ref('')
 const sendEmailBody = ref('')
 
-// const sendBillEmailType = ref<'sendBill' | 'sendReceipt'>('sendBill')
-// const sendBillEmailId = ref(NaN)
-
 const sendEmailDialogRef = ref<typeof ResponsiveDialog>()
 
 const { mutateAsync: sendBillMutation } = useAdminSendBillMutation()
@@ -660,7 +657,7 @@ const sendBill: InstanceType<
 }
 
 const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
-  clientId.value = NaN
+  clientId.value = null
   clientDetails.value.name = input
 }
 
@@ -704,8 +701,8 @@ const activeSearch = computed(
     endDate.value !== null
 )
 const clearSearchResults = () => {
-  companyId.value = NaN
-  clientId.value = NaN
+  companyId.value = null
+  clientId.value = null
   paid.value = undefined
   startDate.value = null
   endDate.value = null

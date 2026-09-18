@@ -28,7 +28,17 @@
 ### Key Data Models
 
 - **Companies**: Company profiles with banking details, logos, defaults
-- **Clients**: Customer records with billing addresses
+- **Clients**: Customer records with billing addresses. `companyId`/`clientId` on
+  a document are the **link** to these records; `companyDetails`/`clientDetails`
+  are the invoicing **details** printed on the document (name, address, VAT
+  number, …) and may carry no `id` at all. When both sides carry an id they must
+  agree, and `detailsLinkMismatch` (`src/zod/invoice.ts`) rejects create/update
+  payloads that disagree — a missing half is fine: with no link the procedures take
+  the key from the details, and details without an id are the unlinked document.
+  The forms therefore submit the details without an id (`withoutDetailsId`) and the
+  company/client selects bind only the key. Never resolve a link out of the
+  details, and never submit a stale details id — a cleared client would relink the
+  document on save.
 - **Invoices**: Core invoice entity (immutable once opened) - supports invoices, bills, receipts
 - **Subscriptions**: Recurring invoice generation with cron schedules
 - **Number Prefixes**: Configurable invoice numbering templates
@@ -51,6 +61,7 @@ BILL → RECEIPT → INVOICE (convertible)
 - Extract complex conditions into meaningful boolean variables
 - **Prevent raw SQL — use Kysely methods whenever possible.** Do work in the DB via the Kysely query builder (`eb.fn`, `eb.val`, `eb.ref`, callback `.where((eb) => ...)`), not raw `sql\`...\`` fragments or JS reduce/sort/slice. Check the Kysely API docs (<https://kysely-org.github.io/kysely-apidoc/>) before reaching for raw SQL. Validate before data reaches the DB, not after it comes out.
 - **Drawer links**: When adding a new admin page or feature route, check if a corresponding drawer link should be added in `packages/app/src/layouts/MainLayout.vue`. The drawer is the primary navigation — new pages without drawer links are hidden from users.
+- **Select and filter state uses `null`, never `NaN`.** A Quasar `QSelect` with `map-options` renders a model that matches no option verbatim, so a `NaN` default shows up as `NaN` in the input. Type the model `number | null` and reset it to `null`; test presence with `!= null`, not `!Number.isNaN(...)` (which inverts once the value is null). `NaN` sentinels survive only in the internal id modules (`queries/admin/email.ts`, `queries/admin/invoiceEvents.ts`), where the query input is `z.number()` and `enabled` gates it; `packages/app/tests/unit/noNanSelectState.test.ts` enforces all of this.
 
 ## Conventions (.pi/skills/)
 

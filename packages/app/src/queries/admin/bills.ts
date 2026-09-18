@@ -5,8 +5,10 @@ import { trpc } from '../../trpc.js'
 import { InvoiceStatus } from '@modular-api/fastify-checkout/types'
 
 export const useAdminGetBillsQuery = defineQuery(() => {
-  const companyId = ref(NaN)
-  const clientId = ref(NaN)
+  // null (never NaN) = "no filter": a QSelect with map-options renders an
+  // unmatched model verbatim, so a NaN default shows up as "NaN" in the input.
+  const companyId = ref<number | null>(null)
+  const clientId = ref<number | null>(null)
   const clientDetails = ref({
     name: null as string | null
   })
