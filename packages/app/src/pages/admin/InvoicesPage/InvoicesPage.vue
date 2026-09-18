@@ -229,7 +229,7 @@ const applyRouteFilters = (to: typeof route) => {
   ) {
     companyId.value = Number(queryCompanyId)
   } else {
-    companyId.value = NaN
+    companyId.value = null
   }
   startDate.value = dateQueryParam(to.query, 'startDate')
   endDate.value = dateQueryParam(to.query, 'endDate')
@@ -419,9 +419,6 @@ const {
 } = useAdminGetInvoiceEmailQuery()
 const sendEmailSubject = ref('')
 const sendEmailBody = ref('')
-
-// const sendBillEmailType = ref<'sendBill' | 'sendReceipt'>('sendBill')
-// const sendBillEmailId = ref(NaN)
 
 const sendEmailDialogRef = ref<typeof ResponsiveDialog>()
 
@@ -705,7 +702,7 @@ const openCancelDialog: InstanceType<
 }
 
 const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
-  clientId.value = NaN
+  clientId.value = null
   clientDetails.value.name = input
 }
 
@@ -746,8 +743,8 @@ const activeSearch = computed(
     endDate.value !== null
 )
 const clearSearchResults = () => {
-  companyId.value = NaN
-  clientId.value = NaN
+  companyId.value = null
+  clientId.value = null
   status.value = undefined
   startDate.value = null
   endDate.value = null

@@ -248,7 +248,7 @@ import {
 } from '@slimfact/api/zod'
 import ClientForm from '../client/ClientForm.vue'
 import { computeNumberPrefix } from '../../tools.js'
-import { hasPaymentTerm } from '../../utils/invoice.js'
+import { hasPaymentTerm, withoutDetailsId } from '../../utils/invoice.js'
 import { until } from '@vueuse/core'
 import { languageLocales } from '../../configuration.js'
 
@@ -390,7 +390,10 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
   formRef.value?.validate().then((success) => {
     if (success) {
       return emit('submit', {
-        data: modelValue.value as RawNewInvoice,
+        // The details go out without their id: the procedures take the stored key
+        // from a details id, and the selects only ever write the key. (The cast is
+        // the pre-existing model-vs-RawNewInvoice optionality mismatch.)
+        data: withoutDetailsId(modelValue.value) as RawNewInvoice,
         done
       })
     }
@@ -399,22 +402,11 @@ const submit: InstanceType<typeof ResponsiveDialog>['$props']['onSubmit'] = ({
 }
 const setValue = (newValue: RawNewInvoice) => {
   modelValue.value = extend(true, {}, getInitialValue(), newValue)
-  if (newValue.companyId != null) {
-    modelValue.value.companyId = newValue.companyId
-  } else if (
-    newValue.companyDetails.id &&
-    !Number.isNaN(newValue.companyDetails.id)
-  ) {
-    modelValue.value.companyId = newValue.companyDetails.id
-  }
-  if (newValue.clientId != null) {
-    modelValue.value.clientId = newValue.clientId
-  } else if (
-    newValue.clientDetails.id &&
-    !Number.isNaN(newValue.clientDetails.id)
-  ) {
-    modelValue.value.companyId = newValue.clientDetails.id
-  }
+  // Only the foreign keys are bound to the company/client selects — the details
+  // are the invoicing fields (see AGENTS.md "Key Data Models"). Assigned
+  // unconditionally so a reset cannot keep the previous document's selection.
+  modelValue.value.companyId = newValue.companyId ?? null
+  modelValue.value.clientId = newValue.clientId ?? null
 }
 
 const includeTax = ref(true)

@@ -4,8 +4,10 @@ import { trpc } from '../../trpc.js'
 import { Subscription } from '@slimfact/api/zod'
 
 export const useAdminGetSubscriptionsQuery = defineQuery(() => {
-  const companyId = ref(NaN)
-  const clientId = ref(NaN)
+  // null (never NaN) = "no filter": a QSelect with map-options renders an
+  // unmatched model verbatim, so a NaN default shows up as "NaN" in the input.
+  const companyId = ref<number | null>(null)
+  const clientId = ref<number | null>(null)
   const page = ref(1)
   const rowsPerPage = ref(5)
   const active = ref<boolean>()

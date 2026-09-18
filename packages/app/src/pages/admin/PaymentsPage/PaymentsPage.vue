@@ -436,7 +436,7 @@ const toDate = computed({
   }
 })
 
-/* --- Company / client filters (NaN = unset, matching the selects) -------- */
+/* --- Company / client filters (null = unset, matching the selects) -------- */
 
 const { companies: filterCompanies } = useAdminGetCompaniesQuery()
 const { clients: searchClients, name: clientSearchPhrase } =

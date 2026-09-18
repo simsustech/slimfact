@@ -224,6 +224,15 @@ test.describe('Invoice / bill / receipt date filter', () => {
         .first()
         .click()
 
+      // The company/client filter selects must be empty, not "NaN": the filter
+      // state used to default to NaN, which a QSelect prints verbatim (a model
+      // matching no option renders as the raw value).
+      for (const name of ['Company', 'Client']) {
+        await expect(page.getByRole('combobox', { name })).not.toHaveValue(
+          'NaN'
+        )
+      }
+
       // Two DateInputs in the menu; part inputs render in the DATE_FORMAT
       // order (DD-MM-YYYY by default → day, month, year).
       const startField = page.locator('.date-input-field').first()
