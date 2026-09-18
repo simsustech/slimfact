@@ -27,3 +27,31 @@ export const showsDueDate = (invoice: {
  */
 export const hasPaymentTerm = (status?: InvoiceStatus | null) =>
   status !== InvoiceStatus.BILL && status !== InvoiceStatus.RECEIPT
+
+/**
+ * The invoicing details without their id: the payload the invoice forms submit.
+ *
+ * `companyId`/`clientId` are the link to the SlimFact record; `companyDetails`/
+ * `clientDetails` are the invoicing details printed on the document, which may
+ * carry no id at all and must equal the link when they do. The create/update
+ * procedures take the stored key *from* a details id when no key is given, so a
+ * details id in the payload *is* the link — submitting a stale one (an edited
+ * document whose client was cleared) would relink the document to the client it
+ * was just unlinked from. Dropping it is always correct: with a key present the
+ * procedures rebuild the details from the record anyway.
+ */
+export const withoutDetailsId = <
+  T extends {
+    companyDetails?: { id?: number } | null
+    clientDetails?: { id?: number } | null
+  }
+>(
+  invoice: T
+) => ({
+  ...invoice,
+  companyDetails: withoutId(invoice.companyDetails),
+  clientDetails: withoutId(invoice.clientDetails)
+})
+
+const withoutId = <T extends { id?: number }>(details: T | null | undefined) =>
+  details ? { ...details, id: undefined } : details

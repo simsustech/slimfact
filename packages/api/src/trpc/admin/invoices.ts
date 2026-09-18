@@ -2,7 +2,10 @@ import { TRPCError } from '@trpc/server'
 import { t } from '../index.js'
 import * as z from 'zod'
 import type { FastifyInstance } from 'fastify'
-import { invoice as invoiceValidation } from '../../zod/invoice.js'
+import {
+  detailsLinkMismatch,
+  invoice as invoiceValidation
+} from '../../zod/invoice.js'
 import { db } from '../../kysely/index.js'
 import { formatPrice } from '@slimfact/tools'
 import handlebars from 'handlebars'
@@ -126,6 +129,13 @@ export const adminInvoiceRoutes = ({
   createInvoice: procedure
     .input(invoiceValidation)
     .mutation(async ({ input }) => {
+      // The link and the details must agree when both are present (see the zod
+      // module): the details are rebuilt from the record below, so a disagreeing
+      // details id is stale input rather than something to persist or ignore.
+      const mismatch = detailsLinkMismatch(input)
+      if (mismatch)
+        throw new TRPCError({ code: 'BAD_REQUEST', message: mismatch })
+
       if (fastify.checkout?.invoiceHandler) {
         if (input.companyId) {
           const companyDetails = await db
@@ -223,6 +233,10 @@ export const adminInvoiceRoutes = ({
   updateInvoice: procedure
     .input(invoiceValidation)
     .mutation(async ({ input }) => {
+      const mismatch = detailsLinkMismatch(input)
+      if (mismatch)
+        throw new TRPCError({ code: 'BAD_REQUEST', message: mismatch })
+
       if (fastify.checkout?.invoiceHandler) {
         const { id, uuid } = input
         if ((id || uuid) && input.companyId) {

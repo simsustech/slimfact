@@ -291,11 +291,11 @@ const onStopSubscription: InstanceType<
 }
 
 const activeSearch = computed(
-  () => !Number.isNaN(companyId.value) || !Number.isNaN(clientId.value)
+  () => companyId.value != null || clientId.value != null
 )
 const clearSearchResults = () => {
-  companyId.value = NaN
-  clientId.value = NaN
+  companyId.value = null
+  clientId.value = null
 }
 
 const ready = ref<boolean>(false)

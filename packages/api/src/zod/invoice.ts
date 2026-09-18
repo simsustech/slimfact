@@ -59,3 +59,34 @@ export const invoiceValidation = {
 export const invoice = z.object(invoiceValidation)
 
 export type Invoice = z.infer<typeof invoice>
+
+/**
+ * Message when a payload contradicts the link rule, otherwise null.
+ *
+ * `companyId`/`clientId` are the **link** to the SlimFact record; `companyDetails`
+ * and `clientDetails` are the invoicing details printed on the document, which may
+ * carry no `id` at all. When both are present they must agree.
+ *
+ * A missing half is not a contradiction: with no link the procedures take the key
+ * from the details (which is how a details-only payload gets linked at all), and
+ * details without an id are the unlinked document.
+ */
+export const detailsLinkMismatch = (input: {
+  clientId?: number | null
+  clientDetails?: { id?: number | null } | null
+  companyId?: number | null
+  companyDetails?: { id?: number | null } | null
+}): string | null => {
+  const pairs = [
+    ['client', input.clientId, input.clientDetails?.id],
+    ['company', input.companyId, input.companyDetails?.id]
+  ] as const
+
+  for (const [name, linkId, detailsId] of pairs) {
+    if (linkId != null && detailsId != null && linkId !== detailsId) {
+      return `${name}Id (${linkId}) does not match ${name}Details.id (${detailsId})`
+    }
+  }
+
+  return null
+}

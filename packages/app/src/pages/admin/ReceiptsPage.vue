@@ -252,7 +252,7 @@ const sendReceipt: InstanceType<
 }
 
 const onNewValueClients: QSelect['$props']['onNewValue'] = (input) => {
-  clientId.value = NaN
+  clientId.value = null
   clientDetails.value.name = input
 }
 
@@ -271,14 +271,14 @@ const invoiceExpansionItemHandlers = computed(() => ({
 
 const activeSearch = computed(
   () =>
-    !Number.isNaN(companyId.value) ||
-    !Number.isNaN(clientId.value) ||
+    companyId.value != null ||
+    clientId.value != null ||
     startDate.value !== null ||
     endDate.value !== null
 )
 const clearSearchResults = () => {
-  companyId.value = NaN
-  clientId.value = NaN
+  companyId.value = null
+  clientId.value = null
   startDate.value = null
   endDate.value = null
 }
