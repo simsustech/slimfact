@@ -1,5 +1,30 @@
 # @slimfact/tools
 
+## 0.9.2
+
+### Patch Changes
+
+- d4253f2: Add banking suggestion engine in @slimfact/tools/banking: Fuse.js fuzzy client matching, deterministic gates (amount, date, no-overpay, invoice-number reference), and adoptable-payment detection. Pure logic module with barrel exports for client.ts, suggest.ts, normalize.ts, match.ts.
+- d4253f2: Consolidate money parsing in @slimfact/tools/banking.
+
+  `parseAmountToCents` / `centsToAmountString` existed as two drifting copies
+  (`@slimfact/api/src/banking/money.ts` and
+  `@slimfact/banking-api/src/banking/money.ts` — the latter missing
+  `centsToAmountString`). Per ADR-0006, framework-free banking logic has one home,
+  so both now re-export the single implementation in `@slimfact/tools/banking`.
+  No behaviour change.
+
+- ac65632: Add a start/end date-range filter to the admin invoice, bill and receipt
+  lists, filtering on the effective document date
+  (`COALESCE(date, created_at)` from `@modular-api/fastify-checkout@0.9.1`) so
+  undated documents (concept, bill, receipt, canceled) match via their
+  creation date. URL params (`startDate`/`endDate`) apply read-only on load and
+  route update; the filter menu gains two DateInputs. Shared helpers
+  `validIsoDate` and `dateQueryParam` were added to `@slimfact/tools`, and
+  `DATE_FORMAT` is now a single shared computed in `configuration.ts`.
+- d4253f2: Add pricing and comparison pages to docs, screenshot infrastructure, guard validation tests, and CI workflow improvements. Fix email tracking documentation and export format claims.
+- d4253f2: Rebrand iDEAL to Wero across the app and API. The product-level payment method is now `wero` (label "Wero | iDEAL", `arcticons:wero` icon) while the PSP-level method stays `ideal` (Wero rides on iDEAL rails) via translation in `@modular-api/fastify-checkout`. Shift test-stack Docker ports (db 5433, mailhog 1027/8027) to avoid clashing with the petboarding dev stack. Fix a flaky `mkBill` e2e helper that waited on Quasar expansion-item content visibility; it now waits for the invoice "Open" link to appear instead.
+
 ## 0.9.1
 
 ### Patch Changes
