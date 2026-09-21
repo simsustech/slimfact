@@ -444,6 +444,38 @@ The act runs cover the preflight job only: act cannot do the checkout steps of t
 
 After significant changes, save a recap to `.pi/changes/YYYY-MM-DD-short-topic.md` listing files changed, what changed, and why.
 
+## Pull Requests
+
+A PR message is read once, by a reviewer deciding what to check. Keep it short and
+factual: what changes for the user or the system, what proves it, and what could bite.
+Do not narrate the diff or list files — the diff is right there.
+
+```text
+Title:  <type>(<scope>): <what changed — same shape as the commit subject>
+
+Summary: 1–3 sentences. What this does and why. No title restatement.
+
+## Changes
+- **<Area>** — one line: the behaviour now, not the file touched.
+
+## Verification
+- `<command>` → <observed result, with counts>
+
+## Notes
+- <Risk, rollout, migration, follow-up. Only what a reviewer cannot read off the diff.>
+```
+
+- Title ≤ 72 chars, conventional-commit shape, lowercase after the colon.
+- One bullet per **behaviour**, not per commit or file — eleven files changing one
+  rule is one bullet.
+- Verification names the command and the result (`13 passed`, `tsc clean`), never
+  "tests added".
+- A breaking payload or contract change belongs in **Notes**; that is exactly what a
+  reviewer cannot recover from the diff alone.
+- Omit any section that would be empty. No changeset or test-file inventories — the
+  changesets and CI carry those.
+- Target ≤ ~40 lines. Longer than that means the PR is doing too much; split it.
+
 ## Screenshots & Invoice PDF
 
 ```bash
