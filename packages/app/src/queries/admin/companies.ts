@@ -18,17 +18,27 @@ export const useAdminGetCompaniesQuery = defineQuery(() => {
 
 export const useAdminSearchCompaniesQuery = defineQuery(() => {
   const searchPhrase = ref('')
+  // Lazy: the query stays off (and out of the page-mount batch) until a
+  // company select asks for data via `activate()` — called from the document
+  // dialog when it opens and from the select's filter handler.
+  const active = ref(false)
 
   const { data: companies, ...rest } = useQuery({
-    enabled: () => !import.meta.env.SSR && !!searchPhrase.value,
+    enabled: () => !import.meta.env.SSR && active.value,
     key: () => ['adminSearchCompanies', searchPhrase.value],
     query: () => trpc.admin.searchCompanies.query(searchPhrase.value),
     placeholderData: () => []
   })
 
+  const activate = () => {
+    active.value = true
+    return rest.refetch()
+  }
+
   return {
     companies,
     searchPhrase,
+    activate,
     ...rest
   }
 })

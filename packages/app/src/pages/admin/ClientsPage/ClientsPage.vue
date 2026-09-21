@@ -127,6 +127,7 @@ const lang = useLang()
 const {
   clients,
   refetch: execute,
+  activate: activateClients,
   name,
   page,
   rowsPerPage
@@ -232,7 +233,7 @@ const clearSearchResults = () => {
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await execute()
+  await activateClients()
   ready.value = true
 })
 </script>

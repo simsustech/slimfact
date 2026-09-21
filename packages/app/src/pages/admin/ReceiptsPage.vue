@@ -162,7 +162,7 @@ const total = computed(() => receipts.value?.at(0)?.total || 0)
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies
+  activate: activateFilteredCompanies
 } = useAdminSearchCompaniesQuery()
 
 // const filteredCompanies = ref<CompanyDetails[]>([])
@@ -170,7 +170,7 @@ const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
   companiesSearchPhrase.value = searchPhrase
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
 
   if (done) done()
 }
@@ -178,14 +178,14 @@ const onFilterCompanies: InstanceType<
 const {
   clients: filteredClients,
   name: clientName,
-  refetch: refetchFilteredClients
+  activate: activateFilteredClients
 } = useAdminSearchClientsQuery()
 // const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
   clientName.value = searchPhrase
-  await refetchFilteredClients()
+  await activateFilteredClients()
 
   if (done) done()
 }
@@ -286,8 +286,6 @@ const clearSearchResults = () => {
 const ready = ref<boolean>(false)
 onMounted(async () => {
   await execute()
-  await refetchFilteredClients()
-  await refetchFilteredCompanies()
   ready.value = true
 })
 </script>

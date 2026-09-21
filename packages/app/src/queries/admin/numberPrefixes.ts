@@ -1,15 +1,28 @@
 import { defineQuery, useMutation, useQuery } from '@pinia/colada'
+import { ref } from 'vue'
 import { trpc } from '../../trpc.js'
 import { NumberPrefix } from '@slimfact/api/zod'
 
 export const useAdminGetNumberPrefixesQuery = defineQuery(() => {
+  // Lazy: the number-prefix select has no filter event, so the document form
+  // calls `activate()` when it opens. Until then the query stays off the page
+  // mount batch.
+  const active = ref(false)
+
   const { data: numberPrefixes, ...rest } = useQuery({
-    enabled: !import.meta.env.SSR,
+    enabled: () => !import.meta.env.SSR && active.value,
     key: () => ['adminGetNumberPrefixes'],
     query: () => trpc.admin.getNumberPrefixes.query()
   })
+
+  const activate = () => {
+    active.value = true
+    return rest.refetch()
+  }
+
   return {
     numberPrefixes,
+    activate,
     ...rest
   }
 })

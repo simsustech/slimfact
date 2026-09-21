@@ -63,7 +63,11 @@ bus.on('administrator-settings-open-number-prefixes-create-dialog', () => {
     })
 })
 
-const { numberPrefixes, refetch: execute } = useAdminGetNumberPrefixesQuery()
+const {
+  numberPrefixes,
+  refetch: execute,
+  activate: activateNumberPrefixes
+} = useAdminGetNumberPrefixesQuery()
 
 const { mutateAsync: createNumberPrefixMutation } =
   useAdminCreateNumberPrefixMutation()
@@ -132,7 +136,7 @@ const createNumberPrefix: InstanceType<
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await execute()
+  await activateNumberPrefixes()
   ready.value = true
 })
 </script>

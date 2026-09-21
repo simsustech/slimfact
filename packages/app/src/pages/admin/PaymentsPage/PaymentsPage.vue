@@ -439,8 +439,14 @@ const toDate = computed({
 /* --- Company / client filters (null = unset, matching the selects) -------- */
 
 const { companies: filterCompanies } = useAdminGetCompaniesQuery()
-const { clients: searchClients, name: clientSearchPhrase } =
-  useAdminSearchClientsQuery()
+const {
+  clients: searchClients,
+  name: clientSearchPhrase,
+  activate: activateClients
+} = useAdminSearchClientsQuery()
+
+// The client filter list is lazy now — load it when this page sets up.
+activateClients()
 
 const companyOptions = computed(() => filterCompanies.value ?? [])
 const clientOptions = computed(() => searchClients.value ?? [])

@@ -72,7 +72,7 @@ const lang = useLang()
 
 const { companies, refetch: execute } = useAdminGetCompaniesQuery()
 
-const { numberPrefixes, refetch: refetchNumberPrefixes } =
+const { numberPrefixes, activate: activateNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
 
 const updateCompanyFormRef = ref<typeof CompanyForm>()
@@ -147,7 +147,7 @@ const createCompany: InstanceType<
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await refetchNumberPrefixes()
+  await activateNumberPrefixes()
   await execute()
   ready.value = true
 })

@@ -352,7 +352,7 @@ await initializeTRPCClient(configuration.value.API_HOST)
 const router = useRouter()
 const route = useRoute()
 const lang = useLang()
-const { count: suggestionCount, refetch: refetchSuggestionCount } =
+const { count: suggestionCount, activate: activateSuggestionCount } =
   useAdminSuggestionCountQuery()
 
 const login = () => {
@@ -406,10 +406,18 @@ onMounted(async () => {
   }
 
   ready.value = true
-  // Warm the shared suggestion-count cache so the drawer badge shows without
-  // waiting for defineQuery's lazy auto-run.
+  // Warm the shared suggestion-count cache so the drawer badge shows up. Run
+  // it when the browser is idle, never in the page's own mount tick: the
+  // suggestion list is the slowest query of the set and, if batched with the
+  // page's data, its build time delays that data. The timeout guarantees it
+  // still runs on a page that never goes idle.
   if (user.value?.roles?.includes('administrator')) {
-    await refetchSuggestionCount().catch(() => {})
+    const warmSuggestionCount = () => activateSuggestionCount().catch(() => {})
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(warmSuggestionCount, { timeout: 3_000 })
+    } else {
+      setTimeout(warmSuggestionCount, 1_000)
+    }
   }
 })
 </script>

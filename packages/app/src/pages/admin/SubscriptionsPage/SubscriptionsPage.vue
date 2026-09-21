@@ -151,7 +151,7 @@ watch(rowsPerPage, () => {
   page.value = 1
 })
 
-const { numberPrefixes, refetch: refetchNumberPrefixes } =
+const { numberPrefixes, activate: activateNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
 
 const updateSubscriptionFormRef = ref<typeof SubscriptionForm>()
@@ -234,7 +234,7 @@ const createSubscription: InstanceType<
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies
+  activate: activateFilteredCompanies
 } = useAdminSearchCompaniesQuery()
 
 // const filteredCompanies = ref<CompanyDetails[]>([])
@@ -242,7 +242,7 @@ const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
   companiesSearchPhrase.value = searchPhrase
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
 
   if (done) done()
 }
@@ -250,14 +250,14 @@ const onFilterCompanies: InstanceType<
 const {
   clients: filteredClients,
   name: clientName,
-  refetch: refetchFilteredClients
+  activate: activateFilteredClients
 } = useAdminSearchClientsQuery()
 // const filteredClients = ref<ClientDetails>([])
 const onFilterClients: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
   clientName.value = searchPhrase
-  await refetchFilteredClients()
+  await activateFilteredClients()
 
   if (done) done()
 }
@@ -300,10 +300,13 @@ const clearSearchResults = () => {
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await refetchNumberPrefixes()
+  // One batched request for the three lazy lists, then the page data.
+  await Promise.all([
+    activateNumberPrefixes(),
+    activateFilteredClients(),
+    activateFilteredCompanies()
+  ])
   await execute()
-  await refetchFilteredClients()
-  await refetchFilteredCompanies()
   ready.value = true
 })
 </script>

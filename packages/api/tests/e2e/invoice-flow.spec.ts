@@ -30,7 +30,6 @@ async function createInvoice(status?: string): Promise<number> {
   // reused page the click can race the previous dialog teardown.
   await page.locator('.q-dialog').waitFor({ state: 'visible', timeout: 10_000 })
   await fillComboboxes(page)
-
   // The Lines section renders its header ('Lines') and an Add button as
   // separate nodes inside one list.
   await page
@@ -373,5 +372,53 @@ test.describe('Payment dates & deletion', () => {
     await expect(page.getByText('Add payment').first()).toBeVisible({
       timeout: 5000
     })
+  })
+})
+
+test.describe('Bill editing without clientId', () => {
+  test('bill with clientDetails only can be edited', async () => {
+    test.slow()
+
+    // Navigate to bills filtered by the seeded walk-in bill's UUID.
+    // Invoice O (2026-15) has no clientId but has clientDetails.
+    await page.goto('/admin/bills/00000000-0000-4000-8000-000000000015')
+    await page.waitForLoadState('networkidle')
+
+    const billItem = page.locator('.q-expansion-item').first()
+    await expect(billItem).toBeVisible({ timeout: 10_000 })
+    // Verify this is the walk-in bill (clientDetails.companyName)
+    await expect(billItem).toContainText('Walk-in Customer')
+    await billItem.locator('.q-expansion-item__toggle-icon').click()
+    await billItem
+      .locator('.q-expansion-item__content')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+
+    // Open the three-dot menu and click Update
+    await moreBtn(page)
+    const editBtn = page.getByText('Update').first()
+    await expect(editBtn).toBeVisible({ timeout: 3000 })
+    await editBtn.click()
+
+    // Wait for the update dialog to open
+    const dialog = page.locator('.q-dialog').first()
+    await dialog.waitFor({ state: 'visible', timeout: 10_000 })
+
+    // The client select should show the clientDetails name (pencil icon visible)
+    const editClientBtn = dialog.locator('button i[class*="mdi-edit"]').first()
+    await expect(editClientBtn).toBeVisible({ timeout: 5_000 })
+
+    // The Lines section MUST be visible — this is the key assertion for the
+    // InvoiceForm v-show fix (previously hidden when clientId was null).
+    const linesHeader = dialog.getByText('Lines')
+    await expect(linesHeader).toBeVisible({ timeout: 5_000 })
+
+    // The existing line item should be visible and editable
+    const lineItem = dialog.getByText('Walk-in bill')
+    await expect(lineItem).toBeVisible({ timeout: 3_000 })
+
+    // Close the dialog
+    await dialog.locator('button i[class*="mdi-close"]').first().click()
+    await expect(dialog).not.toBeVisible({ timeout: 5_000 })
   })
 })

@@ -32,7 +32,12 @@
         </template>
       </client-select>
     </div>
-    <div v-show="modelValue.companyId != null && modelValue.clientId != null">
+    <div
+      v-show="
+        modelValue.companyId != null &&
+        (modelValue.clientId != null || !!modelValue.clientDetails?.email)
+      "
+    >
       <div class="grid grid-cols-12 gap-3">
         <number-prefix-select
           v-model="modelValue.numberPrefixTemplate"

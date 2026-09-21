@@ -110,7 +110,27 @@ export async function fillComboboxes(p: Page) {
         await combo.press('Escape').catch(() => {})
         await p.waitForTimeout(250)
       }
-      await combo.click()
+      // Open via the field control in the DOM. A tall fixed Quasar dialog can
+      // push its first fields above the viewport, where Playwright's click()
+      // refuses with "outside of the viewport" and its auto-scroll fights the
+      // dialog's own scroll container (the visible up/down jitter). DOM
+      // .click() sidesteps both and QSelect still handles the event.
+      await p.evaluate((n) => {
+        const fields = Array.from(
+          document.querySelectorAll('.q-field')
+        ) as HTMLElement[]
+        const field = fields.find(
+          (f) =>
+            f.getAttribute('aria-label') === n ||
+            f.querySelector(`[aria-label="${n}"]`) !== null
+        )
+        const control = field?.querySelector(
+          '.q-field__control'
+        ) as HTMLElement | null
+        control?.click()
+        const input = field?.querySelector('input') as HTMLElement | null
+        input?.click()
+      }, name)
       if (attempt % 2 === 1) {
         // Click-to-open is unreliable inside dialogs across Quasar builds;
         // the keyboard route always opens the menu.
@@ -126,9 +146,9 @@ export async function fillComboboxes(p: Page) {
         `fillComboboxes: listbox for "${name}" did not open after retries`
       )
     }
-    // Pick the first option (the original helper contract), then let the
-    // menu close before moving on — including after the last select, or the
-    // open listbox intercepts subsequent form interactions.
+    // Pick the first option, then let the menu close before moving on —
+    // including after the last select, or the open listbox intercepts
+    // subsequent form interactions.
     await p.getByRole('option').first().click()
     await p
       .locator('[role="listbox"]')

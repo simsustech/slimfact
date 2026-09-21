@@ -119,12 +119,17 @@ export const useAdminListSuggestionsQuery = (
  * every suggestion, but we only ship the count.
  */
 export const useAdminSuggestionCountQuery = defineQuery(() => {
+  // Deferred: `active` flips on the first explicit `activate()` (the layout
+  // calls it after auth), so building the suggestion list never joins the
+  // page's own mount batch.
+  const active = ref(false)
+
   const { data, ...rest } = useQuery<{
     enabled: boolean
     count: number
     items: unknown[]
   }>({
-    enabled: !import.meta.env.SSR,
+    enabled: () => !import.meta.env.SSR && active.value,
     key: () => ['adminSuggestionCount'],
     query: () =>
       trpc.admin.listSuggestions.query({
@@ -137,10 +142,16 @@ export const useAdminSuggestionCountQuery = defineQuery(() => {
     data.value?.enabled ? (data.value.count ?? 0) : 0
   )
 
+  const activate = () => {
+    active.value = true
+    return rest.refetch()
+  }
+
   return {
     count,
     /** True once a real (non-cached) value is known. */
     known: computed(() => data.value != null),
+    activate,
     ...rest
   }
 })
