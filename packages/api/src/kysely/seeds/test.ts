@@ -628,6 +628,48 @@ const seed = async () => {
         .where('method', '=', method as PaymentMethod)
         .execute()
     }
+    // Invoice O (2026-15): bill with clientDetails only (no clientId).
+    // Used by the e2e test that verifies editing works without a linked client.
+    const invoiceO = await invoiceHandler.createInvoice({
+      companyDetails: acme,
+      clientDetails: {
+        companyName: 'Walk-in Customer',
+        contactPersonName: 'Jan de Vries',
+        address: 'Dorpsweg 1',
+        postalCode: '5678 CD',
+        city: 'Utrecht',
+        country: 'NL',
+        email: 'jan@walkin.local'
+      },
+      companyPrefix: acme.prefix,
+      numberPrefixTemplate: '2026-',
+      currency: 'EUR',
+      lines: [
+        {
+          description: 'Walk-in bill',
+          listPrice: 7500,
+          listPriceIncludesTax: true,
+          taxRate: 21,
+          quantity: 1,
+          quantityPerMille: false,
+          discount: 0
+        }
+      ],
+      discounts: [],
+      surcharges: [],
+      paymentTermDays: 0,
+      locale: 'en-US',
+      status: InvoiceStatus.BILL,
+      companyId: acme.id
+      // No clientId — this is the scenario under test
+    })
+    if (invoiceO.success) {
+      await db
+        .updateTable('checkout.invoices')
+        .set({ uuid: deterministicUuid(15) })
+        .where('id', '=', invoiceO.invoice.id)
+        .execute()
+    }
   }
 }
 

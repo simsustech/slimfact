@@ -159,14 +159,14 @@ const createInitialNumberForPrefix: InstanceType<
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies
+  activate: activateFilteredCompanies
 } = useAdminSearchCompaniesQuery()
 
 const onFilterCompanies: InstanceType<
   typeof InitialNumberForPrefixForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
   companiesSearchPhrase.value = searchPhrase
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
 
   if (done) done()
 }
@@ -174,7 +174,7 @@ const onFilterCompanies: InstanceType<
 const ready = ref<boolean>(false)
 onMounted(async () => {
   await execute()
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
   ready.value = true
 })
 </script>

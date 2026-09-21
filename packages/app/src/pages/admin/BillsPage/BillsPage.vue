@@ -224,7 +224,7 @@ endDate.value = dateQueryParam(route.query, 'endDate')
 
 const total = computed(() => invoices.value?.at(0)?.total || 0)
 
-const { numberPrefixes, refetch: refetchNumberPrefixes } =
+const { numberPrefixes, activate: activateNumberPrefixes } =
   useAdminGetNumberPrefixesQuery()
 
 const { mutateAsync: updateInvoiceMutation } = useAdminUpdateInvoiceMutation()
@@ -244,6 +244,12 @@ const openUpdateDialog: InstanceType<
     // @ts-expect-error untyped
     data?.clientDetails?.contactPersonName ?? data?.clientDetails?.companyName
 
+  await Promise.all([
+    activateNumberPrefixes(),
+    activateFilteredCompanies(),
+    activateFilteredClients()
+  ])
+
   updateDialogRef.value?.functions.open()
 
   await until(updateInvoiceFormRef).toBeTruthy()
@@ -255,7 +261,12 @@ const openUpdateDialog: InstanceType<
 
 const openCreateDialog: InstanceType<
   typeof ResourcePage
->['$props']['onCreate'] = () => {
+>['$props']['onCreate'] = async () => {
+  await Promise.all([
+    activateNumberPrefixes(),
+    activateFilteredCompanies(),
+    activateFilteredClients()
+  ])
   createDialogRef.value?.functions.open()
 }
 
@@ -311,7 +322,7 @@ const createInvoice: InstanceType<
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies,
+  activate: activateFilteredCompanies,
   asyncStatus: filteredCompaniesAsyncStatus
 } = useAdminSearchCompaniesQuery()
 
@@ -320,7 +331,7 @@ const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
   companiesSearchPhrase.value = searchPhrase
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
 
   if (done) done()
 }
@@ -328,7 +339,7 @@ const onFilterCompanies: InstanceType<
 const {
   clients: filteredClients,
   name: clientName,
-  refetch: refetchFilteredClients,
+  activate: activateFilteredClients,
   asyncStatus: filteredClientsAsyncStatus
 } = useAdminSearchClientsQuery()
 
@@ -337,7 +348,7 @@ const onFilterClients: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:clients'] = async ({ searchPhrase, done }) => {
   clientName.value = searchPhrase
-  await refetchFilteredClients()
+  await activateFilteredClients()
 
   if (done) done()
 }
@@ -710,10 +721,7 @@ const clearSearchResults = () => {
 
 const ready = ref<boolean>(false)
 onMounted(async () => {
-  await refetchNumberPrefixes()
   await execute()
-  await refetchFilteredClients()
-  await refetchFilteredCompanies()
   ready.value = true
 })
 </script>

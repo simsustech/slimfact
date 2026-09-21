@@ -118,19 +118,19 @@ const downloadDigibooxInvoices = async () => {
 const {
   companies: filteredCompanies,
   searchPhrase: companiesSearchPhrase,
-  refetch: refetchFilteredCompanies
+  activate: activateFilteredCompanies
 } = useAdminSearchCompaniesQuery()
 
 const onFilterCompanies: InstanceType<
   typeof InvoiceForm
 >['$props']['onFilter:companies'] = async ({ searchPhrase, done }) => {
   companiesSearchPhrase.value = searchPhrase
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
 
   if (done) done()
 }
 
 onMounted(async () => {
-  await refetchFilteredCompanies()
+  await activateFilteredCompanies()
 })
 </script>

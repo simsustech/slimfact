@@ -18,9 +18,12 @@ export const useAdminSearchClientsQuery = defineQuery(() => {
     sortBy: 'id',
     descending: true
   }))
+  // Lazy: off (and out of the page-mount batch) until a client select asks for
+  // data via `activate()` — see companies.ts.
+  const active = ref(false)
 
   const { data: clients, ...rest } = useQuery({
-    enabled: () => !import.meta.env.SSR,
+    enabled: () => !import.meta.env.SSR && active.value,
     key: () => ['adminSearchClients', name.value, pagination.value],
     query: () =>
       trpc.admin.searchClients.query({
@@ -30,11 +33,17 @@ export const useAdminSearchClientsQuery = defineQuery(() => {
     placeholderData: () => []
   })
 
+  const activate = () => {
+    active.value = true
+    return rest.refetch()
+  }
+
   return {
     clients,
     name,
     page,
     rowsPerPage,
+    activate,
     ...rest
   }
 })
