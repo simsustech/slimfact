@@ -4,9 +4,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      # Overridable so the stack can coexist with another proxy that already
+      # owns 80/443 on the shared `web` network: that one then serves
+      # slimfact.localhost from the api's caddy labels below, and the default
+      # PLAYWRIGHT_BASE_URL keeps working. CI uses the defaults, where this
+      # stack is the only proxy.
+      - "${TEST_CADDY_HTTP_PORT:-80}:80"
+      - "${TEST_CADDY_HTTPS_PORT:-443}:443"
+      - "${TEST_CADDY_HTTPS_PORT:-443}:443/udp"
       - "3000:3000"
       - "3000:3000/udp"
     environment:
@@ -60,6 +65,12 @@ services:
 
       dockerfile: Dockerfile
       target: api
+      # BuildKit layer cache for the cold CI builder: the install stage is the
+      # expensive one (it downloads the whole workspace dependency set).
+      cache_from:
+        - type=gha,scope=slimfact-api
+      cache_to:
+        - type=gha,scope=slimfact-api,mode=max
       network: "host"
       additional_contexts:
         linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
@@ -138,6 +149,10 @@ services:
         - SIMSUSTECH_NPM_TOKEN
       dockerfile: Dockerfile
       target: banking-api
+      cache_from:
+        - type=gha,scope=slimfact-banking-api
+      cache_to:
+        - type=gha,scope=slimfact-banking-api,mode=max
       network: "host"
       additional_contexts:
         linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
