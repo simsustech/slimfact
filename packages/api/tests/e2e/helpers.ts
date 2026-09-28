@@ -182,12 +182,22 @@ export async function clickLinesAdd(p: Page) {
   })
 }
 
+// The invoice list is fetched after hydration (its query is SSR-disabled), so
+// networkidle says nothing about rows having rendered. Wait for the list
+// itself: a slow or lost request then fails here with a readable locator
+// error instead of hanging until the test times out (trpc.ts retries the
+// transient case).
+const waitForInvoiceRows = async (p: Page, timeout = 15_000) => {
+  await p.waitForLoadState('networkidle')
+  await expect(p.locator('.q-expansion-item').first()).toBeVisible({ timeout })
+}
+
 export async function mkInvoice(
   p: Page,
   options: { amount?: string; paymentTermDays?: number } = {}
 ) {
   await p.goto('/admin/invoices')
-  await p.waitForLoadState('networkidle')
+  await waitForInvoiceRows(p)
   await p.locator('#fabAdd').click({ force: true })
   await fillComboboxes(p)
   await clickLinesAdd(p)
@@ -251,7 +261,7 @@ export async function mkInvoice(
     .waitFor({ state: 'visible', timeout: 10000 })
     .catch(() => {})
   await p.goto('/admin/invoices')
-  await p.waitForLoadState('networkidle')
+  await waitForInvoiceRows(p)
   await p.locator('.q-expansion-item__toggle-icon').first().click()
   await p
     .locator('.q-expansion-item__content')
