@@ -72,6 +72,9 @@ async function createInvoice(status?: string): Promise<number> {
 
 test.describe('Invoice Lifecycle \u2014 Valid Transitions', () => {
   test('CONCEPT \u2192 OPEN (sendInvoice)', async () => {
+    // mkInvoice alone drives ~20s of UI here (create + send + re-read), so it
+    // needs headroom beyond the 30s default on a loaded CI runner.
+    test.slow()
     const { mkInvoice } = await import('./helpers')
     const uuid = await mkInvoice(page)
     expect(uuid).toBeTruthy()
@@ -111,6 +114,9 @@ test.describe('Invoice Lifecycle \u2014 Valid Transitions', () => {
 
 test.describe('Bill Lifecycle', () => {
   test('BILL \u2192 RECEIPT (paid bill)', async () => {
+    // Bill creation, payment and the receipt step run ~20s of UI; give the
+    // same headroom the neighbouring lifecycle tests took.
+    test.slow()
     await page.goto('/admin/bills')
     await page.waitForLoadState('networkidle')
     await page.locator('#fabAdd').click()
