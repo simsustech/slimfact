@@ -5,6 +5,7 @@
       filteredOptions as { id: number; [key: string]: unknown }[]
     "
     label-key="companyName"
+    @filter="onFilter"
     :label-function="
       (option: unknown) => {
         const o = option as {
@@ -49,10 +50,11 @@ export interface Props {
   filteredOptions: readonly { id?: number }[]
   /**
    * Typed for parents that reference `$props['onFilter']` when typing their
-   * `@filter` handlers. Not forwarded as FilteredModelSelect's onFilter prop:
-   * parents pass `@filter` which binds to FilteredModelSelect's own filter
-   * emit (plain dropdown stays open); typing-to-filter is driven by
-   * FilteredModelSelect's filter emit reaching the parent's handler.
+   * `@filter` handlers. MUST be forwarded to FilteredModelSelect (see the
+   * `@filter` binding in the template): declaring it as a prop here intercepts
+   * the listener out of $attrs, and without the forward FilteredModelSelect's
+   * `use-input` goes false (readonly field, cannot search) and its filter
+   * emit reaches nobody (searchPhrase never refreshes → stale results).
    */
   onFilter?: (args: {
     searchPhrase: string
