@@ -569,6 +569,37 @@ const seed = async () => {
       .where('invoiceId', '=', invoiceN.id)
       .where('method', '=', PaymentMethod.banktransfer)
       .execute()
+    // The dashboard's year view buckets paid revenue by
+    // checkout.payments.paidAt, and this stack is seeded with seed:test only
+    // (docker-compose.test.yaml - no seed:demo). Every payment above is
+    // stamped with the moment the seed runs, which leaves the year view with
+    // revenue in a single quarter: the quarter-to-month zoom then has nothing
+    // to bin and dashboard.spec.ts (revenue-chart-click-bucket-zooms-to-period)
+    // loses its "Binned by month" caption. Backdate the two plain manual
+    // transfers into earlier quarters so Q1..Q3 each carry revenue. The PSP and
+    // settlement rows keep their dates (they are the payments-overview
+    // fixtures), and the bank matcher plus the adoption scorer read invoice
+    // dueDate rather than paidAt, so this cannot change a match.
+    const seedYear = new Date().getUTCFullYear()
+    const backdatedPaidAt: Record<number, string> = {
+      2: new Date(Date.UTC(seedYear, 1, 15, 12)).toISOString(), // Q1: invoice B
+      13: new Date(Date.UTC(seedYear, 4, 15, 12)).toISOString() // Q2: invoice M
+    }
+    for (const [number, paidAt] of Object.entries(backdatedPaidAt)) {
+      const invoice = await db
+        .selectFrom('checkout.invoices')
+        .select('id')
+        .where('numberPrefix', '=', '2026-')
+        .where('number', '=', Number(number))
+        .executeTakeFirst()
+      if (!invoice) continue
+      await db
+        .updateTable('checkout.payments')
+        .set({ paidAt })
+        .where('invoiceId', '=', invoice.id)
+        .where('status', '=', PaymentStatus.PAID)
+        .execute()
+    }
 
     // Pin deterministic UUIDs so the E2E test world is byte-deterministic.
     // createInvoice has no uuid param and the column defaults to
@@ -670,6 +701,83 @@ const seed = async () => {
         .where('id', '=', invoiceO.invoice.id)
         .execute()
     }
+
+    // Overdue fixtures: the dashboard's Overdue income card groups OPEN
+    // invoices into aging buckets by how many reminders have gone out
+    // (packages/tools/src/dashboard), and dashboard.spec.ts documents that
+    // "the seed guarantees one OPEN overdue invoice per bucket". seed:demo used
+    // to supply those rows; now that the test stack seeds with seed:test only
+    // (docker-compose.test.yaml) this fixture carries one invoice per bucket
+    // itself. Only dueDate is backdated - every other seed:test invoice keeps
+    // `date` = today, which is what the bookkeeping-date specs assert against.
+    // The amounts are deliberately unlike any seeded bank credit
+    // (packages/banking-api/src/seed/test.ts), so the matcher's amount branch
+    // cannot pair one of these with a transaction, and numbers 2026-16+ appear
+    // in no credit reference.
+    const daysAgo = (days: number) =>
+      new Date(Date.now() - days * 86400000).toISOString().slice(0, 10)
+    const overdueFixtures = [
+      { listPrice: 1111, dueDaysAgo: 20, reminders: 0 }, // needsReminder
+      { listPrice: 2222, dueDaysAgo: 35, reminders: 1 }, // reminder1
+      { listPrice: 3333, dueDaysAgo: 50, reminders: 2 }, // reminder2
+      { listPrice: 4444, dueDaysAgo: 70, reminders: 3 } // exhortation
+    ]
+    for (const [index, fixture] of overdueFixtures.entries()) {
+      const invoice = await createDemoInvoice(fixture.listPrice)
+      const opened = await invoiceHandler.openInvoice({
+        id: invoice.id,
+        numberPrefix: '2026-',
+        initialNumber
+      })
+      if (!opened.success) throw new Error(opened.errorMessage)
+      await db
+        .updateTable('checkout.invoices')
+        .set({
+          uuid: deterministicUuid(16 + index),
+          dueDate: daysAgo(fixture.dueDaysAgo),
+          // Reminders land after the due date, newest last, and the bucket is
+          // the array length (jsonb_array_length in getInvoiceOverdueAging).
+          reminderSentDates: JSON.stringify(
+            Array.from({ length: fixture.reminders }, (_, sent) =>
+              daysAgo(fixture.dueDaysAgo - (sent + 1) * 7)
+            )
+          )
+        })
+        .where('id', '=', invoice.id)
+        .execute()
+    }
+
+    // Receipt fixture: /admin/receipts queries status = RECEIPT and
+    // invoice-flow.spec.ts asserts that page lists a receipt. seed:demo produced
+    // receipts as a side effect of its fully paid bills; with seed:test only the
+    // page rendered its empty state, so the spec failed whenever its own
+    // best-effort "Send receipt" click did not land. Follow the app flow: open
+    // the bill, pay it in full, then flip it to RECEIPT.
+    const receiptInvoice = await createDemoInvoice(6600)
+    const openedReceipt = await invoiceHandler.openInvoice({
+      id: receiptInvoice.id,
+      numberPrefix: '2026-',
+      initialNumber
+    })
+    if (!openedReceipt.success) throw new Error(openedReceipt.errorMessage)
+    const receiptPayment = await invoiceHandler.addPaymentToInvoice({
+      id: receiptInvoice.id,
+      payment: {
+        amount: 6600,
+        currency: 'EUR',
+        description: 'Receipt fixture (paid in full)',
+        method: PaymentMethod.banktransfer
+      }
+    })
+    if (!receiptPayment.success) throw new Error(receiptPayment.errorMessage)
+    await db
+      .updateTable('checkout.invoices')
+      .set({
+        uuid: deterministicUuid(20),
+        status: InvoiceStatus.RECEIPT
+      })
+      .where('id', '=', receiptInvoice.id)
+      .execute()
   }
 }
 
