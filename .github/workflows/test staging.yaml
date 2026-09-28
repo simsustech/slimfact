@@ -37,6 +37,22 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.pnpm-store
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
       - name: Install dependencies
         run: pnpm i
 
@@ -45,18 +61,22 @@ jobs:
           cd packages/api
           pnpm exec playwright install --with-deps
 
-      - name: Start Docker compose staging
+      # The test stack is started by packages/api/tests/e2e/global-setup.ts,
+      # which resets its volumes and builds both images. Only the external
+      # `web` network (declared external by docker-compose.test.yaml) has to
+      # exist before that, so a run never brings the stack up twice.
+      - name: Prepare docker network
         run: |
           docker network inspect web >/dev/null 2>&1 || \
             docker network create web
-          docker compose -f docker-compose.test.yaml down --remove-orphans
-          docker compose -f docker-compose.test.yaml --verbose up --force-recreate --wait --build -d
-        env:
-          SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
 
       - name: Run Playwright tests (main)
         run: |
           pnpm run test:e2e
+        env:
+          # global-setup builds the images here, and compose reads this for its
+          # build secret.
+          SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
 
       - name: Run Playwright guards
         run: |
