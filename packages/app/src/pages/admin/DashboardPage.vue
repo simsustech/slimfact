@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="grid gap-4">
-      <h1 class="text-h4">
+      <h1 class="[font:var(--q-headline-small)]">
         {{ lang.dashboard.admin.title }}
       </h1>
 
@@ -35,7 +35,7 @@
           <section class="col-span-12">
             <q-card>
               <q-card-section class="row items-center q-gutter-md">
-                <div class="text-subtitle1">
+                <div class="[font:var(--q-title-medium)]">
                   {{ lang.dashboard.admin.revenue.title }}
                 </div>
                 <q-btn-toggle

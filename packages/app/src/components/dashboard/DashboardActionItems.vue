@@ -1,7 +1,9 @@
 <template>
   <q-card>
     <q-card-section>
-      <div class="text-h6">{{ lang.dashboard.admin.actionItems.title }}</div>
+      <div class="[font:var(--q-title-medium)]">
+        {{ lang.dashboard.admin.actionItems.title }}
+      </div>
 
       <q-list>
         <q-item

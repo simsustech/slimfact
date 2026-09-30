@@ -24,32 +24,48 @@
         <q-card class="q-pa-sm q-mb-md" style="max-width: 560px">
           <q-card-section class="q-pa-xs row q-gutter-md">
             <div>
-              <div class="text-caption text-grey-7">
+              <div
+                class="[font:var(--q-body-small)] text-$light-on-surface dark:text-$dark-on-surface"
+              >
                 {{ lang.payment.overview.in }}
               </div>
-              <div class="text-h6 text-positive" data-testid="agg-in">
+              <div
+                class="[font:var(--q-title-large)] text-positive"
+                data-testid="agg-in"
+              >
                 {{ formatMoney(aggregates?.inCents ?? 0) }}
               </div>
             </div>
             <div>
-              <div class="text-caption text-grey-7">
+              <div
+                class="[font:var(--q-body-small)] text-$light-on-surface dark:text-$dark-on-surface"
+              >
                 {{ lang.payment.overview.refunded }}
               </div>
-              <div class="text-h6 text-negative" data-testid="agg-refunded">
+              <div
+                class="[font:var(--q-title-large)] text-negative"
+                data-testid="agg-refunded"
+              >
                 {{ formatMoney(aggregates?.refundedCents ?? 0) }}
               </div>
             </div>
             <div>
-              <div class="text-caption text-grey-7">
+              <div
+                class="[font:var(--q-body-small)] text-$light-on-surface dark:text-$dark-on-surface"
+              >
                 {{ lang.payment.overview.net }}
               </div>
-              <div class="text-h6" data-testid="agg-net">
+              <div class="[font:var(--q-title-large)]" data-testid="agg-net">
                 {{ formatMoney(aggregates?.netCents ?? 0) }}
               </div>
             </div>
           </q-card-section>
         </q-card>
-        <div v-if="filterSummary" class="text-caption text-grey-6 q-mb-md">
+        <div
+          v-if="filterSummary"
+          class="[font:var(--q-body-small)] text-$light-on-surface dark:text-$dark-on-surface q-mb-md"
+          data-testid="payments-summary"
+        >
           {{ filterSummary }}
         </div>
 
@@ -184,8 +200,9 @@
             <q-td :props="props">
               <router-link
                 v-if="props.row.invoiceUuid"
-                :to="`/admin/invoices?uuid=${props.row.invoiceUuid}`"
+                :to="`/admin/invoices/${props.row.invoiceUuid}`"
                 data-testid="ledger-invoice-link"
+                class="text-primary"
               >
                 {{ props.row.invoiceNumber }}
               </router-link>
@@ -209,7 +226,7 @@
           </template>
           <template #body-cell-status="props">
             <q-td :props="props">
-              <span>{{ props.row.status }}</span>
+              <span>{{ statusLabel(props.row.status) }}</span>
             </q-td>
           </template>
           <template #body-cell-actions="props">
@@ -228,7 +245,9 @@
             </q-td>
           </template>
           <template #no-data>
-            <div class="q-pa-md text-center text-grey-6">
+            <div
+              class="q-pa-md text-center text-$light-on-surface dark:text-$dark-on-surface"
+            >
               {{ lang.payment.overview.empty }}
             </div>
           </template>
@@ -338,7 +357,9 @@
             </q-td>
           </template>
           <template #no-data>
-            <div class="q-pa-md text-center text-grey-6">
+            <div
+              class="q-pa-md text-center text-$light-on-surface dark:text-$dark-on-surface"
+            >
               {{ lang.payment.suggestions.empty }}
             </div>
           </template>
@@ -584,14 +605,53 @@ const refresh = async () => {
 const dateCell = (iso?: string | null): string =>
   formatDate((iso ?? '').slice(0, 10), DATE_FORMAT.value)
 
-const methodLabel = (method: string): string =>
-  (lang.value.payment.methods as Record<string, string | undefined>)[method] ??
-  method
+/**
+ * Stored values do not always match the label keys — the data carries
+ * `banktransfer` where the map says `bankTransfer` — so the lookup compares
+ * case-insensitively. A value with no label at all still renders as words
+ * rather than as a raw enum token.
+ */
+const labelFor = (
+  labels: Record<string, string | undefined>,
+  key: string
+): string | undefined => {
+  const match = Object.keys(labels).find(
+    (candidate) => candidate.toLowerCase() === key.toLowerCase()
+  )
+  return match ? labels[match] : undefined
+}
 
-const methodOptions = Object.keys(lang.value.payment.methods).map((key) => {
-  const value = key.charAt(0).toLowerCase() + key.slice(1)
-  return { label: methodLabel(value), value }
-})
+const humanize = (value: string): string => {
+  const words = value
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .trim()
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
+const methodLabel = (method: string): string =>
+  labelFor(
+    lang.value.payment.methods as Record<string, string | undefined>,
+    method
+  ) ?? humanize(method)
+
+const statusLabel = (status: string): string =>
+  labelFor(
+    lang.value.payment.statuses as Record<string, string | undefined>,
+    status
+  ) ?? humanize(status)
+
+const methodOptions = computed(() =>
+  Object.keys(lang.value.payment.methods).map((key) => {
+    // The label map's keys are camelCase (`bankTransfer`); the values the API
+    // stores — and therefore filters on — are lower-case (`banktransfer`).
+    const value = key.toLowerCase()
+    return { label: methodLabel(value), value }
+  })
+)
+// Raw values, deliberately: this array carries no labels, so a language change
+// cannot leave it stale. Labelling these options would change what the filter
+// menu renders (and what payments-filters.spec.ts asserts) — a separate change.
 const statusOptions = [
   'open',
   'pending',
@@ -602,7 +662,7 @@ const statusOptions = [
   'failed'
 ]
 const pspOptions = ['mollie', 'stripe']
-const sourceOptions = [
+const sourceOptions = computed(() => [
   {
     label: lang.value.payment.overview.sources.payments,
     value: 'payments' as const
@@ -611,7 +671,7 @@ const sourceOptions = [
     label: lang.value.payment.overview.sources.refunds,
     value: 'refunds' as const
   }
-]
+])
 
 const filterSummary = computed(() => {
   const f = filters.value
@@ -635,7 +695,9 @@ const filterSummary = computed(() => {
 
 // --- Table -----------------------------------------------------------------
 
-const columns = [
+// Built on demand: the labels are read at render time, so a language change
+// re-labels the headers instead of leaving them in the previous language.
+const columns = computed(() => [
   {
     name: 'date',
     label: lang.value.payment.overview.columns.date,
@@ -685,7 +747,7 @@ const columns = [
     align: 'left' as const
   },
   { name: 'actions', label: '', field: 'actions' }
-]
+])
 
 const rowKey = (row: PaymentsLedgerRow): string =>
   `${row.kind}-${row.id ?? row.transactionReference ?? row.date}`
@@ -701,11 +763,6 @@ const isDeletable = (row: PaymentsLedgerRow): boolean =>
   row.kind === 'payment' && OFFLINE_METHODS.has(row.method)
 
 const openDeleteDialog = async (data: PaymentsLedgerRow) => {
-  const methodLabels: Record<string, string> = {
-    cash: lang.value.payment.methods.cash,
-    banktransfer: lang.value.payment.methods.bankTransfer,
-    pin: lang.value.payment.methods.pin
-  }
   const formattedAmount = Intl.NumberFormat($q.lang.isoName, {
     maximumFractionDigits: 2,
     style: 'currency',
@@ -713,7 +770,7 @@ const openDeleteDialog = async (data: PaymentsLedgerRow) => {
   }).format((data.amountCents ?? 0) / 100)
   $q.dialog({
     message: lang.value.payment.confirmDeletePayment({
-      method: methodLabels[data.method] ?? data.method,
+      method: methodLabel(data.method),
       number: data.invoiceNumber ?? '',
       amount: formattedAmount
     }),

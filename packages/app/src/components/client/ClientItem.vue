@@ -18,8 +18,10 @@
         <q-btn
           v-if="showUpdateButton"
           icon="i-mdi-edit"
+          :aria-label="`${lang.edit} ${modelValue.companyName || modelValue.contactPersonName}`"
           @click="update(modelValue)"
         />
+        v-if="showUpdateButton" icon="i-mdi-edit" @click="update(modelValue)" />
       </q-item-label>
     </q-item-section>
   </q-item>
@@ -27,6 +29,9 @@
 
 <script setup lang="ts">
 import type { ClientDetails } from '@modular-api/fastify-checkout'
+import { useLang } from '../../lang/index.js'
+
+const lang = useLang()
 
 export interface Props {
   modelValue: ClientDetails

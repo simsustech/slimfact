@@ -34,7 +34,7 @@ const makeClient = (overrides: Partial<BankingApi> = {}): BankingApi => ({
   getAccounts: vi.fn(async () => []),
   sync: vi.fn(async () => ({ newTransactions: 0, totalFetched: 0 })),
   getTransactions: vi.fn(async () => ({ items: [], total: 0 })),
-  syncAll: vi.fn(async () => ({ accounts: 0, newTransactions: 0 })),
+  syncAll: vi.fn(async () => ({ accounts: 0, newTransactions: 0, failures: [] })),
   ...overrides,
 });
 
@@ -45,6 +45,8 @@ const activeConnection: Connection = {
   validUntil: "2099-01-01",
   status: "Active",
   accountCount: 1,
+  accountIds: ["acc-a"],
+  isLive: true,
   lastSyncedAt: null,
   psuType: null,
 };
@@ -56,6 +58,8 @@ const expiredConnection: Connection = {
   validUntil: "2020-01-01",
   status: "Active",
   accountCount: 1,
+  accountIds: ["acc-b"],
+  isLive: false,
   lastSyncedAt: null,
   psuType: null,
 };

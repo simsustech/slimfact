@@ -1,5 +1,10 @@
 <template>
   <md3-layout :ready="ready">
+    <!--
+      No `<h1>` here: the toolbar already states the page title, so a content
+      heading duplicated it. The app still fills Md3Layout's `heading` slot nowhere
+      — the slot stays for consumers that want one.
+    -->
     <template #header-toolbar>
       <q-toolbar-title> {{ title }} </q-toolbar-title>
 
@@ -11,7 +16,7 @@
         @sign-out="logout"
       />
       <login-button v-else color="accent" @click="login" />
-      <q-btn icon="i-mdi-more-vert" flat>
+      <q-btn icon="i-mdi-more-vert" flat :aria-label="lang.moreOptions">
         <q-menu>
           <q-list>
             <q-item v-if="configuration.SUPPORT_EMAIL">
@@ -373,6 +378,9 @@ const title = computed(() => {
   if (lang.value[route.meta?.lang]) title = lang.value[route.meta.lang].title
   return title
 })
+
+// The tab title is owned by App.vue's `useMeta` block, which reads the same map —
+// one owner for both the server-rendered and the client-rendered title.
 
 const accountExpansionItemRef = ref()
 const settingsExpansionItemRef = ref()

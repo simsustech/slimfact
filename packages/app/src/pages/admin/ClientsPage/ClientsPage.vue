@@ -2,7 +2,7 @@
   <q-page padding>
     <q-toolbar>
       <q-space />
-      <q-btn>
+      <q-btn :aria-label="lang.moreOptions">
         <q-icon name="i-mdi-search" />
         <q-icon
           v-if="activeSearch"
@@ -63,6 +63,7 @@
 
   <responsive-dialog
     ref="updateDialogRef"
+    :title="`${lang.edit} ${lang.client.client}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent
@@ -77,6 +78,7 @@
   </responsive-dialog>
   <responsive-dialog
     ref="createDialogRef"
+    :title="`${lang.add} ${lang.client.client}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent

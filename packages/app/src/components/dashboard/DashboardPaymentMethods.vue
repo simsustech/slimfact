@@ -1,13 +1,15 @@
 <template>
   <q-card>
     <q-card-section>
-      <div class="text-h6">
+      <div class="[font:var(--q-title-medium)]">
         {{ lang.dashboard.admin.paymentMethods.title }}
       </div>
 
       <div v-if="rows.length > 0" class="q-mt-sm">
         <div v-for="row in rows" :key="row.method" class="q-mt-sm">
-          <div class="row items-center justify-between text-caption">
+          <div
+            class="row items-center justify-between [font:var(--q-body-small)]"
+          >
             <span>{{ row.label }}</span>
             <span>
               <Price
@@ -15,7 +17,10 @@
                 :model-value="row.totalAmount"
                 currency="EUR"
               />
-              <span class="text-grey-7 q-ml-xs">{{ row.percent }}%</span>
+              <span
+                class="text-$light-on-surface dark:text-$dark-on-surface q-ml-xs"
+                >{{ row.percent }}%</span
+              >
             </span>
           </div>
           <div class="payment-method-bar q-mt-xs">
@@ -26,7 +31,10 @@
           </div>
         </div>
       </div>
-      <div v-else class="q-mt-sm text-grey-7 italic">
+      <div
+        v-else
+        class="q-mt-sm text-$light-on-surface dark:text-$dark-on-surface italic"
+      >
         {{ lang.dashboard.admin.revenue.chart.noData }}
       </div>
     </q-card-section>

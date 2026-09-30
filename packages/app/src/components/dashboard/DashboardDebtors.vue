@@ -2,7 +2,9 @@
   <q-card>
     <q-card-section>
       <div class="row items-center justify-between">
-        <div class="text-h6">{{ lang.dashboard.admin.debtors.title }}</div>
+        <div class="[font:var(--q-title-medium)]">
+          {{ lang.dashboard.admin.debtors.title }}
+        </div>
         <q-btn-toggle
           v-model="mode"
           :options="[
@@ -40,7 +42,10 @@
           </q-item-section>
         </q-item>
       </q-list>
-      <div v-else class="text-caption q-mt-sm text-grey-7">
+      <div
+        v-else
+        class="[font:var(--q-body-small)] q-mt-sm text-$light-on-surface dark:text-$dark-on-surface"
+      >
         {{ lang.dashboard.admin.debtors.empty }}
       </div>
     </q-card-section>

@@ -2,7 +2,7 @@
   <q-card>
     <q-card-section>
       <div class="row items-center q-mb-sm">
-        <div class="text-h6 col">
+        <div class="[font:var(--q-title-medium)] col">
           {{ lang.dashboard.admin.recentActivity.title }}
         </div>
         <div class="col-auto">

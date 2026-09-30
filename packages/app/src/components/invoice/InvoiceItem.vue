@@ -55,7 +55,12 @@
       </q-item-label>
     </q-item-section>
     <q-item-section side>
-      <q-btn flat round icon="i-mdi-more-vert">
+      <q-btn
+        flat
+        round
+        icon="i-mdi-more-vert"
+        :aria-label="`${lang.moreOptions} — ${lang.invoice.invoice} ${modelValue.number}`"
+      >
         <q-menu>
           <q-list>
             <q-item

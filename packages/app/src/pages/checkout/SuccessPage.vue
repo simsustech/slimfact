@@ -1,8 +1,6 @@
 <template>
   <q-page padding>
-    <a>
-      {{ lang.checkout.success }}
-    </a>
+    {{ lang.checkout.success }}
   </q-page>
 </template>
 

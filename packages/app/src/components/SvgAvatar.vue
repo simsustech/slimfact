@@ -35,6 +35,7 @@
   </div>
   <responsive-dialog
     ref="imageDialog"
+    :title="lang.image"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent

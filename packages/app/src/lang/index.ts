@@ -19,6 +19,7 @@ export interface Language {
   welcome: string
   privacyPolicy: string
   404: string
+  moreOptions: string
   goHome: string
   updateAvailable: string
   refresh: string
@@ -267,9 +268,24 @@ export interface Language {
     }
   }
   checkout: {
+    title: string
     success: string
+    empty: string
+  }
+  home: {
+    title: string
+  }
+  user: {
+    title: string
+  }
+  admin: {
+    title: string
+  }
+  banking: {
+    title: string
   }
   payment: {
+    title: string
     payments: string
     pay: string
     addPayment: string
@@ -293,6 +309,18 @@ export interface Language {
       wero: string
       pin: string
       creditcard: string
+      ideal: string
+      /** The ledger labels its refund rows with a synthetic `method: 'refund'`. */
+      refund: string
+    }
+    statuses: {
+      open: string
+      canceled: string
+      pending: string
+      authorized: string
+      expired: string
+      failed: string
+      paid: string
     }
     descriptions: {
       cashPayment: string
@@ -373,6 +401,7 @@ export interface Language {
     title: string
   }
   dashboard: {
+    title: string
     account: {
       menu: {
         title: string
