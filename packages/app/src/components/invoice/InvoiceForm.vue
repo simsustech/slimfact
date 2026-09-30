@@ -212,6 +212,7 @@
 
   <responsive-dialog
     ref="updateDialogRef"
+    :title="`${lang.edit} ${lang.client.client}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent

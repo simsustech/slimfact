@@ -54,7 +54,12 @@
       </q-item-section>
       <q-item-section side>
         <slot name="item-side">
-          <q-btn flat round icon="i-mdi-more-vert">
+          <q-btn
+            flat
+            round
+            icon="i-mdi-more-vert"
+            :aria-label="`${lang.moreOptions} — ${lang.invoice.invoice} ${modelValue.number}`"
+          >
             <q-menu>
               <q-list>
                 <q-item
@@ -186,6 +191,7 @@
                   </q-item-section>
                 </q-item>
                 <q-item
+                  data-testid="add-payment-menu"
                   v-if="
                     [InvoiceStatus.OPEN, InvoiceStatus.BILL].includes(
                       modelValue.status
@@ -217,6 +223,7 @@
                         v-close-popup
                         clickable
                         @click="addPaymentCash(modelValue)"
+                        data-testid="add-cash-payment"
                       >
                         <q-item-section avatar>
                           <q-icon name="i-mdi-attach-money"></q-icon>

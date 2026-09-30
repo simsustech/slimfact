@@ -13,6 +13,7 @@
 
   <responsive-dialog
     ref="updateDialogRef"
+    :title="`${lang.edit} ${lang.initialNumberForPrefix.fields.initialNumber}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent
@@ -27,6 +28,7 @@
   </responsive-dialog>
   <responsive-dialog
     ref="createDialogRef"
+    :title="`${lang.add} ${lang.initialNumberForPrefix.fields.initialNumber}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent

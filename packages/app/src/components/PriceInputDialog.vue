@@ -18,7 +18,7 @@
       </q-card-section>
       <q-card-actions align="right">
         <q-btn color="primary" label="OK" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
+        <q-btn color="primary" :label="lang.cancel" @click="onDialogCancel" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -27,12 +27,15 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { ref } from 'vue'
+import { useLang } from '../lang/index.js'
 
 export interface Props {
   message: string
   currency: 'EUR' | 'USD'
 }
 const price = ref(0)
+
+const lang = useLang()
 defineProps<Props>()
 
 defineEmits([

@@ -83,6 +83,7 @@
 
   <responsive-dialog
     ref="sendEmailDialogRef"
+    :title="lang.bill.labels.sendReceipt"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent

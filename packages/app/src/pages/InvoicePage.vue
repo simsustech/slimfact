@@ -220,13 +220,14 @@
       </div>
 
       <div class="print-only-message">
-        <div class="text-h5 text-center q-pa-xl">
+        <div class="[font:var(--q-headline-small)] text-center q-pa-xl">
           {{ lang.invoice.labels.downloadPdfToPrint }}
         </div>
       </div>
 
       <responsive-dialog
         ref="bankTransferDialogRef"
+        :title="lang.payment.methods.bankTransfer"
         :icons="{ close: 'i-mdi-close' }"
         class="no-print"
         padding

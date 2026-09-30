@@ -35,8 +35,11 @@ test.describe('payments filters', () => {
     return `01-01-${year}`
   }
 
+  // Located by a stable hook, not a typography class: this line's class changed
+  // when the app moved off Quasar's MD2 `.text-caption` onto the MD3 role
+  // tokens, which is exactly the coupling a test should not depend on.
   const summaryLine = (page: any) =>
-    page.locator('.text-caption', { hasText: 'Payments' }).first()
+    page.locator('[data-testid="payments-summary"]').first()
 
   test('fresh view defaults to this year, status paid, with a summary line', async ({
     browser

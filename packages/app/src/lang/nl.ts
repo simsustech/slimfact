@@ -16,6 +16,7 @@ const lang: Language = {
   privacyPolicy: 'Privacy verklaring',
   404: 'Oeps, deze pagina is niet beschikbaar...',
   goHome: 'Ga naar home page',
+  moreOptions: 'Meer opties',
   updateAvailable: 'Er is een update beschikbaar.',
   refresh: 'Vernieuwen',
   name: 'Naam',
@@ -243,9 +244,24 @@ const lang: Language = {
     }
   },
   checkout: {
-    success: 'Uw betaling is gelukt en wordt geverifieerd.'
+    title: 'Checkout',
+    success: 'Uw betaling is gelukt en wordt geverifieerd.',
+    empty: 'Hier is niets te betalen.'
+  },
+  home: {
+    title: 'Home'
+  },
+  user: {
+    title: 'Gebruiker'
+  },
+  admin: {
+    title: 'Beheerder'
+  },
+  banking: {
+    title: 'Bankieren'
   },
   payment: {
+    title: 'Betalingen',
     payments: 'Betalingen',
     pay: 'Betaal',
     addPayment: 'Betaling toevoegen',
@@ -274,7 +290,18 @@ const lang: Language = {
       bankTransfer: 'Bank overschrijving',
       wero: 'Wero | iDEAL',
       pin: 'PIN',
-      creditcard: 'Creditcard'
+      creditcard: 'Creditcard',
+      ideal: 'iDEAL',
+      refund: 'Terugbetaling'
+    },
+    statuses: {
+      open: 'Open',
+      canceled: 'Geannuleerd',
+      pending: 'In behandeling',
+      authorized: 'Geautoriseerd',
+      expired: 'Verlopen',
+      failed: 'Mislukt',
+      paid: 'Betaald'
     },
     descriptions: {
       cashPayment: 'Contante betaling',
@@ -376,6 +403,7 @@ const lang: Language = {
     title: 'Exporteren'
   },
   dashboard: {
+    title: 'Dashboard',
     account: {
       menu: {
         title: 'Snelmenu',

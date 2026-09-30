@@ -177,7 +177,9 @@ test.describe('payments overview (seeded demo)', () => {
     })
     await page.locator('a[data-testid="ledger-invoice-link"]').first().click()
     await page.waitForLoadState('networkidle')
-    await expect(page).toHaveURL(/uuid=00000000-0000-4000-8000-000000000005/)
+    await expect(page).toHaveURL(
+      /\/admin\/invoices\/00000000-0000-4000-8000-000000000005/
+    )
   })
 
   test('CSV export downloads the filtered selection', async ({ browser }) => {

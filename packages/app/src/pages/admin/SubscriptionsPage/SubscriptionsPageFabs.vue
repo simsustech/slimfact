@@ -1,10 +1,17 @@
 <template>
-  <navigation-rail-fabs :bus-emits="busEmits" :icons="icons" type="add" />
+  <navigation-rail-fabs
+    :bus-emits="busEmits"
+    :icons="icons"
+    type="add"
+    :add-label="`${lang.add} ${lang.subscription.title}`"
+  />
 </template>
 
 <script lang="ts" setup>
 import { NavigationRailFabs } from '@simsustech/quasar-components/md3'
 import { ref } from 'vue'
+import { useLang } from '../../../lang/index.js'
+const lang = useLang()
 
 const busEmits = ref({
   add: 'administrator-open-subscriptions-create-dialog'

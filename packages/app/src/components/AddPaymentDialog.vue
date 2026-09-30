@@ -39,7 +39,7 @@
       </q-card-section>
       <q-card-actions align="right">
         <q-btn color="primary" label="OK" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
+        <q-btn color="primary" :label="lang.cancel" @click="onDialogCancel" />
       </q-card-actions>
     </q-card>
   </q-dialog>

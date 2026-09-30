@@ -66,6 +66,7 @@
 
   <responsive-dialog
     ref="updateDialogRef"
+    :title="`${lang.edit} ${lang.subscription.title}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent
@@ -83,6 +84,7 @@
   </responsive-dialog>
   <responsive-dialog
     ref="createDialogRef"
+    :title="`${lang.add} ${lang.subscription.title}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent

@@ -16,6 +16,7 @@ const lang: Language = {
   privacyPolicy: 'Datenschutzerklärung',
   404: 'Hoppla, diese Seite ist nicht verfügbar...',
   goHome: 'Zur Startseite',
+  moreOptions: 'Weitere Optionen',
   updateAvailable: 'Ein Update ist verfügbar.',
   refresh: 'Aktualisieren',
   darkMode: 'Dunkelmodus',
@@ -244,9 +245,24 @@ const lang: Language = {
     }
   },
   checkout: {
-    success: 'Ihre Zahlung war erfolgreich und wird derzeit verarbeitet.'
+    title: 'Checkout',
+    success: 'Ihre Zahlung war erfolgreich und wird derzeit verarbeitet.',
+    empty: 'Hier gibt es nichts zu bezahlen.'
+  },
+  home: {
+    title: 'Startseite'
+  },
+  user: {
+    title: 'Benutzer'
+  },
+  admin: {
+    title: 'Administrator'
+  },
+  banking: {
+    title: 'Banking'
   },
   payment: {
+    title: 'Zahlungen',
     payments: 'Zahlungen',
     pay: 'Bezahlen',
     addPayment: 'Zahlung hinzufügen',
@@ -275,7 +291,18 @@ const lang: Language = {
       bankTransfer: 'Überweisung',
       wero: 'Wero | iDEAL',
       pin: 'PIN',
-      creditcard: 'Kreditkarte'
+      creditcard: 'Kreditkarte',
+      ideal: 'iDEAL',
+      refund: 'Erstattung'
+    },
+    statuses: {
+      open: 'Offen',
+      canceled: 'Storniert',
+      pending: 'In Bearbeitung',
+      authorized: 'Autorisiert',
+      expired: 'Abgelaufen',
+      failed: 'Fehlgeschlagen',
+      paid: 'Bezahlt'
     },
     descriptions: {
       cashPayment: 'Barzahlung',
@@ -377,6 +404,7 @@ const lang: Language = {
     title: 'Exporte'
   },
   dashboard: {
+    title: 'Dashboard',
     account: {
       menu: {
         title: 'Schnellmenü',

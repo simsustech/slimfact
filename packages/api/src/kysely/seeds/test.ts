@@ -191,18 +191,30 @@ const seed = async () => {
   await db.insertInto('companies').values(companies).execute()
   await db.insertInto('clients').values(clients).execute()
 
-  const adminAccounts = await db
+  // Two accounts: the administrator, and a *roleless* one that a client row
+  // points at. The second is what makes every /account/* route reachable —
+  // `findClient({ criteria: { accountId } })` resolves to nothing without it,
+  // so those pages could only ever render their empty state.
+  const accounts = await db
     .insertInto('accounts')
     .values([
       {
         email: 'admin@slimfact.app',
         roles: `["administrator", "pointofsale"]`
+      },
+      {
+        email: 'customer@slimfact.app',
+        roles: `[]`
       }
     ])
     .returning('id')
     .execute()
 
-  const admin = adminAccounts[0]
+  const [admin, customer] = accounts
+
+  // One hash for both: scrypt salts per call, and nothing here needs the two
+  // accounts to differ.
+  const passwordHash = await hashPassword(ADMIN_PASSWORD)
 
   await db
     .insertInto('authenticationMethods')
@@ -210,9 +222,22 @@ const seed = async () => {
       {
         accountId: admin.id,
         provider: 'native',
-        password: await hashPassword(ADMIN_PASSWORD)
+        password: passwordHash
+      },
+      {
+        accountId: customer.id,
+        provider: 'native',
+        password: passwordHash
       }
     ])
+    .execute()
+
+  // Link the client to the customer account. `clients` is inserted above,
+  // before the accounts exist, so the link is a second statement.
+  await db
+    .updateTable('clients')
+    .set({ accountId: customer.id })
+    .where('email', '=', 'jane@goodsforall.local')
     .execute()
 
   // ---- Bank demo: review-queue + auto-apply showcase (idempotent) ----

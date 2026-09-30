@@ -2,7 +2,7 @@
   <q-card>
     <q-card-section>
       <div class="row items-center justify-between">
-        <div class="text-h6">
+        <div class="[font:var(--q-title-medium)]">
           {{
             mode === 'overdue'
               ? lang.dashboard.admin.upcomingIncome.titleOverdue
@@ -29,14 +29,14 @@
 
       <!-- Upcoming: open invoices that are not due yet -->
       <template v-if="mode === 'upcoming'">
-        <div class="q-mt-xs text-subtitle1">
+        <div class="q-mt-xs [font:var(--q-title-medium)]">
           <Price
             v-if="count > 0"
             :model-value="totalAmount"
             currency="EUR"
             class="q-mr-xs"
           />
-          <div class="text-grey-7">
+          <div class="text-$light-on-surface dark:text-$dark-on-surface">
             {{ count }} {{ lang.dashboard.admin.upcomingIncome.invoices }}
           </div>
         </div>
@@ -54,7 +54,9 @@
                 <span class="text-weight-medium">
                   {{ row.documentNumber ?? '—' }}
                 </span>
-                <span class="text-grey-7 q-ml-xs">
+                <span
+                  class="text-$light-on-surface dark:text-$dark-on-surface q-ml-xs"
+                >
                   {{ row.clientName ?? '—' }}
                 </span>
               </q-item-label>
@@ -72,21 +74,24 @@
             </q-item-section>
           </q-item>
         </q-list>
-        <div v-else class="q-mt-sm text-grey-7 italic">
+        <div
+          v-else
+          class="q-mt-sm text-$light-on-surface dark:text-$dark-on-surface italic"
+        >
           {{ lang.dashboard.admin.upcomingIncome.empty }}
         </div>
       </template>
 
       <!-- Overdue: open invoices past their due date, per aging bucket -->
       <template v-else>
-        <div class="q-mt-xs text-subtitle1">
+        <div class="q-mt-xs [font:var(--q-title-medium)]">
           <Price
             v-if="overdueTotal > 0"
             :model-value="overdueTotal"
             currency="EUR"
             class="q-mr-xs"
           />
-          <div class="text-grey-7">
+          <div class="text-$light-on-surface dark:text-$dark-on-surface">
             {{ overdueCount }}
             {{ lang.dashboard.admin.upcomingIncome.invoices }}
           </div>
@@ -102,7 +107,10 @@
             </q-item-section>
           </q-item>
         </q-list>
-        <div v-else class="q-mt-sm text-grey-7 italic">
+        <div
+          v-else
+          class="q-mt-sm text-$light-on-surface dark:text-$dark-on-surface italic"
+        >
           {{ lang.dashboard.admin.upcomingIncome.emptyOverdue }}
         </div>
       </template>

@@ -16,6 +16,7 @@ const lang: Language = {
   privacyPolicy: 'Privacy policy',
   404: 'Oops, this page is not available...',
   goHome: 'Go to home page',
+  moreOptions: 'More options',
   updateAvailable: 'An update is available.',
   refresh: 'Refresh',
   name: 'Name',
@@ -242,9 +243,24 @@ const lang: Language = {
     }
   },
   checkout: {
-    success: 'Your payment was succesful and is being verified.'
+    title: 'Checkout',
+    success: 'Your payment was successful and is being verified.',
+    empty: 'Nothing to pay here.'
+  },
+  home: {
+    title: 'Home'
+  },
+  user: {
+    title: 'User'
+  },
+  admin: {
+    title: 'Admin'
+  },
+  banking: {
+    title: 'Banking'
   },
   payment: {
+    title: 'Payments',
     payments: 'Payments',
     pay: 'Pay',
     addPayment: 'Add payment',
@@ -273,7 +289,19 @@ const lang: Language = {
       bankTransfer: 'Bank transfer',
       wero: 'Wero | iDEAL',
       pin: 'PIN',
-      creditcard: 'Credit card'
+      creditcard: 'Credit card',
+      ideal: 'iDEAL',
+      // The ledger labels its refund rows with a synthetic `method: 'refund'`.
+      refund: 'Refund'
+    },
+    statuses: {
+      open: 'Open',
+      canceled: 'Canceled',
+      pending: 'Pending',
+      authorized: 'Authorized',
+      expired: 'Expired',
+      failed: 'Failed',
+      paid: 'Paid'
     },
     descriptions: {
       cashPayment: 'Cash payment',
@@ -378,6 +406,7 @@ const lang: Language = {
     title: 'Exports'
   },
   dashboard: {
+    title: 'Dashboard',
     account: {
       menu: {
         title: 'Quick menu',

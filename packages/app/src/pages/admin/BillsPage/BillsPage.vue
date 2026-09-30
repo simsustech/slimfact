@@ -2,7 +2,7 @@
   <q-page padding>
     <q-toolbar>
       <q-space />
-      <q-btn>
+      <q-btn :aria-label="lang.moreOptions">
         <q-icon name="i-mdi-search" />
         <q-icon
           v-if="activeSearch"
@@ -84,6 +84,7 @@
   </q-page>
   <responsive-dialog
     ref="updateDialogRef"
+    :title="`${lang.edit} ${lang.bill.bill}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent
@@ -103,6 +104,7 @@
   </responsive-dialog>
   <responsive-dialog
     ref="createDialogRef"
+    :title="`${lang.add} ${lang.bill.bill}`"
     :icons="{ close: 'i-mdi-close' }"
     padding
     persistent
@@ -122,6 +124,7 @@
   </responsive-dialog>
   <responsive-dialog
     ref="sendEmailDialogRef"
+    :title="lang.bill.labels.sendReceipt"
     :icons="{ close: 'i-mdi-close' }"
     padding
     button-type="send"
