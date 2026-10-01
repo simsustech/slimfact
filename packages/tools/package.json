@@ -79,6 +79,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "bash tests/typst/totals-grid.test.sh",
     "generate:demo": "node ./scripts/generate-demo-data.mjs",
     "lint": "oxlint src",
     "lint:fix": "oxlint src --fix",
