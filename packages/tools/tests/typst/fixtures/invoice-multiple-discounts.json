@@ -1,0 +1,122 @@
+{
+  "id": 1,
+  "uuid": "7a9c315e-bf61-4047-a86f-16a61c0c00f5",
+  "locale": "en-US",
+  "currency": "EUR",
+  "companyPrefix": "deliverables",
+  "numberPrefix": "2026.",
+  "numberPrefixTemplate": "((YYYY)).",
+  "number": 1,
+  "date": "2026-01-26",
+  "paymentTermDays": 14,
+  "dueDate": "2026-02-09",
+  "lines": [
+    {
+      "taxRate": 21,
+      "discount": 100,
+      "quantity": 1000,
+      "listPrice": 600,
+      "description": "Wood",
+      "quantityUnit": "m",
+      "parsedQuantity": 1,
+      "quantityPerMille": true,
+      "discountExcludingTax": 83,
+      "discountIncludingTax": 100,
+      "listPriceIncludesTax": true,
+      "linePriceExcludingTax": 496,
+      "linePriceIncludingTax": 600,
+      "listPriceExcludingTax": 496,
+      "listPriceIncludingTax": 600,
+      "discountedLinePriceExcludingTax": 413,
+      "discountedLinePriceIncludingTax": 500
+    }
+  ],
+  "discounts": [
+    {
+      "taxRate": 21,
+      "listPrice": 500,
+      "description": "Cheap",
+      "listPriceIncludesTax": true,
+      "listPriceExcludingTax": 413,
+      "listPriceIncludingTax": 500
+    },
+    {
+      "taxRate": 21,
+      "listPrice": 250,
+      "description": "Expensive",
+      "listPriceIncludesTax": true,
+      "listPriceExcludingTax": 207,
+      "listPriceIncludingTax": 250
+    }
+  ],
+  "surcharges": [
+    {
+      "taxRate": 21,
+      "listPrice": 2000,
+      "description": "Shipping",
+      "listPriceIncludesTax": true,
+      "listPriceExcludingTax": 1653,
+      "listPriceIncludingTax": 2000
+    },
+    {
+      "taxRate": 21,
+      "listPrice": 100,
+      "description": "Handling",
+      "listPriceIncludesTax": true,
+      "listPriceExcludingTax": 83,
+      "listPriceIncludingTax": 100
+    }
+  ],
+  "companyDetails": {
+    "id": 5,
+    "bic": "FILNBGF8XXX",
+    "city": "Kenosha",
+    "iban": "CH42971990648668981F9",
+    "name": "Wintheiser, Spencer and Corwin",
+    "email": "Fredrick_Muller81@yahoo.com",
+    "prefix": "deliverables",
+    "address": "4209 Trinity Road",
+    "country": "US",
+    "logoSvg": null,
+    "website": null,
+    "emailBcc": "Cora.Kshlerin@gmail.com",
+    "cocNumber": "97-1416-4574-0",
+    "createdAt": "2026-01-23 12:27:23.14566+00",
+    "postalCode": "84161-4878",
+    "vatIdNumber": "68284107",
+    "defaultLocale": null,
+    "defaultCurrency": null,
+    "telephoneNumber": "1-380-762-9832 x1675",
+    "contactPersonName": null,
+    "defaultNumberPrefixTemplate": null
+  },
+  "clientDetails": {
+    "id": 500,
+    "city": "McAllen",
+    "email": "Melyssa86@yahoo.com",
+    "number": null,
+    "address": "281 Justyn Curve",
+    "country": "NL",
+    "postalCode": "88151-3557",
+    "companyName": null,
+    "vatIdNumber": null,
+    "contactPersonName": "Carmen Boehm"
+  },
+  "taxSummary": [
+    { "tax": 347, "taxRate": 21 },
+    { "tax": 10, "taxRate": 9 }
+  ],
+  "totalIncludingTax": 2000,
+  "totalExcludingTax": 1653,
+  "requiredDownPaymentAmount": 0,
+  "projectId": null,
+  "notes": "Test",
+  "status": "open",
+  "companyId": 5,
+  "clientId": 500,
+  "reminderSentDates": [],
+  "template": "default",
+  "amountPaid": 0,
+  "amountDue": 2000,
+  "amountRefunded": 0
+}

@@ -157,7 +157,10 @@
       #invoice.clientDetails.address \
       #invoice.clientDetails.postalCode #invoice.clientDetails.city \
       #if invoice.clientDetails.at("country", default: none) != none {
-        lang.countries.at(invoice.clientDetails.at("country"), default: invoice.clientDetails.country)
+        lang.countries.at(
+          invoice.clientDetails.at("country"),
+          default: invoice.clientDetails.country,
+        )
       } \
       #if invoice.clientDetails.at("vatIdNumber", default: none) != none {
         [#lang.invoice.fields.vatIdNumber: #invoice.clientDetails.at("vatIdNumber", default: none)]
@@ -170,7 +173,10 @@
       #invoice.companyDetails.address \
       #invoice.companyDetails.postalCode #invoice.companyDetails.city \
       #if (invoice.companyDetails.at("country", default: none) != none) {
-        lang.countries.at(invoice.companyDetails.at("country"), default: invoice.companyDetails.country)
+        lang.countries.at(
+          invoice.companyDetails.at("country"),
+          default: invoice.companyDetails.country,
+        )
       }
       #v(1em)
       #invoice.companyDetails.telephoneNumber \
@@ -194,8 +200,11 @@
       columns: (50%, 50%),
       row-gutter: 0.5em,
       align: (left, right),
-      [#lang.invoice.fields.invoiceNumber:], [*#invoice.numberPrefix#invoice.number*],
-      [#lang.invoice.fields.invoiceDate:], [#formatDate(invoice.date, invoice.locale)],
+      [#lang.invoice.fields.invoiceNumber:],
+      [*#invoice.numberPrefix#invoice.number*],
+
+      [#lang.invoice.fields.invoiceDate:],
+      [#formatDate(invoice.date, invoice.locale)],
     )
   },
 )
@@ -212,7 +221,9 @@
     if x > 4 { right } else { left }
   ),
   inset: (x, y) => (
-    if x == 0 { (left: 0pt, rest: 0.5em) } else if x == 5 { (right: 0pt, rest: 0.5em) } else { (rest: 0.5em) }
+    if x == 0 { (left: 0pt, rest: 0.5em) } else if x == 5 {
+      (right: 0pt, rest: 0.5em)
+    } else { (rest: 0.5em) }
   ),
 )
 #table(
@@ -223,17 +234,34 @@
     lang.invoice.fields.listPrice,
     lang.invoice.fields.discount,
     lang.invoice.fields.vat,
-    ternary(includeTax, lang.invoice.labels.amountIncludingTax, lang.invoice.labels.amountExcludingTax),
+    ternary(
+      includeTax,
+      lang.invoice.labels.amountIncludingTax,
+      lang.invoice.labels.amountExcludingTax,
+    ),
   ),
   ..for v in invoice.lines {
     (
-      [#formatQuantity(v.quantity, v.quantityPerMille, v.at("quantityUnit", default: none))],
+      [#formatQuantity(v.quantity, v.quantityPerMille, v.at(
+        "quantityUnit",
+        default: none,
+      ))],
       [#v.description],
-      [#formatPrice(ternary(includeTax, v.listPriceIncludingTax, v.listPriceExcludingTax), invoice.currency)],
-      [#formatPrice(ternary(includeTax, v.discountIncludingTax, v.discountExcludingTax), invoice.currency)],
+      [#formatPrice(
+        ternary(includeTax, v.listPriceIncludingTax, v.listPriceExcludingTax),
+        invoice.currency,
+      )],
+      [#formatPrice(
+        ternary(includeTax, v.discountIncludingTax, v.discountExcludingTax),
+        invoice.currency,
+      )],
       [#v.taxRate%],
       [#formatPrice(
-        ternary(includeTax, v.discountedLinePriceIncludingTax, v.discountedLinePriceExcludingTax),
+        ternary(
+          includeTax,
+          v.discountedLinePriceIncludingTax,
+          v.discountedLinePriceExcludingTax,
+        ),
         invoice.currency,
       )],
     )
@@ -251,17 +279,32 @@
         columns: (1fr, auto),
         align: (left, right),
         row-gutter: 0.75em,
-        for v in invoice.surcharges { [#v.description:] },
-        for v in invoice.surcharges {
-          [#formatPrice(ternary(includeTax, v.listPriceIncludingTax, v.listPriceExcludingTax), invoice.currency)]
+        ..for v in invoice.surcharges {
+          (
+            [#v.description:],
+            [#formatPrice(
+              ternary(
+                includeTax,
+                v.listPriceIncludingTax,
+                v.listPriceExcludingTax,
+              ),
+              invoice.currency,
+            )],
+          )
         },
 
-        for v in invoice.discounts { [#v.description:] },
-        for v in invoice.discounts {
-          [#sym.minus #formatPrice(
-              ternary(includeTax, v.listPriceIncludingTax, v.listPriceExcludingTax),
-              invoice.currency,
-            )]
+        ..for v in invoice.discounts {
+          (
+            [#v.description:],
+            [#sym.minus #formatPrice(
+                ternary(
+                  includeTax,
+                  v.listPriceIncludingTax,
+                  v.listPriceExcludingTax,
+                ),
+                invoice.currency,
+              )],
+          )
         },
 
         [#lang.invoice.fields.totalExcludingTax:],
@@ -269,8 +312,12 @@
           #formatPrice(invoice.totalExcludingTax, invoice.currency) \
         ],
 
-        for v in invoice.taxSummary { [#lang.invoice.fields.vat #v.taxRate#sym.percent:] },
-        for v in invoice.taxSummary { [#formatPrice(v.tax, invoice.currency)] },
+        ..for v in invoice.taxSummary {
+          (
+            [#lang.invoice.fields.vat #v.taxRate#sym.percent:],
+            [#formatPrice(v.tax, invoice.currency)],
+          )
+        },
         grid.cell(colspan: 2)[
           #line(length: 100%)
         ],
