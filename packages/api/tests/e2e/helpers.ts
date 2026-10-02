@@ -254,7 +254,12 @@ export async function mkInvoice(
   }
   const body = p.locator('.q-dialog textarea').first()
   if (await body.isVisible()) await body.fill('.')
-  await p.getByRole('button', { name: 'Send' }).click({ timeout: 5000 })
+  // Scope to the dialog: the expansion menu item that opened it stays mounted
+  // in its own Quasar portal, so an unscoped name match hits both.
+  await p
+    .locator('.q-dialog')
+    .getByRole('button', { name: 'Send' })
+    .click({ timeout: 5000 })
   await p
     .locator('.q-notification, .q-banner')
     .first()

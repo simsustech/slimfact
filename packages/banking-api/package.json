@@ -44,7 +44,7 @@
     "@fastify/rate-limit": "^11.2.0",
     "@fastify/websocket": "^11.3.0",
     "@modular-api/event-bus": "0.2.2",
-    "@mollie/api-client": "4.6.0",
+    "mollie-api-typescript": "1.12.37",
     "@open-banking-io/client": "1.2.0",
     "@slimfact/tools": "workspace:*",
     "@trpc/client": "11.18.0",

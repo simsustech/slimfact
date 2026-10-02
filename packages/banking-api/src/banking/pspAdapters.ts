@@ -1,4 +1,4 @@
-import { createMollieClient } from "@mollie/api-client";
+import { Client } from "mollie-api-typescript";
 import Stripe from "stripe";
 import { parseAmountToCents } from "@slimfact/tools/banking";
 import type { PspAdapter, PspPaymentItem, PspSettlementItem } from "./pspSync.js";
@@ -20,13 +20,25 @@ const mollieFeeCents = (settlement: {
   return found ? total : null;
 };
 
-/** Mollie: settlements + the payments included in each settlement. */
+/** Mollie: settlements + the payments included in each settlement.
+ * `_links.next` carries the pagination cursor in its `from` param. */
+const MOLLIE_API_BASE = "https://api.mollie.com";
+
+const mollieNextFrom = (href: string | null | undefined): string | undefined => {
+  if (!href) return undefined;
+  try {
+    return new URL(href, MOLLIE_API_BASE).searchParams.get("from") ?? undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const createMollieAdapter = (apiKey: string): PspAdapter => {
-  const client = createMollieClient({ apiKey });
+  const client = new Client({ security: { apiKey } });
   return {
     listSettlements: async ({ limit, from }) => {
-      const page = await client.settlements.page({ limit, from });
-      const items: PspSettlementItem[] = page.map((settlement) => ({
+      const page = await client.settlements.list({ limit, from });
+      const items: PspSettlementItem[] = page.result.embedded.settlements.map((settlement) => ({
         externalId: settlement.id,
         amountCents: parseAmountToCents(settlement.amount.value),
         feeCents: mollieFeeCents(settlement),
@@ -35,22 +47,19 @@ export const createMollieAdapter = (apiKey: string): PspAdapter => {
         status: settlement.status,
         metadata: { reference: settlement.reference },
       }));
-      return { items, nextFrom: page.nextPageCursor ?? undefined };
+      return { items, nextFrom: mollieNextFrom(page.result.links.next?.href) };
     },
-    listSettlementPayments: async (settlementId, { limit }) => {
-      const page = await client.settlementPayments.page({
-        settlementId,
-        limit,
-      });
-      const items: PspPaymentItem[] = page.map((payment) => ({
+    listSettlementPayments: async (settlementId, { limit, from }) => {
+      const page = await client.settlements.listPayments({ settlementId, limit, from });
+      const items: PspPaymentItem[] = (page.result.embedded.payments ?? []).map((payment) => ({
         externalId: payment.id,
         amountCents: parseAmountToCents(payment.amount.value),
         currency: payment.amount.currency,
-        description: payment.description ?? null,
+        description: payment.description,
         status: payment.status,
         paidAt: payment.createdAt ? new Date(payment.createdAt) : null,
       }));
-      return items;
+      return { items, nextFrom: mollieNextFrom(page.result.links.next?.href) };
     },
   };
 };
@@ -77,10 +86,11 @@ export const createStripeAdapter = (apiKey: string): PspAdapter => {
       const lastId = list.data.at(-1)?.id;
       return { items, nextFrom: list.has_more && lastId ? lastId : undefined };
     },
-    listSettlementPayments: async (payoutId, { limit }) => {
+    listSettlementPayments: async (payoutId, { limit, from }) => {
       const list = await stripe.balanceTransactions.list({
         payout: payoutId,
         limit,
+        starting_after: from,
       });
       const items: PspPaymentItem[] = list.data
         .filter((transaction) => !!transaction.source)
@@ -93,7 +103,8 @@ export const createStripeAdapter = (apiKey: string): PspAdapter => {
           status: "paid",
           paidAt: new Date(transaction.created * 1000),
         }));
-      return items;
+      const lastId = list.data.at(-1)?.id;
+      return { items, nextFrom: list.has_more && lastId ? lastId : undefined };
     },
   };
 };

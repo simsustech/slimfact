@@ -39,25 +39,62 @@ const makeMockMollie = (): PspAdapter => ({
       },
     ],
   }),
-  listSettlementPayments: async () => [
-    {
-      externalId: "pay-mock-1",
-      amountCents: 2500,
+  listSettlementPayments: async () => ({
+    items: [
+      {
+        externalId: "pay-mock-1",
+        amountCents: 2500,
+        currency: "EUR",
+        description: "7ca67d1b-0f9a-47b1-800b-49b8ba0411f9",
+        status: "paid",
+        paidAt: new Date("2026-07-30T10:00:00Z"),
+      },
+      {
+        externalId: "pay-mock-2",
+        amountCents: 2500,
+        currency: "EUR",
+        description: null,
+        status: "paid",
+        paidAt: new Date("2026-07-30T11:00:00Z"),
+      },
+    ],
+    nextFrom: undefined,
+  }),
+});
+
+// Two payments pages (100 + 50) behind a cursor, like a settlement that holds
+// more payments than a single page returns.
+const makePaginatedMollie = (): PspAdapter => {
+  const page = (prefix: string, count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      externalId: `${prefix}-${index}`,
+      amountCents: 100,
       currency: "EUR",
-      description: "7ca67d1b-0f9a-47b1-800b-49b8ba0411f9",
+      description: `${prefix}-${index}`,
       status: "paid",
       paidAt: new Date("2026-07-30T10:00:00Z"),
+    }));
+
+  return {
+    listSettlements: async () => ({
+      items: [
+        {
+          externalId: "setl-paginated",
+          amountCents: 15000,
+          feeCents: 50,
+          currency: "EUR",
+          payoutDate: "2026-08-01",
+          status: "paidout",
+          metadata: { source: "mock" },
+        },
+      ],
+    }),
+    listSettlementPayments: async (_settlementId, { from }) => {
+      if (from === undefined) return { items: page("pay-page1", 100), nextFrom: "cursor-2" };
+      return { items: page("pay-page2", 50), nextFrom: undefined };
     },
-    {
-      externalId: "pay-mock-2",
-      amountCents: 2500,
-      currency: "EUR",
-      description: null,
-      status: "paid",
-      paidAt: new Date("2026-07-30T11:00:00Z"),
-    },
-  ],
-});
+  };
+};
 
 const ROLLBACK = Symbol("rollback");
 
@@ -185,6 +222,18 @@ describe.skipIf(!dbAvailable)("open_banking psp tables", () => {
       expect(second).toEqual({ settlements: 0, payments: 0 });
       expect(await countRows("psp_settlements")).toBe(1);
       expect(await countRows("psp_payments")).toBe(2);
+    });
+
+    it("follows the payments cursor instead of truncating at one page", async () => {
+      const result = await runPspSync({
+        db,
+        log: quietLogger,
+        runId: "run-paginated",
+        adapters: { mollie: makePaginatedMollie() },
+      });
+
+      expect(result).toEqual({ settlements: 1, payments: 150 });
+      expect(await countRows("psp_payments")).toBe(150);
     });
 
     it("is a no-op when no PSP adapters are configured", async () => {
