@@ -43,11 +43,12 @@ export interface PspAdapter {
     from?: string;
   }): Promise<{ items: PspSettlementItem[]; nextFrom?: string }>;
   /** Payments included in one settlement (Mollie) / linked balance
-   * transactions (Stripe payout → payment_intent). */
+   * transactions (Stripe payout → payment_intent). One page per call; pass the
+   * previous call's `nextFrom` as `from` to continue. */
   listSettlementPayments(
     settlementId: string,
-    params: { limit: number },
-  ): Promise<PspPaymentItem[]>;
+    params: { limit: number; from?: string },
+  ): Promise<{ items: PspPaymentItem[]; nextFrom?: string }>;
 }
 
 export interface PspSyncDeps {
@@ -136,25 +137,20 @@ export const runPspSync = async (deps: PspSyncDeps): Promise<PspSyncResult> => {
             result.settlements += 1;
           }
 
-          const payments = await adapter.listSettlementPayments(settlement.externalId, {
-            limit: PAGE_SIZE,
-          });
-          for (const payment of payments) {
-            await db
-              .insertInto("psp_payments")
-              .values({
-                psp,
-                externalId: payment.externalId,
-                settlementId: settlement.externalId,
-                amountCents: payment.amountCents,
-                currency: payment.currency,
-                description: payment.description,
-                status: payment.status,
-                paidAt: payment.paidAt,
-                syncedAt: now,
-              })
-              .onConflict((conflict) =>
-                conflict.columns(["psp", "externalId"]).doUpdateSet({
+          let paymentsFrom: string | undefined;
+          for (let paymentPageIndex = 0; paymentPageIndex < MAX_PAGES; paymentPageIndex++) {
+            const paymentsPage = await adapter.listSettlementPayments(settlement.externalId, {
+              limit: PAGE_SIZE,
+              from: paymentsFrom,
+            });
+            if (paymentsPage.items.length === 0) break;
+
+            for (const payment of paymentsPage.items) {
+              await db
+                .insertInto("psp_payments")
+                .values({
+                  psp,
+                  externalId: payment.externalId,
                   settlementId: settlement.externalId,
                   amountCents: payment.amountCents,
                   currency: payment.currency,
@@ -162,13 +158,27 @@ export const runPspSync = async (deps: PspSyncDeps): Promise<PspSyncResult> => {
                   status: payment.status,
                   paidAt: payment.paidAt,
                   syncedAt: now,
-                }),
-              )
-              .execute();
-            if (!existingPaymentIds.has(payment.externalId)) {
-              existingPaymentIds.add(payment.externalId);
-              result.payments += 1;
+                })
+                .onConflict((conflict) =>
+                  conflict.columns(["psp", "externalId"]).doUpdateSet({
+                    settlementId: settlement.externalId,
+                    amountCents: payment.amountCents,
+                    currency: payment.currency,
+                    description: payment.description,
+                    status: payment.status,
+                    paidAt: payment.paidAt,
+                    syncedAt: now,
+                  }),
+                )
+                .execute();
+              if (!existingPaymentIds.has(payment.externalId)) {
+                existingPaymentIds.add(payment.externalId);
+                result.payments += 1;
+              }
             }
+
+            if (!paymentsPage.nextFrom) break;
+            paymentsFrom = paymentsPage.nextFrom;
           }
         }
 

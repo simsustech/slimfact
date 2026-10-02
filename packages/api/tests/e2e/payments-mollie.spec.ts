@@ -211,8 +211,7 @@ test.describe('Mollie', () => {
     await page.locator('.q-expansion-item__toggle-icon').first().click()
     await moreBtn(page)
     await page
-      .getByRole('listitem')
-      .filter({ hasText: /update|bewerk/i })
+      .getByRole('button', { name: /update|bewerk/i })
       .first()
       .click()
     await page.waitForSelector('.q-dialog', {
@@ -258,11 +257,13 @@ test.describe('Mollie', () => {
     })
     await page.getByRole('button', { name: /Pay/ }).click()
     await page.getByText('Wero | iDEAL').first().click()
-    await page.waitForTimeout(2000)
-    let mollieFrame = null
+    // Mirror the iDEAL test's proven sequence: give Mollie's checkout page time
+    // to hydrate before selecting the issuer (clicking the freshly server-
+    // rendered list before hydration is silently swallowed), then let the
+    // selection settle before the confirm step below.
+    await page.waitForTimeout(5000)
     for (const f of page.frames()) {
       if (f.url().includes('mollie')) {
-        mollieFrame = f
         const bank = f.getByText('ABN AMRO').first()
         if ((await bank.count()) > 0) {
           await bank.click({ force: true })
@@ -270,6 +271,7 @@ test.describe('Mollie', () => {
         }
       }
     }
+    await page.waitForTimeout(5000)
     const paid = page.getByText('Paid', { exact: true })
     if ((await paid.count()) > 0) await paid.click({ force: true })
     const cont = page
@@ -319,10 +321,7 @@ test.describe('Mollie', () => {
       await page.goto('/admin/bills')
       await page.locator('.q-expansion-item__toggle-icon').first().click()
       await moreBtn(page)
-      const up = page
-        .getByRole('listitem')
-        .filter({ hasText: /update|bewerk/i })
-        .first()
+      const up = page.getByRole('button', { name: /update|bewerk/i }).first()
       if (!(await up.isVisible({ timeout: 3000 }).catch(() => false))) {
         test.skip(true, 'Cannot edit PAID bill')
         break

@@ -48,7 +48,7 @@ export default async function ({
           'date-holidays',
           'pg',
           'sharp',
-          '@mollie/api-client',
+          'mollie-api-typescript',
           'stripe',
           'playwright',
           'svgo',

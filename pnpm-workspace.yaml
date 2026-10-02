@@ -8,6 +8,7 @@ overrides:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
+  - '@modular-api/fastify-checkout@0.11.2'
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
