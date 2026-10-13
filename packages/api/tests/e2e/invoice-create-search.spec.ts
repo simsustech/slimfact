@@ -35,12 +35,31 @@ test.afterEach(async () => {
  * the same settle time fillComboboxes uses: a click during the transition
  * poisons the first QSelect's toggle state.
  */
+/**
+ * Wait for the dialog's entrance transition to finish. A click during it poisons
+ * the first QSelect's toggle state (see helpers.fillComboboxes); waiting on the
+ * element's own animations is the real condition the old fixed 1800ms guessed
+ * at. The create dialog is persistent, so its subtree transitions settle on
+ * their own.
+ */
+async function waitForDialogSettled() {
+  await page
+    .locator('.q-dialog')
+    .first()
+    .evaluate((el) =>
+      Promise.all(
+        el
+          .getAnimations({ subtree: true })
+          .map((animation) => animation.finished.catch(() => undefined))
+      ).then(() => undefined)
+    )
+}
 async function openCreateDialog() {
   await page.goto('/admin/invoices')
   await page.waitForLoadState('networkidle')
   await page.locator('#fabAdd').click()
   await page.locator('.q-dialog').waitFor({ state: 'visible', timeout: 10_000 })
-  await page.waitForTimeout(1_800)
+  await waitForDialogSettled()
 }
 
 /**
@@ -57,7 +76,10 @@ async function openSelect(label: string, expectOptions = true) {
       await selectInput(label)
         .press('Escape')
         .catch(() => {})
-      await page.waitForTimeout(250)
+      // Wait for the menu to actually close rather than a flat 250ms.
+      await expect(page.locator('[role="listbox"]:visible'))
+        .toHaveCount(0, { timeout: 2_000 })
+        .catch(() => undefined)
     }
     await page.evaluate((n) => {
       const fields = Array.from(
@@ -147,13 +169,13 @@ async function dumpSelectState(label: string) {
  * field. The create dialog is persistent, so Escape cannot dismiss it.
  */
 async function closeSelectMenus() {
-  for (
-    let i = 0;
-    i < 5 && (await page.locator('[role="listbox"]:visible').count()) > 0;
-    i++
-  ) {
+  for (let i = 0; i < 5; i++) {
+    if ((await page.locator('[role="listbox"]:visible').count()) === 0) return
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(150)
+    // Wait for the menu to close, not a flat 150ms.
+    await expect(page.locator('[role="listbox"]:visible'))
+      .toHaveCount(0, { timeout: 1_000 })
+      .catch(() => undefined)
   }
 }
 
@@ -296,7 +318,7 @@ test.describe('Invoice creation — company/client select search', () => {
     await page
       .locator('.q-dialog')
       .waitFor({ state: 'visible', timeout: 10_000 })
-    await page.waitForTimeout(1_800)
+    await waitForDialogSettled()
     await openSelect('Company*')
     const options = page.getByRole('option')
     await expect(options).toHaveCount(2, { timeout: 7_000 })

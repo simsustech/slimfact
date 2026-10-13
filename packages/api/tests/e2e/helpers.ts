@@ -91,9 +91,16 @@ export async function fillComboboxes(p: Page) {
   // before interacting — clicking earlier permanently breaks the first menu.
   const dialog = p.locator('.q-dialog').first()
   if ((await dialog.count()) > 0) {
-    // Empirically the dialog's enter transition needs ~1.5-2s after visible
-    // before QSelect clicks register; earlier clicks poison the first select.
-    await p.waitForTimeout(1_800)
+    // Wait for the entrance transition to finish: a click during it poisons the
+    // first QSelect's toggle state. The element's own animations are the real
+    // condition the old fixed 1800ms guessed at.
+    await dialog.evaluate((el) =>
+      Promise.all(
+        el
+          .getAnimations({ subtree: true })
+          .map((animation) => animation.finished.catch(() => undefined))
+      ).then(() => undefined)
+    )
   }
   for (const name of ['Company*', 'Client*', 'Number prefix*']) {
     // event to the dialog's focus handling — retry until the listbox appears.
@@ -108,7 +115,10 @@ export async function fillComboboxes(p: Page) {
         // A premature first click can leave the QSelect convinced its menu is
         // open, so later clicks toggle it closed — reset before retrying.
         await combo.press('Escape').catch(() => {})
-        await p.waitForTimeout(250)
+        // Wait for the menu to close, not a flat 250ms.
+        await expect(p.locator('[role="listbox"]:visible'))
+          .toHaveCount(0, { timeout: 1_000 })
+          .catch(() => undefined)
       }
       // Open via the field control in the DOM. A tall fixed Quasar dialog can
       // push its first fields above the viewport, where Playwright's click()

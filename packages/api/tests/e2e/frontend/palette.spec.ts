@@ -160,8 +160,8 @@ const measureRoute = async (
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(2500)
   if (scheme === 'dark') {
+    // setDark already waits for `body--dark` to apply.
     await setDark(page)
-    await page.waitForTimeout(500)
   }
   const out = await survey(page)
   await context.close()

@@ -73,7 +73,11 @@ test('every rail label fits or ellipsizes, in every locale', async ({
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     await setLocale(page, menuLabel)
-    await page.waitForTimeout(1500)
+    // The German guard (`Konto`) proves the locale switch applied; wait for the
+    // label rather than sleeping a fixed 1500ms.
+    await expect(page.locator(RAIL_LABELS).nth(1)).toHaveText(expectedAccount, {
+      timeout: 10_000
+    })
 
     const labels = page.locator(RAIL_LABELS)
     await expect(labels).toHaveCount(3)
