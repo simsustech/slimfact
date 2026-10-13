@@ -190,11 +190,15 @@ test.describe('Dashboard', () => {
     const needsReminder = page
       .getByRole('button', { name: /Needs reminder/ })
       .first()
-    await needsReminder.waitFor({ state: 'attached' })
-    // force: the action list can re-render while the stats refetch.
-    await needsReminder.click({ force: true })
+    await expect(needsReminder).toBeVisible({ timeout: 10_000 })
 
-    await page.waitForURL(/.*invoices/)
+    // The action list re-renders while the stats refetch, so a single
+    // `force: true` click can land on a replaced node and never navigate.
+    // Retry the click until the URL actually changes.
+    await expect(async () => {
+      await needsReminder.click({ force: true })
+      await page.waitForURL(/.*invoices/, { timeout: 2_000 })
+    }).toPass({ timeout: 30_000 })
   })
 
   test('recent-activity-renders', async () => {
