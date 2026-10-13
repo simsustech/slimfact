@@ -72,15 +72,21 @@ services:
       cache_to:
         - type=gha,scope=slimfact-api,mode=max
       additional_contexts:
-        linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-quasar-components: >-
+          ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
         linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
-        linked-unocss-preset-quasar: ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
+        linked-unocss-preset-quasar: >-
+          ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
         linked-modular-api: ${LINKED_MODULAR_API_PATH:-.docker/empty}
         linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
-        linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
-        linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
-        linked-modular-api-event-bus: ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
-        linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-modular-api-fastify-oidc: >-
+          ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
+        linked-modular-api-fastify-checkout: >-
+          ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-event-bus: >-
+          ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
+        linked-modular-api-quasar-components: >-
+          ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
     # No host port binding: api is served at slimfact.localhost via caddy on
     # the docker network. (localhost:3001 was unused and collided with other
     # projects' dev servers on the host.)
@@ -118,7 +124,8 @@ services:
       BANKING_API_KEY: obk_test_6xJo6yNf2Biim50gmr0yfOVyK2Slug4LryYFqWoT_vw
       BANKING_SYNC_TIMEOUT_MS: 5000
       # The ingest worker only runs when the user clicks "Sync now" in tests:
-      # BANKING_SYNC_CRON: disabled skips the periodic schedule entirely, keeping
+      # BANKING_SYNC_CRON: disabled skips the periodic schedule entirely,
+      # keeping
       # the seeded review queue / auto-apply demo deterministic across the run.
       BANKING_SYNC_CRON: disabled
       BANKING_INGEST_DISABLED: "true"
@@ -153,31 +160,40 @@ services:
       cache_to:
         - type=gha,scope=slimfact-banking-api,mode=max
       additional_contexts:
-        linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-quasar-components: >-
+          ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
         linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
-        linked-unocss-preset-quasar: ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
+        linked-unocss-preset-quasar: >-
+          ${LINKED_UNOCSS_PRESET_QUASAR_PATH:-.docker/empty}
         linked-modular-api: ${LINKED_MODULAR_API_PATH:-.docker/empty}
         linked-modular-api-api: ${LINKED_MODULAR_API_API_PATH:-.docker/empty}
-        linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
-        linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
-        linked-modular-api-event-bus: ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
-        linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-modular-api-fastify-oidc: >-
+          ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
+        linked-modular-api-fastify-checkout: >-
+          ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
+        linked-modular-api-event-bus: >-
+          ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
+        linked-modular-api-quasar-components: >-
+          ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
     depends_on:
       database:
         condition: service_healthy
       api:
         condition: service_healthy
     # E2E fixture; the image itself no longer seeds on boot.
-    command: ["sh", "-c", "npm run migrate:latest && npm run seed:test && npm run start"]
+    command:
+      - sh
+      - -c
+      - >-
+        npm run migrate:latest && npm run seed:test && npm run start
     healthcheck:
       # Unhandled fetch rejection exits non-zero on its own, so no .catch.
       test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://localhost/health').then(r => process.exit(r.ok ? 0 : 1))",
-        ]
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://localhost/health').then(r => process.exit(r.ok ? 0 : 1))
       interval: 5s
       timeout: 5s
       retries: 12
