@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { clickLinesAdd, moreBtn } from './helpers'
+import { clickLinesAdd } from './helpers'
 import { login } from './setup'
 
 const email = 'admin@slimfact.app'
@@ -139,6 +139,24 @@ async function dumpSelectState(label: string) {
   return state
 }
 
+/**
+ * A QSelect menu opened via DOM-dispatched events can stay open after an
+ * option is picked (its toggle state desyncs — see openSelect). Close every
+ * open listbox before moving on: otherwise getByRole('option').first()
+ * matches the *previous* select's option and the next pick lands on the wrong
+ * field. The create dialog is persistent, so Escape cannot dismiss it.
+ */
+async function closeSelectMenus() {
+  for (
+    let i = 0;
+    i < 5 && (await page.locator('[role="listbox"]:visible').count()) > 0;
+    i++
+  ) {
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(150)
+  }
+}
+
 test.describe('Invoice creation — company/client select search', () => {
   test('company select lists every company on open', async () => {
     await openCreateDialog()
@@ -201,11 +219,7 @@ test.describe('Invoice creation — company/client select search', () => {
       .getByRole('option')
       .filter({ hasText: 'Acme Retail BV' })
       .click({ timeout: 5_000 })
-    await page
-      .locator('[role="listbox"]')
-      .first()
-      .waitFor({ state: 'hidden', timeout: 5_000 })
-      .catch(() => {})
+    await closeSelectMenus()
 
     // Client: search, then pick the match.
     await openSelect('Client*')
@@ -215,23 +229,19 @@ test.describe('Invoice creation — company/client select search', () => {
       .getByRole('option')
       .filter({ hasText: 'Goods For All' })
       .click({ timeout: 5_000 })
-    await page
-      .locator('[role="listbox"]')
-      .first()
-      .waitFor({ state: 'hidden', timeout: 5_000 })
-      .catch(() => {})
+    await closeSelectMenus()
 
     // Number prefix: first available option (depends on the picked company).
     await openSelect('Number prefix*')
     await expect(page.getByRole('option').first()).toBeVisible({
       timeout: 5_000
     })
-    await page.getByRole('option').first().click()
     await page
-      .locator('[role="listbox"]')
+      .locator('[role="listbox"]:visible')
+      .getByRole('option')
       .first()
-      .waitFor({ state: 'hidden', timeout: 5_000 })
-      .catch(() => {})
+      .click()
+    await closeSelectMenus()
 
     await clickLinesAdd(page)
     await page.getByRole('textbox', { name: 'Description' }).fill('Search flow')
@@ -259,29 +269,25 @@ test.describe('Invoice creation — company/client select search', () => {
     })
   })
 
-  test('create dialog lists every company after an edit left a stale search phrase', async () => {
-    // The edit path sets companiesSearchPhrase to the invoice's company name
-    // (InvoicesPage onUpdate). Before the onFilter fix the select's open-event
-    // never reached the parent, so the stale phrase survived into the next
-    // dialog and the company select showed only the one match.
-    await page.goto('/admin/invoices')
-    await page.waitForLoadState('networkidle')
-    await page.locator('.q-expansion-item__toggle-icon').first().click()
+  test('create dialog lists every company after a stale search phrase', async () => {
+    await openCreateDialog()
+
+    // Searching a company leaves the phrase in companiesSearchPhrase — the
+    // same field the edit path sets from the invoice's company name.
+    // seed:test has no CONCEPT/BILL invoice to edit on this page (the newest
+    // are OPEN and immutable), so drive that shared phrase through the dialog.
+    await openSelect('Company*')
+    const searchInput = await expectTypable('Company*')
+    await searchInput.pressSequentially('acme inc', { delay: 50 })
     await page
-      .locator('.q-expansion-item__content')
-      .first()
-      .waitFor({ state: 'visible', timeout: 5_000 })
+      .getByRole('option')
+      .filter({ hasText: 'Acme Inc' })
+      .click({ timeout: 5_000 })
+    await closeSelectMenus()
 
-    await moreBtn(page)
-    const editBtn = page.getByText('Update').first()
-    await expect(editBtn).toBeVisible({ timeout: 3_000 })
-    await editBtn.click()
-
-    // Edit dialog open — this is what poisons companiesSearchPhrase.
-    const editDialog = page.locator('.q-dialog').first()
-    await editDialog.waitFor({ state: 'visible', timeout: 10_000 })
-    await editDialog.locator('button i[class*="mdi-close"]').first().click()
-    await expect(editDialog).not.toBeVisible({ timeout: 5_000 })
+    const firstDialog = page.locator('.q-dialog').first()
+    await firstDialog.locator('button i[class*="mdi-close"]').first().click()
+    await expect(firstDialog).not.toBeVisible({ timeout: 5_000 })
 
     // Fresh create dialog WITHOUT a page reload — page.goto() would reset
     // companiesSearchPhrase and mask the bug. Staying in the session is what
