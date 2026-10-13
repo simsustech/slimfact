@@ -10,8 +10,8 @@ on:
 
 # workflow_run always executes THIS file as it exists on the default branch
 # (main), no matter which branch triggered it. The checkouts below still use the
-# staging branch, so this file's job graph and LINKED_BUILD_CONTEXTS have to stay
-# in sync with the staging Dockerfile via main.
+# staging branch, so this file's job graph and LINKED_BUILD_CONTEXTS have to
+# stay in sync with the staging Dockerfile via main.
 concurrency:
   group: release-staging
   cancel-in-progress: false
@@ -43,7 +43,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: staging
           persist-credentials: false
@@ -60,7 +60,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: staging
           persist-credentials: false
@@ -80,6 +80,9 @@ jobs:
           tags: |
             type=raw,value=staging
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
@@ -92,8 +95,8 @@ jobs:
             "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
           build-contexts: ${{ env.LINKED_BUILD_CONTEXTS }}
 
-  # banking-api ships as its own package: consumers deploy it separately from the
-  # app, and they need independent version history and pull access.
+  # banking-api ships as its own package: consumers deploy it separately
+  # from the app, and they need independent version history and pull access.
   build-and-push-banking-api-image:
     needs: [verify-build-contexts]
     runs-on: ubuntu-latest
@@ -102,7 +105,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: staging
           persist-credentials: false
@@ -121,6 +124,9 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-banking-api
           tags: |
             type=raw,value=staging
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
