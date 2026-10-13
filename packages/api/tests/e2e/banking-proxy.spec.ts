@@ -10,6 +10,12 @@ const getDb = getTestDb
 test.describe('banking proxy contract + settings', () => {
   test.setTimeout(180_000)
 
+  // The test opens a page by hand; close its context so the worker's browser
+  // does not accumulate one per test across the run.
+  test.afterEach(async ({ browser }) => {
+    await Promise.all(browser.contexts().map((context) => context.close()))
+  })
+
   // Asserts the migration contract (local bank tables gone, bank-link index
   // present) and that the settings page renders — NOT a full sync-now flow.
   test('migration contract: local bank tables gone, settings page works', async ({

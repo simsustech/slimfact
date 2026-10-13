@@ -91,9 +91,9 @@ test.describe('Cash Payment', () => {
     const fillTotalButton = page
       .locator('.q-dialog button i[class*="mdi-dollar"]')
       .first()
-    if (await fillTotalButton.isVisible()) {
-      await fillTotalButton.click()
-    }
+    // Wait for the fill button instead of a non-waiting `isVisible()`, or the
+    // amount stays empty and OK's validation leaves the dialog open.
+    await fillTotalButton.click({ timeout: 5000 }).catch(() => {})
     await page.locator('.q-dialog button:has-text("OK")').click()
     await page
       .locator('.q-notification, .q-banner')

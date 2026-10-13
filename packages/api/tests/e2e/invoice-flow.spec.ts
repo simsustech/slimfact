@@ -164,9 +164,10 @@ test.describe('Bill Lifecycle', () => {
       const fillTotalButton = page
         .locator('.q-dialog button i[class*="mdi-dollar"]')
         .first()
-      if (await fillTotalButton.isVisible().catch(() => false)) {
-        await fillTotalButton.click()
-      }
+      // `isVisible()` does not wait: a still-animating dialog skipped the fill,
+      // the amount stayed empty, OK's validation failed and the open dialog then
+      // blocked every later step. `click({ timeout })` waits for it.
+      await fillTotalButton.click({ timeout: 5000 }).catch(() => {})
       await page.locator('.q-dialog button:has-text("OK")').click()
       await page
         .locator('.q-notification')

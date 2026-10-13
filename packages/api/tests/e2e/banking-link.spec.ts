@@ -78,6 +78,12 @@ test.describe('payments suggestions tab + link dialog (seeded demo)', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(120_000)
 
+  // `openSuggestions` creates a page (and so a context) per test; close it, or
+  // the worker's browser accumulates one per test for the whole run and dies.
+  test.afterEach(async ({ browser }) => {
+    await Promise.all(browser.contexts().map((context) => context.close()))
+  })
+
   test('suggestions tab shows the adoptable credit with a chip + link', async ({
     browser
   }) => {

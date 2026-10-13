@@ -15,6 +15,12 @@ import { ADMIN_EMAIL as email, ADMIN_PASSWORD as password } from './helpers'
 test.describe('payments filters', () => {
   test.setTimeout(120_000)
 
+  // `openPayments` creates a page (and so a context) per test; close it, or the
+  // worker's browser accumulates one per test for the whole run and dies.
+  test.afterEach(async ({ browser }) => {
+    await Promise.all(browser.contexts().map((context) => context.close()))
+  })
+
   const openPayments = async ({
     browser,
     path = '/admin/payments'

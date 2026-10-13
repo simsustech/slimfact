@@ -22,6 +22,7 @@ test.describe('i-mdi icon audit', () => {
     await expect(page.locator('.date-input-field .i-mdi-close')).toHaveCount(2)
     await expect(page.locator('.date-input-field .i-mdi-event')).toHaveCount(0)
     await expect(page.locator('.date-input-field .i-mdi-clear')).toHaveCount(0)
+    await page.close()
   })
 
   test('subscription form date inputs render i-mdi-calendar / i-mdi-close', async ({
@@ -49,6 +50,7 @@ test.describe('i-mdi icon audit', () => {
     await expect(dialog.locator('.date-input-field .i-mdi-clear')).toHaveCount(
       0
     )
+    await page.close()
   })
 
   test('customer invoice page payment menu renders i-mdi-bank-transfer', async ({
@@ -70,5 +72,6 @@ test.describe('i-mdi icon audit', () => {
     await expect(page.locator('.i-fa6-solid-money-bill-transfer')).toHaveCount(
       0
     )
+    await page.close()
   })
 })
