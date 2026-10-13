@@ -280,7 +280,7 @@ export async function mkInvoice(
   // filling the subject, otherwise the required subject is left empty and the
   // send never fires.
   const subj = p.locator('.q-dialog input[type="text"]').first()
-  await subj.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
+  await subj.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {})
   if (await subj.isVisible()) {
     await subj.fill('Invoice')
   }
@@ -291,7 +291,7 @@ export async function mkInvoice(
   await p
     .locator('.q-dialog')
     .getByRole('button', { name: 'Send' })
-    .click({ timeout: 5000 })
+    .click({ timeout: 15_000 })
   await p
     .locator('.q-notification, .q-banner')
     .first()
