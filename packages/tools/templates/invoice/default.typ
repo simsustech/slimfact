@@ -112,7 +112,10 @@
 #import "./lang.typ": translations
 #let lang = translations.at(invoice.locale)
 
-#import "./internal.typ": formatPrice, formatQuantity, formatPrice, quantityUnits, currencySymbols, formatDate, ternary
+#import "./internal.typ": (
+  formatPrice, formatQuantity, formatPrice, quantityUnits, currencySymbols,
+  formatDate, ternary,
+)
 
 #set page(
   paper: sys.inputs.at("pageSize", default: "a4"),
