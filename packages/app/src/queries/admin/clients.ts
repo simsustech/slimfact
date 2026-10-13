@@ -34,6 +34,10 @@ export const useAdminSearchClientsQuery = defineQuery(() => {
   })
 
   const activate = () => {
+    // Idempotent: once active, the reactive `key` (name/pagination) drives the
+    // fetch on every change. Re-refetching here would fire on every filter
+    // event — see the same guard in companies.ts.
+    if (active.value) return Promise.resolve()
     active.value = true
     return rest.refetch()
   }

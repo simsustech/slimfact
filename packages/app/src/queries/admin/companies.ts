@@ -31,6 +31,12 @@ export const useAdminSearchCompaniesQuery = defineQuery(() => {
   })
 
   const activate = () => {
+    // Idempotent: once active, the reactive `key` (the search phrase) drives
+    // the fetch on every change. Re-refetching here would fire on *every*
+    // filter event — including the synthetic empty QSelect emits when the
+    // options identity changes — which changes the options again and loops
+    // forever, discarding the phrase the user typed.
+    if (active.value) return Promise.resolve()
     active.value = true
     return rest.refetch()
   }
