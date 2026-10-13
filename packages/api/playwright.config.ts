@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
+import { CHROMIUM_LAUNCH_ARGS } from './tests/e2e/browser-args'
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -25,17 +27,15 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            // Resolve slimfact.localhost without /etc/hosts (sandbox-friendly).
-            '--host-resolver-rules=MAP slimfact.localhost 127.0.0.1,EXCLUDE localhost'
-          ]
+          args: CHROMIUM_LAUNCH_ARGS
         }
       },
       testIgnore: [
-        'screenshots-*.spec.ts',
+        // Screenshot specs write image files and are opt-in via
+        // PLAYWRIGHT_ALLOW_SCREENSHOTS, so CI (which never sets it) skips them.
+        ...(process.env.PLAYWRIGHT_ALLOW_SCREENSHOTS
+          ? []
+          : ['screenshots-*.spec.ts']),
         'invoice-flow-guards.spec.ts',
         '**/*.tmp.spec.ts',
         // Long-running (2h+) Mollie refund settlement test. Excluded from the
