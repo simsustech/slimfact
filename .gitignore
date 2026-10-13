@@ -49,3 +49,7 @@ packages/api/tests/e2e/.auth/
 
 # Vitest run artifacts
 .vitest/
+
+# Scratch probe scripts
+*-probe.mjs
+tmp-*.mjs
