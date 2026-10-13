@@ -71,7 +71,6 @@ services:
         - type=gha,scope=slimfact-api
       cache_to:
         - type=gha,scope=slimfact-api,mode=max
-      network: "host"
       additional_contexts:
         linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
         linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
@@ -153,7 +152,6 @@ services:
         - type=gha,scope=slimfact-banking-api
       cache_to:
         - type=gha,scope=slimfact-banking-api,mode=max
-      network: "host"
       additional_contexts:
         linked-quasar-components: ${LINKED_QUASAR_COMPONENTS_PATH:-.docker/empty}
         linked-vitrify: ${LINKED_VITRIFY_PATH:-.docker/empty}
