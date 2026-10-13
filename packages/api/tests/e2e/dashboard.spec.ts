@@ -73,7 +73,7 @@ test.describe('Dashboard', () => {
     ).toBeVisible()
   })
 
-  test('revenue-cards-period-preset', async () => {
+  test('revenue preset applies to the cards and the date inputs', async () => {
     await page.goto('/admin/dashboard')
 
     await expect(page.getByText('Invoices').first()).toBeVisible()
@@ -83,6 +83,20 @@ test.describe('Dashboard', () => {
 
     await page.getByRole('button', { name: 'This week' }).click()
     await expect(page.getByText('This week').first()).toBeVisible()
+
+    // "This year" also fills the start/end date inputs (DD-MM-YYYY).
+    const startInputs = page
+      .locator('.date-input-field')
+      .first()
+      .locator('input')
+    const endInputs = page.locator('.date-input-field').nth(1).locator('input')
+    await page.getByRole('button', { name: 'This year' }).click()
+    await expect(startInputs.nth(0)).toHaveValue('01')
+    await expect(startInputs.nth(1)).toHaveValue('01')
+    const yyyy = String(new Date().getFullYear())
+    await expect(endInputs.nth(0)).toHaveValue('31')
+    await expect(endInputs.nth(1)).toHaveValue('12')
+    await expect(endInputs.nth(2)).toHaveValue(yyyy)
   })
 
   test('revenue-cards-custom-range', async () => {
@@ -140,19 +154,16 @@ test.describe('Dashboard', () => {
     await page.waitForURL(/.*invoices.*companyId=/)
   })
 
-  test('action-items-open-navigation', async () => {
+  test('action-items navigation applies the bucket', async () => {
     await page.goto('/admin/dashboard')
 
+    // Open invoices → the status filter comes from the route query: the status
+    // select in the search menu shows "Open".
     await page
       .getByRole('button', { name: /Open invoices/ })
       .first()
       .click()
-
     await page.waitForURL(/.*invoices/)
-
-    // The status filter must be applied from the route query: the status
-    // select in the search menu shows "Open".
-    // Open the search menu (the toolbar button with the search icon).
     await page
       .locator('.q-toolbar .q-btn')
       .filter({ has: page.locator('.i-mdi-search') })
@@ -161,70 +172,39 @@ test.describe('Dashboard', () => {
     await expect(
       page.locator('.q-menu').filter({ hasText: 'Open' }).first()
     ).toBeVisible()
-  })
 
-  test('revenue-preset-populates-date-inputs', async () => {
+    // Overdue: the action list re-renders while the stats refetch, so a single
+    // `force: true` click can land on a replaced node and never navigate.
+    // Retry the click until the URL actually changes.
     await page.goto('/admin/dashboard')
-
-    const startField = page.locator('.date-input-field').first()
-    const endField = page.locator('.date-input-field').nth(1)
-
-    // Select the "This year" preset.
-    await page.getByRole('button', { name: 'This year' }).click()
-
-    // Start input should now show 01-01-<current year> (DD-MM-YYYY).
-    const startInputs = startField.locator('input')
-    await expect(startInputs.nth(0)).toHaveValue('01')
-    await expect(startInputs.nth(1)).toHaveValue('01')
-    const endInputs = endField.locator('input')
-    // End input should be Dec 31 of the current year (full-period preset).
-    const yyyy = String(new Date().getFullYear())
-    await expect(endInputs.nth(0)).toHaveValue('31')
-    await expect(endInputs.nth(1)).toHaveValue('12')
-    await expect(endInputs.nth(2)).toHaveValue(yyyy)
-  })
-
-  test('action-items-overdue-navigation', async () => {
-    await page.goto('/admin/dashboard')
-
     const needsReminder = page
       .getByRole('button', { name: /Needs reminder/ })
       .first()
     await expect(needsReminder).toBeVisible({ timeout: 10_000 })
-
-    // The action list re-renders while the stats refetch, so a single
-    // `force: true` click can land on a replaced node and never navigate.
-    // Retry the click until the URL actually changes.
     await expect(async () => {
       await needsReminder.click({ force: true })
       await page.waitForURL(/.*invoices/, { timeout: 2_000 })
     }).toPass({ timeout: 30_000 })
   })
 
-  test('recent-activity-renders', async () => {
+  test('recent-activity renders and filters', async () => {
     await page.goto('/admin/dashboard')
 
     await expect(page.getByText('Recent activity').first()).toBeVisible()
     await expect(page.getByText('All').first()).toBeVisible()
-  })
-
-  test('recent-activity-filter', async () => {
-    await page.goto('/admin/dashboard')
 
     const filter = page.getByLabel('Activity filter')
     await filter.click()
     const paymentOption = page.getByRole('option', { name: 'Payment' })
     await paymentOption.waitFor({ state: 'attached' })
-    // force: the menu can re-render while the activity feed refetches, which
-    // makes the default stability wait time out.
+    // force: the menu can re-render while the activity feed refetches.
     await paymentOption.click({ force: true })
 
     await expect(page.getByText('Payment').first()).toBeVisible()
 
     // Payment entries must show the amount's invoice reference
-    // ("for invoice #2026.N") for numbered documents. The most recent cash
-    // payments on bills/receipts have no number, so show all entries by
-    // raising rows per page before asserting.
+    // ("for invoice #2026.N"). Raising rows per page brings the numbered
+    // invoices' recent entries into view.
     const rowsPerPage = page.getByLabel('Rows per page')
     await rowsPerPage.click()
     await page.getByRole('option', { name: '50' }).click({ force: true })
