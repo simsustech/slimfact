@@ -27,13 +27,18 @@ const MD2_HEADINGS = [
   '.text-h6'
 ]
 
-const px = (value: string): number => Number.parseFloat(value)
+// `measured` is a union (`{ missing: true } | { fontSize, tokenSize, … }`), so
+// every field reads as possibly undefined.
+const px = (value: string | undefined): number => Number.parseFloat(value ?? '')
 
 test.describe('MD3 typography', () => {
   test('the dashboard title takes headline-small, not the MD2 h4', async ({
     browser
   }) => {
-    const { page } = await newPage(browser, { width: 1440, height: 900 })
+    const { page, context } = await newPage(browser, {
+      width: 1440,
+      height: 900
+    })
     await loginAs({ page, account: ADMIN })
     await page.goto('/admin/dashboard')
     await page.waitForLoadState('networkidle')
@@ -64,12 +69,16 @@ test.describe('MD3 typography', () => {
       `the <h1> is ${measured.fontSize}, headline-small is ${measured.tokenSize} (token: ${measured.tokenShorthand})`
     ).toBe(px(measured.tokenSize))
     expect(measured.fontWeight).toBe('400')
+    await context.close()
   })
 
   test('no audited page still carries an MD2 heading class', async ({
     browser
   }) => {
-    const { page } = await newPage(browser, { width: 1440, height: 900 })
+    const { page, context } = await newPage(browser, {
+      width: 1440,
+      height: 900
+    })
     await loginAs({ page, account: ADMIN })
 
     const offenders: Record<string, string[]> = {}
@@ -91,5 +100,6 @@ test.describe('MD3 typography', () => {
       offenders,
       'these pages still render MD2 heading classes'
     ).toStrictEqual({})
+    await context.close()
   })
 })
