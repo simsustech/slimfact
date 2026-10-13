@@ -236,8 +236,10 @@ test.describe('Dashboard', () => {
     await expect(filter).toBeVisible()
     const removeButtons = filter.getByRole('button', { name: 'Remove' })
     while ((await removeButtons.count()) > 0) {
+      const before = await removeButtons.count()
       await removeButtons.first().click({ force: true })
-      await page.waitForTimeout(150)
+      // Wait for the chip to actually leave, not a fixed 150ms.
+      await expect(removeButtons).toHaveCount(before - 1)
     }
     await expect(
       page.getByText('Select a company to view stats').first()
