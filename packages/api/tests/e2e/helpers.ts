@@ -9,6 +9,36 @@ export const ADMIN_EMAIL = 'admin@slimfact.app'
 export const ADMIN_PASSWORD = 'Sif5uEG5hcTH'
 
 /**
+ * Wait for a dialog's entrance transition to finish. A click during it poisons
+ * the first QSelect's toggle state (see fillComboboxes), so the specs used to
+ * sleep a guessed 1800ms here.
+ *
+ * Only *finite* animations are awaited: a dialog that shows a Quasar spinner
+ * runs an `infinite` animation, and `animation.finished` never resolves for
+ * those — waiting on the whole subtree would hang. The race bounds the wait so
+ * a stray animation cannot stall the test either.
+ */
+export async function waitForDialogSettled(p: Page, capMs = 3_000) {
+  await p
+    .locator('.q-dialog')
+    .first()
+    .evaluate((el, cap) => {
+      const finite = el.getAnimations({ subtree: true }).filter((a) => {
+        const timing = a.effect?.getComputedTiming()
+        return (timing?.iterations ?? 1) !== Infinity
+      })
+      const settled = Promise.all(
+        finite.map((a) => a.finished.catch(() => undefined))
+      )
+      return Promise.race([
+        settled,
+        new Promise((resolve) => setTimeout(resolve, cap))
+      ]).then(() => undefined)
+    }, capMs)
+    .catch(() => undefined)
+}
+
+/**
  * Read-only Kysely handle on the stack's `slimfact` database for asserting
  * seeded state. E2E specs never write through this — mutations go via the UI.
  * Each call gets an INDEPENDENT pool+handle so a spec's `db.destroy()` in its
@@ -91,16 +121,8 @@ export async function fillComboboxes(p: Page) {
   // before interacting — clicking earlier permanently breaks the first menu.
   const dialog = p.locator('.q-dialog').first()
   if ((await dialog.count()) > 0) {
-    // Wait for the entrance transition to finish: a click during it poisons the
-    // first QSelect's toggle state. The element's own animations are the real
-    // condition the old fixed 1800ms guessed at.
-    await dialog.evaluate((el) =>
-      Promise.all(
-        el
-          .getAnimations({ subtree: true })
-          .map((animation) => animation.finished.catch(() => undefined))
-      ).then(() => undefined)
-    )
+    // Wait for the entrance transition rather than the old fixed 1800ms.
+    await waitForDialogSettled(p)
   }
   for (const name of ['Company*', 'Client*', 'Number prefix*']) {
     // event to the dialog's focus handling — retry until the listbox appears.
