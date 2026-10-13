@@ -12,7 +12,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           token: ${{ secrets.GH_RELEASE_TOKEN }}
@@ -28,10 +28,10 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 11
+          version: 12.5.1
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -46,7 +46,7 @@ jobs:
       # so the PR and its branch carry the right access.
       - name: Create release PR
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           title: "chore: release"
           commit: "chore: version packages"
@@ -69,11 +69,16 @@ jobs:
           fi
 
       - name: Extract release notes
-        if: steps.changesets.outputs.hasChangesets == 'false' && steps.version.outputs.tagged == 'false'
+        if: >-
+          steps.changesets.outputs.hasChangesets == 'false' &&
+          steps.version.outputs.tagged == 'false'
         run: |
           node -e "
             const fs = require('fs');
-            const content = fs.readFileSync('packages/api/CHANGELOG.md', 'utf8');
+            const content = fs.readFileSync(
+              'packages/api/CHANGELOG.md',
+              'utf8'
+            );
             const lines = content.split('\n');
             let start = -1, end = -1;
             for (let i = 0; i < lines.length; i++) {
@@ -82,18 +87,25 @@ jobs:
                 else { end = i; break; }
               }
             }
-            const notes = lines.slice(start, end === -1 ? lines.length : end).join('\n').trim();
+            const notes = lines
+              .slice(start, end === -1 ? lines.length : end)
+              .join('\n')
+              .trim();
             fs.writeFileSync('RELEASE_NOTES.md', notes || 'No release notes');
           "
 
       - name: Create git tag
-        if: steps.changesets.outputs.hasChangesets == 'false' && steps.version.outputs.tagged == 'false'
+        if: >-
+          steps.changesets.outputs.hasChangesets == 'false' &&
+          steps.version.outputs.tagged == 'false'
         run: |
           git tag v${{ steps.version.outputs.version }}
           git push origin v${{ steps.version.outputs.version }}
 
       - name: Create GitHub Release
-        if: steps.changesets.outputs.hasChangesets == 'false' && steps.version.outputs.tagged == 'false'
+        if: >-
+          steps.changesets.outputs.hasChangesets == 'false' &&
+          steps.version.outputs.tagged == 'false'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.version }}

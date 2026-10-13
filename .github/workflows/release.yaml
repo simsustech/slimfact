@@ -38,7 +38,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           persist-credentials: false
@@ -55,7 +55,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           persist-credentials: false
@@ -76,6 +76,9 @@ jobs:
             type=raw,value=latest
             type=semver,pattern={{version}}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
@@ -88,8 +91,8 @@ jobs:
             "SIMSUSTECH_NPM_TOKEN=${{ secrets.SIMSUSTECH_NPM_TOKEN }}"
           build-contexts: ${{ env.LINKED_BUILD_CONTEXTS }}
 
-  # banking-api ships as its own package: consumers deploy it separately from the
-  # app, and they need independent version history and pull access.
+  # banking-api ships as its own package: consumers deploy it separately
+  # from the app, and they need independent version history and pull access.
   build-and-push-banking-api-image:
     needs: [verify-build-contexts]
     runs-on: ubuntu-latest
@@ -98,7 +101,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
           persist-credentials: false
@@ -118,6 +121,9 @@ jobs:
           tags: |
             type=raw,value=latest
             type=semver,pattern={{version}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
