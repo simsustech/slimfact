@@ -378,6 +378,8 @@ PLAYWRIGHT_BASE_URL=$API_HOST npx playwright test payments-stripe.spec.ts --work
 
 > **Why `--config=playwright.nosetup.config.ts`**: The default config's `globalSetup` runs `docker compose down --volumes && build && up -d --wait`. Use nosetup when the stack is already running to avoid a redundant rebuild.
 >
+> **`E2E_OWN_STACK=0` does the same, better**: the default config with that env skips the stack lifecycle but still captures the admin auth state, so a run against an already-running stack gets the fast login too. `E2E_COMPOSE_FILES` adds overlay files to the owned stack (colon- or comma-separated, e.g. `E2E_COMPOSE_FILES=docker-compose.test.mollie.yaml`), so the PSP specs run through the default config without a second `docker compose up`.
+>
 > **Why `API_HOST` before `up`**: The OIDC issuer is set at server startup from `API_HOST`. If it defaults to `slimfact.localhost`, the discovery endpoint advertises the wrong issuer, causing `Incorrect issuer in meta data` via the NetBird URL.
 
 ### Docker Test Configs
