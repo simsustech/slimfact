@@ -219,7 +219,15 @@ export default async function ({
             iconSet:
               typeof quasarConf['framework']['iconSet'] === 'object'
                 ? quasarConf['framework']['iconSet']
-                : undefined
+                : undefined,
+            // The preset's default web-font fetch gives up after 2s (unocss
+            // `timeouts.failure`), which a cold or loaded builder misses. Keep
+            // the bunny/Roboto default but give the fetch room.
+            presetWebFonts: {
+              provider: 'bunny',
+              fonts: { roboto: 'Roboto' },
+              timeouts: { failure: 15_000 }
+            }
           }) as never
         ],
         theme: {},
