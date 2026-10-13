@@ -42,6 +42,8 @@ services:
         linked-modular-api-fastify-oidc: ${LINKED_MODULAR_API_FASTIFY_OIDC_PATH:-.docker/empty}
         linked-modular-api-fastify-checkout: ${LINKED_MODULAR_API_FASTIFY_CHECKOUT_PATH:-.docker/empty}
         linked-modular-api-quasar-components: ${LINKED_MODULAR_API_QUASAR_COMPONENTS_PATH:-.docker/empty}
+        linked-modular-api: ${LINKED_MODULAR_API_PATH:-.docker/empty}
+        linked-modular-api-event-bus: ${LINKED_MODULAR_API_EVENT_BUS_PATH:-.docker/empty}
       args:
         - DEBUG=${DEBUG}
     labels:
