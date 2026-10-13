@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-import { CHROMIUM_LAUNCH_ARGS } from './tests/e2e/browser-args'
+import { CHROMIUM_LAUNCH_ARGS } from './tests/e2e/browser-args.js'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -13,8 +13,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  // Default per-test timeout. Specs that need more call `test.slow()`.
+  timeout: 60_000,
   use: {
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'on-first-retry',
     ignoreHTTPSErrors: true,
     headless: !!process.env.CI,
     serviceWorkers: 'block',
@@ -27,7 +31,10 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
-          args: CHROMIUM_LAUNCH_ARGS
+          args: CHROMIUM_LAUNCH_ARGS,
+          // `slowMo` is a debugging aid and pure overhead in CI; opt in with
+          // PLAYWRIGHT_SLOWMO (ms per action).
+          slowMo: Number(process.env.PLAYWRIGHT_SLOWMO ?? 0)
         }
       },
       testIgnore: [

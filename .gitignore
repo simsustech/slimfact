@@ -46,3 +46,6 @@ packages/api/src/banking/match-transactions-to-invoices.sql
 
 # Captured E2E auth storageState (written by tests/e2e/global-setup.ts)
 packages/api/tests/e2e/.auth/
+
+# Vitest run artifacts
+.vitest/

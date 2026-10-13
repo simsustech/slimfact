@@ -1,9 +1,9 @@
 import { execSync } from 'node:child_process'
-import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 
 import { CHROMIUM_LAUNCH_ARGS } from './browser-args'
 import { E2E_ADMIN, saveAuthState } from './auth-state'
+import { composeFiles, shouldOwnStack } from './stack-lifecycle'
 
 // This file owns the test stack's lifecycle, so a run never pays for it twice:
 // the CI workflow only prepares the external `web` network before handing over
@@ -11,36 +11,43 @@ import { E2E_ADMIN, saveAuthState } from './auth-state'
 // on a fresh runner, so its budget is deliberately generous.
 const BUILD_TIMEOUT_MS = Number(process.env.E2E_BUILD_TIMEOUT_MS ?? 900000)
 
-export default async function globalSetup() {
-  const root =
-    process.env.SLIMFACT_ROOT || resolve(import.meta.dirname, '../../../..')
-  const composeArgs = ['-f', `${root}/docker-compose.test.yaml`]
-  execSync(
-    `docker compose ${composeArgs.join(' ')} down --volumes --remove-orphans`,
-    {
-      stdio: 'inherit',
-      timeout: 30000
-    }
-  )
+/** Reset, build and start the stack this run owns. */
+const ownStack = (env: NodeJS.ProcessEnv) => {
+  const files = composeFiles(env)
+    .map((file) => `-f ${file}`)
+    .join(' ')
+
+  execSync(`docker compose ${files} down --volumes --remove-orphans`, {
+    stdio: 'inherit',
+    timeout: 30000
+  })
   console.log('[global-setup] Building test stack images…')
-  execSync(`docker compose ${composeArgs.join(' ')} build api banking-api`, {
+  execSync(`docker compose ${files} build api banking-api`, {
     stdio: 'inherit',
     timeout: BUILD_TIMEOUT_MS,
-    env: {
-      ...process.env
-    }
+    env: { ...env }
   })
   console.log('[global-setup] Starting test stack…')
   // --no-build: both images were just built above, so a missing image should
   // fail here instead of rebuilding inside this step's shorter timeout.
-  execSync(`docker compose ${composeArgs.join(' ')} up -d --wait --no-build`, {
+  execSync(`docker compose ${files} up -d --wait --no-build`, {
     stdio: 'inherit',
     timeout: 300000
   })
   console.log('[global-setup] Stack ready.')
+}
+
+export default async function globalSetup() {
+  if (shouldOwnStack(process.env)) {
+    ownStack(process.env)
+  } else {
+    console.log('[global-setup] E2E_OWN_STACK=0 — leaving the stack untouched')
+  }
+
   // Log the seeded admin in once and save its storageState, so every test does
   // not repeat the OIDC round-trip. Best-effort: a test falls back to the real
-  // login flow when its state file is missing.
+  // login flow when its state file is missing. Runs for an owned and a reused
+  // stack alike — the capture must follow the stack being up.
   try {
     const browser = await chromium.launch({ args: CHROMIUM_LAUNCH_ARGS })
     try {

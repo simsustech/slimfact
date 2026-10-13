@@ -59,7 +59,7 @@ jobs:
       - name: Install playwright deps
         run: |
           cd packages/api
-          pnpm exec playwright install --with-deps
+          pnpm exec playwright install --with-deps chromium
 
       # The test stack is started by packages/api/tests/e2e/global-setup.ts,
       # which resets its volumes and builds both images. Only the external
@@ -77,6 +77,9 @@ jobs:
           # global-setup builds the images here, and compose reads this for its
           # build secret.
           SIMSUSTECH_NPM_TOKEN: ${{ secrets.SIMSUSTECH_NPM_TOKEN }}
+          # Capture specs (screenshots) are opt-in; pinning this empty keeps CI
+          # on the normal e2e set (playwright.config.ts testIgnore).
+          PLAYWRIGHT_ALLOW_SCREENSHOTS: ''
 
       - name: Run Playwright guards
         run: |
