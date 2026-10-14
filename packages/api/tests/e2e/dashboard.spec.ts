@@ -99,6 +99,27 @@ test.describe('Dashboard', () => {
     await expect(endInputs.nth(2)).toHaveValue(yyyy)
   })
 
+  test('revenue preset toggle shows the active preset', async () => {
+    await page.goto('/admin/dashboard')
+
+    // The default period is "This month" and its button must be selected.
+    const month = page.getByRole('button', { name: 'This month' }).first()
+    await expect(month).toHaveAttribute('aria-pressed', 'true')
+
+    // A clicked preset must become the active one. The DateInput echo used to
+    // reset the toggle to 'custom' — a value no option matched — so no button
+    // ever appeared selected.
+    const today = page.getByRole('button', { name: 'Today' }).first()
+    await today.click()
+    await expect(today).toHaveAttribute('aria-pressed', 'true')
+    await expect(month).toHaveAttribute('aria-pressed', 'false')
+
+    await page.getByRole('button', { name: 'This year' }).first().click()
+    await expect(
+      page.getByRole('button', { name: 'This year' }).first()
+    ).toHaveAttribute('aria-pressed', 'true')
+  })
+
   test('revenue-cards-custom-range', async () => {
     await page.goto('/admin/dashboard')
 
@@ -192,6 +213,12 @@ test.describe('Dashboard', () => {
 
     await expect(page.getByText('Recent activity').first()).toBeVisible()
     await expect(page.getByText('All').first()).toBeVisible()
+
+    // Timeline dots render an iconify icon; without the `i-` prefix the q-icon
+    // class matched no stylesheet, so the dot showed no glyph at all.
+    await expect(page.locator('.q-timeline__dot i').first()).toHaveClass(
+      /i-mdi-/
+    )
 
     const filter = page.getByLabel('Activity filter')
     await filter.click()

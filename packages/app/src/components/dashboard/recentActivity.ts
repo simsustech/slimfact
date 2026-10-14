@@ -24,20 +24,23 @@ export const paginateEntries = <T>(
   return entries.slice(start, start + safeRows)
 }
 
+// Names must carry the `i-` prefix: the app renders icons through UnoCSS
+// iconify (`i-mdi-*`), and a bare `mdi-*` name produces a `q-icon` whose class
+// no stylesheet matches, so nothing renders.
 export const iconForActivity = (type: string): string => {
   switch (type) {
     case 'invoiceOpened':
-      return 'mdi-file-document-outline'
+      return 'i-mdi-file-document-outline'
     case 'billCreated':
-      return 'mdi-receipt-text-outline'
+      return 'i-mdi-receipt-text-outline'
     case 'payment':
-      return 'mdi-credit-card-check-outline'
+      return 'i-mdi-credit-card-check-outline'
     case 'reminder':
-      return 'mdi-bell-outline'
+      return 'i-mdi-bell-outline'
     case 'exhortation':
-      return 'mdi-alert-octagon-outline'
+      return 'i-mdi-alert-octagon-outline'
     default:
-      return 'mdi-circle-medium'
+      return 'i-mdi-circle-medium'
   }
 }
 
