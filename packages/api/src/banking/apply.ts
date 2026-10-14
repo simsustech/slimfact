@@ -245,7 +245,23 @@ export const linkBankCreditToInvoice = async ({
       try {
         await db
           .updateTable('checkout.payments')
-          .set({ transactionReference: reference })
+          .set((eb) => ({
+            transactionReference: reference,
+            // Adoption is the only write that ever revisits a payment
+            // recorded before the bank-transfer handler wrote paidAt, and the
+            // analytics read a NULL paid_at as "not revenue". Book it on the
+            // bank's posting date, exactly as the create path below does —
+            // coalesce keeps a date that is already there, so nothing is
+            // rewritten.
+            paidAt: eb.fn.coalesce(
+              'paidAt',
+              eb.val(
+                transaction.bookingDate ??
+                  transaction.transactionDate ??
+                  new Date().toISOString()
+              )
+            )
+          }))
           .where('id', '=', adoptable.id)
           .execute()
       } catch (error) {
