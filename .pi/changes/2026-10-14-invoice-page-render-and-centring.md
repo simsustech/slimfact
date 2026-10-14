@@ -120,4 +120,5 @@ An earlier attempt here "fixed" the QR by giving it an explicit 5cm box in a sha
 class — which correctly sized the dialog's QR but also made the header's dead div
 **visible**, i.e. an unwanted QR next to the Pay button. The right call is the one
 taken: the QR lives in the dialog only, so the header div is gone and the dialog's
-markup is unchanged. The E2E spec asserts the header stays QR-free.
+markup is unchanged. The E2E spec asserts the dialog's own QR still renders at its
+5cm box.

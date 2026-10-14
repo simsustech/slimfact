@@ -20,5 +20,6 @@ Two independent regressions on `/invoice/:uuid`:
   its dialog; the header's second copy was dead markup that never rendered (its
   SVG has no intrinsic size and collapses inside the toolbar row).
 
-`tests/e2e/invoice-render.spec.ts` guards the lot: it fails if the invoice does not
-render, if the header actions are not centred, or if a QR reappears in the header.
+`tests/e2e/invoice-render.spec.ts` guards both: it fails if the invoice does not
+render, if the header actions are not centred, or if the dialog's QR stops
+rendering at its 5cm box.
