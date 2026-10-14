@@ -27,11 +27,13 @@ packages/banking-api/.backup/
 *.dump.sql
 
 # Agent session artifacts (plans, handoffs, scratch state) — never commit.
-.pi/fff/
-.pi/continue/
-.pi/handoff/
-.pi/plans/
-.pi/adr/
+# `**/` matters: a pattern containing a slash is anchored to this file's
+# directory, so a bare `.pi/fff/` left the copy under packages/api/ untracked.
+**/.pi/fff/
+**/.pi/continue/
+**/.pi/handoff/
+**/.pi/plans/
+**/.pi/adr/
 PR.md
 
 # Local scratch (ad-hoc analysis output / agent notes)
