@@ -56,12 +56,6 @@ test.describe('public invoice page', () => {
       consoleErrors.filter((e) => /typst|failed to load file/i.test(e))
     ).toEqual([])
 
-    // The bank-transfer QR belongs to its dialog, not to the page header. The
-    // header used to carry a leftover `#qrcode` div, invisible only because
-    // uqr's SVG (viewBox, no intrinsic size) collapses to zero width as a flex
-    // item; it is the dialog's own QR that renders.
-    await expect(page.locator('.q-toolbar svg')).toHaveCount(0)
-
     // The header actions (and the amount line beneath them) must sit in the
     // horizontal middle. They are centred by `justify-center` on a `.row` that
     // is a shrink-to-fit flex item inside `.q-toolbar`, so the row needs an
@@ -82,6 +76,27 @@ test.describe('public invoice page', () => {
       Math.abs(centre - page.viewportSize()!.width / 2),
       `header actions centred (group ${Math.round(groupLeft)}..${Math.round(groupRight)})`
     ).toBeLessThan(15)
+
+    // The bank-transfer QR renders at the 5cm box its markup asks for. (The EPC
+    // payload needs a valid IBAN: `generateEpcQrCodeData` throws otherwise,
+    // `qrSvg` turns null and the dialog shows no QR at all.)
+    await page.getByRole('button', { name: /pay/i }).click()
+    await page.getByText('Bank transfer', { exact: false }).first().click()
+    const qr = page.locator('.q-dialog #qrcode svg').first()
+    await expect(qr).toBeVisible({ timeout: 10_000 })
+    // The dialog scales in, so poll for the settled width — a single
+    // `boundingBox()` catches the box mid-animation (measured 57px of 189).
+    await expect
+      .poll(async () => (await qr.boundingBox())?.width ?? 0, {
+        timeout: 10_000,
+        message: 'dialog QR reaches its 5cm box'
+      })
+      .toBeGreaterThan(150)
+    const qrBox = (await qr.boundingBox())!
+    expect(
+      Math.abs(qrBox.width - qrBox.height),
+      'dialog QR is square'
+    ).toBeLessThan(2)
 
     await page.close()
   })
