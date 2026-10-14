@@ -1,5 +1,45 @@
 # @slimfact/api
 
+## 0.9.4
+
+### Patch Changes
+
+- 3a2cf03: Book a missing `paid_at` when a bank credit is adopted.
+
+  Adoption only wrote `transaction_reference`, so a payment recorded before the
+  bank-transfer handler started writing `paidAt` kept a NULL date forever — and
+  the dashboard analytics read a NULL `paid_at` as "not revenue", so those
+  payments never showed up in the revenue chart, the payment-method split or the
+  activity feed.
+
+  Adoption now books the bank's posting date on the adopted row, exactly as the
+  create path already does, guarded by `coalesce` so a date the row already
+  carries is never overwritten.
+
+- 91e5788: Fix multiple discounts rendering concatenated on a single line in the Typst
+  invoice template's totals grid (same fix applies to surcharges and tax-summary
+  entries).
+
+  The `for` loops in the totals grid were passed to `grid(...)` un-spread, so
+  each loop joined all of its iterations into one value — a single grid cell.
+  Two or more discounts rendered as `Cheap:Expensive: − € 5.00− € 2.50` on one
+  line. Each loop body now yields a `(description, price)` pair array spread
+  with `..`, so every entry gets its own row, matching the pattern the lines
+  table already used.
+
+  Regression test: `packages/tools/tests/typst/totals-grid.test.sh`, runnable
+  via `pnpm run test` in `packages/tools` (requires `typst` and `pdftotext`).
+
+- Updated dependencies [43091c2]
+- Updated dependencies [e7ec290]
+- Updated dependencies [98d815c]
+- Updated dependencies [bd4b9fd]
+- Updated dependencies [60b50fa]
+- Updated dependencies [91e5788]
+  - @slimfact/app@0.9.4
+  - @slimfact/tools@0.9.4
+  - @slimfact/banking-api@0.1.3
+
 ## 0.9.3
 
 ### Patch Changes

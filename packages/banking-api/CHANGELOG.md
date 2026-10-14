@@ -1,5 +1,13 @@
 # @slimfact/banking-api
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [e7ec290]
+- Updated dependencies [91e5788]
+  - @slimfact/tools@0.9.4
+
 ## 0.1.2
 
 ### Patch Changes
