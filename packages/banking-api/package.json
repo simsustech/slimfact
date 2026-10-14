@@ -53,7 +53,7 @@
     "kysely": "0.29.6",
     "mollie-api-typescript": "1.12.41",
     "pg": "8.23.1",
-    "pg-boss": "12.37.1",
+    "pg-boss": "12.38.0",
     "stripe": "^23.0.0",
     "zod": "4.6.7"
   },
