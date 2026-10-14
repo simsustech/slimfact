@@ -8,13 +8,8 @@
             invoice.status &&
             invoice.status !== InvoiceStatus.CONCEPT
           "
-          class="row justify-center no-print q-pt-md q-mb-md q-gutter-x-sm"
+          class="row justify-center full-width no-print q-pt-md q-mb-md q-gutter-x-sm"
         >
-          <div
-            id="qrcode"
-            style="max-width: 5cm; max-height: 5cm"
-            v-html="qrSvg"
-          ></div>
           <q-btn-dropdown
             v-if="
               invoice &&
@@ -165,7 +160,7 @@
             invoice?.status &&
             invoice.status !== InvoiceStatus.CONCEPT
           "
-          class="row justify-center no-print"
+          class="row justify-center full-width no-print"
         >
           {{ lang.payment.amountPaid }}:
           <price
@@ -176,7 +171,7 @@
         </div>
         <div
           v-if="invoice?.amountRefunded && invoice?.amountRefunded > 0"
-          class="row justify-center no-print"
+          class="row justify-center full-width no-print"
         >
           {{ lang.payment.amountRefunded }}:
           <price
@@ -191,7 +186,7 @@
             invoice?.amountDue > 0 &&
             invoice.status !== InvoiceStatus.CONCEPT
           "
-          class="row justify-center no-print"
+          class="row justify-center full-width no-print"
         >
           {{ lang.payment.amountDue }}:
           <price

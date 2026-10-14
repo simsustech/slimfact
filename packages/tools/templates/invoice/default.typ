@@ -109,13 +109,15 @@
 
 #let includeTax = json(bytes(sys.inputs.at("includeTax", default: "true")))
 
+// The two imports below are load-bearing and MUST each stay on one line:
+// `renderTypstInvoice` (packages/tools/src/typst/index.ts) injects the lang and
+// internal modules by exact string match, so wrapping either import into a
+// parenthesised block leaves that module unresolved and the invoice page
+// renders nothing at all. Guarded by tests/e2e/invoice-render.spec.ts.
 #import "./lang.typ": translations
 #let lang = translations.at(invoice.locale)
 
-#import "./internal.typ": (
-  formatPrice, formatQuantity, formatPrice, quantityUnits, currencySymbols,
-  formatDate, ternary,
-)
+#import "./internal.typ": formatPrice, formatQuantity, formatPrice, quantityUnits, currencySymbols, formatDate, ternary
 
 #set page(
   paper: sys.inputs.at("pageSize", default: "a4"),
