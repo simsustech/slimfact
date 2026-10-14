@@ -248,9 +248,13 @@ test.describe('Dashboard', () => {
     const removeButtons = filter.getByRole('button', { name: 'Remove' })
     while ((await removeButtons.count()) > 0) {
       const before = await removeButtons.count()
-      await removeButtons.first().click({ force: true })
-      // Wait for the chip to actually leave, not a fixed 150ms.
-      await expect(removeButtons).toHaveCount(before - 1)
+      // The chip list re-renders while the stats refetch, so a single
+      // `force: true` click can land on a replaced node and remove nothing.
+      // Retry until the chip actually leaves (same race as the action items).
+      await expect(async () => {
+        await removeButtons.first().click({ force: true })
+        await expect(removeButtons).toHaveCount(before - 1, { timeout: 2_000 })
+      }).toPass({ timeout: 30_000 })
     }
     await expect(
       page.getByText('Select a company to view stats').first()
@@ -361,11 +365,16 @@ test.describe('Dashboard', () => {
     const card = page.locator('.q-card').filter({
       hasText: 'Upcoming income'
     })
-    // Rows link to the admin invoices list filtered to that document.
+    // Rows link to the admin invoices list filtered to that document. The row
+    // list re-renders while the stats refetch, so a single `force: true` click
+    // can land on a replaced node and never navigate: retry the click until the
+    // URL actually changes, the same race 6f24e905 fixed for the action items.
     const firstRow = card.locator('.q-item').first()
     await expect(firstRow).toBeAttached()
-    await firstRow.click({ force: true })
-    await expect(page).toHaveURL(/\/admin\/invoices\//)
+    await expect(async () => {
+      await firstRow.click({ force: true })
+      await page.waitForURL(/\/admin\/invoices\//, { timeout: 2_000 })
+    }).toPass({ timeout: 30_000 })
 
     // The Overdue toggle shows the aging buckets; the seed guarantees one
     // OPEN overdue invoice per bucket (scoped to this card, since the
