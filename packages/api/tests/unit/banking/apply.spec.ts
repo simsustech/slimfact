@@ -156,13 +156,15 @@ const addPayment = async (
     amount = 5000,
     method = PaymentMethod.banktransfer,
     status = PaymentStatus.PAID,
-    transactionReference = null
+    transactionReference = null,
+    paidAt = null
   }: {
     invoiceId: number
     amount?: number
     method?: PaymentMethod
     status?: PaymentStatus
     transactionReference?: string | null
+    paidAt?: string | null
   }
 ): Promise<number> => {
   const row = await db
@@ -174,6 +176,7 @@ const addPayment = async (
       method,
       externalId: null,
       transactionReference,
+      paidAt,
       amount,
       currency: 'EUR',
       status
@@ -247,6 +250,55 @@ describeDb('banking/apply', () => {
       .executeTakeFirst()
     expect(row?.transactionReference).toBe('bank:txn-1')
     expect(await countPayments()).toBe(1)
+  })
+
+  it('books a missing paid_at on an adopted payment from the bank booking date', async () => {
+    const seeded = await seed(testDb!)
+    // A row recorded before the bank-transfer handler wrote paidAt: paid, no
+    // date. Adoption is the only write that ever revisits it.
+    const paymentId = await addPayment(testDb!, { invoiceId: seeded.invoiceId })
+
+    const result = await linkBankCreditToInvoice({
+      db: testDb!,
+      invoiceHandler: { addPaymentToInvoice: makeHandler() },
+      invoice: invoiceFor(seeded),
+      transaction: credit({ companyId: seeded.companyId })
+    })
+
+    expect(result.adopted).toBe(true)
+    const row = await testDb!
+      .selectFrom('checkout.payments')
+      .select('paidAt')
+      .where('id', '=', paymentId)
+      .executeTakeFirst()
+    // The analytics read a NULL paid_at as "not revenue", so adoption has to
+    // book the date the create path would have used.
+    expect(row?.paidAt).not.toBeNull()
+    expect(new Date(row!.paidAt!).toISOString().slice(0, 10)).toBe('2026-06-30')
+  })
+
+  it('keeps a paid_at that is already recorded when adopting', async () => {
+    const seeded = await seed(testDb!)
+    const paymentId = await addPayment(testDb!, {
+      invoiceId: seeded.invoiceId,
+      paidAt: '2026-05-01T00:00:00.000Z'
+    })
+
+    const result = await linkBankCreditToInvoice({
+      db: testDb!,
+      invoiceHandler: { addPaymentToInvoice: makeHandler() },
+      invoice: invoiceFor(seeded),
+      transaction: credit({ companyId: seeded.companyId })
+    })
+
+    expect(result.adopted).toBe(true)
+    const row = await testDb!
+      .selectFrom('checkout.payments')
+      .select('paidAt')
+      .where('id', '=', paymentId)
+      .executeTakeFirst()
+    // coalesce: the date the row already carries wins over the bank's.
+    expect(new Date(row!.paidAt!).toISOString().slice(0, 10)).toBe('2026-05-01')
   })
 
   it('adopts when the manual payment reference equals the booking date', async () => {

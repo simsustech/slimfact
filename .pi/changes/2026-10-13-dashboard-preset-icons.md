@@ -17,11 +17,14 @@ payment-posting activity — the "there is no data" symptom.
 
 Why: the bank-transfer payment handler only started writing `paidAt` in
 modular-api #161 (commit `30b38f46`). Before that it inserted
-`status = 'paid'` and no date at all (it accepted `date` and ignored it), and
-the bank-link **adoption** path only updates `transaction_reference`, so those
-rows never gain a date. Every bank-transfer payment recorded before that
-release is permanently NULL. All of the instance's payments are bank
-transfers, so 100% were affected.
+`status = 'paid'` and no date at all (it accepted `date` and ignored it).
+Every bank-transfer payment recorded before that release is permanently NULL,
+and all of the instance's payments are bank transfers, so 100% were affected.
+
+Adoption was the second half of the hole: it only wrote
+`transaction_reference`, so even a later bank link never gave such a row a
+date. It now books the bank's posting date on the adopted row (the create path
+already did), so that case cannot recur.
 
 This is a **data repair, not a code change**: the current handler writes
 `paidAt` correctly, and the instance's real dates still exist in the banking
