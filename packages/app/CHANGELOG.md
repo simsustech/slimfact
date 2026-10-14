@@ -1,5 +1,88 @@
 # @slimfact/app
 
+## 0.9.3
+
+### Patch Changes
+
+- 7869730: Edit a bill whose client came from details alone, and fetch the document-form
+  lists on demand instead of on every page mount.
+
+  `InvoiceForm` gated its lines/discounts/surcharges section on
+  `companyId != null && clientId != null`. A document whose client is invoicing
+  details without a linked record — filled through the select's edit button, which
+  is exactly how a walk-in client is captured — therefore hid its own line list:
+  there was nothing to edit. The section now shows when either a `clientId` **or**
+  `clientDetails.email` is present, mirroring the rule the client select already
+  applied when deciding whether the field was satisfied.
+
+  The company, client and number-prefix lists were fetched at page mount by the
+  bills, invoices, receipts, subscriptions and exports pages, so opening any of
+  them ran the invoice form's supporting queries whether or not a dialog would ever
+  be opened. The three composables are lazy now (`activate()`), and every consumer
+  calls it at the point the data is actually needed: the document dialog on open,
+  the filter selects on their filter event, and the settings pages on mount. The
+  `getInvoices` page's own data is unchanged and starts at the same time it always
+  did.
+
+  The suggestion count went the same way. It was fetched by the layout on every
+  admin page, and because it rides the same tRPC batch as the page's own queries,
+  building the entire suggestion list delayed the page. It is now started from an
+  idle callback after the page has settled, which puts it in a **separate** batch
+  (`admin.getInvoices,admin.getInvoices` then `admin.listSuggestions`).
+
+  The e2e `fillComboboxes` helper opened a select with Playwright's
+  `locator.click()`. Inside a dialog taller than the 720px default viewport the
+  field sits outside it: Playwright refuses the click and its attempt to scroll
+  fights the dialog's own scroll container, producing the visible up/down jitter.
+  The helper now clicks the `.q-field__control` in the DOM, which the select handles
+  the same way and which no scrolling behaviour can veto.
+
+  A seeded walk-in bill (2026-15, `clientDetails` with no `clientId`) and an
+  invoice-flow spec cover the edit path end to end.
+
+- 313fdce: Stop the invoice form from relinking a document whose client was cleared, and
+  reject payloads whose details contradict the link.
+
+  `InvoiceForm`'s `setValue` resolved a missing `clientId` from `clientDetails.id`
+  and assigned it to `companyId`. The assignment was wrong, but resolving a link out
+  of the details was the real problem: `companyId`/`clientId` are the **link** to the
+  SlimFact records, while `companyDetails`/`clientDetails` are the invoicing
+  **details** printed on the document, which may carry no `id` at all. The company
+  and client selects now bind only the keys, assigned unconditionally so a reset
+  cannot keep a previous document's selection.
+
+  A details id matters on the write path, not on read: the create/update procedures
+  take the stored key _from_ `clientDetails.id`/`companyDetails.id` when no key is
+  supplied. The form therefore submits the details without their id
+  (`withoutDetailsId`). Before this, an edited document whose client was cleared still
+  carried the details id loaded from the api, so saving put the client back —
+  clearing the select could not unlink anything.
+
+  `detailsLinkMismatch` (`@slimfact/api`'s zod invoice module) now rejects a
+  create/update payload whose details id disagrees with a link that is also present,
+  so the contradiction cannot reach the database from any api caller.
+
+- 313fdce: Stop the company and client filter selects from rendering "NaN".
+
+  The filter state for invoices, bills, receipts and subscriptions used `NaN` as
+  its "unset" sentinel — the query composables initialised `companyId`/`clientId`
+  as `ref(NaN)` and the list pages wrote `NaN` back on clear and on "search by
+  client name". A Quasar `QSelect` with `map-options` renders a model that matches
+  no option verbatim, so an empty filter displayed `NaN` in the input, and the
+  `!Number.isNaN(...)` presence checks in the receipts and subscriptions pages made
+  the "clear search" icon look active with no filter set.
+
+  The models are now `number | null` and `null` is the unset value everywhere
+  (`invoices.ts`, `bills.ts`, `receipts.ts`, `subscriptions.ts`). The api was
+  already prepared for it: `getInvoices` and `getSubscriptions` declare
+  `companyId`/`clientId` as `z.number().nullable().optional()`.
+
+  `packages/app/tests/unit/noNanSelectState.test.ts` fails if a `NaN` sentinel
+  returns to filter state, and `invoices-date-filter.spec.ts` asserts the filter
+  selects in the running app are empty rather than `NaN`.
+
+- @slimfact/tools@0.9.3
+
 ## 0.9.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@slimfact/banking-api",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "SlimFact banking proxy — owns the open-banking.io sync and exposes granted bank data to machine clients over tRPC",
   "author": "simsustech",

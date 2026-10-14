@@ -1,5 +1,11 @@
 # @slimfact/banking-api
 
+## 0.1.2
+
+### Patch Changes
+
+- @slimfact/tools@0.9.3
+
 ## 0.1.1
 
 ### Patch Changes
