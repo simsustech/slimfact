@@ -330,6 +330,12 @@ reseeding are not supported.
 
 **Shared page state**: Prefer `browser.newPage()` + `login()` for each test that creates/modifies data.
 
+**Dashboard cards re-render**: on `/admin/dashboard` a row/button click can land on a node the
+stats refetch replaced, so it silently never navigates (or never removes a chip). Wrap the click
+**and** its assertion in `toPass` — see `upcoming-income-card`, `empty-state` and the action items
+in `dashboard.spec.ts`. A bare `click({ force: true })` + `toHaveURL` is a flake, and because that
+file is `serial` it then skips its remaining tests.
+
 **Debug helper**: `tests/e2e/helpers.ts` exports `dumpPage(page, label)` — logs URL, buttons, inputs, and body text.
 
 **Known TLS error in `screenshots-customer.spec.ts`**: the spec downloads the
@@ -436,6 +442,33 @@ bash .github/scripts/act-release-workflows.test.sh
 
 The act runs cover the preflight job only: act cannot do the checkout steps of these workflows (private repo plus an explicit `ref:`), and the image builds need the npm token and a registry to push to. The act test therefore drops those checkout `with:` blocks and seeds the workspace from the local tree — see `.github/scripts/act-release-workflows.test.sh` for how and why.
 
+### Release PRs (staging → main)
+
+A release is a PR from `staging` into `main`, titled `chore(release): <version>`. `staging` is
+where the work already ran, so the body is the release itself — version, the changeset-derived
+notes, the gates, and what could bite — not a report on what staging has been doing.
+
+- When `staging` already contains `main` the merge is a fast-forward, so `main` receives exactly
+- Measure the release against the **last release tag**, not against `main`: `git diff
+  v<last>..staging` is the release's scope, because `staging` can carry its own commits for work a
+  release already published (same behaviour, different commit — the diff shows it, the notes
+  should not repeat it).
+the tree the `staging` push tested.
+- Merging it runs `version-and-release.yaml`: with changesets pending, `changesets/action` runs
+  `pnpm changeset version`, commits `chore: version packages` and opens a `chore: release` PR on
+  `main`. Merging *that* run — no changesets left — tags `v<version>`, builds the GitHub Release
+  body from `packages/api/CHANGELOG.md`, and triggers `release.yaml` for the production images.
+- `@slimfact/api`, `@slimfact/app` and `@slimfact/tools` are a **fixed** group: any pending
+  changeset bumps all three to one version.
+- Nothing triggers on `pull_request` here. The gate is the `staging` push (`Test staging build` =
+  `pnpm run test:e2e` plus `playwright.guards.config.ts`), and it does **not** run `pnpm test`, so
+  the unit suites are not part of a release gate.
+- The GitHub Release body comes from the **api** changelog, so app-only notes never appear in it.
+- Drop a pending changeset whose notes a release has already published (work that reached `main`
+  by another path) — otherwise the next `changeset version` repeats them.
+- A dependency published inside `minimumReleaseAge` (see `pnpm-workspace.yaml`) cannot be
+  installed or resolved: add its version to `minimumReleaseAgeExclude` when you bump to it.
+
 ## Database
 
 - Migrations: `packages/api/src/kysely/migrations/`
@@ -477,6 +510,8 @@ Summary: 1–3 sentences. What this does and why. No title restatement.
 - Omit any section that would be empty. No changeset or test-file inventories — the
   changesets and CI carry those.
 - Target ≤ ~40 lines. Longer than that means the PR is doing too much; split it.
+- A release PR is titled `chore(release): <version>` and reads as a release, not as a merge:
+  see *Release Workflows → Release PRs (staging → main)*.
 
 ## Screenshots & Invoice PDF
 
