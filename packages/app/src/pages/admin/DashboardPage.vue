@@ -253,9 +253,31 @@ const onPresetChange = (preset: Preset) => {
   customDateTo.value = range.dateTo
 }
 
-// Editing the date inputs switches the dashboard to a custom range.
+// A DateInput echoes its model on mount and again whenever a preset writes the
+// inputs, so this handler must not assume a user edit. Treating that echo as an
+// edit reset the toggle to 'custom' — a value no option matches — so the preset
+// looked unselectable. Derive the preset from the resulting range instead, and
+// the toggle always reflects the period being shown.
+const FIXED_PRESETS: Preset[] = ['today', 'week', 'month', 'quarter', 'year']
+
+const presetMatchingRange = (
+  from: string | null,
+  to: string | null
+): Preset => {
+  const match = FIXED_PRESETS.find((preset) => {
+    const range = presetDateRange(preset)
+    return range.dateFrom === from && range.dateTo === to
+  })
+  return match ?? 'custom'
+}
+
+// Editing the date inputs selects the preset whose range they match, or a
+// custom range when they match none.
 const onCustomDateChange = () => {
-  activePreset.value = 'custom'
+  activePreset.value = presetMatchingRange(
+    customDateFrom.value,
+    customDateTo.value
+  )
 }
 
 // Clicking a chart bucket zooms the dashboard into that bucket's period

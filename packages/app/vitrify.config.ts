@@ -235,6 +235,10 @@ export default async function ({
           pipeline: {
             include: [
               'src/**/configuration.ts',
+              // UnoCSS scans .vue/.tsx but not plain .ts files, so icon names
+              // defined in a helper module would never reach the stylesheet.
+              // The dashboard activity feed maps event types to icons there.
+              'src/components/dashboard/recentActivity.ts',
               /@simsustech\/quasar-components/,
               /@modular-api\/quasar-components/,
               // Linked/overlay installs resolve @simsustech/quasar-components to a

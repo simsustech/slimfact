@@ -96,14 +96,14 @@ describe('dashboard.recentActivity.paymentInvoiceText', () => {
 
 describe('dashboard.recentActivity icons/colors', () => {
   it('maps known types to distinct icons', () => {
-    expect(iconForActivity('invoiceOpened')).toBe('mdi-file-document-outline')
-    expect(iconForActivity('billCreated')).toBe('mdi-receipt-text-outline')
-    expect(iconForActivity('payment')).toBe('mdi-credit-card-check-outline')
-    expect(iconForActivity('reminder')).toBe('mdi-bell-outline')
-    expect(iconForActivity('exhortation')).toBe('mdi-alert-octagon-outline')
+    expect(iconForActivity('invoiceOpened')).toBe('i-mdi-file-document-outline')
+    expect(iconForActivity('billCreated')).toBe('i-mdi-receipt-text-outline')
+    expect(iconForActivity('payment')).toBe('i-mdi-credit-card-check-outline')
+    expect(iconForActivity('reminder')).toBe('i-mdi-bell-outline')
+    expect(iconForActivity('exhortation')).toBe('i-mdi-alert-octagon-outline')
   })
   it('falls back for unknown types', () => {
-    expect(iconForActivity('mystery')).toBe('mdi-circle-medium')
+    expect(iconForActivity('mystery')).toBe('i-mdi-circle-medium')
   })
   it('maps known types to distinct colors', () => {
     expect(colorForActivity('invoiceOpened')).toBe('primary')
