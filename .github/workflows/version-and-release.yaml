@@ -48,16 +48,21 @@ jobs:
         id: changesets
         uses: changesets/action@v2
         with:
-          title: "chore: release"
-          commit: "chore: version packages"
-          version: pnpm changeset version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+          # v2 does not read the GITHUB_TOKEN env var — the token must be passed
+          # here, and GH_RELEASE_TOKEN is what the release PR must carry.
+          github-token: ${{ secrets.GH_RELEASE_TOKEN }}
+          pr-title: "chore: release"
+          commit-message: "chore: version packages"
+          version-script: pnpm changeset version
+          # The steps below tag the version and build the GitHub Release from
+          # the api changelog, so the action must not publish its own.
+          create-github-releases: false
+          push-git-tags: false
 
       # After the release PR is merged there are no changesets left, so this
       # run tags the bumped version and creates the GitHub Release.
       - name: Read current version
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.changesets.outputs.has-changesets == 'false'
         id: version
         run: |
           VERSION=$(node -p "require('./packages/api/package.json').version")
@@ -70,7 +75,7 @@ jobs:
 
       - name: Extract release notes
         if: >-
-          steps.changesets.outputs.hasChangesets == 'false' &&
+          steps.changesets.outputs.has-changesets == 'false' &&
           steps.version.outputs.tagged == 'false'
         run: |
           node -e "
@@ -96,7 +101,7 @@ jobs:
 
       - name: Create git tag
         if: >-
-          steps.changesets.outputs.hasChangesets == 'false' &&
+          steps.changesets.outputs.has-changesets == 'false' &&
           steps.version.outputs.tagged == 'false'
         run: |
           git tag v${{ steps.version.outputs.version }}
@@ -104,7 +109,7 @@ jobs:
 
       - name: Create GitHub Release
         if: >-
-          steps.changesets.outputs.hasChangesets == 'false' &&
+          steps.changesets.outputs.has-changesets == 'false' &&
           steps.version.outputs.tagged == 'false'
         uses: softprops/action-gh-release@v3
         with:

@@ -449,11 +449,11 @@ where the work already ran, so the body is the release itself — version, the c
 notes, the gates, and what could bite — not a report on what staging has been doing.
 
 - When `staging` already contains `main` the merge is a fast-forward, so `main` receives exactly
+  the tree the `staging` push tested.
 - Measure the release against the **last release tag**, not against `main`: `git diff
   v<last>..staging` is the release's scope, because `staging` can carry its own commits for work a
   release already published (same behaviour, different commit — the diff shows it, the notes
   should not repeat it).
-the tree the `staging` push tested.
 - Merging it runs `version-and-release.yaml`: with changesets pending, `changesets/action` runs
   `pnpm changeset version`, commits `chore: version packages` and opens a `chore: release` PR on
   `main`. Merging *that* run — no changesets left — tags `v<version>`, builds the GitHub Release
@@ -468,6 +468,10 @@ the tree the `staging` push tested.
   by another path) — otherwise the next `changeset version` repeats them.
 - A dependency published inside `minimumReleaseAge` (see `pnpm-workspace.yaml`) cannot be
   installed or resolved: add its version to `minimumReleaseAgeExclude` when you bump to it.
+- `version-and-release.yaml` drives `changesets/action@v2`, whose inputs were renamed from v1
+  (`pr-title`, `commit-message`, `version-script`) and whose output is `has-changesets`. v2 also
+  **ignores the `GITHUB_TOKEN` env var** — the token must be passed as `github-token`. This
+  workflow tags and releases itself, so `create-github-releases` and `push-git-tags` stay `false`.
 
 ## Database
 
