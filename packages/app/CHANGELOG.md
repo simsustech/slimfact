@@ -1,5 +1,111 @@
 # @slimfact/app
 
+## 0.9.4
+
+### Patch Changes
+
+- 43091c2: Show which dashboard period is selected, and render the activity icons.
+
+  Two rendering bugs on `/admin/dashboard`:
+
+  - The period preset toggle (Today / This week / …) never showed a selection.
+    A `DateInput` echoes `update:modelValue` on mount and again whenever a preset
+    writes the input, and both are wired to `onCustomDateChange`, which forced
+    `activePreset = 'custom'` — a value no option matches. The active preset is
+    now derived from the resulting date range.
+  - The recent-activity timeline showed no icons: `iconForActivity` returned bare
+    `mdi-*` names, and the names live in a plain `.ts` module that this build's
+    UnoCSS does not scan, so no icon rule was generated for them. The names now
+    carry the `i-` prefix and the module is in the UnoCSS include list.
+
+- e7ec290: Render the public invoice page again, and centre its header.
+
+  Two independent regressions on `/invoice/:uuid`:
+
+  - **The page rendered nothing.** `renderTypstInvoice` injects the `lang.typ` and
+    `internal.typ` modules into `templates/invoice/default.typ` by exact string
+    match of the two `#import` lines. Reformatting the internal import into a
+    parenthesised, one-name-per-line block stopped that replacement from matching,
+    which left the browser's Typst world with an unresolvable
+    `#import "./internal.typ"` — `SourceDiagnostic: failed to load file (access
+    denied)`, and an empty page. The single-line import is restored, and the line
+    now warns that it is load-bearing.
+    so these rows now carry an explicit `full-width`.
+  - **The header also dropped a leftover QR div.** The bank-transfer QR belongs to
+    its dialog; the header's second copy was dead markup that never rendered (its
+    SVG has no intrinsic size and collapses inside the toolbar row).
+
+  `tests/e2e/invoice-render.spec.ts` guards both: it fails if the invoice does not
+  render, if the header actions are not centred, or if the dialog's QR stops
+  rendering at its 5cm box.
+
+- 98d815c: Restore typing-to-search in the company and client selects, and stop a stale
+  search phrase from shrinking the company list to one entry.
+
+  `CompanySelect` and `ClientSelect` declared `onFilter` in `defineProps`. A
+  declared prop intercepts the listener out of `$attrs`, so the parent's `@filter`
+  never fell through to `FilteredModelSelect`. Two symptoms followed from that one
+  broken link: `FilteredModelSelect` gates `use-input` on `!!onFilter`, so the
+  field rendered readonly and nothing could be typed; and its `filter` emit had no
+  listener, so the parent's handler — the thing that refreshes and resets
+  `searchPhrase` — never ran. The edit path sets `companiesSearchPhrase` to the
+  document's company name, and with no open-event to clear it, the next dialog's
+  company select showed only that one match (the "only 1 company on open" report).
+  The prop comment explicitly claimed the forward was unnecessary; it was the bug.
+
+  Both components now forward the listener with `@filter="onFilter"`, and the
+  comment documents why the forward is load-bearing.
+
+  New e2e spec `tests/e2e/invoice-create-search.spec.ts` covers the scenario:
+  the company select lists every company on open, company and client accept typed
+  search, an invoice is created by searching company and client, and a create
+  dialog opened after an edit still lists every company (red with `Received: 1`
+  on the broken code). The submit assertion requires the dialog to close — the
+  euro amount also renders inside the open dialog, which made a failed submit a
+  false green.
+
+- bd4b9fd: Retry failed API reads before giving up.
+
+  tRPC sends queries as GET and mutations as POST, so a retry can never repeat a
+  write. Previously a single lost read was permanent: the query layer has no
+  retry of its own, so a page such as the invoice list stayed empty until the
+  user reloaded it by hand. Only transient failures are retried — network
+  errors, 429 and 5xx — so a real outage still surfaces immediately.
+
+- 60b50fa: Stop the company/client search selects from refetching in a loop.
+
+  `onFilterCompanies`/`onFilterClients` set the search phrase and then called
+  `activate()`, which unconditionally `refetch()`ed. Quasar emits a synthetic
+  `filter('')` whenever a select's options identity changes while its menu is
+  open, so each synthetic event refetched, changed the options, and produced
+  another synthetic event — an unbounded request loop that overwrote the result
+  the user was typing for (the report: the company and client selects "are not
+  searchable").
+
+  `activate()` is now idempotent: the first call (dialog open) fetches, and after
+  that the query's reactive `key` — the search phrase — drives every fetch. An
+  unchanged phrase no longer triggers one, which breaks the loop. This matches
+  the retail-style connection-to-the-key pattern; the query stays lazy, so these
+  lists still stay out of the page-mount batch.
+
+- 91e5788: Fix multiple discounts rendering concatenated on a single line in the Typst
+  invoice template's totals grid (same fix applies to surcharges and tax-summary
+  entries).
+
+  The `for` loops in the totals grid were passed to `grid(...)` un-spread, so
+  each loop joined all of its iterations into one value — a single grid cell.
+  Two or more discounts rendered as `Cheap:Expensive: − € 5.00− € 2.50` on one
+  line. Each loop body now yields a `(description, price)` pair array spread
+  with `..`, so every entry gets its own row, matching the pattern the lines
+  table already used.
+
+  Regression test: `packages/tools/tests/typst/totals-grid.test.sh`, runnable
+  via `pnpm run test` in `packages/tools` (requires `typst` and `pdftotext`).
+
+- Updated dependencies [e7ec290]
+- Updated dependencies [91e5788]
+  - @slimfact/tools@0.9.4
+
 ## 0.9.3
 
 ### Patch Changes
