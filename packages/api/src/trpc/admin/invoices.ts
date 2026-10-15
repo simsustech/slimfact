@@ -292,8 +292,7 @@ export const adminInvoiceRoutes = ({
               companyId: companyDetails.id,
               clientId: clientDetails.id,
               metadata: input.metadata,
-              replaceExistingLinesOfSameType:
-                input.replaceExistingLinesOfSameType
+              replaceTypedLines: input.replaceTypedLines
             }
           )
 

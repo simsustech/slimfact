@@ -43,7 +43,7 @@
   "dependencies": {
     "@fastify/rate-limit": "^11.2.1",
     "@fastify/websocket": "^11.3.4",
-    "@modular-api/event-bus": "0.2.3",
+    "@modular-api/event-bus": "0.2.4",
     "@open-banking-io/client": "1.3.0",
     "@slimfact/tools": "workspace:*",
     "@trpc/client": "11.19.0",
