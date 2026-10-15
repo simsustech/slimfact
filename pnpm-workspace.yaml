@@ -23,20 +23,20 @@ minimumReleaseAgeExclude:
   - '@typescript-eslint/utils@8.71.0'
   - '@typescript-eslint/visitor-keys@8.71.0'
   - 'typescript-eslint@8.71.0'
-  - '@modular-api/api@0.6.39 || 0.6.41'
-  - '@modular-api/event-bus@0.2.3'
-  - '@modular-api/fastify-cart@0.3.23'
-  - '@modular-api/fastify-checkout@0.11.1 || 0.11.2'
-  - '@modular-api/fastify-oidc@0.9.29 || 0.9.30'
-  - '@modular-api/oidc-interactions@0.7.25 || 0.7.26'
-  - '@modular-api/quasar-components@0.3.44'
+  - '@modular-api/api@0.6.39 || 0.6.41 || 0.6.42'
+  - '@modular-api/event-bus@0.2.3 || 0.2.4'
+  - '@modular-api/fastify-cart@0.3.23 || 0.3.24'
+  - '@modular-api/fastify-checkout@0.11.1 || 0.11.2 || 0.12.0'
+  - '@modular-api/fastify-oidc@0.9.29 || 0.9.30 || 0.9.31'
+  - '@modular-api/oidc-interactions@0.7.25 || 0.7.26 || 0.7.27'
+  - '@modular-api/quasar-components@0.3.44 || 0.3.45'
   - '@simsustech/quasar-components@0.12.12 || 0.12.13 || 0.12.14'
   - '@vitrify/tools@0.5.5'
   - pg-boss@12.35.1 || 12.37.0 || 12.38.0
   - stripe@23.0.0
-  - unocss-preset-quasar@0.6.0 || 0.6.4 || 0.6.6 || 0.7.1 || 0.7.2
+  - unocss-preset-quasar@0.6.0 || 0.6.4 || 0.6.6 || 0.7.1 || 0.7.2 || 0.7.3
   - vite@8.3.2 || 8.3.3
-  - vitrify@0.28.2
+  - vitrify@0.28.2 || 0.28.3
   - '@oxfmt/binding-android-arm-eabi@0.72.0 || 0.73.0'
   - '@oxfmt/binding-android-arm64@0.72.0 || 0.73.0'
   - '@oxfmt/binding-darwin-arm64@0.72.0 || 0.73.0'

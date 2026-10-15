@@ -120,6 +120,18 @@ test.beforeAll(async () => {
           discount: 0,
           taxRate: 21,
           type: 'slimfact_manual'
+        },
+        // A line of a *foreign* family: the replacement below only claims the
+        // 'petboarding' family, so this one has to survive it.
+        {
+          description: 'Alien line',
+          listPrice: 500,
+          listPriceIncludesTax: true,
+          quantity: 1,
+          quantityPerMille: false,
+          discount: 0,
+          taxRate: 21,
+          type: 'acme_other'
         }
       ],
       status: 'bill'
@@ -128,7 +140,7 @@ test.beforeAll(async () => {
   })
 })
 
-test('manual line survives replaceExistingLinesOfSameType', async () => {
+test('replaceTypedLines rewrites the whole owned family and keeps the rest', async () => {
   const u = await page.request.post('/trpc/admin.updateInvoice', {
     data: {
       id: invoiceId,
@@ -152,7 +164,70 @@ test('manual line survives replaceExistingLinesOfSameType', async () => {
         }
       ],
       status: 'bill',
-      replaceExistingLinesOfSameType: true
+      replaceTypedLines: 'petboarding'
+    },
+    headers: headers()
+  })
+  expect(u.ok()).toBeTruthy()
+
+  const f = await page.request.get(
+    '/trpc/admin.getInvoice?input=' +
+      encodeURIComponent(JSON.stringify({ id: invoiceId })),
+    { headers: headers() }
+  )
+  const fi = Array.isArray(await f.json())
+    ? (await f.json())[0]
+    : await f.json()
+  const fl = fi.result?.data?.lines || fi.result?.lines || []
+  const descriptions = fl.map((l: any) => l.description)
+  const types = fl.map((l: any) => l.type)
+
+  // The payload owns the family: its line is here exactly once, the *old* one
+  // is gone (no duplicate), and so is the family member the payload no longer
+  // sends — that is the defect the old flag left behind (a removed service, a
+  // cancelation that voids the booking lines).
+  expect(
+    descriptions.filter((d: string) => d === 'Pet boarding - Rex (updated)')
+  ).toHaveLength(1)
+  expect(descriptions).not.toContain('Pet boarding - Rex')
+  expect(descriptions).not.toContain('Wash service')
+  expect(types.filter((t: string) => t === 'petboarding_booking')).toHaveLength(
+    1
+  )
+  expect(types).not.toContain('petboarding_service')
+
+  // Everything the caller does not own survives: the manually added line and
+  // the foreign family.
+  expect(descriptions).toContain('E2E manual line')
+  expect(descriptions).toContain('Alien line')
+  expect(types).toContain('slimfact_manual')
+  expect(types).toContain('acme_other')
+})
+
+test('without replaceTypedLines the payload becomes the invoice lines', async () => {
+  const u = await page.request.post('/trpc/admin.updateInvoice', {
+    data: {
+      id: invoiceId,
+      uuid: invoiceUuid,
+      companyId: 1,
+      clientId: 1,
+      numberPrefixTemplate: 'F{YYYY}{NNNN}',
+      currency: 'EUR',
+      locale: 'en-US',
+      paymentTermDays: 14,
+      lines: [
+        {
+          description: 'Payload alone',
+          listPrice: 100,
+          listPriceIncludesTax: true,
+          quantity: 1,
+          quantityPerMille: false,
+          discount: 0,
+          taxRate: 21,
+          type: 'petboarding_booking'
+        }
+      ],
+      status: 'bill'
     },
     headers: headers()
   })
@@ -168,11 +243,7 @@ test('manual line survives replaceExistingLinesOfSameType', async () => {
     : await f.json()
   const fl = fi.result?.data?.lines || fi.result?.lines || []
 
-  expect(fl.map((l: any) => l.description)).toContain('E2E manual line')
-  expect(fl.map((l: any) => l.description)).toContain(
-    'Pet boarding - Rex (updated)'
-  )
-  expect(fl.map((l: any) => l.description)).toContain('Wash service')
-  expect(fl.map((l: any) => l.type)).toContain('slimfact_manual')
-  expect(fl.map((l: any) => l.type)).toContain('petboarding_booking')
+  // No matcher is the documented default (the former `false`): the payload is
+  // authoritative for the whole invoice, manual lines included.
+  expect(fl.map((l: any) => l.description)).toEqual(['Payload alone'])
 })

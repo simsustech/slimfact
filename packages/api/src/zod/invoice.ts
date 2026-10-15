@@ -53,7 +53,18 @@ export const invoiceValidation = {
   reminderSentDates: z.array(z.string()).optional(),
   paymentId: z.number().optional().nullable(),
   metadata: z.record(z.string(), z.unknown()).optional().nullable(),
-  replaceExistingLinesOfSameType: z.boolean().optional()
+  // Family-wide line replacement, forwarded to
+  // `@modular-api/fastify-checkout`'s `updateInvoice` (see `mergeInvoiceLines`).
+  // One or more type fragments: every existing line whose `type` contains one of
+  // them is dropped before the payload is appended, so a type the caller stopped
+  // sending cannot linger. Untyped (manual) lines and foreign families survive.
+  // Absent/null ⇒ the payload becomes the invoice's lines. The key must be
+  // declared here, or zod strips it and the handler falls back to that default —
+  // which would silently delete every manually added line on each sync.
+  replaceTypedLines: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .nullable()
 }
 
 export const invoice = z.object(invoiceValidation)
