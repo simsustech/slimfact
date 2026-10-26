@@ -102,9 +102,9 @@
     "@types/iban": "0.0.35",
     "@types/node": "26.6.5",
     "csv-parse": "7.0.3",
-    "kysely": "0.29.6",
-    "oxfmt": "0.73.0",
-    "oxlint": "1.88.0",
+    "kysely": "0.29.7",
+    "oxfmt": "0.74.0",
+    "oxlint": "1.89.0",
     "typescript": "7.0.2"
   }
 }

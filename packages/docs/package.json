@@ -6,8 +6,8 @@
     "preview": "vitepress preview ."
   },
   "devDependencies": {
-    "oxfmt": "^0.73.0",
-    "oxlint": "^1.88.0",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0",
     "vitepress": "2.0.0-alpha.16"
   }
 }
