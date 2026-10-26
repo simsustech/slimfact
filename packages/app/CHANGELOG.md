@@ -1,5 +1,11 @@
 # @slimfact/app
 
+## 0.10.0
+
+### Patch Changes
+
+- @slimfact/tools@0.10.0
+
 ## 0.9.4
 
 ### Patch Changes
