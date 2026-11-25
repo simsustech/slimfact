@@ -33,6 +33,7 @@ packages/banking-api/.backup/
 **/.pi/continue/
 **/.pi/handoff/
 **/.pi/plans/
+**/.pi/notes/
 **/.pi/adr/
 PR.md
 

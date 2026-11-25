@@ -283,6 +283,7 @@ reseeding are not supported.
 | `BANKING_SYNC_TIMEOUT_MS`  | `120000`             | Wait timeout before polling sync status when no `bank.sync.finished` event arrives.            |
 | `ADMIN_NOTIFICATION_EMAIL` | _(empty)_            | Admin "invoice paid" notification address; falls back to the invoice's `companyDetails.email`. |
 | `OPENBANKING_SYNC_CRON`    | `0 */4 7-23 * * *`   | (proxy) cron schedule for automatic bank transaction sync.                                     |
+| `POSTGRES_SSL` / `POSTGRES_SSL_INSECURE` | _(off)_ / `false` | TLS to Postgres; certificate verification is on by default — set `POSTGRES_SSL_INSECURE=true` only for self-signed dev DBs. |
 
 ### banking-api proxy env
 

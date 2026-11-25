@@ -18,23 +18,31 @@ types.setTypeParser(1700, function (val) {
 types.setTypeParser(1114, (str) => str)
 types.setTypeParser(1082, (str) => str)
 
-const { host, user, password, database, port, ssl, poolMax, caCert, debug } =
-  postgresConfig
+const {
+  host,
+  user,
+  password,
+  database,
+  port,
+  ssl,
+  sslInsecure,
+  poolMax,
+  caCert,
+  debug
+} = postgresConfig
 
-const sslConfig = ssl
-  ? {
-      rejectUnauthorized: false,
-      ca: caCert
-    }
-  : false
+/**
+ * TLS is verified by default (`rejectUnauthorized: true`); set
+ * POSTGRES_SSL_INSECURE=true to opt out (self-signed dev servers only).
+ */
+export const buildSslConfig = (
+  sslEnabled: boolean,
+  insecure: boolean,
+  caCert: string | undefined
+): boolean | { rejectUnauthorized: boolean; ca: string | undefined } =>
+  sslEnabled ? { rejectUnauthorized: !insecure, ca: caCert } : false
 
-const sslMode = ssl
-  ? (sslConfig as { rejectUnauthorized: boolean }).rejectUnauthorized
-    ? 'prefer'
-    : 'no-verify'
-  : ''
-const sslRootCert = ssl ? ((sslConfig as { ca?: string }).ca ?? '') : ''
-export const postgresConnectionString = `postgress://${user}:${password}@${host}:${port}/${database}?sslmode=${sslMode}&sslrootcert=${sslRootCert}`
+export const sslConfig = buildSslConfig(!!ssl, sslInsecure, caCert)
 
 const dialect = new PostgresDialect({
   pool: new Pool({
@@ -43,7 +51,9 @@ const dialect = new PostgresDialect({
     password,
     database: database!,
     port: Number(port),
-    ssl: sslConfig,
+    ssl: sslConfig as
+      | boolean
+      | { rejectUnauthorized: boolean; ca: string | undefined },
     max: Number(poolMax)
   })
 })

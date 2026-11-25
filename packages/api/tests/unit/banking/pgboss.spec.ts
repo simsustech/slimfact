@@ -68,7 +68,7 @@ describe('pgboss initialize — open-banking registration', () => {
     vi.resetModules()
     vi.doMock('../../../src/kysely/index.js', () => ({
       db: {} as never,
-      postgresConnectionString: 'postgres://test/test'
+      sslConfig: false
     }))
   })
 
