@@ -56,8 +56,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_SSL: ${POSTGRES_SSL}
-      # TLS to Postgres is verified here, unlike the api package (whose pool
-      # always sets rejectUnauthorized:false when TLS is on). Against a
+      # TLS to Postgres is verified here, as in the api package. Against a
       # self-signed server, either opt out —
       #   POSTGRES_SSL_INSECURE: ${POSTGRES_SSL_INSECURE:-false}
       # — or verify against the issuer cert, which needs the PEM *contents*:

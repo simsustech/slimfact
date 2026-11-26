@@ -1,5 +1,9 @@
 import { PgBoss, Job } from 'pg-boss'
-import { db, postgresConnectionString } from '../src/kysely/index.js'
+import {
+  db,
+  postgresConnectionString,
+  sslConfig
+} from '../src/kysely/index.js'
 import { InvoiceStatus, RawNewInvoice } from '@modular-api/fastify-checkout'
 import { FastifyInstance } from 'fastify'
 import { RefundStatus } from '@modular-api/fastify-checkout/types'
@@ -85,6 +89,7 @@ export const initialize = async ({
     // https://github.com/timgit/pg-boss/issues/590
     boss = new PgBoss({
       connectionString: postgresConnectionString,
+      ssl: sslConfig,
       schema: 'pgboss_v11'
     })
 
