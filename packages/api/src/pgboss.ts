@@ -112,15 +112,16 @@ export const initialize = async ({
     refundWorker
   )
 
-  schedules
-    .filter((schedule) => schedule.name.includes('subscription:'))
-    .forEach(async (schedule) => {
-      await boss.work(
-        schedule.name,
-        { batchSize: 1, includeMetadata: true },
-        subscriptionWorker
-      )
-    })
+  // startSubscription names its queues `subscription.<uuid>`; every one still
+  // scheduled belongs to an active subscription and needs its worker back.
+  for (const schedule of schedules) {
+    if (!schedule.name.startsWith('subscription.')) continue
+    await boss.work(
+      schedule.name,
+      { batchSize: 1, includeMetadata: true },
+      subscriptionWorker
+    )
+  }
 
   if (bankingEnabled()) {
     const queueName = 'processBankSync'
