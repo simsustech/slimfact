@@ -104,6 +104,30 @@ describe('pgboss initialize — open-banking registration', () => {
     )
   }, 15000)
 
+  it('re-registers a worker for every scheduled subscription queue', async () => {
+    setRequiredEnv()
+    delete process.env.BANKING_API_KEY
+    const { initialize } = await import('../../../src/pgboss.js')
+    const boss = makeFakeBoss()
+    boss.getSchedules.mockResolvedValue([
+      { name: 'checkRefunds' },
+      { name: 'subscription.0d9c6a1e-5b7f-4c2a-9e83-2f4b6d1a7c55' },
+      { name: 'subscription.7e2f1b90-3c4d-4a8e-b6f5-91d0c2e4a3b8' }
+    ])
+    await initialize({ fastify: {} as never, boss: boss as unknown as PgBoss })
+
+    for (const name of [
+      'subscription.0d9c6a1e-5b7f-4c2a-9e83-2f4b6d1a7c55',
+      'subscription.7e2f1b90-3c4d-4a8e-b6f5-91d0c2e4a3b8'
+    ]) {
+      expect(boss.work).toHaveBeenCalledWith(
+        name,
+        { batchSize: 1, includeMetadata: true },
+        expect.any(Function)
+      )
+    }
+  })
+
   it('skips processBankSync entirely when banking is not configured', async () => {
     setRequiredEnv()
     delete process.env.BANKING_API_KEY
